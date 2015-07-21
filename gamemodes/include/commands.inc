@@ -180,6 +180,90 @@ CMD:viatoll(playerid, params[])
 CMD:zapisz(playerid, params[])
 	return SavePlayer(playerid);
 
+//CMD:gps(playerid, params[])
+	//return cmd_nawigacja(playerid, params);
+CMD:nawigacjaNIEWLACZAC(playerid, params[])
+{
+	if(GetPVarType(playerid, "GPS_OstatniRaz") == PLAYER_VARTYPE_INT)
+		if( (GetTickCount() - GetPVarInt(playerid, "GPS_OstatniRaz"))/1000 < 1.0 )
+			return ShowInfo(playerid, "Odczekaj sekundê przed nastêpn¹ aktualizacj¹ GPSa.");
+
+	ShowPlayerDialog(playerid, DIALOG_ID_GPS, DIALOG_STYLE_LIST, "GPS System", "Doki towarowe\nStacje\nBary\nSklepy ViaToll\nWy³¹cz", "Wybierz", "");
+	
+	return 1;
+}
+
+CMD:firma(playerid, params[])
+{
+	if(!PlayerInfo[playerid][pFirma])
+		return ShowInfo(playerid, "Nie pracujesz w ¿adnej firmie.");
+
+	new string[300];
+	strcat(string, "Informacje\nPracownicy online\nWp³aæ pieni¹dze");
+
+	if(Firmy[PlayerInfo[playerid][pFirma]][tChef] == PlayerInfo[playerid][pID] || Firmy[PlayerInfo[playerid][pFirma]][tVcChef] == PlayerInfo[playerid][pID] || Firmy[PlayerInfo[playerid][pFirma]][tChef] == PlayerInfo[playerid][pID] || Firmy[PlayerInfo[playerid][pFirma]][tKsiegowy] == PlayerInfo[playerid][pID])
+		strcat(string, "\n----\nRozdaj wyp³aty");
+
+	if(Firmy[PlayerInfo[playerid][pFirma]][tChef] == PlayerInfo[playerid][pID] || Firmy[PlayerInfo[playerid][pFirma]][tVcChef] == PlayerInfo[playerid][pID])
+		strcat(string, "\nZaproœ gracza\nWyrzuæ gracza\nZastêpca\nKsiêgowy\nUstaw spawn\nWyp³aæ pieni¹dze\nZmieñ skina");
+
+	ShowPlayerDialog(playerid, DIALOG_ID_FIRMA, DIALOG_STYLE_LIST, "Firma", string, "Dalej", "Anuluj");
+	return 1;
+}
+
+CMD:stats(playerid, params[])
+{
+	new string[500], czasBierzacy[3];
+	format(string, sizeof(string), "UID:\t %d\n", PlayerInfo[playerid][pID]);
+	format(string, sizeof(string), "%sNick:\t %s\n", string, PlayerName(playerid));
+	format(string, sizeof(string), "%sPieni¹dze:\t %d\n", string, GetMoney(playerid));
+	format(string, sizeof(string), "%sBankomat:\t %d\n", string, PlayerInfo[playerid][pBankomat]);
+	format(string, sizeof(string), "%sPunkty:\t %d\n", string, GetScore(playerid));
+	format(string, sizeof(string), "%sPoziom:\t %d\n", string, GetPVarInt(playerid, "LEVEL"));
+	format(string, sizeof(string), "%sPoziom uprawnieñ:\t %d\n", string, PlayerInfo[playerid][pAdmin]);
+	format(string, sizeof(string), "%sFirma:\t %d\n", string, PlayerInfo[playerid][pFirma]);
+	format(string, sizeof(string), "%sSkin:\t %d\n", string, PlayerInfo[playerid][pSkin]);
+	format(string, sizeof(string), "%sTachograf:\t ---\n", string);
+	format(string, sizeof(string), "%sViaToll:\t %d\n", string, GetViaMoney(playerid));
+	format(string, sizeof(string), "%sADR:\t BRAK\n", string);
+	format(string, sizeof(string), "%sCzas pracy:\t %dh\n", string, GetWork(playerid));
+	format(string, sizeof(string), "%sBuildMaster:\t %d\n", string, PlayerInfo[playerid][pBuildmaster]);
+
+	ConvertMS(GetTickCount()-GetPVarInt(playerid, "IleGral"), czasBierzacy[0], czasBierzacy[1], czasBierzacy[2]);
+
+	format(string, sizeof(string), "%sCzas online (bierz¹cy):\t %dh %dm %ds\n", string, czasBierzacy[0], czasBierzacy[1], czasBierzacy[2]);
+	ShowPlayerDialog(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST, "Statystyki gracza", string, "Ok", "");
+	return 1;
+}
+
+CMD:v(playerid, params[])
+{
+	new string[100], vehicleid = GetPlayerVehicleID(playerid), engine, lights, alarm, doors ,bonnet, boot, objective;
+
+	GetVehicleParamsEx(vehicleid,engine,lights,alarm,doors,bonnet,boot,objective);
+
+	if(!IsPlayerInAnyVehicle(playerid))
+		return ShowInfo(playerid, "Nie jesteœ w ¿adnym pojeŸdzie.");
+
+	format(string, sizeof(string), "Informacje\nMaska ( %s )\nBaga¿nik ( %s )\nZamek ( %s )", bonnet ? ("OTWARTA") : ("ZAMKNIÊTA"), boot ? ("OTWARTY") : ("ZAMKNIÊTY"), doors ? ("OTWARTE") : ("ZAMKNIÊTE"));
+
+	if(!Spawned[vehicleid])
+		strcat(string, "\nZarz¹dzaj");
+
+	ShowPlayerDialog(playerid, DIALOG_ID_VEHICLE, DIALOG_STYLE_LIST, "Pojazd", string, "Ok", "Anuluj");
+	return 1;
+}
+
+CMD:cmds(playerid)
+{
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
+	new frm = Firmy[PlayerInfo[playerid][pFirma]][tTyp];
+	ShowPlayerDialog(playerid, DIALOG_CMDS, DIALOG_STYLE_MSGBOX, "Dostêpne komendy", szCommands[frm], "WyjdŸ", #);
+	return 1;
+}
+
 // KOMENDY POLICJI
 /*
 	- /mandat
@@ -302,7 +386,7 @@ CMD:wywal(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/wywal [id gracza]{/b}");
 
 	if(!IsPlayerConnected(forplayerid))
-		return Msg(playerid, COLOR_ERROR "Gracza z tym ID nie ma online.");
+		return Msg(playerid, COLOR_ERROR, "Gracza z tym ID nie ma online.");
 
 	if(GetDistancePlayerToPlayer(playerid, forplayerid) > 10)
 		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê {b}za daleko{/b} od gracza.");
@@ -326,7 +410,7 @@ CMD:wywal(playerid, params[])
 
 CMD:kontrola(playerid, params[])
 {
-	new targetid,
+	/*new targetid,
 		string[256],
 		vehicleid,
 		vehicleUID,
@@ -376,7 +460,7 @@ CMD:kontrola(playerid, params[])
 
 	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\tWA¯NY\nTowar:\t%s\nWaga:\t%dkg", PlayerName(targetid), (cargoId < 0) ? ("brak") : (Towary[cargoId][NazwaTowaru]), weight);
 	ShowPlayerDialog(playerid, DIALOG_CONTROL, DIALOG_STYLE_MSGBOX, "Kontrola", string, "WyjdŸ", #);
-	return 1;
+	return 1;*/
 }
 
 CMD:skuj(playerid, params[])
@@ -551,14 +635,14 @@ CMD:zatankuj(playerid)
 	if(!IsPlayerInAnyVehicle(playerid))
 		return Msg(playerid, COLOR_ERROR, "Nie siedzisz w ¿adnym pojeŸdzie.");
 
-	vehicleid = GetPlayerVehicleID(forplayerid);
+	new vehicleid = GetPlayerVehicleID(playerid), string[80];
 
 	if(Spawned[vehicleid])
 		vehOtherInfo[vehicleid][vFuel] = MaxFuel(GetVehicleModel(vehicleid));
 	else
 		vehInfo[DBVehID[vehicleid]][vFuel] = MaxFuel(GetVehicleModel(vehicleid));
 
-	format(string, sizeof(string), "Zatankowa³eœ pojazd {b}ID: %d{/b} do pe³na.", GetPlayerVehicleID(playerid));
+	format(string, sizeof(string), "Zatankowa³eœ pojazd {b}ID: %d{/b} do pe³na.", vehicleid);
 	Msg(playerid, COLOR_INFO3, string);
 	return 1;
 }
@@ -654,6 +738,9 @@ CMD:dyzur(playerid, params[])
 	- /usunstacje
 	- /dodajpojazd
 	- /ustawlidera
+	- /pogoda
+	- /dodajpracownika
+	- /usunpracownika
 */
 
 CMD:god(playerid, params[])
@@ -1473,8 +1560,10 @@ CMD:colorplayer(playerid, params[])
 	for(new i = 0; i < sizeof colors; i++)
 	{
 		if(strfind(colors[i], kolor, false) != -1)
-			colorId = i,
+		{
+			colorId = i;
 			break;
+		}
 	}
 	if(colorId < 0)
 	{
@@ -1718,59 +1807,22 @@ CMD:usunstacje(playerid, params[])
 	return 1;
 }
 
-//CMD:gps(playerid, params[])
-	//return cmd_nawigacja(playerid, params);
-CMD:nawigacjaNIEWLACZAC(playerid, params[])
+CMD:pogoda(playerid, params[])
 {
-	if(GetPVarType(playerid, "GPS_OstatniRaz") == PLAYER_VARTYPE_INT)
-		if( (GetTickCount() - GetPVarInt(playerid, "GPS_OstatniRaz"))/1000 < 1.0 )
-			return ShowInfo(playerid, "Odczekaj sekundê przed nastêpn¹ aktualizacj¹ GPSa.");
+	new string[90];
 
-	ShowPlayerDialog(playerid, DIALOG_ID_GPS, DIALOG_STYLE_LIST, "GPS System", "Doki towarowe\nStacje\nBary\nSklepy ViaToll\nWy³¹cz", "Wybierz", "");
-	
-	return 1;
-}
+	if(!PlayerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ.");
 
-CMD:firma(playerid, params[])
-{
-	if(!PlayerInfo[playerid][pFirma])
-		return ShowInfo(playerid, "Nie pracujesz w ¿adnej firmie.");
+	new weatherid = strval(params);
 
-	new string[300];
-	strcat(string, "Informacje\nPracownicy online\nWp³aæ pieni¹dze");
+	if(weatherid < 0 || weatherid > 20)
+		return Msg(playerid, COLOR_ERROR, "Nieprawid³owe ID pogody (0-20).");
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tChef] == PlayerInfo[playerid][pID] || Firmy[PlayerInfo[playerid][pFirma]][tVcChef] == PlayerInfo[playerid][pID] || Firmy[PlayerInfo[playerid][pFirma]][tChef] == PlayerInfo[playerid][pID] || Firmy[PlayerInfo[playerid][pFirma]][tKsiegowy] == PlayerInfo[playerid][pID])
-		strcat(string, "\n----\nRozdaj wyp³aty");
+	SetWeather(weatherid);
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tChef] == PlayerInfo[playerid][pID] || Firmy[PlayerInfo[playerid][pFirma]][tVcChef] == PlayerInfo[playerid][pID])
-		strcat(string, "\nZaproœ gracza\nWyrzuæ gracza\nZastêpca\nKsiêgowy\nUstaw spawn\nWyp³aæ pieni¹dze\nZmieñ skina");
-
-	ShowPlayerDialog(playerid, DIALOG_ID_FIRMA, DIALOG_STYLE_LIST, "Firma", string, "Dalej", "Anuluj");
-	return 1;
-}
-
-CMD:stats(playerid, params[])
-{
-	new string[500], czasBierzacy[3];
-	format(string, sizeof(string), "UID:\t %d\n", PlayerInfo[playerid][pID]);
-	format(string, sizeof(string), "%sNick:\t %s\n", string, PlayerName(playerid));
-	format(string, sizeof(string), "%sPieni¹dze:\t %d\n", string, GetMoney(playerid));
-	format(string, sizeof(string), "%sBankomat:\t %d\n", string, PlayerInfo[playerid][pBankomat]);
-	format(string, sizeof(string), "%sPunkty:\t %d\n", string, GetScore(playerid));
-	format(string, sizeof(string), "%sPoziom:\t %d\n", string, GetPVarInt(playerid, "LEVEL"));
-	format(string, sizeof(string), "%sPoziom uprawnieñ:\t %d\n", string, PlayerInfo[playerid][pAdmin]);
-	format(string, sizeof(string), "%sFirma:\t %d\n", string, PlayerInfo[playerid][pFirma]);
-	format(string, sizeof(string), "%sSkin:\t %d\n", string, PlayerInfo[playerid][pSkin]);
-	format(string, sizeof(string), "%sTachograf:\t ---\n", string);
-	format(string, sizeof(string), "%sViaToll:\t %d\n", string, GetViaMoney(playerid));
-	format(string, sizeof(string), "%sADR:\t BRAK\n", string);
-	format(string, sizeof(string), "%sCzas pracy:\t %dh\n", string, GetWork(playerid));
-	format(string, sizeof(string), "%sBuildMaster:\t %d\n", string, PlayerInfo[playerid][pBuildmaster]);
-
-	ConvertMS(GetTickCount()-GetPVarInt(playerid, "IleGral"), czasBierzacy[0], czasBierzacy[1], czasBierzacy[2]);
-
-	format(string, sizeof(string), "%sCzas online (bierz¹cy):\t %dh %dm %ds\n", string, czasBierzacy[0], czasBierzacy[1], czasBierzacy[2]);
-	ShowPlayerDialog(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST, "Statystyki gracza", string, "Ok", "");
+	format(string, sizeof string, "{008000}Pogoda zosta³ zmieniona przez {FFFFFF}%s {008000}na id: {FFFFFF}%d.", PlayerName(playerid), weatherid);
+	SendClientMessageToAll(0x0, string);
 	return 1;
 }
 
@@ -1869,24 +1921,6 @@ CMD:debug(playerid, params[])
 	return 1;
 }
 
-CMD:v(playerid, params[])
-{
-	new string[100], vehicleid = GetPlayerVehicleID(playerid);
-
-	if(!IsPlayerInAnyVehicle(playerid))
-		return ShowInfo(playerid, "Nie jesteœ w ¿adnym pojeŸdzie.");
-
-	if(Spawned[vehicleid])
-		return ShowInfo(playerid, "Nie mo¿esz zarz¹dzaæ zespawnowanym pojazdem.");
-		
-	new engine, lights, alarm, doors ,bonnet, boot, objective;
-	GetVehicleParamsEx(vehicleid,engine,lights,alarm,doors,bonnet,boot,objective);
-
-	format(string, sizeof(string), "Informacje\nMaska ( %s )\nBaga¿nik ( %s )\nZamek ( %s )\nZarz¹dzaj", bonnet ? ("OTWARTA") : ("ZAMKNIÊTA"), boot ? ("OTWARTY") : ("ZAMKNIÊTY"), doors ? ("OTWARTE") : ("ZAMKNIÊTE"));
-	ShowPlayerDialog(playerid, DIALOG_ID_VEHICLE, DIALOG_STYLE_LIST, "Pojazd", string, "Ok", "Anuluj");
-	return 1;
-}
-
 CMD:dodajpracownika(playerid, params[])
 {
 	new forplayerid, firmaid, string[80];
@@ -1928,15 +1962,5 @@ CMD:usunpracownika(playerid, params[])
 	format(string, sizeof(string), "Wyrzuci³eœ %s z firmy.", PlayerName(forplayerid));
 	ShowInfo(playerid, string);
 
-	return 1;
-}
-
-CMD:cmds(playerid)
-{
-	if(!GetPVarInt(playerid, "Worked"))
-		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
-
-	new frm = Firmy[PlayerInfo[playerid][pFirma]][tTyp];
-	ShowPlayerDialog(playerid, DIALOG_CMDS, DIALOG_STYLE_MSGBOX, "Dostêpne komendy", szCommands[frm], "WyjdŸ", #);
 	return 1;
 }

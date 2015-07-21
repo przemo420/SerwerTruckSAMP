@@ -37,7 +37,7 @@ GetVehicleSpeed(vehicleid, &Float:speed)
 CheatKick(playerid, reason[])
 {
 	new string[200];
-	format(string, sizeof string, "{C0C0C0}Gracz %s zosta³ {FFFFFF}wyrzucony {C0C0C0}z serwera z powodu {FFFFFF}%s.", PlayerName(playerid), reason);
+	format(string, sizeof string, "{C0C0C0}Gracz %s zostaÅ‚ {FFFFFF}wyrzucony {C0C0C0}z serwera z powodu {FFFFFF}%s.", PlayerName(playerid), reason);
 	SendClientMessageToAll(0x0, string);
 }
 
@@ -48,7 +48,7 @@ CheatBan(playerid, reason[])
 	gettime(H, Mi, S);
 	GetPlayerIp(playerid, ip, sizeof(ip));
 
-	format(string, sizeof string, "{C0C0C0}Gracz %s zosta³ {FFFFFF}zbanowany {C0C0C0}z powodu {FFFFFF}%s.", PlayerName(playerid), reason);
+	format(string, sizeof string, "{C0C0C0}Gracz %s zostaÅ‚ {FFFFFF}zbanowany {C0C0C0}z powodu {FFFFFF}%s.", PlayerName(playerid), reason);
 	SendClientMessageToAll(0x0, string);
 	format(string, sizeof string, "INSERT INTO `BANS` (`Name`, `Nameadmin`, `Hour`, `Minute`, `Day`, `Month, `Year`, `Reason`, `IP`) VALUES('%s', 'Serwer', '%02d', '%02d', '%02d', '%02d', '%02d', '%s', '%s')", PlayerName(playerid), H, Mi, D, Mo, Y, reason, ip);
 	mysql_query(string);
@@ -227,7 +227,7 @@ ToLog(ownerid, typelog, param1[], param2[]="")
 	mysql_query(string);
 }
 
-GetVehicleCargoID(vehicleid)
+/*GetVehicleCargoID(vehicleid)
 {
 	new vehicleuid, cargoid;
 
@@ -255,13 +255,13 @@ GetVehicleCargoID(vehicleid)
 		vehInfo[vehicleUID][vCargoWeight] = ladowany;
 	}
 
-	return (Spawned[vehicleid])cargoid;
+	return (Spawned[vehicleid]);
 }
 
 GetVehicleCargoVeight(vehicleid)
 {
 
-}
+}*/
 
 stock Msg(playerid, colorid, text[], bool:playSound = true, bool:displayPrefix = true)
 {
@@ -318,7 +318,7 @@ stock Msg(playerid, colorid, text[], bool:playSound = true, bool:displayPrefix =
 	}
 
 	if(displayPrefix)
-		strins(buffer, "››› ", 0);
+		strins(buffer, "â€ºâ€ºâ€º ", 0);
 
 	SendClientMessage(playerid, curColor * 256, buffer);
 
@@ -330,7 +330,7 @@ stock Msg(playerid, colorid, text[], bool:playSound = true, bool:displayPrefix =
 	return 1;
 }
 
-stock MsgToAll(playerid, colorid, text[], bool:displayPrefix = true)
+stock MsgToAll(colorid, text[], bool:displayPrefix = true)
 {
 	new
 		buffer[256],
@@ -350,7 +350,7 @@ stock MsgToAll(playerid, colorid, text[], bool:displayPrefix = true)
 			curColor = HexToInt("488CDB");
 			tmpColorCode = HexToInt("A8C3E3");
 		}
-		case COLOR_INFO3: // pomarañczowy
+		case COLOR_INFO3: // pomaraÅ„czowy
 		{
 			curColor = HexToInt("FFAB00");
 			tmpColorCode = HexToInt("EBBF65");
@@ -385,7 +385,7 @@ stock MsgToAll(playerid, colorid, text[], bool:displayPrefix = true)
 	}
 
 	if(displayPrefix)
-		strins(buffer, "››› ", 0);
+		strins(buffer, "â€ºâ€ºâ€º ", 0);
 
 	SendClientMessageToAll(curColor * 256, buffer);
 
@@ -428,10 +428,10 @@ stock HexToInt(string[])
 }
 
 forward AlcoholTest(playerid, trgtid);
-public AlcoholTest(playerid, trgtid);
+public AlcoholTest(playerid, trgtid)
 {
 	new szString[128], Float:alcohol = GetPlayerDrunkLevel(trgtid) / 400;
-	format(szString, sizeof szString, "{FFFFFF}Gracz {82C412}%s{FFFFFF} jest %s{FFFFFF}\nPosiada {82C412}%.02f{FFFFFF} ‰ we krwi.", PlayerName(trgtid), (alcohol <= 0.2) ? ("{82C412}trzeŸwy") : ("{BA0B0B}pijany"), alcohol);
-	ShowPlayerDialog(playerid, DIALOG_ALCOHOL, DIALOG_STYLE_MSGBOX, "Alkomat", szString, "WyjdŸ", #);
+	format(szString, sizeof szString, "{FFFFFF}Gracz {82C412}%s{FFFFFF} jest %s{FFFFFF}\nPosiada {82C412}%.02f{FFFFFF} we krwi.", PlayerName(trgtid), (alcohol <= 0.2) ? ("{82C412}trzeÂŸwy") : ("{BA0B0B}pijany"), alcohol);
+	ShowPlayerDialog(playerid, DIALOG_ALCOHOL, DIALOG_STYLE_MSGBOX, "Alkomat", szString, "WyjdÂŸ", #);
 	return 1;
 }
