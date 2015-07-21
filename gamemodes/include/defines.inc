@@ -121,7 +121,8 @@ enum
 	DIALOG_ID_VEHICLE_ZARZADZAJ,
 	DIALOG_CONTROL,
 	DIALOG_CRASHES,
-	DIALOG_ALCOHOL
+	DIALOG_ALCOHOL,
+	DIALOG_CMDS
 }
 
 #define LIGHTGREEN 			0xBCEE68FF
@@ -159,6 +160,15 @@ enum
 #define COLOR_INFO2			1
 #define COLOR_INFO3			2
 #define COLOR_ERROR			3
+
+// ---------------------------
+
+new szCommands[][] = {
+	"Pusto", // all commands
+	"/firma /mandat /aresztuj\n/wywal /wyrzuæ /praca\n/dyzur /skuj /rozkuj\n/kontrola /alkomat /open\n/close", // policja
+	"/firma /ulecz /wypadki /wywal /wyrzuæ /praca /dyzur /o[1 - 8] /c[1 - 8] /open /close", // pogotowie
+	"/firma /vehcolor /rachunek /zatankuj /praca /dyzur /open /close"  // pomoc drogowa
+};
 
 // ---------------------------
 

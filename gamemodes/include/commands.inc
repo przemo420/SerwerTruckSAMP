@@ -212,7 +212,7 @@ CMD:alkomat(playerid, params[])
 	if(GetDistancePlayerToPlayer(playerid, targetid) > 20)
 		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od gracza.");
 
-	if(GetPlayerState(playerid) != PLAYER_STATE_DRIVER)
+	if(GetPlayerState(targetid) != PLAYER_STATE_DRIVER)
 		return Msg(playerid, COLOR_ERROR, "Gracz z tym ID nie prowadzi pojazdu.");
 
 	Msg(playerid, COLOR_INFO2, "Trwa sprawdzanie...");
@@ -537,6 +537,7 @@ CMD:wypadki(playerid)
 	- /praca
 	- /firma
 	- /zatankuj
+	- /rachunek
 */
 
 CMD:zatankuj(playerid)
@@ -2007,5 +2008,15 @@ CMD:usunpracownika(playerid, params[])
 	format(string, sizeof(string), "Wyrzuci³eœ %s z firmy.", PlayerName(forplayerid));
 	ShowInfo(playerid, string);
 
+	return 1;
+}
+
+CMD:cmds(playerid)
+{
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
+	new frm = Firmy[PlayerInfo[playerid][pFirma]][tTyp];
+	ShowPlayerDialog(playerid, DIALOG_CMDS, DIALOG_STYLE_MSGBOX, "Dostêpne komendy", szCommands[frm], "WyjdŸ", #);
 	return 1;
 }
