@@ -190,7 +190,35 @@ CMD:zapisz(playerid, params[])
 	- /skuj
 	- /rozkuj
 	- /kontrola
+	- /alkomat
 */
+
+CMD:alkomat(playerid, params[])
+{
+	new targetid;
+
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
+	if(sscanf(params, "d", targetid))
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/alkomat [id gracza]{/b}");
+
+	if(!IsPlayerConnected(targetid))
+		return Msg(playerid, COLOR_ERROR, "Gracza z tym ID nie ma online.");
+
+	if(GetDistancePlayerToPlayer(playerid, targetid) > 20)
+		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od gracza.");
+
+	if(GetPlayerState(playerid) != PLAYER_STATE_DRIVER)
+		return Msg(playerid, COLOR_ERROR, "Gracz z tym ID nie prowadzi pojazdu.");
+
+	Msg(playerid, COLOR_INFO2, "Trwa sprawdzanie...");
+	SetTimerEx("AlcoholTest", 5 * 1000, false, "dd", playerid, targetid);
+	return 1;
+}
 
 CMD:mandat(playerid, params[])
 {
@@ -204,7 +232,7 @@ CMD:mandat(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
 
 	if(sscanf(params, "ddds[76]", forplayerid, monej, pojnts, powod))
-		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/mandat [id] [kwota] [punkty] [powod]{/b}");
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/mandat [id gracza] [kwota] [punkty] [powod]{/b}");
 
 	if(!IsPlayerConnected(forplayerid))
 		return Msg(playerid, COLOR_ERROR, "Gracza z tym ID nie ma online.");

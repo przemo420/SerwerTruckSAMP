@@ -29,7 +29,7 @@ public Wypadek()
 			{
 				if(LiczbaMedykow <= 0 && GetPVarInt(i, "Wypadek") && GetPVarInt(i, "Wypadekzmedykiem"))
 				{
-					SendClientMessage(i, 0x0, "{8080C0}Pogotowie zakoñczy³o dy¿ur. Odzyskasz przytomnoœæ za {FFFFFF}15 sekund.");
+					Msg(i, COLOR_INFO, "Pracownicy pogotowia zakoñczyli dy¿ur, ockniesz siê za {b}15 sekund{/b}.");
 					SetTimerEx("POwypadku", 15000, false, "u", i);
 					DeletePVar(i, "Wypadekzmedykiem");
 				}
