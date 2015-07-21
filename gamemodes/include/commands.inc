@@ -64,7 +64,7 @@ CMD:toll(playerid, params[])
 	new string[128];
 
 	if(!IsPlayerInAnyVehicle(playerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nie znajdujesz siê w pojeŸdzie.");
+		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê w pojeŸdzie.");
 
 	if(PlayerVehicleIsTruck(playerid))
 	{
@@ -1670,21 +1670,6 @@ CMD:dodajradio(playerid, params[])
 	return ShowPlayerDialog(playerid, DIALOG_ID_RADIO_ADD, DIALOG_STYLE_INPUT, " ", "Wpisz nazwê radia:", "Dalej", "Zamknij");
 }
 
-CMD:test(playerid, params[])
-{
-	new string[2048];
-
-	format(string, sizeof(string), "ID\tTowar\tStawka\tPoziom\n");
-
-	for(new i; i < MAX_TOWAROW; i++)
-		if(Towary[i][tID])
-			format(string, sizeof(string), "%s%d\t%s\t%0.1f\t%d\n", string, i, Towary[i][NazwaTowaru], Towary[i][Stawka], Towary[i][Poziom]);
-
-	ShowPlayerDialog(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST_HEADERS, " ", string, "Za³aduj", "Anuluj");
-
-	return 1;
-}
-
 CMD:dodajstacje(playerid, params[])
 {
 	if(!PlayerInfo[playerid][pAdmin])
@@ -1733,35 +1718,6 @@ CMD:usunstacje(playerid, params[])
 	return 1;
 }
 
-new Float:PPos[6];
-CMD:zapiszpunkt(playerid, params[])
-{
-	GetPlayerPos(playerid, PPos[0], PPos[1], PPos[2]);
-	SendClientMessage(playerid, LIGHTRED, "Pozycja zapisana!");
-	return 1;
-}
-
-CMD:sprawdz(playerid, params[])
-{
-	new string[256];
-	new Distance = GetDistanceFromMeToPoint(playerid, PPos[0], PPos[1], PPos[2]);
-	new Money = floatround((Distance * 0.18) + (24000 * 0.6));
-
-	GetPlayerPos(playerid, PPos[3], PPos[4], PPos[5]);
-	format(string, sizeof(string), "\tSprawdzenie:\n\nPierwsza pozycja: %0.0f, %0.0f, %0.0f\nDruga pozycja: %0.0f, %0.0f, %0.0f\nOdleg³oœæ: %d\nCena za jednostkê: 0.18\nMno¿nik wagi: 0.6\nW sumie za dowiezienie: %d",
-										PPos[0], PPos[1], PPos[2], PPos[3], PPos[4], PPos[5], Distance, Money);
-	ShowPlayerDialog(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", string, "Ok", "");
-	return 1;
-}
-
-CMD:zbiornik(playerid, params[])
-{
-	if(GetStacja(playerid))
-		Stacje[GetStacja(playerid)][Zbiornik] -= strval(params);
-
-	return 1;
-}
-
 //CMD:gps(playerid, params[])
 	//return cmd_nawigacja(playerid, params);
 CMD:nawigacjaNIEWLACZAC(playerid, params[])
@@ -1790,42 +1746,6 @@ CMD:firma(playerid, params[])
 		strcat(string, "\nZaproœ gracza\nWyrzuæ gracza\nZastêpca\nKsiêgowy\nUstaw spawn\nWyp³aæ pieni¹dze\nZmieñ skina");
 
 	ShowPlayerDialog(playerid, DIALOG_ID_FIRMA, DIALOG_STYLE_LIST, "Firma", string, "Dalej", "Anuluj");
-	return 1;
-}
-
-CMD:ustawfirma(playerid, params[])
-{
-	PlayerInfo[playerid][pFirma] = strval(params);
-	return 1;
-}
-
-CMD:ogar(playerid, params[])
-{
-	new string[100], towarid, waga;
-
-	new vehicleid, vehicleuid;
-
-	if(IsPlayerInTruck(playerid))
-		vehicleid = GetVehicleTrailer(GetPlayerVehicleID(vehicleid));
-	else
-		vehicleid = GetPlayerVehicleID(playerid);
-
-	vehicleuid = DBVehID[vehicleid];
-
-
-	if(Spawned[vehicleid])
-  	{
-  		towarid = vehOtherInfo[vehicleid][vCargoID];
-		waga = vehOtherInfo[vehicleid][vCargoWeight];
-  	}
-  	else
-  	{
-  		towarid = vehInfo[vehicleuid][vCargoID];
-		waga = vehInfo[vehicleuid][vCargoWeight];
-	}
-
-	format(string, sizeof(string), "TOWARID: %d\nWAGA: %d", towarid, waga);
-	ShowInfo(playerid, string);
 	return 1;
 }
 
