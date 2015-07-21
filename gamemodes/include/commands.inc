@@ -185,6 +185,9 @@ CMD:zapisz(playerid, params[])
 	- /wywal /wyrzuc
 	- /praca
 	- /firma
+	- /skuj
+	- /rozkuj
+	- /kontrola
 */
 
 CMD:mandat(playerid, params[])
@@ -283,29 +286,53 @@ CMD:wywal(playerid, params[])
 
 CMD:kontrola(playerid, params[])
 {
-	new forplayerid;
-	new string[256];
+	new targetid,
+		string[256],
+		vehicleid,
+		vehicleUID,
+		cargoId = -1,
+		weight;
 
 	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nie masz uprawnieÒ.");
+		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieÒ");
 
-	if(sscanf(params, "d", forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /kontrola [id]");
+	if(sscanf(params, "d", targetid))
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/kontrola [id gracza]{/b}");
 
-	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Ten gracz nie jest obecny na serwerze.");
+	if(!IsPlayerConnected(targetid))
+		return Msg(playerid, COLOR_ERROR, "Gracza z tym ID nie ma online.");
 
-	if(GetDistancePlayerToPlayer(playerid, forplayerid)>20)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Znajdujesz siÍ za daleko od gracza.");
-
-	if(GetPlayerSpeed(playerid) > 0)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie moøe siÍ poruszaÊ.");
+	if(GetDistancePlayerToPlayer(playerid, targetid) > 4.0)
+		return Msg(playerid, COLOR_ERROR, "Znajdujesz siÍ za daleko od gracza.");
 
 	if(!IsPlayerInAnyVehicle(playerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest w pojeüdzie.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest w pojeüdzie.");
 
-	//format(string, sieof(string), "Nick:\t%s\nPrawko:\tPOSIADA\nPrzeglπd:\tWAØNY\nTowar:\t%s\nWaga:\t%dkg", );
-	//ShowPlayerDialog(playerid, )
+	if(IsPlayerInTruck(playerid))
+	{
+		vehicleid = GetVehicleTrailer(GetPlayerVehicleID(playerid));
+		if(!Spawned[vehicleid])
+			vehicleUID = DBVehID[vehicleid];
+	}
+	else
+	{
+		vehicleid = GetPlayerVehicleID(playerid);
+		if(!Spawned[vehicleid])
+			vehicleUID = DBVehID[vehicleid];
+	}
+	if(Spawned[vehicleid])
+	{
+		cargoId = vehOtherInfo[vehicleid][vCargoID];
+		weight = vehOtherInfo[vehicleid][vCargoWeight]; 
+	}
+	else
+	{
+		cargoId = vehInfo[vehicleUID][vCargoID]; 
+		weight = vehInfo[vehicleUID][vCargoWeight];
+	}
+
+	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzeglπd:\tWAØNY\nTowar:\t%s\nWaga:\t%dkg", PlayerName(targetid), (cargoId < 0) ? ("brak") : (Towary[cargoId][NazwaTowaru]), weight);
+	ShowPlayerDialog(playerid, DIALOG_CONTROL, DIALOG_STYLE_MSGBOX, "Kontrola", string, "Wyjdü", #);
 	return 1;
 }
 // KOMENDY POGOTOWIA
