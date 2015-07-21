@@ -351,6 +351,9 @@ CMD:rozladuj(playerid, params[])
 		if(LoadingPoint == (-1))
 			return ShowInfo(playerid, "Nie jesteœ w doku roz³adunkowym.");
 			
+		if(GetPVarInt(playerid, "dokid") == LoadingPoint)
+			return ShowInfo(playerid, "Nie mo¿esz siê roz³adowaæ w miejscu gdzie ³adowa³eœ towar");
+
 		if(Towary[towarid][Typ] != LoadingPoints[LoadingPoint][pType])
 		{
 			new string[150];
