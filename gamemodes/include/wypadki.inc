@@ -62,14 +62,14 @@ public Wypadek()
 
 								if(LiczbaMedykow > 0)
 								{
-									SendClientMessage(g, 0x0, "{8080C0}Spowodowa³eœ wypadek, poczekaj na przyjazd pogotowia.");
+									Msg(g, COLOR_ERROR, "Spowodowa³eœ wypadek, poczekaj na {b}przyjazd{/b} pogotowia.");
 									SetPVarInt(g, "Wypadekzmedykiem", 1);
 									
 									MedicInfo(g);
 								}
 								else
 								{
-									SendClientMessage(g, 0x0, "{8080C0}Spowodowa³eœ wypadek, odzyskasz przytomnoœæ za {FFFFFF}30 sekund.");
+									Msg(g, COLOR_ERROR, "Spowodowa³eœ wypadek, odzyskasz przytomnoœæ za {b}30 sekund{/b}.");
 									SetTimerEx("POwypadku", 30000, false, "u", g);
 								}
 

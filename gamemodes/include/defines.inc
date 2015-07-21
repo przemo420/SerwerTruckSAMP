@@ -119,7 +119,8 @@ enum
 	DIALOG_ID_FIRMA_ZAPROS_ACCEPT,
 	DIALOG_ID_VEHICLE,
 	DIALOG_ID_VEHICLE_ZARZADZAJ,
-	DIALOG_CONTROL
+	DIALOG_CONTROL,
+	DIALOG_CRASHES
 }
 
 #define LIGHTGREEN 			0xBCEE68FF
@@ -331,6 +332,11 @@ new const KategorieTowarow[][] = {
 	"Art. odzie¿owe",
 	"Niebezpieczne",
 	"Nielegalne"
+};
+
+new colors[][] = {
+	"niewidoczny", "bia³y", "pomarañczowy", "czerwony", "ró¿owy",
+	"¿ó³ty", "br¹zowy", "zielony", "jasnoniebieski", "niebieski"
 };
 
 enum {
