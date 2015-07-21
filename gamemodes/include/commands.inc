@@ -117,10 +117,10 @@ CMD:radio(playerid, params[])
 
 CMD:pojazd(playerid, params[])
 {
-	new bool:znalazlo;
+	new bool:find;
 
-	if(PlayerInfo[playerid][pFirma] != 0)
-		return ShowInfo(playerid, "Jesteœ cz³onkiem organizacji, nie mo¿esz zespawnowaæ pojazdu.");
+	if(GetPVarInt(playerid, "Worked") > 0)
+		return Msg(playerid, COLOR_ERROR, "Jesteœ aktualnie na s³u¿bie, nie mo¿esz tworzyæ pojazdów.");
 
 	Loop(i, sizeof gSpawnvehicleplayer)
 	{
@@ -128,14 +128,14 @@ CMD:pojazd(playerid, params[])
 
 		if(baseTRUCK <= 100)
 		{
-			znalazlo=true;
+			find = true;
 			ShowPlayerDialog(playerid, DIALOG_ID_CREATE_VEHICLE, DIALOG_STYLE_LIST, " ", "Pojazdy.\nNaczepy.\nUsuñ stworzone pojazdy.", "OK", "WyjdŸ");
 			break;
 		}
 	}
 
-	if(!znalazlo)
-		ShowInfo(playerid, "Tylko na spawnie mo¿esz zespawnowaæ pojazd.");
+	if(!find)
+		Msg(playerid, COLOR_ERROR, "Pojazdy mo¿esz tworzyæ {b}tylko{/b} przy spawnie.");
 
 	return 1;
 }
@@ -241,14 +241,14 @@ CMD:aresztuj(playerid, params[])
 	SetTimerEx("Unareszt", czas*(60), false, "d", forplayerid);
 	format(string, sizeof string, "{CC0000}>> {C0C0C0}Aresztowa³eœ %s (ID: %d) na %d minut.", PlayerName(forplayerid), forplayerid, czas);
 	SendClientMessage(playerid, 0x0, string);
-	format(string, sizeof string, "{CC0000}>> {C0C0C0}Zosta³eœ aresztowany przez policjanta %s (ID: %d) na %d minut.", PlayerName(playerid), playerid, czas);
+	format(string, sizeof string, "{CC0000}>> {C0C0C0}Zosta³eœ aresztowany przez policjanta %s (ID: %d) na %d minut(y).", PlayerName(playerid), playerid, czas);
 	SendClientMessage(forplayerid, 0x0, string);
 
 	SetPlayerInterior(forplayerid, 10);
 	SetPlayerPos(forplayerid, 219.3761,109.7970,999.0156);
 	SetPlayerHealth(forplayerid, 9999999);
 	TogglePlayerControllable(forplayerid, 0);
-
+	PlayerInfo[forplayerid][chained] = false;
 	return 1;
 }
 
@@ -1794,5 +1794,73 @@ CMD:usunpracownika(playerid, params[])
 	format(string, sizeof(string), "Wyrzuci³eœ %s z firmy.", PlayerName(forplayerid));
 	ShowInfo(playerid, string);
 
+	return 1;
+}
+
+CMD:skuj(playerid, params[])
+{
+	new target, szString[84];
+
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
+
+	if(sscanf(params, "d", target))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: {b}/skuj [id gracza]{/b}");
+
+	if(!IsPlayerConnected(target))
+		return Msg(playerid, COLOR_ERROR, "Gracza o podanym ID nie ma online.");
+
+	if(GetDistancePlayerToPlayer(playerid, target) > 4.0)
+		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od tego gracza.");
+
+	if(PlayerInfo[target][chained] == true)
+	{
+		format(szString, sizeof szString, "Gracz {b}%s{/b} jest ju¿ skuty!", PlayerName(target));
+		Msg(playerid, COLOR_ERROR, szString);
+	}
+	else
+	{
+		TogglePlayerControllable(target, 0);
+
+		format(szString, sizeof szString, "Sku³eœ gracza {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(target), target);
+		Msg(playerid, COLOR_INFO3, szString);
+
+		format(szString, sizeof szString, "Zosta³eœ skuty przez policjanta {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(playerid), playerid);
+		Msg(target, COLOR_INFO3, szString);
+	}
+	return 1;
+}
+
+CMD:rozkuj(playerid, params[])
+{
+	new target, szString[84];
+
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
+
+	if(sscanf(params, "d", target))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: {b}/rozkuj [id gracza]{/b}");
+
+	if(!IsPlayerConnected(target))
+		return Msg(playerid, COLOR_ERROR, "Gracza o podanym ID nie ma online.");
+
+	if(GetDistancePlayerToPlayer(playerid, target) > 4.0)
+		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od tego gracza.");
+
+	if(PlayerInfo[target][chained] == false)
+	{
+		format(szString, sizeof szString, "Gracz {b}%s{/b} nie jest skuty!", PlayerName(target));
+		Msg(playerid, COLOR_ERROR, szString);
+	}
+	else
+	{
+		TogglePlayerControllable(target, 1);
+
+		format(szString, sizeof szString, "Rozku³eœ gracza {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(target), target);
+		Msg(playerid, COLOR_INFO3, szString);
+
+		format(szString, sizeof szString, "Zosta³eœ rozkuty przez policjanta {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(playerid), playerid);
+		Msg(target, COLOR_INFO3, szString);
+	}
 	return 1;
 }

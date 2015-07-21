@@ -242,11 +242,15 @@ CMD:zaladuj(playerid, params[])
 	else
 		vehicleid = GetPlayerVehicleID(playerid);
 
+
 	if(!IsPlayerInAnyVehicle(playerid))
 		return ShowInfo(playerid, "Nie jesteœ w pojeŸdzie.");
 
 	if(dokid == (-1))
 		return ShowInfo(playerid, "Nie jesteœ w doku za³adunkowym.");
+
+	if(GetPVarInt(playerid, "Worked") > 0)
+		return Msg(playerid, COLOR_ERROR, "Jesteœ aktualnie na s³u¿bie, nie mo¿esz ³adowaæ towarów.");
 
 	if(IsPlayerInTruck(playerid))
 	{
@@ -356,13 +360,13 @@ CMD:rozladuj(playerid, params[])
 	}
 
 	if(GetPVarInt(playerid, "rozladowywuje") == 1)
-		return ShowInfo(playerid, "Ju¿ roz³adowywujesz.");
+		return ShowInfo(playerid, "Ju¿ roz³adowywujesz towar.");
 
 	SetPVarInt(playerid, "rozladowywuje", 1);
 	SendClientMessage(playerid, LIGHTRED, "Trwa roz³adowywanie...");
-	SetTimerEx("UnLoadVehicle", 1000, 0, "dddd", playerid, towarid, waga, vehicleid);
+	SetTimerEx("UnLoadVehicle", 10*1000, 0, "dddd", playerid, towarid, waga, vehicleid);
 
-	format(str, sizeof(str), "TOWARID: %d", towarid);
-	SendClientMessage(playerid, LIGHTRED, str);
+	format(str, sizeof(str), "ID Towaru: {b}%d{/b}", towarid);
+	Msg(playerid, COLOR_INFO, str);
 	return 1;
 }

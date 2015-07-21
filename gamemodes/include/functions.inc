@@ -37,7 +37,7 @@ GetVehicleSpeed(vehicleid, &Float:speed)
 CheatKick(playerid, reason[])
 {
 	new string[200];
-	format(string, sizeof string, "{C0C0C0}Gracz %s zostaæ {FFFFFF}wyrzucony {C0C0C0}z serwera z powodu {FFFFFF}%s.", PlayerName(playerid), reason);
+	format(string, sizeof string, "{C0C0C0}Gracz %s zosta³ {FFFFFF}wyrzucony {C0C0C0}z serwera z powodu {FFFFFF}%s.", PlayerName(playerid), reason);
 	SendClientMessageToAll(0x0, string);
 }
 
@@ -48,7 +48,7 @@ CheatBan(playerid, reason[])
 	gettime(H, Mi, S);
 	GetPlayerIp(playerid, ip, sizeof(ip));
 
-	format(string, sizeof string, "{C0C0C0}Gracz %s zostaæ {FFFFFF}zbanowany {C0C0C0}z powodu {FFFFFF}%s.", PlayerName(playerid), reason);
+	format(string, sizeof string, "{C0C0C0}Gracz %s zosta³ {FFFFFF}zbanowany {C0C0C0}z powodu {FFFFFF}%s.", PlayerName(playerid), reason);
 	SendClientMessageToAll(0x0, string);
 	format(string, sizeof string, "INSERT INTO `BANS` (`Name`, `Nameadmin`, `Hour`, `Minute`, `Day`, `Month, `Year`, `Reason`, `IP`) VALUES('%s', 'Serwer', '%02d', '%02d', '%02d', '%02d', '%02d', '%s', '%s')", PlayerName(playerid), H, Mi, D, Mo, Y, reason, ip);
 	mysql_query(string);
@@ -261,4 +261,168 @@ GetVehicleCargoID(vehicleid)
 GetVehicleCargoVeight(vehicleid)
 {
 
+}
+
+stock Msg(playerid, colorid, text[], bool:playSound = true, bool:displayPrefix = true)
+{
+	new
+		buffer[256],
+		curColor,
+		tmpColor[16],
+		tmpColorCode;
+
+	switch(colorid)
+	{
+		case COLOR_INFO:
+		{
+			curColor = HexToInt("82C412");
+			tmpColorCode = HexToInt("BCEE68");
+		}
+		case COLOR_INFO2:
+		{
+			curColor = HexToInt("488CDB");
+			tmpColorCode = HexToInt("A8C3E3");
+		}
+		case COLOR_INFO3:
+		{
+			curColor = HexToInt("FFAB00");
+			tmpColorCode = HexToInt("EBBF65");
+		}
+		case COLOR_ERROR:
+		{
+			curColor = HexToInt("BA0B0B");
+			tmpColorCode = HexToInt("D64F4F");
+		}
+		default: curColor = colorid;
+	}
+
+	copy(text, buffer);
+	format(tmpColor, sizeof tmpColor, "{%06x}", tmpColorCode);
+
+	new f = strfind( buffer, "{b}" );
+	while ( f >= 0)
+	{
+		strdel(buffer, f, f + 3);
+		strins( buffer, tmpColor, f);
+		f = strfind(buffer, "{b}");
+	}
+
+	format(tmpColor, sizeof tmpColor, "{%06x}", curColor);
+
+	f = strfind( buffer, "{/b}" );
+	while ( f >= 0)
+	{
+		strdel(buffer, f, f + 4);
+		strins(buffer, tmpColor, f);
+		f = strfind(buffer, "{/b}");
+	}
+
+	if(displayPrefix)
+		strins(buffer, "››› ", 0);
+
+	SendClientMessage(playerid, curColor * 256, buffer);
+
+	if(playSound)
+		if(colorid == COLOR_ERROR)
+			PlaySound(playerid, 1085);
+		else
+			PlaySound(playerid, 1150);
+	return 1;
+}
+
+stock MsgToAll(playerid, colorid, text[], bool:displayPrefix = true)
+{
+	new
+		buffer[256],
+		curColor,
+		tmpColor[16],
+		tmpColorCode;
+
+	switch(colorid)
+	{
+		case COLOR_INFO: // zielony
+		{
+			curColor = HexToInt("82C412");
+			tmpColorCode = HexToInt("BCEE68");
+		}
+		case COLOR_INFO2: // niebieski
+		{
+			curColor = HexToInt("488CDB");
+			tmpColorCode = HexToInt("A8C3E3");
+		}
+		case COLOR_INFO3: // pomarañczowy
+		{
+			curColor = HexToInt("FFAB00");
+			tmpColorCode = HexToInt("EBBF65");
+		}
+		case COLOR_ERROR: // czerwony
+		{
+			curColor = HexToInt("BA0B0B");
+			tmpColorCode = HexToInt("D64F4F");
+		}
+		default: curColor = colorid;
+	}
+
+	copy(text, buffer);
+	format(tmpColor, sizeof tmpColor, "{%06x}", tmpColorCode);
+
+	new f = strfind( buffer, "{b}" );
+	while ( f >= 0)
+	{
+		strdel(buffer, f, f + 3);
+		strins( buffer, tmpColor, f);
+		f = strfind(buffer, "{b}");
+	}
+
+	format(tmpColor, sizeof tmpColor, "{%06x}", curColor);
+
+	f = strfind( buffer, "{/b}" );
+	while ( f >= 0)
+	{
+		strdel(buffer, f, f + 4);
+		strins(buffer, tmpColor, f);
+		f = strfind(buffer, "{/b}");
+	}
+
+	if(displayPrefix)
+		strins(buffer, "››› ", 0);
+
+	SendClientMessageToAll(curColor * 256, buffer);
+
+	return 1;
+}
+
+stock copy(string1[], string2[])
+{
+	for(new i = 0; i < strlen(string1); i++)
+		string2[i] = string1[i];
+
+	string2[strlen(string1)] = EOS;
+}
+
+stock PlaySound(playerID, soundID)
+{
+	new Float:posX;
+	new Float:posY;
+	new Float:posZ;
+	GetPlayerPos(playerID, posX, posY, posZ);
+	PlayerPlaySound(playerID, soundID, posX, posY, posZ);
+}
+
+stock HexToInt(string[])
+{
+	if(string[0] == 0) return 0;
+	new
+		cur = 1,
+		res = 0;
+
+	for(new i = strlen(string); i > 0; i--)
+	{
+		if(string[i - 1] < 58)
+			 res = res + cur * (string[i - 1] - 48);
+		else
+			res = res + cur * (string[i - 1] - 65 + 10);
+		cur = cur * 16;
+	}
+	return res;
 }

@@ -94,7 +94,7 @@ public POwypadku(playerid)
 	DeletePVar(playerid, "Wypadek");
 	DeletePVar(playerid, "Wypadekzmedykiem");
 	TogglePlayerControllable(playerid, 1);
-	SendClientMessage(playerid, 0x0, "{8080C0}Odzyska³eœ przytomnoœæ.");
+	Msg(playerid, COLOR_INFO, "{b}Odzyska³eœ{/b} przytomnoœæ.");
 	RemovePlayerFromVehicle(playerid);
 
 	return 1;
@@ -110,14 +110,14 @@ public MedicInfo(playerid)
 	{
 		if(Firmy[PlayerInfo[i][pFirma]][tTyp] == TEAM_TYPE_MEDIC && !GetPVarInt(i, "AFK"))
 		{
-			format(string, sizeof string, "{F40000}! {8080C0}Gracz (%s, %d) spowodowa³ wypadek! Zosta³ oznaczony na minimapce.", PlayerName(playerid), playerid);
-			SendClientMessage(i, 0x0, string);
+			format(string, sizeof string, "Gracz {b}%s{/b} (ID: {b}%d{/b}) spowodowa³ wypadek! Zosta³ oznaczony na minimapce.", PlayerName(playerid), playerid);
+			Msg(i, COLOR_ERROR, string);
 
 			SetPlayerMapIcon(i, playerid, Pos[0], Pos[1], Pos[2], 19, 0, MAPICON_GLOBAL_CHECKPOINT);
 		}
 	}
 
-	SendClientMessage(playerid, 0x0, "{8080C0}Pogotowie zosta³o {FFFFFF}powiadomione.");
+	Msg(playerid, COLOR_INFO, "Pogotowie zosta³o {b}zawiadomione{/b}.");
 	return 1;
 }
 
@@ -131,15 +131,15 @@ CMD:crashveh(playerid, params[])
 
 	if(CRASHON == 1)
 	{
-	CRASHON = 0;
-	format(string, sizeof string, "{C0C0C0}Wypadki zostaæy {FFFFFF}wyæÄ…czone {C0C0C0}przez %s.", PlayerName(playerid));
-	SendClientMessageToAll(0x0, string);
+		CRASHON = 0;
+		format(string, sizeof string, "Wypadki zosta³y {b}wy³¹czone{/b} przez administratora {b}%s{/b}.", PlayerName(playerid));
+		MsgToAll(COLOR_INFO2, string);
 	}
 	else
 	{
-	format(string, sizeof string, "{C0C0C0}Wypadki zostaæy {FFFFFF}wæÄ…czone {C0C0C0}przez %s.", PlayerName(playerid));
-	SendClientMessageToAll(0x0, string);
-	CRASHON = 1;
+		CRASHON = 1;
+		format(string, sizeof string, "Wypadki zosta³y {b}za³¹czone{/b} przez administratora {b}%s{/b}.", PlayerName(playerid));
+		MsgToAll(COLOR_INFO2, string);
 	}
 
 	return 1;

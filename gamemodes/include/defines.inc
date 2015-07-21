@@ -2,23 +2,37 @@
         forward dial_%0(%1);\
         public dial_%0(%1)
 #define DIAL:%0(%1)\
-        DIALOG:%0(%1)
+		DIALOG:%0(%1)
         
 #undef MAX_PLAYERS
 
-#define MAX_LOADING_POINTS 300
-#define MAX_TOWAROW 300
+#define MAX_LOADING_POINTS 	300
+#define MAX_TOWAROW 		300
 
-#define MAX_PLAYERS 25
-#define MAX_STACJE 200
-#define MAX_FOTORADAROW 1000
-#define MAX_VIASHOP 200
-#define MAX_VEHICLES_DB 5000
+#define MAX_PLAYERS 		25
+#define MAX_STACJE 			200
+#define MAX_FOTORADAROW 	1000
+#define MAX_VIASHOP 		200
+#define MAX_VEHICLES_DB 	5000
+#define MAX_FIRM 			13
+
+// ---------------------------
+
+#define TEAM_TYPE_TRUCKER 	0
+#define TEAM_TYPE_POLICE 	1
+#define TEAM_TYPE_MEDIC 	2
+#define TEAM_TYPE_POMOC 	3
+#define TEAM_TYPE_CARGO 	4
+#define TEAM_TYPE_PETROL 	5
+#define TEAM_TYPE_SMLOG 	6
+#define TEAM_TYPE_BUILD 	7
+
+// ---------------------------
 
 #define isnull(%1) ((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))))
 #define Loop(%1,%2) for(new %1 = 0; %1 < %2; %1++)
 #define ResetVariablesInEnum(%0,%1) 	for(new __rvine; %1:__rvine != %1; __rvine++) %0[%1:__rvine]=0
-#define ShowInfo(%0,%1) ShowPlayerDialog(%0,NEVER_DIALOG,DIALOG_STYLE_MSGBOX,"{FF0000}Informacja",%1,"Ok","")
+#define ShowInfo(%0,%1) ShowPlayerDialog(%0, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "{FF0000}Informacja", %1, "Ok", "")
 
 enum
 {
@@ -107,36 +121,47 @@ enum
 	DIALOG_ID_VEHICLE_ZARZADZAJ
 }
 
-#define LIGHTGREEN 0xBCEE68FF
-#define LIGHTBLUE 0xA8C3E3FF
-#define LIGHTRED 0xEE5555FF
-#define YELLOW 0xEAAF00FF
-#define ORANGE 0xFFAB00FF
-#define WHITE 0xFFFFFFFF
-#define GREY 0xB2BBBFFF
-#define ZIELONY99 0x00FF00FF
-#define ZIELONY5 0x00FF00FF
-#define ZIELONY6 0x00FF00FF
-#define ZIELONY4 0x00FF00FF
-#define LIGHTRED 0xEE5555FF
-#define ZIELONY 0x00FF00FF
-#define ZIELONY2 0x00FF00FF
-#define ZIELONY3 0x00FF00FF
-#define ZIELONY4 0x00FF00FF
+#define LIGHTGREEN 			0xBCEE68FF
+#define LIGHTBLUE 			0xA8C3E3FF
+#define LIGHTRED 			0xEE5555FF
+#define YELLOW 				0xEAAF00FF
+#define ORANGE 				0xFFAB00FF
+#define WHITE 				0xFFFFFFFF
+#define GREY 				0xB2BBBFFF
+#define ZIELONY99 			0x00FF00FF
+#define ZIELONY5 			0x00FF00FF
+#define ZIELONY6 			0x00FF00FF
+#define ZIELONY4 			0x00FF00FF
+#define LIGHTRED 			0xEE5555FF
+#define ZIELONY 			0x00FF00FF
+#define ZIELONY2 			0x00FF00FF
+#define ZIELONY3 			0x00FF00FF
+#define ZIELONY4 			0x00FF00FF
 
-#define GCOLOR_GREEN "{BCEE68}"
-#define GCOLOR_WHITE "{FFFFFF}"
-#define GCOLOR_RED "{FF4040}"
-#define GCOLOR_VIOLET "{BF3EFF}"
-#define GCOLOR_GREY "{A9A9A9}"
-#define GCOLOR_GUI "{a9c4e4}"
-#define GCOLOR_YELLOW "{FFB90F}"
-#define GCOLOR_CREAM "{FFD39B}"
-#define COLOR_GUI "{a9c4e4}"
+// ---------------------------
 
-#define KEY_AIM 132
+#define GCOLOR_GREEN 		"{BCEE68}"
+#define GCOLOR_WHITE 		"{FFFFFF}"
+#define GCOLOR_RED 			"{FF4040}"
+#define GCOLOR_VIOLET 		"{BF3EFF}"
+#define GCOLOR_GREY 		"{A9A9A9}"
+#define GCOLOR_GUI 			"{a9c4e4}"
+#define GCOLOR_YELLOW 		"{FFB90F}"
+#define GCOLOR_CREAM 		"{FFD39B}"
+#define COLOR_GUI 			"{a9c4e4}"
 
-#define MAX_ADMIN_VEHICLES 50
+// ---------------------------
+
+#define COLOR_INFO 			0
+#define COLOR_INFO2			1
+#define COLOR_INFO3			2
+#define COLOR_ERROR			3
+
+// ---------------------------
+
+#define KEY_AIM 			132
+
+#define MAX_ADMIN_VEHICLES 	50
 new AdminsVehs[MAX_ADMIN_VEHICLES];
 new SpawnedAdminVehicles;
 
@@ -261,7 +286,8 @@ enum Player {
 	pGTime,
 	pWorkTime,
 	pBuildmaster,
-	bool:pInvited[8]
+	bool:pInvited[8],
+	bool:chained
 }
 new PlayerInfo[MAX_PLAYERS][Player];
 
@@ -277,16 +303,6 @@ new Text3D:StacjeText3D[MAX_STACJE];
 new StacjeMapIcon[MAX_STACJE][MAX_PLAYERS];
 new ID_STACJA=1;
 
-#define TEAM_TYPE_TRUCKER 0
-#define TEAM_TYPE_POLICE 1
-#define TEAM_TYPE_MEDIC 2
-#define TEAM_TYPE_POMOC 3
-#define TEAM_TYPE_CARGO 4
-#define TEAM_TYPE_PETROL 5
-#define TEAM_TYPE_SMLOG 6
-#define TEAM_TYPE_BUILD 7
-
-#define MAX_FIRM 13
 enum Teams {
 	tID,
 	tName[32],
