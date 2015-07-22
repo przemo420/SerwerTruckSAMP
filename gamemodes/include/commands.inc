@@ -182,7 +182,7 @@ CMD:zapisz(playerid, params[])
 
 //CMD:gps(playerid, params[])
 	//return cmd_nawigacja(playerid, params);
-CMD:nawigacjaNIEWLACZAC(playerid, params[])
+CMD:gpsnawi(playerid, params[])
 {
 	if(GetPVarType(playerid, "GPS_OstatniRaz") == PLAYER_VARTYPE_INT)
 		if( (GetTickCount() - GetPVarInt(playerid, "GPS_OstatniRaz"))/1000 < 1.0 )

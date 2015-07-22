@@ -109,8 +109,10 @@ public LoadVehicle(playerid)
 	}
 	else
 	{
-		format(string, sizeof(string), "Ladowanie towaru~n~%ds", GetPVarInt(playerid, "LadowanieCzas"));
-		GameTextForPlayer(playerid, string, 1000, 3);
+		format(string, sizeof(string), "Ladowanie towaru %ds", GetPVarInt(playerid, "LadowanieCzas"));
+		GameTextForPlayer(playerid, string, 1100, 3);
+
+		printf(string);
 		ShowInfo(playerid, string);
 
 		SetPVarInt(playerid, "LadowanieCzas", GetPVarInt(playerid, "LadowanieCzas")-1);
