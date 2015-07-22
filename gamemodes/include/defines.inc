@@ -14,6 +14,7 @@
 #define MAX_VIASHOP 		200
 #define MAX_VEHICLES_DB 	5000
 #define MAX_FIRM 			13
+#define MAX_SPIKESTRIPS 	25
 
 // ---------------------------
 
@@ -166,7 +167,7 @@ enum
 
 new szCommands[][] = {
 	"Pusto", // all commands
-	"/firma /mandat /aresztuj\n/wywal /wyrzuæ /praca\n/dyzur /skuj /rozkuj\n/kontrola /alkomat /open\n/close", // policja
+	"/firma /mandat /aresztuj\n/wywal /wyrzuæ /praca\n/dyzur /skuj /rozkuj\n/kontrola /alkomat /open\n/close /kolczatka /usunkolczatki", // policja
 	"/firma /ulecz /wypadki /wywal /wyrzuæ /praca /dyzur /o[1 - 8] /c[1 - 8] /open /close", // pogotowie
 	"/firma /vehcolor /rachunek /zatankuj /praca /dyzur /open /close"  // pomoc drogowa
 };
@@ -426,3 +427,14 @@ enum {
 	LOG_TYPE_COMMANDS,
 	LOG_TYPE_PLAYER
 }
+
+enum sxInfo
+{
+	sCreated,
+	Float:sX,
+	Float:sY,
+	Float:sZ,
+	sObject,
+}
+
+new ssInfo[MAX_SPIKESTRIPS][sxInfo];
