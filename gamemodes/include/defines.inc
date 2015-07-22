@@ -15,9 +15,22 @@
 #define MAX_VEHICLES_DB 	5000
 #define MAX_FIRM 			13
 #define MAX_SPIKESTRIPS 	25
+#define MAX_BARY 			200
+#define MAX_BARYIN 			200
+#define MAX_BTOBJ 			5000
+#define MAX_BTOBJTD 		5000
 
 // ---------------------------
 
+#define INVALID_FOTO_ID 		0
+#define INVALID_VIASHOP_ID 		0
+#define INVALID_BARY_ID 		0
+#define INVALID_BTOBJ_ID 		0
+#define INVALID_REMONTBT3D_ID 	0
+#define INVALID_DOK_ID 			0
+#define INVALID_BARYIN_ID 		0
+
+// ---------------------------
 enum {
 	TEAM_TYPE_TRUCKER=0,
 	TEAM_TYPE_POLICE,
@@ -181,6 +194,22 @@ new AdminsVehs[MAX_ADMIN_VEHICLES];
 new SpawnedAdminVehicles;
 
 new Text3D:Trucking[MAX_PLAYERS];
+new Text:FleshText;
+new Text3D:viashop3D[MAX_VIASHOP];
+new viashopIKON[MAX_VIASHOP];
+new Text3D:bary3D[MAX_BARY];
+new baryIKON[MAX_BARY];
+new Text3D:baryin3D[MAX_BARYIN];
+new podgladADMIN[MAX_PLAYERS] = 0;
+new Firehold[MAX_PLAYERS];
+new Firehold2[MAX_PLAYERS] = 0;
+new kogutPD[MAX_VEHICLES],
+    bool:kpd[MAX_VEHICLES];
+new obiektyBT[MAX_BTOBJ];
+new obiektyBTID = 0;
+
+new Text3D:obiektyBT3D[MAX_BTOBJTD];
+new bool:IsObiektBT[MAX_BTOBJ];
 
 new const DoswiadczeniePoziomy[] = 
 {
@@ -274,6 +303,23 @@ new vehInfo[MAX_VEHICLES_DB][vInfo];
 new Float:vPos[MAX_VEHICLES][6];
 new DBVehID[MAX_VEHICLES_DB];
 new HighVehicleID;
+
+new timer[MAX_PLAYERS],
+	timer3[MAX_PLAYERS],
+	timer4[MAX_PLAYERS],
+	timer5[MAX_PLAYERS],
+	timer7[MAX_PLAYERS],
+	timer8[MAX_PLAYERS],
+	timer9[MAX_PLAYERS],
+	timer10[MAX_PLAYERS],
+	timer11[MAX_PLAYERS],
+	timer12[MAX_PLAYERS],
+	timer13[MAX_PLAYERS],
+	timer14[MAX_PLAYERS],
+	timer15[MAX_PLAYERS],
+	timer16[MAX_PLAYERS];
+
+new UsersConnected;
 
 enum vOtherInfo {
 	Float:vFuel,
@@ -438,3 +484,5 @@ enum sxInfo
 }
 
 new ssInfo[MAX_SPIKESTRIPS][sxInfo];
+
+new FotoradarOBJ[MAX_FOTORADAROW];
