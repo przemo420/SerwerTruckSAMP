@@ -1023,7 +1023,7 @@ CMD:refuelveh(playerid, params[])
 	new vehicleid;
 
 	if(!PlayerInfo[playerid][pAdmin])
-		return Msg(playerid, COLOR_ERROR, "{CC0000}>>{FFFFFF} Nie posiadasz uprawnieñ.");
+		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ.");
 
 	if(sscanf(params, "dD(0)", forplayerid, all))
 		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /refuelveh [id gracza]");
