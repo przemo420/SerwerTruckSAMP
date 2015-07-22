@@ -33,7 +33,7 @@ CMD:tablica(playerid, params[])
 		{
 			new wiadomosc[600], zapytanie[70];
 
-			mysql_query("SELECT `owner`, `text`, `time` FROM `st_tablica_ogloszen`");
+			mysql_query("SELECT `owner`, `text`, `time` FROM `st_tablica_ogloszen` ORDER BY `time` DESC LIMIT 0,10");
 			mysql_store_result();
 
 			if(mysql_num_rows()==0)
@@ -58,7 +58,7 @@ CMD:tablica(playerid, params[])
 			}
 
 			find=true;
-			ShowPlayerDialog(playerid, NEVER_DIALOG, (mysql_num_rows() ? DIALOG_STYLE_TABLIST_HEADERS : DIALOG_STYLE_MSGBOX), "Og³oszenia", wiadomosc, "Zamknij", #);
+			ShowPlayerDialog(playerid, DIALOG_ID_OGLOSZENIE, (mysql_num_rows() ? DIALOG_STYLE_TABLIST_HEADERS : DIALOG_STYLE_MSGBOX), "Og³oszenia", wiadomosc, "Dodaj", "Zamknij");
 			break;
 		}
 

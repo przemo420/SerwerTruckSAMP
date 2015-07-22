@@ -472,3 +472,26 @@ stock GetModelIdByName(name[])
 	}
 	return -1;
 }
+
+stock delstr(src[], const sub[], idx = 0)
+{
+        new
+                f = strfind(src, sub, false, idx),
+                srclen = strlen(src),
+                sublen = strlen(sub),
+                count;
+ 
+        if(!srclen || !sublen)
+                return 0;
+ 
+        if(idx >= sublen)
+                return 0;
+ 
+        while(f >= 0)
+        {
+                count++;
+                strdel(src, f + idx, f + sublen);
+                f = strfind(src, sub, false, idx);
+        }
+        return count;
+}
