@@ -27,10 +27,12 @@ public Wypadek()
 
 			if(IsPlayerConnected(i))
 			{
+				new t;
 				if(LiczbaMedykow <= 0 && GetPVarInt(i, "Wypadek") && GetPVarInt(i, "Wypadekzmedykiem"))
 				{
 					Msg(i, COLOR_INFO, "Pracownicy pogotowia zakoñczyli dy¿ur, ockniesz siê za {b}15 sekund{/b}.");
-					SetTimerEx("POwypadku", 15000, false, "u", i);
+					t = SetTimerEx("POwypadku", 15000, false, "u", i);
+					SetPVarInt(i, "healTimer", t);
 					DeletePVar(i, "Wypadekzmedykiem");
 				}
 
@@ -70,7 +72,8 @@ public Wypadek()
 								else
 								{
 									Msg(g, COLOR_ERROR, "Spowodowa³eœ wypadek, odzyskasz przytomnoœæ za {b}30 sekund{/b}.");
-									SetTimerEx("POwypadku", 30000, false, "u", g);
+									t = SetTimerEx("POwypadku", 30000, false, "u", g);
+									SetPVarInt(g, "healTimer", t);
 								}
 
 								SetPVarInt(g, "Wypadek", 1);
@@ -93,10 +96,9 @@ public POwypadku(playerid)
 {
 	DeletePVar(playerid, "Wypadek");
 	DeletePVar(playerid, "Wypadekzmedykiem");
+	DeletePVar(playerid, "healTimer");
 	TogglePlayerControllable(playerid, 1);
 	Msg(playerid, COLOR_INFO, "{b}Odzyska³eœ{/b} przytomnoœæ.");
-	RemovePlayerFromVehicle(playerid);
-
 	return 1;
 }
 

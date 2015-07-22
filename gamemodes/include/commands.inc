@@ -231,7 +231,7 @@ CMD:stats(playerid, params[])
 
 	ConvertMS(GetTickCount()-GetPVarInt(playerid, "IleGral"), czasBierzacy[0], czasBierzacy[1], czasBierzacy[2]);
 
-	format(string, sizeof(string), "%sCzas online (bierz¹cy):\t %dh %dm %ds\n", string, czasBierzacy[0], czasBierzacy[1], czasBierzacy[2]);
+	format(string, sizeof(string), "%sCzas online (bie¿¹cy):\t %dh %dm %ds\n", string, czasBierzacy[0], czasBierzacy[1], czasBierzacy[2]);
 	ShowPlayerDialog(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST, "Statystyki gracza", string, "Ok", "");
 	return 1;
 }
@@ -410,7 +410,7 @@ CMD:wywal(playerid, params[])
 
 CMD:kontrola(playerid, params[])
 {
-	/*new targetid,
+	new targetid,
 		string[256],
 		vehicleid,
 		vehicleUID,
@@ -460,7 +460,7 @@ CMD:kontrola(playerid, params[])
 
 	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\tWA¯NY\nTowar:\t%s\nWaga:\t%dkg", PlayerName(targetid), (cargoId < 0) ? ("brak") : (Towary[cargoId][NazwaTowaru]), weight);
 	ShowPlayerDialog(playerid, DIALOG_CONTROL, DIALOG_STYLE_MSGBOX, "Kontrola", string, "WyjdŸ", #);
-	return 1;*/
+	return 1;
 }
 
 CMD:skuj(playerid, params[])
@@ -489,6 +489,7 @@ CMD:skuj(playerid, params[])
 	}
 	else
 	{
+		PlayerInfo[target][chained] = true;
 		TogglePlayerControllable(target, 0);
 
 		format(szString, sizeof szString, "Sku³eœ gracza {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(target), target);
@@ -526,6 +527,7 @@ CMD:rozkuj(playerid, params[])
 	}
 	else
 	{
+		PlayerInfo[target][chained] = false;
 		TogglePlayerControllable(target, 1);
 
 		format(szString, sizeof szString, "Rozku³eœ gracza {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(target), target);
@@ -576,6 +578,9 @@ CMD:ulecz(playerid, params[])
 			if(Firmy[PlayerInfo[i][pFirma]][tTyp] == TEAM_TYPE_MEDIC && !GetPVarInt(i, "AFK"))
 				RemovePlayerMapIcon(i, forplayerid);
 	}
+
+	KillTimer(GetPVarInt(playerid, "healTimer"));
+	DeletePVar(playerid, "healTimer");
 
 	TogglePlayerControllable(forplayerid, 1);
 	SetPlayerHealth(forplayerid, 100.0);
@@ -1817,12 +1822,12 @@ CMD:pogoda(playerid, params[])
 	new weatherid = strval(params);
 
 	if(weatherid < 0 || weatherid > 20)
-		return Msg(playerid, COLOR_ERROR, "Nieprawid³owe ID pogody (0-20).");
+		return Msg(playerid, COLOR_ERROR, "Nieprawid³owe ID pogody {b}(0-20){/b}.");
 
 	SetWeather(weatherid);
 
-	format(string, sizeof string, "{008000}Pogoda zosta³ zmieniona przez {FFFFFF}%s {008000}na id: {FFFFFF}%d.", PlayerName(playerid), weatherid);
-	SendClientMessageToAll(0x0, string);
+	format(string, sizeof string, "Pogoda zosta³ zmieniona przez {b}%s{/b} na pogodê ID: {b}%d{/b}.", PlayerName(playerid), weatherid);
+	MsgToAll(COLOR_INFO2, string);
 	return 1;
 }
 
