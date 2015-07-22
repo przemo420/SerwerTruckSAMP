@@ -140,7 +140,7 @@ CMD:crashveh(playerid, params[])
 	else
 	{
 		CRASHON = 1;
-		format(string, sizeof string, "Wypadki zosta³y {b}za³¹czone{/b} przez administratora {b}%s{/b}.", PlayerName(playerid));
+		format(string, sizeof string, "Wypadki zosta³y {b}w³¹czone{/b} przez administratora {b}%s{/b}.", PlayerName(playerid));
 		MsgToAll(COLOR_INFO2, string);
 	}
 

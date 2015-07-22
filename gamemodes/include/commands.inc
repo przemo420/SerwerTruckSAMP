@@ -858,7 +858,7 @@ CMD:repair(playerid, params[])
 CMD:tpto(playerid, params[])
 {
 	if(isnull(params))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /tpto [id gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/tpto [id gracza]{/b}");
 
 	new string[10];
 	format(string, sizeof(string), "%d %s", playerid, params);
@@ -868,7 +868,7 @@ CMD:tpto(playerid, params[])
 CMD:tphere(playerid, params[])
 {
 	if(isnull(params))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /tphere [id gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/tphere [id gracza]{/b}");
 
 	new string[10];
 	format(string, sizeof(string), "%s %d", params, playerid);
@@ -877,13 +877,13 @@ CMD:tphere(playerid, params[])
 
 CMD:tp(playerid, params[])
 {
-	new forplayerid, wheplayerid, string[128];
+	new forplayerid, wheplayerid, string[138];
 
 	if(!PlayerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", forplayerid, wheplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /tp [id gracza] [id gracza]");
+		return Msg(playerid, COLOR_ERROR, " Wpisz {b}/tp [id gracza] [id gracza]{/b}");
 
 	new Float:x, Float:y, Float:z;
 	new vehicleid = GetPlayerVehicleID(forplayerid);
@@ -900,26 +900,26 @@ CMD:tp(playerid, params[])
 	
 	if(playerid == forplayerid)
 	{
-		format(string, sizeof string, "{CC0000}>> {C0C0C0}Teleportowa³eœ siê do %s (ID: %d).", PlayerName(wheplayerid), wheplayerid);
-		SendClientMessage(playerid, 0x0, string);
-		format(string, sizeof string, "{CC0000}>> {C0C0C0}Administrator %s (ID: %d) teleportowa³ ciê do Ciebie.", PlayerName(playerid), playerid);
-		SendClientMessage(wheplayerid, 0x0, string);
+		format(string, sizeof string, "Teleportowa³eœ siê do {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(wheplayerid), wheplayerid);
+		Msg(playerid, COLOR_INFO2, string);
+		format(string, sizeof string, "Administrator {b}%s{/b} (ID: {b}%d{/b}) teleportowa³ ciê do Ciebie.", PlayerName(playerid), playerid);
+		Msg(wheplayerid, COLOR_INFO2, string);
 	}
 	else if(playerid == wheplayerid)
 	{
-		format(string, sizeof string, "{CC0000}>> {C0C0C0}Teleportowa³eœ %s (ID: %d) do siebie.", PlayerName(forplayerid), forplayerid);
-		SendClientMessage(playerid, 0x0, string);
-		format(string, sizeof string, "{CC0000}>> {C0C0C0}Administrator %s (ID: %d) teleportowa³ ciê do ciebie.", PlayerName(playerid), playerid);
-		SendClientMessage(forplayerid, 0x0, string);
+		format(string, sizeof string, "Teleportowa³eœ {b}%s{/b} (ID: {b}%d{/b}) do siebie.", PlayerName(forplayerid), forplayerid);
+		Msg(playerid, COLOR_INFO2, string);
+		format(string, sizeof string, "Administrator {b}%s{/b} (ID: {b}%d{/b}) teleportowa³ ciê do ciebie.", PlayerName(playerid), playerid);
+		Msg(forplayerid, COLOR_INFO2, string);
 	}
 	else
 	{
-		format(string, sizeof string, "{CC0000}>> {C0C0C0}Teleportowa³eœ gracza %s (ID: %d) do %s (ID: %d).", PlayerName(forplayerid), forplayerid, PlayerName(wheplayerid), wheplayerid);
-		SendClientMessage(playerid, 0x0, string);
-		format(string, sizeof string, "{CC0000}>> {C0C0C0}Administrator %s (ID: %d) teleportowa³ ciê do %s (ID: %d).", PlayerName(playerid), playerid, PlayerName(wheplayerid), wheplayerid);
-		SendClientMessage(forplayerid, 0x0, string);
-		format(string, sizeof string, "{CC0000}>> {C0C0C0}Administrator %s (ID: %d) teleportowa³ do ciebie %s (ID: %d).", PlayerName(playerid), playerid, PlayerName(forplayerid), forplayerid);
-		SendClientMessage(wheplayerid, 0x0, string);
+		format(string, sizeof string, "Teleportowa³eœ gracza {b}%s{/b} (ID: {b}%d{/b}) do {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(forplayerid), forplayerid, PlayerName(wheplayerid), wheplayerid);
+		Msg(playerid, COLOR_INFO2, string);
+		format(string, sizeof string, "Administrator {b}%s{/b} (ID: {b}%d{/b}) teleportowa³ ciê do {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(playerid), playerid, PlayerName(wheplayerid), wheplayerid);
+		Msg(forplayerid, COLOR_INFO2, string);
+		format(string, sizeof string, "Administrator {b}%s{/b} (ID: {b}%d{/b}) teleportowa³ do ciebie {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(playerid), playerid, PlayerName(forplayerid), forplayerid);
+		Msg(wheplayerid, COLOR_INFO2, string);
 	}
 
 	return 1;
@@ -931,9 +931,9 @@ CMD:eye(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(podgladADMIN[playerid])
-		SendClientMessage(playerid, LIGHTBLUE, "{CC0000}>>{FFFFFF} Wy³¹czy³eœ podgl¹d CMD."); 
+		Msg(playerid, COLOR_INFO, "{b}Wy³¹czy³eœ{/b} podgl¹d CMD."); 
 	else
-		SendClientMessage(playerid, LIGHTBLUE, "{CC0000}>>{FFFFFF} W³¹czy³eœ podgl¹d CMD."); 
+		Msg(playerid, COLOR_INFO, "{b}W³¹czy³eœ{/b} podgl¹d CMD."); 
 
 	podgladADMIN[playerid] = !podgladADMIN[playerid];
 
@@ -949,10 +949,10 @@ CMD:flip(playerid, params[])
 	new vehicleid = GetPlayerVehicleID(playerid);
 
 	if(!IsPlayerInAnyVehicle(playerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nie znajdujesz siê w pojeŸdzie.");
+		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê w pojeŸdzie.");
 
 	if(State != PLAYER_STATE_DRIVER)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nie jesteœ kierowc¹.");
+		return Msg(playerid, COLOR_ERROR, "Nie jesteœ {b}kierowc¹{/n}.");
 
 	new Float:angle;
     GetVehicleZAngle(vehicleid, angle);

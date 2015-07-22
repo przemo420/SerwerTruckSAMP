@@ -350,7 +350,7 @@ stock MsgToAll(colorid, text[], bool:displayPrefix = true)
 			curColor = HexToInt("488CDB");
 			tmpColorCode = HexToInt("A8C3E3");
 		}
-		case COLOR_INFO3: // pomaraÅ„czowy
+		case COLOR_INFO3: // pomarañczowy
 		{
 			curColor = HexToInt("FFAB00");
 			tmpColorCode = HexToInt("EBBF65");
