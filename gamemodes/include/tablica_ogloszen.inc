@@ -19,7 +19,7 @@ public TablicaOgloszen_OnGameModeInit()
 	Loop(i, sizeof TablicaOgloszen)
 	{
 		CreateDynamicObject(2737, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ], 0.0, 0.0, 0.0, -1, -1, -1, 100);
-   		CreateDynamic3DTextLabel("/tablica", 0x0, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ] + 1, 7.0);
+   		CreateDynamic3DTextLabel("/tablica", 0x0, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ] + 1, 20.0);
    		CreateDynamicMapIcon(TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ], 53, LIGHTGREEN, _, _, _, 800.0, MAPICON_LOCAL);
 	}
 }
@@ -27,7 +27,7 @@ public TablicaOgloszen_OnGameModeInit()
 CMD:tablica(playerid, params[])
 {
 	Loop(i, sizeof TablicaOgloszen)
-		if(GetDistanceFromMeToPoint(playerid, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ]) <= 10)
+		if(GetDistanceFromMeToPoint(playerid, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ]) <= 5)
 		{
 			new wiadomosc[600], zapytanie[70];
 
@@ -55,7 +55,7 @@ CMD:tablica(playerid, params[])
 				} 
 			}
 
-			ShowPlayerDialog(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST_HEADERS, "Og³oszenia", wiadomosc, "Zamknij", #);
+			ShowPlayerDialog(playerid, NEVER_DIALOG, (mysql_num_rows() ? DIALOG_STYLE_TABLIST_HEADERS : DIALOG_STYLE_MSGBOX), "Og³oszenia", wiadomosc, "Zamknij", #);
 			break;
 		}
 
