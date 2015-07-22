@@ -43,7 +43,7 @@ CheatKick(playerid, reason[])
 
 CheatBan(playerid, reason[])
 {
-	new string[256], Y, Mo, D, H, Mi, S, ip[16];
+	new string[300], Y, Mo, D, H, Mi, S, ip[16];
 	getdate(Y, Mo, D);
 	gettime(H, Mi, S);
 	GetPlayerIp(playerid, ip, sizeof(ip));
@@ -318,7 +318,7 @@ stock Msg(playerid, colorid, text[], bool:playSound = true, bool:displayPrefix =
 	}
 
 	if(displayPrefix)
-		strins(buffer, "››› ", 0);
+		strins(buffer, "??? ", 0);
 
 	SendClientMessage(playerid, curColor * 256, buffer);
 
@@ -350,7 +350,7 @@ stock MsgToAll(colorid, text[], bool:displayPrefix = true)
 			curColor = HexToInt("488CDB");
 			tmpColorCode = HexToInt("A8C3E3");
 		}
-		case COLOR_INFO3: // pomarañczowy
+		case COLOR_INFO3: // pomara?zowy
 		{
 			curColor = HexToInt("FFAB00");
 			tmpColorCode = HexToInt("EBBF65");
@@ -385,7 +385,7 @@ stock MsgToAll(colorid, text[], bool:displayPrefix = true)
 	}
 
 	if(displayPrefix)
-		strins(buffer, "››› ", 0);
+		strins(buffer, "??? ", 0);
 
 	SendClientMessageToAll(curColor * 256, buffer);
 
@@ -432,7 +432,7 @@ public AlcoholTest(playerid, trgtid)
 {
 	new szString[128], Float:alcohol = GetPlayerDrunkLevel(trgtid) / 400;
 	format(szString, sizeof szString, "{FFFFFF}Gracz {82C412}%s{FFFFFF} jest %s{FFFFFF}\nPosiada {82C412}%.02f{FFFFFF} we krwi.", PlayerName(trgtid), (alcohol <= 0.2) ? ("{82C412}trzeÂŸwy") : ("{BA0B0B}pijany"), alcohol);
-	ShowPlayerDialog(playerid, DIALOG_ALCOHOL, DIALOG_STYLE_MSGBOX, "Alkomat", szString, "WyjdŸ", #);
+	ShowPlayerDialog(playerid, DIALOG_ALCOHOL, DIALOG_STYLE_MSGBOX, "Alkomat", szString, "Wyjd?", #);
 	return 1;
 }
 

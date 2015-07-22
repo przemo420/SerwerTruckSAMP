@@ -182,8 +182,8 @@ enum
 
 new szCommands[][] = {
 	"Pusto", // all commands
-	"/firma /mandat /aresztuj\n/wywal /wyrzuæ /praca\n/dyzur /skuj /rozkuj\n/kontrola /alkomat /open\n/close /kolczatka /usunkolczatki", // policja
-	"/firma /ulecz /wypadki /wywal /wyrzuæ /praca /dyzur /o[1 - 8] /c[1 - 8] /open /close", // pogotowie
+	"/firma /mandat /aresztuj\n/wywal /wyrzuÄ‡ /praca\n/dyzur /skuj /rozkuj\n/kontrola /alkomat /open\n/close /kolczatka /usunkolczatki", // policja
+	"/firma /ulecz /wypadki /wywal /wyrzuÄ‡ /praca /dyzur /o[1 - 8] /c[1 - 8] /open /close", // pogotowie
 	"/firma /vehcolor /rachunek /zatankuj /praca /dyzur /open /close"  // pomoc drogowa
 };
 
@@ -390,15 +390,15 @@ new Firmy[MAX_FIRM][Teams];
 new const KategorieTowarow[][] = {
 	"Budowlane",
 	"Elektroniczne",
-	"Art. spo¿ywcze",
-	"Art. odzie¿owe",
+	"Art. spoÅ¼ywcze",
+	"Art. odzieÅ¼owe",
 	"Niebezpieczne",
 	"Nielegalne"
 };
 
 new colors[][] = {
-	"niewidoczny", "bia³y", "pomarañczowy", "czerwony", "ró¿owy",
-	"¿ó³ty", "br¹zowy", "zielony", "jasnoniebieski", "niebieski"
+	"niewidoczny", "biaÅ‚y", "pomaraÅ„czowy", "czerwony", "rÃ³Å¼owy",
+	"Å¼Ã³Å‚ty", "brÄ…zowy", "zielony", "jasnoniebieski", "niebieski"
 };
 
 enum {
@@ -489,7 +489,7 @@ new ssInfo[MAX_SPIKESTRIPS][sxInfo];
 
 new FotoradarOBJ[MAX_FOTORADAROW];
 
-// Nie mia³em pojêcia czy jest taka tablica wiêc wstawi³em bo potrzebna 
+// Nie miaÅ‚em pojÄ™cia czy jest taka tablica wiÄ™c wstawiÅ‚em bo potrzebna 
 new VehicleNames[212][] = {
 {"Landstalker"},{"Bravura"},{"Buffalo"},{"Linerunner"},{"Perrenial"},{"Sentinel"},{"Dumper"},
 {"Firetruck"},{"Trashmaster"},{"Stretch"},{"Manana"},{"Infernus"},{"Voodoo"},{"Pony"},{"Mule"},
