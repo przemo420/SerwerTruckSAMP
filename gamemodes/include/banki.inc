@@ -37,7 +37,7 @@ public Banki_OnGameModeInit()
 	Loop(i, sizeof Banky)
 	{
 		CreateDynamicObject(2754, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ], 0.0, 0.0, 0.0, -1, -1, -1, 100);
-   		CreateDynamic3DTextLabel("/bankomat", LIGHTGREEN, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ] + 2, 20.0);
+   		CreateDynamic3DTextLabel("/bankomat", LIGHTGREEN, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ] + 1, 20.0);
    		CreateDynamicMapIcon(Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ], 52, LIGHTGREEN, _, _, _, 800.0, MAPICON_LOCAL);
 	}
 
@@ -49,7 +49,7 @@ CMD:bankomat(playerid, params[])
 	new bool:find=false;
 
 	Loop(i, sizeof Banky)
-		if(GetDistanceFromMeToPoint(playerid, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ]) <= 5)
+		if(GetDistanceFromMeToPoint(playerid, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ]) <= 20)
 		{
 			if(PlayerInfo[playerid][pBankomat] == (-1))
 				return ShowPlayerDialog(playerid, DIALOG_BANK_CONNECT, DIALOG_STYLE_MSGBOX, " ", "{FFB90F}Nie posiadasz konta bankowego, czy chcesz je za³o¿yæ za kwotê{FFFFFF}5000$?", "Tak", "Nie");
@@ -74,6 +74,6 @@ CMD:bankomat(playerid, params[])
 
 	if(!find)
 		ShowInfo(playerid, "Nie znajdujesz siê obok bankomatu.");
-		
+
 	return 1;
 }

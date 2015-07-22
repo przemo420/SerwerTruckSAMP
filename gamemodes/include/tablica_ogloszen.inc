@@ -19,7 +19,7 @@ public TablicaOgloszen_OnGameModeInit()
 	Loop(i, sizeof TablicaOgloszen)
 	{
 		CreateDynamicObject(2737, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ], 0.0, 0.0, 0.0, -1, -1, -1, 100);
-   		CreateDynamic3DTextLabel("/tablica", LIGHTGREEN, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ] + 2, 20.0);
+   		CreateDynamic3DTextLabel("/tablica", LIGHTGREEN, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ] + 1, 20.0);
    		CreateDynamicMapIcon(TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ], 53, LIGHTGREEN, _, _, _, 800.0, MAPICON_LOCAL);
 	}
 }
@@ -29,7 +29,7 @@ CMD:tablica(playerid, params[])
 	new bool:find=false;
 
 	Loop(i, sizeof TablicaOgloszen)
-		if(GetDistanceFromMeToPoint(playerid, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ]) <= 5)
+		if(GetDistanceFromMeToPoint(playerid, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ]) <= 20)
 		{
 			new wiadomosc[600], zapytanie[70];
 
