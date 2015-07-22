@@ -44,12 +44,12 @@ stock ClosestTireToStrip(vehicleid, Float:ssX, Float:ssY, Float:ssZ)
 	else
 		if((tires & 1010))
 		{
-			if(distance[1] <= 1.0)
+			if(distance[1] <= 1.3)
 				tires = 0b1111;
 		}
 		else
 		{
-			if(distance[0] <= 1.0)
+			if(distance[0] <= 1.3)
 				tires = 0b1111;
 		}
 	UpdateVehicleDamageStatus(vehicleid, panels, doors, lights, tires);
