@@ -455,3 +455,20 @@ public SkutyTeleport(playerid, policjantid)
 		
 	return 1;
 }
+
+stock GetVehicleModelName(id)
+{
+	new szString[32];
+	format(szString, sizeof szString, "%s", VehicleNames[id - 400]);
+	return szString;
+}
+
+stock GetModelIdByName(name[])
+{
+	for(new i = 0; i < 211; i++)
+	{
+		if(strfind(VehicleNames[i], name, true) != -1)
+			return i + 400;
+	}
+	return -1;
+}

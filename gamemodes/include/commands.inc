@@ -36,16 +36,19 @@ CMD:faq(playerid, params[])
 	strcat(s,""GCOLOR_YELLOW"III. viaToll - co to takiego?\n");
 	strcat(s,""COLOR_GUI"viaToll to system poboru p³atnoœci za autostrady, do³adujesz go w sklepie viaToll, znajduj¹cym siê\n\t na ka¿dej stacji benzynowej(¿ó³ta kropka na mapie).\n");
 	strcat(s," \n");
-	//strcat(s,""GCOLOR_YELLOW"IV. Jak uzupe³niæ pasek g³odu?\n");
+	strcat(s,""GCOLOR_YELLOW"IV. Jak w³¹czyæ pojazd i œwiat³a?\n");
+	strcat(s,""COLOR_GUI"To bardzo proste. Aby uruchomiæ silnik nale¿y u¿yæ kombinacji klawiszy 2 + E.\nW³¹czanie œwiate³ jest bardzo podobne, wystarczy u¿yæ kombinacji klawiszy 2 + Q.\n");
+	strcat(s," \n");
+	//strcat(s,""GCOLOR_YELLOW"V. Jak uzupe³niæ pasek g³odu?\n");
 	//strcat(s,""COLOR_GUI"Pasek g³odu uzupe³niamy jedz¹c posi³ki w barach(hamburger na mapie).\n");
 	//strcat(s," \n");
-	//strcat(s,""GCOLOR_YELLOW"V. Jak wyzerowaæ czas jazdy / jak zrobiæ pauzê?\n");
+	//strcat(s,""GCOLOR_YELLOW"VI. Jak wyzerowaæ czas jazdy / jak zrobiæ pauzê?\n");
 	//strcat(s,""COLOR_GUI"Pauzê robimy za pomoc¹ komendy /tachograf, po wpisaniu tej komendy do wyboru mamy dwie opcje a jedn¹ z nich jest pauza.\n");
 	//strcat(s," \n");
-	//strcat(s,""GCOLOR_YELLOW"VI. Jak kupiæ domek?\n");
+	//strcat(s,""GCOLOR_YELLOW"VII. Jak kupiæ domek?\n");
 	//strcat(s,""COLOR_GUI"JeÂ¿eli chcesz kupiæ dom jedziesz do jakiegokolwiek domku na mapce, zg³aszasz sie do administratora\n\t o wycenê - on stawia dom. Cennik domów znajduje siê na forum.\n");
 	//strcat(s," \n");
-	strcat(s,""GCOLOR_YELLOW"IV. Co zrobiæ gdy ktoœ utrudnia grê?\n");
+	strcat(s,""GCOLOR_YELLOW"VIII. Co zrobiæ gdy ktoœ utrudnia grê?\n");
 	strcat(s,""COLOR_GUI"Sk³adamy na niego raport, u¿ywamy komendy /report. W razie spotkania z cheaterem - nie pisz na czacie.\n");
 	strcat(s," \n");
 	strcat(s,""GCOLOR_YELLOW"Mi³ej gry ¿yczy administracja.\n");
@@ -485,7 +488,7 @@ CMD:skuj(playerid, params[])
 	if(!IsPlayerConnected(target))
 		return Msg(playerid, COLOR_ERROR, "Gracza o podanym ID nie ma online.");
 
-	if(GetDistancePlayerToPlayer(playerid, target) > 10.0)
+	if(GetDistancePlayerToPlayer(playerid, target) > 3.0)
 		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od tego gracza.");
 
 	if(IsPlayerConnected(PlayerInfo[target][chained]))
@@ -526,7 +529,7 @@ CMD:rozkuj(playerid, params[])
 	if(!IsPlayerConnected(target))
 		return Msg(playerid, COLOR_ERROR, "Gracza o podanym ID nie ma online.");
 
-	if(GetDistancePlayerToPlayer(playerid, target) > 10.0)
+	if(GetDistancePlayerToPlayer(playerid, target) > 3.0)
 		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od tego gracza.");
 
 	if(!IsPlayerConnected(PlayerInfo[target][chained]))
@@ -612,7 +615,7 @@ CMD:ulecz(playerid, params[])
 	if(!IsPlayerConnected(forplayerid))
 		return Msg(playerid, COLOR_ERROR, "Gracza z tym ID nie ma online.");
 
-	if(GetDistancePlayerToPlayer(playerid, forplayerid) > 20)
+	if(GetDistancePlayerToPlayer(playerid, forplayerid) > 3.0)
 		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od gracza.");
 
 	if(GetPlayerSpeed(playerid) > 0)
@@ -682,11 +685,11 @@ CMD:wypadki(playerid)
 CMD:napraw(playerid, params[])
 {
 	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POMOC)
-		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+		return Msg(playerid, COLOR_INFO3, "Nie masz uprawnieñ.");
 
 	Firehold2[playerid] = 0;
-	SendClientMessage(playerid, 0x0, "{C0C0C0}Mo¿esz zacz¹æ naprawianie pojazdu.");
-	GivePlayerWeapon(playerid,11,50000);
+	Msg(playerid, COLOR_INFO3, "Mo¿esz {b}zacz¹æ{/b} naprawianie pojazdu.");
+	GivePlayerWeapon(playerid, 11, 50000);
 	return 1;
 }
 
@@ -1298,16 +1301,22 @@ CMD:createveh(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(SpawnedAdminVehicles == MAX_ADMIN_VEHICLES)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nie mo¿na zespawnowaæ wiêcej pojazdów (50).");	
+		return Msg(playerid, COLOR_ERROR, "Nie mo¿na stworzyæ wiêcej pojazdów. Limit wyczerpany ({b}50{/b}).");	
 	
-	if(sscanf(params, "ddd", vehicleModel, vehicleColor[0], vehicleColor[1]))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /createveh [model] [kolor 1] [kolor2]");
+	if(sscanf(params, "s[32]dd", string, vehicleColor[0], vehicleColor[1]))
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/createveh [model] [kolor 1] [kolor2]{/b}");
 
-	if(vehicleModel < 400 || vehicleModel > 611)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nieprawid³owy model (400-611)");
+	vehicleModel = GetModelIdByName(string);
+
+	if(vehicleModel < 0)
+	{
+		vehicleModel = strval(string);
+		if(vehicleModel < 400 || vehicleModel > 611)
+			return Msg(playerid, COLOR_ERROR, "Nieprawid³owy pojazd.");
+	}
 
 	if( (vehicleColor[0] < 0 || vehicleColor[0] > 255) || (vehicleColor[1] < 0 || vehicleColor[1] > 255) )
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nieprawid³owy kolor (0-255)");
+		return Msg(playerid, COLOR_ERROR, " Nieprawid³owy kolor (0-255)");
 
 	for(new i; i < MAX_ADMIN_VEHICLES; i++)
 		if(!IsValidVehicle(AdminsVehs[i]))
@@ -1332,8 +1341,8 @@ CMD:createveh(playerid, params[])
 	vehOtherInfo[AdminsVehs[vehicleID]][Color1] = vehicleColor[0]; 
 	vehOtherInfo[AdminsVehs[vehicleID]][Color2] = vehicleColor[1]; 
 
-	format(string, sizeof(string), "{CC0000}>> {004080}Stworzy³eœ pojazd o ID: %d", vehicleID);
-	SendClientMessage(playerid, 0x0, string);
+	format(string, sizeof(string), "Stworzy³eœ pojazd o {b}%s{b} (ID: {b}%d{/b}).", GetVehicleModelName(vehicleModel), vehicleID);
+	Msg(playerid, COLOR_INFO, string);
 
 	return 1;
 }
@@ -1472,7 +1481,7 @@ CMD:specoff(playerid, params[])
 CMD:restart(playerid, params[])
 {
 	if(!HasPlayerFullPermission(playerid))
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ (specjalne).");
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ ({b}specjalne{/b}).");
 
 	new string[176];
 	format(string, sizeof string, "{CC0000}>> {C0C0C0}Administrator {FFFFFF}%s{C0C0C0} (ID: %d) zrestartowa³ serwer.", PlayerName(playerid), playerid);
@@ -2041,20 +2050,40 @@ CMD:heal(playerid, params[])
 {
 	new forplayerid, string[128];
 
+	if(!PlayerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
 	if(sscanf(params, "d", forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /heal [id gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/heal [id gracza]{/b}");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest obecny na serwerze.");
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
+
+	SetPlayerHealth(forplayerid, 100.0);
+	format(string, sizeof string, "Uzdrowi³eœ gracza {b}%s{/b}.", PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
+	format(string, sizeof string, "Administrator {b}%s{/b} uzdrowi³ Ciê.", PlayerName(playerid));
+	Msg(forplayerid, COLOR_INFO, string);
+	return 1;
+}
+
+CMD:armour(playerid, params[])
+{
+	new forplayerid, string[128];
 
 	if(!PlayerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	SetPlayerHealth(forplayerid, 100);
-	format(string, sizeof string, "{C0C0C0}Uzdrowi³ gracza %s.", PlayerName(forplayerid));
-	SendClientMessage(playerid, 0x0, string);
-	format(string, sizeof string, "{C0C0C0}Administrator %s uzdrowi³ Ciê.", PlayerName(playerid));
-	SendClientMessage(forplayerid, 0x0, string);
+	if(sscanf(params, "d", forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/armour [id gracza]{/b}");
 
+	if(!IsPlayerConnected(forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
+
+	SetPlayerArmour(forplayerid, 100.0);
+	format(string, sizeof string, "Da³eœ pancerz graczowi {b}%s{/b}.", PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
+	format(string, sizeof string, "Administrator {b}%s{/b} da³ Ci pancerz.", PlayerName(playerid));
+	Msg(forplayerid, COLOR_INFO, string);
 	return 1;
 }
