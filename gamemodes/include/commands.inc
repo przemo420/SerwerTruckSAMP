@@ -458,7 +458,9 @@ CMD:kontrola(playerid, params[])
 		weight = vehInfo[vehicleUID][vCargoWeight];
 	}
 
-	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\tWA¯NY\nTowar:\t%s\nWaga:\t%dkg", PlayerName(targetid), (cargoId < 0) ? ("brak") : (Towary[cargoId][NazwaTowaru]), weight);
+	new towar[32];
+	strins(towar, Towary[cargoId][NazwaTowaru], 0);
+	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\tWA¯NY\nTowar:\t%s\nWaga:\t%dkg", PlayerName(targetid), (cargoId <= 0) ? ("brak") : (towar), weight);
 	ShowPlayerDialog(playerid, DIALOG_CONTROL, DIALOG_STYLE_MSGBOX, "Kontrola", string, "WyjdŸ", #);
 	return 1;
 }
