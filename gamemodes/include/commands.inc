@@ -508,7 +508,7 @@ CMD:skuj(playerid, params[])
 		format(szString, sizeof szString, "Zosta³eœ skuty przez policjanta {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(playerid), playerid);
 		Msg(target, COLOR_INFO3, szString);
 
-		PlayerInfo[target][chainedTimer] = SetTimerEx("SkutyTeleport", 1000, false, "dd", target, playerid);
+		PlayerInfo[target][chainedTimer] = SetTimerEx("SkutyTeleport", 1000, true, "dd", target, playerid);
 	}
 	return 1;
 }

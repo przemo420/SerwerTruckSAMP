@@ -37,7 +37,7 @@ public Banki_OnGameModeInit()
 	Loop(i, sizeof Banky)
 	{
 		CreateDynamicObject(2754, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ], 0.0, 0.0, 0.0, -1, -1, -1, 100);
-   		CreateDynamic3DTextLabel("/bankomat", 0x0, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ] + 2, 20.0);
+   		CreateDynamic3DTextLabel("/bankomat", LIGHTGREEN, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ] + 2, 20.0);
    		CreateDynamicMapIcon(Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ], 52, LIGHTGREEN, _, _, _, 800.0, MAPICON_LOCAL);
 	}
 
@@ -46,6 +46,8 @@ public Banki_OnGameModeInit()
 
 CMD:bankomat(playerid, params[])
 {
+	new bool:find=false;
+
 	Loop(i, sizeof Banky)
 		if(GetDistanceFromMeToPoint(playerid, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ]) <= 5)
 		{
@@ -66,8 +68,12 @@ CMD:bankomat(playerid, params[])
 
 			ShowPlayerDialog(playerid, DIALOG_BANK_CONNECT1, DIALOG_STYLE_LIST, " ", x, "Wybierz", "Wyjd?");
 			DeletePVar(playerid, "Banklisitem");
+			find=true;
 			break;
 		}
 
+	if(!find)
+		ShowInfo(playerid, "Nie znajdujesz siê obok bankomatu.");
+		
 	return 1;
 }
