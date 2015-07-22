@@ -529,7 +529,7 @@ CMD:rozkuj(playerid, params[])
 	if(GetDistancePlayerToPlayer(playerid, target) > 10.0)
 		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od tego gracza.");
 
-	if(IsPlayerConnected(PlayerInfo[target][chained]))
+	if(!IsPlayerConnected(PlayerInfo[target][chained]))
 	{
 		format(szString, sizeof szString, "Gracz {b}%s{/b} nie jest skuty!", PlayerName(target));
 		Msg(playerid, COLOR_ERROR, szString);
@@ -676,7 +676,19 @@ CMD:wypadki(playerid)
 	- /firma
 	- /zatankuj
 	- /rachunek
+	- /napraw
 */
+
+CMD:napraw(playerid, params[])
+{
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POMOC)
+		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+
+	Firehold2[playerid] = 0;
+	SendClientMessage(playerid, 0x0, "{C0C0C0}Mo¿esz zacz¹æ naprawianie pojazdu.");
+	GivePlayerWeapon(playerid,11,50000);
+	return 1;
+}
 
 CMD:zatankuj(playerid)
 {
