@@ -718,7 +718,7 @@ CMD:dyzur(playerid, params[])
 					if(GetDistancePlayerToPlayer(playerid, player) < 30)
 					{
 						format(string, sizeof string, "Gracz {b}%s{/b} rozpocz¹³ dy¿ur w: {b}%s{/b}.", PlayerName(playerid), Firmy[PlayerInfo[playerid][pFirma]][tName]);
-						Msg(playerid, COLOR_INFO2, string);
+						Msg(playe, COLOR_INFO2, string);
 					}
 				}
 			}
@@ -731,7 +731,7 @@ CMD:dyzur(playerid, params[])
 					if(GetDistancePlayerToPlayer(playerid, player) < 30)
 					{
 						format(string, sizeof string, "Gracz {b}%s{/b} zakoñczy³ dy¿ur w: {b}%s{/b}.", PlayerName(playerid), Firmy[PlayerInfo[playerid][pFirma]][tName]);
-						Msg(playerid, COLOR_INFO2, string);
+						Msg(player, COLOR_INFO2, string);
 					}
 				}
 			}
@@ -1646,7 +1646,7 @@ CMD:colorplayer(playerid, params[])
 	format(string, sizeof string, "Zmieni³eœ kolor graczowi {b}%s{/b} na {b}%s{/b}.", PlayerName(forplayerid), colors[colorId]);
 	Msg(playerid, COLOR_INFO, string);
 	format(string, sizeof string, "Administrator {b}%s{/b} zmieni³ Ci kolor na {b}%s{/b}.", PlayerName(playerid), colors[colorId]);
-	Msg(playerid, COLOR_INFO, string);
+	Msg(forplayerid, COLOR_INFO, string);
 	return 1;
 }
 
