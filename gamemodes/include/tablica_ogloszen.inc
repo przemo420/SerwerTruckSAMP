@@ -19,7 +19,7 @@ public TablicaOgloszen_OnGameModeInit()
 	Loop(i, sizeof TablicaOgloszen)
 	{
 		CreateDynamicObject(2737, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ], 0.0, 0.0, 0.0, -1, -1, -1, 100);
-   		CreateDynamic3DTextLabel("/tablica", LIGHTGREEN, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ] + 1, 20.0);
+   		CreateDynamic3DTextLabel("/tablica", LIGHTGREEN, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ], 20.0);
    		CreateDynamicMapIcon(TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ], 53, LIGHTGREEN, _, _, _, 800.0, MAPICON_LOCAL);
 	}
 }
@@ -57,6 +57,7 @@ CMD:tablica(playerid, params[])
 				} 
 			}
 
+			find=true;
 			ShowPlayerDialog(playerid, NEVER_DIALOG, (mysql_num_rows() ? DIALOG_STYLE_TABLIST_HEADERS : DIALOG_STYLE_MSGBOX), "Og³oszenia", wiadomosc, "Zamknij", #);
 			break;
 		}

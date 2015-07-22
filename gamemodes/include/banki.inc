@@ -37,7 +37,7 @@ public Banki_OnGameModeInit()
 	Loop(i, sizeof Banky)
 	{
 		CreateDynamicObject(2754, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ], 0.0, 0.0, 0.0, -1, -1, -1, 100);
-   		CreateDynamic3DTextLabel("/bankomat", LIGHTGREEN, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ] + 1, 20.0);
+   		CreateDynamic3DTextLabel("/bankomat", LIGHTGREEN, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ], 20.0);
    		CreateDynamicMapIcon(Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ], 52, LIGHTGREEN, _, _, _, 800.0, MAPICON_LOCAL);
 	}
 
