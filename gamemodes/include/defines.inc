@@ -6,10 +6,9 @@
         
 #undef MAX_PLAYERS
 
+#define MAX_PLAYERS 		25
 #define MAX_LOADING_POINTS 	300
 #define MAX_TOWAROW 		300
-
-#define MAX_PLAYERS 		25
 #define MAX_STACJE 			200
 #define MAX_FOTORADAROW 	1000
 #define MAX_VIASHOP 		200
@@ -18,14 +17,16 @@
 
 // ---------------------------
 
-#define TEAM_TYPE_TRUCKER 	0
-#define TEAM_TYPE_POLICE 	1
-#define TEAM_TYPE_MEDIC 	2
-#define TEAM_TYPE_POMOC 	3
-#define TEAM_TYPE_CARGO 	4
-#define TEAM_TYPE_PETROL 	5
-#define TEAM_TYPE_SMLOG 	6
-#define TEAM_TYPE_BUILD 	7
+enum {
+	TEAM_TYPE_TRUCKER=0,
+	TEAM_TYPE_POLICE,
+	TEAM_TYPE_MEDIC,
+	TEAM_TYPE_POMOC,
+	TEAM_TYPE_CARGO,
+	TEAM_TYPE_PETROL,
+	TEAM_TYPE_SMLOG,
+	TEAM_TYPE_BUILD
+}
 
 // ---------------------------
 
@@ -300,7 +301,8 @@ enum Player {
 	pWorkTime,
 	pBuildmaster,
 	bool:pInvited[8],
-	bool:chained
+	chained,
+	chainedTimer
 }
 new PlayerInfo[MAX_PLAYERS][Player];
 
