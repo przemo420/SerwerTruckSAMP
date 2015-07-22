@@ -730,7 +730,7 @@ CMD:dyzur(playerid, params[])
 					if(GetDistancePlayerToPlayer(playerid, player) < 30)
 					{
 						format(string, sizeof string, "Gracz {b}%s{/b} rozpocz¹³ dy¿ur w: {b}%s{/b}.", PlayerName(playerid), Firmy[PlayerInfo[playerid][pFirma]][tName]);
-						Msg(playe, COLOR_INFO2, string);
+						Msg(player, COLOR_INFO2, string);
 					}
 				}
 			}

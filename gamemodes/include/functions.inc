@@ -16,7 +16,7 @@ GetDistanceFromMeToPoint(playerid, Float:X, Float:Y, Float:Z)
 LoopingAnim(playerid,animlib[],animname[], Float:Speed, looping, lockx, locky, lockz, lp)
 {
 	SetPVarInt(playerid, "UsingLoopingAnim", 1);
-	return ApplyAnimation(playerid, animlib, animname, Speed, looping, lockx, locky, lockz, lp, 0, 1);
+	return ApplyAnimation(playerid, animlib, animname, Speed, looping, lockx, locky, lockz, lp, 1);
 }
 
 OnePlayAnim(playerid,animlib[],animname[], Float:Speed, looping, lockx, locky, lockz, lp)
