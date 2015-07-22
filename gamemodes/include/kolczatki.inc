@@ -2,7 +2,7 @@ stock StripUpdate(playerid)
 {
 	if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER)
 	{
-		for(new i = 0; i < sizeof(ssInfo); i++)
+		for(new i = 0; i < MAX_SPIKESTRIPS; i++)
 		{
 			if(IsPlayerInRangeOfPoint(playerid, 3.0, ssInfo[i][sX], ssInfo[i][sY], ssInfo[i][sZ]))
 			{
@@ -63,10 +63,12 @@ stock GetDistancePointToPoint(Float:x1, Float:y1, Float:z1, Float:x2, Float:y2, 
 
 stock CreateStrip(Float:x, Float:y, Float:z, Float:Angle)
 {
-	for(new i = 0; i < sizeof(ssInfo); i++)
+	new count = -1;
+	for(new i = 0; i < MAX_SPIKESTRIPS; i++)
 	{
 		if(ssInfo[i][sCreated] == 0)
 		{
+			count = i;
 			ssInfo[i][sCreated] = 1;
 			ssInfo[i][sX] = x;
 			ssInfo[i][sY] = y;
@@ -75,12 +77,12 @@ stock CreateStrip(Float:x, Float:y, Float:z, Float:Angle)
 			return 1;
 		}
 	}
-	return 1;
+	return count;
 }
 
 stock DeleteAllStrip()
 {
-	for(new i = 0; i < sizeof(ssInfo); i++)
+	for(new i = 0; i < MAX_SPIKESTRIPS; i++)
 	{
 		if(ssInfo[i][sCreated] == 1)
 		{

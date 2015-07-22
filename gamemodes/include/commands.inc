@@ -540,6 +540,44 @@ CMD:rozkuj(playerid, params[])
 	}
 	return 1;
 }
+
+CMD:kolczatka(playerid)
+{
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
+
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
+	new Float:pos[4], id;
+	GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+	GetPlayerFacingAngle(playerid, pos[3]);
+	id = CreateStrip(pos[0], pos[1], pos[2], pos[3]);
+
+	if(id < 0)
+		Msg(playerid, COLOR_INFO, "Nie mo¿na rozstawiæ wiêcej kolczatek.");
+	else
+		Msg(playerid, COLOR_INFO, "Pomyœlnie ustawiono kolczatke");
+	return 1;
+}
+
+CMD:usunkolczatki(playerid)
+{
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
+
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
+	if(ssInfo[0][sCreated] == 0)
+		return Msg(playerid, COLOR_ERROR, "Brak kolczatek do usuniêcia.");
+	else
+		DeleteAllStrip();
+
+	Msg(playerid, COLOR_INFO, "Pomyœlnie usuniêto {b}wszystkie{/b} kolczatki.");
+	return 1;
+}
+
 // KOMENDY POGOTOWIA
 /*
 	- /ulecz
