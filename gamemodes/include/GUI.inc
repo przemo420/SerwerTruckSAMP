@@ -280,31 +280,6 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 			}
 		}
 
-		Dialog:DIALOG_ID_GPS(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
-
-			if(listitem == 0)
-			{
-				Dialog_Show(playerid, DIALOG_ID_GPS_TYPE, DIALOG_STYLE_LIST, "GPS System => Doki", "Budowlane\nElektroniczne\nArt. spo¿ywcze\nArt. odzie¿owe\nNiebezpieczne\nNielegalne", "Za³aduj", "Anuluj");
-			}
-			else
-			{
-				SetTimerEx("GPS_Function", random(300)+200, false, "dd", playerid, listitem);
-				ShowInfo(playerid, "Trwa aktualizacja nawigacji...");
-			}
-		}
-
-		Dialog:DIALOG_ID_GPS_TYPE(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
-
-			SetTimerEx("GPS_Function", random(300)+200, false, "dd", playerid, listitem+10);
-			ShowInfo(playerid, "Trwa aktualizacja nawigacji...");
-		}
-
 		Dialog:DIALOG_FOTORADAR(playerid, response, listitem, inputtext[])
 		{
 			if(!response || !inputtext[DIALOG_STYLE_INPUT])

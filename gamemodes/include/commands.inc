@@ -168,19 +168,6 @@ CMD:viatoll(playerid, params[])
 CMD:zapisz(playerid, params[])
 	return SavePlayer(playerid);
 
-//CMD:gps(playerid, params[])
-	//return cmd_nawigacja(playerid, params);
-CMD:gpsnawi(playerid, params[])
-{
-	if(GetPVarType(playerid, "GPS_OstatniRaz") == PLAYER_VARTYPE_INT)
-		if( (GetTickCount() - GetPVarInt(playerid, "GPS_OstatniRaz"))/1000 < 1.0 )
-			return ShowInfo(playerid, "Odczekaj sekundê przed nastêpn¹ aktualizacj¹ GPSa.");
-
-	Dialog_Show(playerid, DIALOG_ID_GPS, DIALOG_STYLE_LIST, "GPS System", "Doki towarowe\nStacje\nBary\nSklepy ViaToll\nWy³¹cz", "Wybierz", "");
-	
-	return 1;
-}
-
 CMD:firma(playerid, params[])
 {
 	if(!PlayerInfo[playerid][pFirma])
