@@ -93,31 +93,6 @@ LadujFotoradary()
 	return 1;
 }
 
-LadujSklepyVIA()
-{
-	mysql_query("SELECT * FROM `VIASHOP`");
-	mysql_store_result();
-
-	if(mysql_num_rows()==0)
-		return print("[VIASHOP] Brak ViaTolli do zaladowania.");
-
-	new string[140];
-	while(mysql_fetch_row(string, "|")) 
-	{
-    	sscanf(string, "e<p<|>dfff>", ViaToll[ID_VIATOLL]);
-
-		format(string, sizeof string, "{808040}SKLEP VIATOLL {808040}[VID: {FFFFFF}%d{808040}]\n{FFFFFF}/viatoll", ID_VIATOLL);
-		viashop3D[ID_VIATOLL] = CreateDynamic3DTextLabel(string, ZIELONY3, ViaToll[ID_VIATOLL][vtPosX], ViaToll[ID_VIATOLL][vtPosY], ViaToll[ID_VIATOLL][vtPosZ]+0.5, 30.0);
-		viashopIKON[ID_VIATOLL] = CreateDynamicMapIcon(ViaToll[ID_VIATOLL][vtPosX], ViaToll[ID_VIATOLL][vtPosY], ViaToll[ID_VIATOLL][vtPosZ], 56, LIGHTRED, _, _, _, 300);
-
-		ID_VIATOLL++;
-	}
-
-	printf("[VIATOLL] Zaladowano %d ViaTolli.", ID_VIATOLL);
-	mysql_free_result();
-	return 1;
-}
-
 LadujStacje()
 {
 	mysql_query("SELECT * FROM `Stacje`");

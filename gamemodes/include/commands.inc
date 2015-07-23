@@ -62,22 +62,6 @@ CMD:time(playerid, params[])
 CMD:czas(playerid, params[])
 	return Dialog_Show(playerid, GTIMEG_LIST_DIALOG, DIALOG_STYLE_LIST, " ", "Poranek.\nDzieñ.\nWieczór.\nNoc.", "OK", "Zamknij");
 
-CMD:toll(playerid, params[])
-{
-	new string[128];
-
-	if(!IsPlayerInAnyVehicle(playerid))
-		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê w pojeŸdzie.");
-
-	if(PlayerVehicleIsTruck(playerid))
-	{
-		format(string, sizeof string, "{CC0000}>> {000040}Stan konta viaTOLL to: {FFFFFF}%d impulsy/ów.", GetViaMoney(playerid));
-		SendClientMessage(playerid,0x0,string);
-	}
-
-	return 1;
-}
-
 CMD:animacje(playerid, cmdtext[])
 	return cmd_anim(playerid, cmdtext);
 
@@ -152,18 +136,7 @@ CMD:pasy(playerid, params[])
 CMD:spawn(playerid, params[])
 	return Selectspawn(playerid);
 
-CMD:via(playerid, params[])
-	return cmd_viatoll(playerid, params);
-	
-CMD:viatoll(playerid, params[])
-{
-	new viashopid = GetViaShop(playerid);
-	if(viashopid == INVALID_VIASHOP_ID)
-		return ShowInfo(playerid, "Nie znajdujesz siê przy sklepie ViaToll.");
 
-	Dialog_Show(playerid, DIALOG_ID_VIATOLL, DIALOG_STYLE_LIST, "Sklep ViaToll", "Kup 1 impuls [$25]\nKup 2 impulsy [$50]\nKup 5 impulsów [$125]\nKup 10 impulsów [$250]\nKup 20 impulsów [$500]\nKup 50 impulsów [$1250]", "Ok", "Anuluj");
-	return 1;
-}
 
 CMD:zapisz(playerid, params[])
 	return SavePlayer(playerid);

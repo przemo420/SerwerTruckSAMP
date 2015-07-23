@@ -646,34 +646,6 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 			}
 		}
 
-		Dialog:DIALOG_ID_VIATOLL(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
-
-			new impulsow, koszt, str[40];
-
-			switch(listitem)
-			{
-				case 0: {impulsow=1; koszt=25;}
-				case 1: {impulsow=2; koszt=50;}
-				case 2: {impulsow=5; koszt=125;}
-				case 3: {impulsow=10; koszt=250;}
-				case 4: {impulsow=20; koszt=500;}
-				case 5: {impulsow=50; koszt=1250;}
-
-				default: {impulsow=0; koszt=0;}
-			}
-
-			if(GetMoney(playerid) < koszt)
-				return ShowInfo(playerid, "Nie masz tyle pieniêdzy.");
-
-			GiveMoney(playerid, -koszt);
-			GiveViaMoney(playerid, impulsow);
-			format(str, sizeof(str), "Kupi³eœ %d impuls/ów za $%d.", impulsow, koszt);
-			ShowInfo(playerid, str);
-		}
-
 		Dialog:DIALOG_ID_TELEPHONE(playerid, response, listitem, inputtext[])
 		{
 			if(!response)
