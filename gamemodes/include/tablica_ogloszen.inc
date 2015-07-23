@@ -67,3 +67,38 @@ CMD:tablica(playerid, params[])
 
 	return 1;
 }
+
+Dialog:DIALOG_ID_OGLOSZENIE(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	return Dialog_Show(playerid, DIALOG_ID_OGLOSZENIE_DODAJ, DIALOG_STYLE_INPUT, "Og³oszenia > Dodaj", "Dodanie og³oszenia kosztuje: $2000\nMaksymalna iloœæ znaków: 60\n\nWpisz treœæ:", "Dodaj", "Zamknij");
+}
+
+Dialog:DIALOG_ID_OGLOSZENIE_DODAJ(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	if(GetMoney(playerid) < 2000)
+		return ShowInfo(playerid, "Masz zbyt ma³o pieniêdzy.");
+
+	new Name[32], tekst[120], wiadomosc[60];
+
+	format(wiadomosc, sizeof(wiadomosc), "%s", inputtext);
+	GiveMoney(playerid, -2000);
+
+	mysql_real_escape_string(PlayerName(playerid), Name);		
+	mysql_real_escape_string(wiadomosc, wiadomosc);
+
+	delstr(wiadomosc, "{");
+	delstr(wiadomosc, "}");
+	delstr(wiadomosc, "\t");
+	delstr(wiadomosc, "\n");
+
+	format(tekst, sizeof(tekst), "INSERT INTO `st_tablica_ogloszen` (`owner`, `text`) VALUES ('%s', '%s')", Name, wiadomosc);
+	mysql_query(tekst);
+
+	return ShowInfo(playerid, "Doda³eœ og³oszenie.");
+}
