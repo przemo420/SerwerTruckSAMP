@@ -177,7 +177,7 @@ CMD:kontrola(playerid, params[])
 	else
 		strcat(towarname, Towary[vehOtherInfo[vehicleid][vCargoID]][NazwaTowaru]);
 
-	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\tWA¯NY\nTowar:\t%s\nWaga:\t%dkg", PlayerName(targetid), towarname, vehOtherInfo[vehicleid][vCargoWeight]);
+	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\tWA¯NY\nTowar:\t%s\nWaga:\t%dkg\nPasy:\t%s", PlayerName(targetid), towarname, vehOtherInfo[vehicleid][vCargoWeight], (GetPVarInt(playerid, "PASY") > 0) ? ("zapiête") : ("rozpiête"));
 	Dialog_Show(playerid, DIALOG_CONTROL, DIALOG_STYLE_TABLIST, "Kontrola", string, "WyjdŸ", #);
 	return 1;
 }
