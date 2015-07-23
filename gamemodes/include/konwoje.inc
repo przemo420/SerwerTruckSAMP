@@ -17,12 +17,28 @@ enum E_CONVOY
 }
 
 new cInfo[MAX_CONVOYS][E_CONVOY];
-/*
-public OnPlayerConnect(playerid)
+
+forward Konwoje_OnPlayerConnect(playerid);
+public Konwoje_OnPlayerConnect(playerid)
 {
+	for(new i = 1; i < MAX_CONVOYS; i++)
+		pConvoyInvites[playerid][i] = 0;
+
 	pConvoy[playerid] = -1;
+
 	return 1;
-}*/
+}
+
+forward Konwoje_OnPlayerDisconnect(playerid);
+public Konwoje_OnPlayerDisconnect(playerid)
+{
+	if(!GetPVarInt(playerid, "CONVOY_Boss"))
+		return 1;
+
+	DIALOG_CONVOY_MAIN_DEL(playerid, true, 0, "");
+
+	return 1;
+}
 
 CMD:konwoj(playerid)
 {
@@ -32,7 +48,7 @@ CMD:konwoj(playerid)
 		if(IsBoss)
 			format(szString, sizeof szString, "Konwój\n \nUczestnicy konwoju\nZaproœ graczy (%d/%d)\nWyproœ gracza\nUsuñ konwój", cInfo[pConvoy[playerid]][cPersons], MAX_CONVOY_MEMBERS);
 		else
-			format(szString, sizeof szString, "Konwój\n \nUczestnicy konwoju (%d/%d)", cInfo[pConvoy[playerid]][cPersons], MAX_CONVOY_MEMBERS);
+			format(szString, sizeof szString, "Konwój\n \nUczestnicy konwoju (%d/%d)\nOpuœæ konwój", cInfo[pConvoy[playerid]][cPersons], MAX_CONVOY_MEMBERS);
 	
 		Dialog_Show(playerid, DIALOG_CONVOY_MAIN, DIALOG_STYLE_LIST, " ", szString, "Wybierz", "WyjdŸ");
 	}
@@ -144,13 +160,21 @@ Dialog:DIALOG_CONVOY_MAIN(playerid, response, listitem, inputtext[])
 		}
 		case 3:
 		{
-			if(cInfo[pConvoy[playerid]][cPersons] == MAX_CONVOY_MEMBERS)
+			if(GetPVarInt(playerid, "CONVOY_Boss"))
 			{
-				cmd_konwoj(playerid);
-				return Msg(playerid, COLOR_ERROR, "Nie mo¿esz dodaæ wiêcej osób do konwoju.");
-			}
+				if(cInfo[pConvoy[playerid]][cPersons] == MAX_CONVOY_MEMBERS)
+				{
+					cmd_konwoj(playerid);
+					return Msg(playerid, COLOR_ERROR, "Nie mo¿esz dodaæ wiêcej osób do konwoju.");
+				}
 
-			Dialog_Show(playerid, DIALOG_CONVOY_MAIN_INVIT, DIALOG_STYLE_INPUT, " ", "WprowadŸ ID lub nick gracza którego chcesz zaprosiæ:", "Zaproœ", "Wstecz");
+				Dialog_Show(playerid, DIALOG_CONVOY_MAIN_INVIT, DIALOG_STYLE_INPUT, " ", "WprowadŸ ID lub nick gracza którego chcesz zaprosiæ:", "Zaproœ", "Wstecz");
+			}
+			else
+			{
+				pConvoy[playerid] = -1;
+				Msg(playerid, COLOR_INFO, "Opuœci³eœ konwój.");
+			}
 		}
 		case 4:
 		{
@@ -245,6 +269,7 @@ Dialog:DIALOG_CONVOY_MAIN_DEL(playerid, response, listitem, inputtext[])
 	{
 		if(cInfo[pConvoy[playerid]][cMembers][i] != playerid)
 			Msg(cInfo[pConvoy[playerid]][cMembers][i], COLOR_ERROR, "Twój konwój zosta³ {b}usuniêty{/b} przez za³o¿yciela!");
+
 		pConvoy[cInfo[pConvoy[playerid]][cMembers][i]] = -1;
 		cInfo[pConvoy[playerid]][cMembers][i] = 0;
 
