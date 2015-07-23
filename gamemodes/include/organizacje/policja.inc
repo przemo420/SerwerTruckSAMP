@@ -217,7 +217,7 @@ CMD:skuj(playerid, params[])
 		format(szString, sizeof szString, "Zosta³eœ skuty przez policjanta {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(playerid), playerid);
 		Msg(target, COLOR_INFO3, szString);
 
-		PlayerInfo[target][chainedTimer] = SetTimerEx("SkutyTeleport", 1000, true, "dd", target, playerid);
+		PlayerInfo[target][chainedTimer] = SetTimerEx("SkutyTeleport", 500, true, "dd", target, playerid);
 	}
 	return 1;
 }
@@ -249,6 +249,7 @@ CMD:rozkuj(playerid, params[])
 	else
 	{
 		SetPlayerSpecialAction(target, SPECIAL_ACTION_NONE);
+		KillTimer(PlayerInfo[target][chainedTimer]);
 
 		PlayerInfo[target][chained] = (-1);
 
@@ -333,5 +334,14 @@ public SkutyTeleport(playerid, policjantid)
 	if(GetDistancePlayerToPlayer(playerid, policjantid) > 10.0)
 		SetPlayerPos(playerid, Pos[0], Pos[1]+1.0, Pos[2]);
 		
+	return 1;
+}
+
+forward AlcoholTest(playerid, trgtid);
+public AlcoholTest(playerid, trgtid)
+{
+	new szString[128], Float:alcohol = (GetPlayerDrunkLevel(trgtid) > 2000 ? (2000): (GetPlayerDrunkLevel(trgtid))) / 400;
+	format(szString, sizeof szString, "{FFFFFF}Gracz {82C412}%s{FFFFFF} jest %s{FFFFFF}\nPosiada {82C412}%.02f{FFFFFF}‰ we krwi.", PlayerName(trgtid), (alcohol <= 0.2) ? ("{82C412}trzeÂŸwy") : ("{BA0B0B}pijany"), alcohol);
+	Dialog_Show(playerid, DIALOG_ALCOHOL, DIALOG_STYLE_MSGBOX, "Alkomat", szString, "WyjdŸ", #);
 	return 1;
 }

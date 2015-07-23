@@ -385,7 +385,7 @@ stock MsgToAll(colorid, text[], bool:displayPrefix = true)
 	}
 
 	if(displayPrefix)
-		strins(buffer, "??? ", 0);
+		strins(buffer, "››› ", 0);
 
 	SendClientMessageToAll(curColor * 256, buffer);
 
@@ -425,15 +425,6 @@ stock HexToInt(string[])
 		cur = cur * 16;
 	}
 	return res;
-}
-
-forward AlcoholTest(playerid, trgtid);
-public AlcoholTest(playerid, trgtid)
-{
-	new szString[128], Float:alcohol = GetPlayerDrunkLevel(trgtid) / 400;
-	format(szString, sizeof szString, "{FFFFFF}Gracz {82C412}%s{FFFFFF} jest %s{FFFFFF}\nPosiada {82C412}%.02f{FFFFFF} we krwi.", PlayerName(trgtid), (alcohol <= 0.2) ? ("{82C412}trzeÂŸwy") : ("{BA0B0B}pijany"), alcohol);
-	Dialog_Show(playerid, DIALOG_ALCOHOL, DIALOG_STYLE_MSGBOX, "Alkomat", szString, "Wyjd?", #);
-	return 1;
 }
 
 stock GetVehicleModelName(id)
