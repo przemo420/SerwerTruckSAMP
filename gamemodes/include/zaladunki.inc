@@ -217,7 +217,7 @@ CMD:zaladuj(playerid, params[])
 		else if(!IsValidTrailerType(vehicleid, LoadingPoints[dokid][pType]))
 		{
 			format(string, sizeof(string), "Nie obs³ugujemy tej naczepy.\n\nKategoria towarów: %s\nModel naczepy: %d", KategorieTowarow[LoadingPoints[dokid][pType]], GetVehicleModel(vehicleid));
-			return ShowPlayerDialog(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", string, "Ok", "");
+			return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", string, "Ok", "");
 		}
 
 		else if( vehOtherInfo[vehicleid][vCargoID] )
@@ -246,7 +246,7 @@ CMD:zaladuj(playerid, params[])
 		}
 
 	SetPVarInt(playerid, "dokid", dokid);
-	ShowPlayerDialog(playerid, DIALOG_ID_LOAD_CARGO, DIALOG_STYLE_TABLIST_HEADERS, " ", string, "Za³aduj", "Anuluj");
+	Dialog_Show(playerid, DIALOG_ID_LOAD_CARGO, DIALOG_STYLE_TABLIST_HEADERS, " ", string, "Za³aduj", "Anuluj");
 
 	return 1;
 }

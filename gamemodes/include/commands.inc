@@ -53,14 +53,14 @@ CMD:faq(playerid, params[])
 	strcat(s," \n");
 	strcat(s,""GCOLOR_YELLOW"Mi³ej gry ¿yczy administracja.\n");
 	
-	return ShowPlayerDialog(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "FAQ", s, "Zamknij", "");
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "FAQ", s, "Zamknij", "");
 }
 
 CMD:time(playerid, params[])
 	return cmd_czas(playerid, params);
 
 CMD:czas(playerid, params[])
-	return ShowPlayerDialog(playerid, GTIMEG_LIST_DIALOG, DIALOG_STYLE_LIST, " ", "Poranek.\nDzieñ.\nWieczór.\nNoc.", "OK", "Zamknij");
+	return Dialog_Show(playerid, GTIMEG_LIST_DIALOG, DIALOG_STYLE_LIST, " ", "Poranek.\nDzieñ.\nWieczór.\nNoc.", "OK", "Zamknij");
 
 CMD:toll(playerid, params[])
 {
@@ -88,13 +88,13 @@ CMD:anims(playerid, cmdtext[])
 	return cmd_anim(playerid, cmdtext);
 
 CMD:anim(playerid, cmdtext[])
-	return ShowPlayerDialog(playerid, ANIM1_DIALOG, DIALOG_STYLE_LIST, " ", "Tañce >>\nRêce\nWino\nSprunk\nCygaro\nPiwo\nTelefon >>\nSiad\nDilowanie\nJedzenie\nWal siê\nPijany", "OK", "Dalej");
+	return Dialog_Show(playerid, ANIM1_DIALOG, DIALOG_STYLE_LIST, " ", "Tañce >>\nRêce\nWino\nSprunk\nCygaro\nPiwo\nTelefon >>\nSiad\nDilowanie\nJedzenie\nWal siê\nPijany", "OK", "Dalej");
 
 CMD:autor(playerid, params[])
 	return cmd_autorzy(playerid, params);
 
 CMD:autorzy(playerid, params[])
-	return ShowPlayerDialog(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", "Programiœci:\n- Maciek.\n- GeDox\n- Kozak59\n\nBeta-Testerzy:\n- [ST]Kill_Repeat\n- [ST][DJ]Bass\n- Reiban.\n\nTworzenie obiektów:\n- [ST][DJ]Bass\n- TDi\n- Laud.\n- Muscu\n- Marcin[WGM]\n- PolskiJankes\n- Kierowca\n- Kozak59\n- Devil\n- Mati", "Zamknij", "");
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", "Programiœci:\n- Maciek.\n- GeDox\n- Kozak59\n\nBeta-Testerzy:\n- [ST]Kill_Repeat\n- [ST][DJ]Bass\n- Reiban.\n\nTworzenie obiektów:\n- [ST][DJ]Bass\n- TDi\n- Laud.\n- Muscu\n- Marcin[WGM]\n- PolskiJankes\n- Kierowca\n- Kozak59\n- Devil\n- Mati", "Zamknij", "");
 
 CMD:tel(playerid, params[])
 	return cmd_telefon(playerid, params);
@@ -103,7 +103,7 @@ CMD:phone(playerid, params[])
 	return cmd_telefon(playerid, params);
 
 CMD:telefon(playerid, params[])
-	return ShowPlayerDialog(playerid, DIALOG_ID_TELEPHONE, DIALOG_STYLE_LIST, " ", "Policja\nPogotowie\nPomoc Drogowa", "Wybierz", "Anuluj");
+	return Dialog_Show(playerid, DIALOG_ID_TELEPHONE, DIALOG_STYLE_LIST, " ", "Policja\nPogotowie\nPomoc Drogowa", "Wybierz", "Anuluj");
 
 CMD:radio(playerid, params[])
 {
@@ -115,7 +115,7 @@ CMD:radio(playerid, params[])
 		if(RadioStations[i][sName])
 			format(string, sizeof(string), "%s%s\n", string, RadioStations[i][sName]);
 
-	ShowPlayerDialog(playerid, DIALOG_ID_RADIO, DIALOG_STYLE_LIST, " ", string, "OK", "Zamknij");
+	Dialog_Show(playerid, DIALOG_ID_RADIO, DIALOG_STYLE_LIST, " ", string, "OK", "Zamknij");
 
 	return 1;
 }
@@ -134,7 +134,7 @@ CMD:pojazd(playerid, params[])
 		if(baseTRUCK <= 100)
 		{
 			find = true;
-			ShowPlayerDialog(playerid, DIALOG_ID_CREATE_VEHICLE, DIALOG_STYLE_LIST, " ", "Pojazdy.\nNaczepy.\nUsuñ stworzone pojazdy.", "OK", "WyjdŸ");
+			Dialog_Show(playerid, DIALOG_ID_CREATE_VEHICLE, DIALOG_STYLE_LIST, " ", "Pojazdy.\nNaczepy.\nUsuñ stworzone pojazdy.", "OK", "WyjdŸ");
 			break;
 		}
 	}
@@ -176,7 +176,7 @@ CMD:viatoll(playerid, params[])
 	if(viashopid == INVALID_VIASHOP_ID)
 		return ShowInfo(playerid, "Nie znajdujesz siê przy sklepie ViaToll.");
 
-	ShowPlayerDialog(playerid, DIALOG_ID_VIATOLL, DIALOG_STYLE_LIST, "Sklep ViaToll", "Kup 1 impuls [$25]\nKup 2 impulsy [$50]\nKup 5 impulsów [$125]\nKup 10 impulsów [$250]\nKup 20 impulsów [$500]\nKup 50 impulsów [$1250]", "Ok", "Anuluj");
+	Dialog_Show(playerid, DIALOG_ID_VIATOLL, DIALOG_STYLE_LIST, "Sklep ViaToll", "Kup 1 impuls [$25]\nKup 2 impulsy [$50]\nKup 5 impulsów [$125]\nKup 10 impulsów [$250]\nKup 20 impulsów [$500]\nKup 50 impulsów [$1250]", "Ok", "Anuluj");
 	return 1;
 }
 
@@ -191,7 +191,7 @@ CMD:gpsnawi(playerid, params[])
 		if( (GetTickCount() - GetPVarInt(playerid, "GPS_OstatniRaz"))/1000 < 1.0 )
 			return ShowInfo(playerid, "Odczekaj sekundê przed nastêpn¹ aktualizacj¹ GPSa.");
 
-	ShowPlayerDialog(playerid, DIALOG_ID_GPS, DIALOG_STYLE_LIST, "GPS System", "Doki towarowe\nStacje\nBary\nSklepy ViaToll\nWy³¹cz", "Wybierz", "");
+	Dialog_Show(playerid, DIALOG_ID_GPS, DIALOG_STYLE_LIST, "GPS System", "Doki towarowe\nStacje\nBary\nSklepy ViaToll\nWy³¹cz", "Wybierz", "");
 	
 	return 1;
 }
@@ -210,7 +210,7 @@ CMD:firma(playerid, params[])
 	if(Firmy[PlayerInfo[playerid][pFirma]][tChef] == PlayerInfo[playerid][pID] || Firmy[PlayerInfo[playerid][pFirma]][tVcChef] == PlayerInfo[playerid][pID])
 		strcat(string, "\nZaproœ gracza\nWyrzuæ gracza\nZastêpca\nKsiêgowy\nUstaw spawn\nWyp³aæ pieni¹dze\nZmieñ skina");
 
-	ShowPlayerDialog(playerid, DIALOG_ID_FIRMA, DIALOG_STYLE_LIST, "Firma", string, "Dalej", "Anuluj");
+	Dialog_Show(playerid, DIALOG_ID_FIRMA, DIALOG_STYLE_LIST, "Firma", string, "Dalej", "Anuluj");
 	return 1;
 }
 
@@ -235,7 +235,7 @@ CMD:stats(playerid, params[])
 	ConvertMS(GetTickCount()-GetPVarInt(playerid, "IleGral"), czasBierzacy[0], czasBierzacy[1], czasBierzacy[2]);
 
 	format(string, sizeof(string), "%sCzas online (bie¿¹cy):\t %dh %dm %ds\n", string, czasBierzacy[0], czasBierzacy[1], czasBierzacy[2]);
-	ShowPlayerDialog(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST, "Statystyki gracza", string, "Ok", "");
+	Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST, "Statystyki gracza", string, "Ok", "");
 	return 1;
 }
 
@@ -253,7 +253,7 @@ CMD:v(playerid, params[])
 	if(!Spawned[vehicleid])
 		strcat(string, "\nZarz¹dzaj");
 
-	ShowPlayerDialog(playerid, DIALOG_ID_VEHICLE, DIALOG_STYLE_LIST, "Pojazd", string, "Ok", "Anuluj");
+	Dialog_Show(playerid, DIALOG_ID_VEHICLE, DIALOG_STYLE_LIST, "Pojazd", string, "Ok", "Anuluj");
 	return 1;
 }
 
@@ -263,7 +263,7 @@ CMD:cmds(playerid)
 		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
 
 	new frm = Firmy[PlayerInfo[playerid][pFirma]][tTyp];
-	ShowPlayerDialog(playerid, DIALOG_CMDS, DIALOG_STYLE_MSGBOX, "Dostêpne komendy", szCommands[frm], "WyjdŸ", #);
+	Dialog_Show(playerid, DIALOG_CMDS, DIALOG_STYLE_MSGBOX, "Dostêpne komendy", szCommands[frm], "WyjdŸ", #);
 	return 1;
 }
 
@@ -340,7 +340,7 @@ CMD:mandat(playerid, params[])
 	SetPVarInt(forplayerid,"kontrola",playerid);
 	SetPVarInt(forplayerid, "opcja1", monej);
 	SetPVarInt(forplayerid, "opcja2", pojnts); 
-	return ShowPlayerDialog(forplayerid, POLICE_DIALOG, DIALOG_STYLE_MSGBOX, " ", string, "Tak", "Nie");
+	return Dialog_Show(forplayerid, POLICE_DIALOG, DIALOG_STYLE_MSGBOX, " ", string, "Tak", "Nie");
 }
 
 CMD:aresztuj(playerid, params[])
@@ -447,7 +447,7 @@ CMD:kontrola(playerid, params[])
 		strcat(towarname, Towary[vehOtherInfo[vehicleid][vCargoID]][NazwaTowaru]);
 
 	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\tWA¯NY\nTowar:\t%s\nWaga:\t%dkg", PlayerName(targetid), towarname, vehOtherInfo[vehicleid][vCargoWeight]);
-	ShowPlayerDialog(playerid, DIALOG_CONTROL, DIALOG_STYLE_TABLIST, "Kontrola", string, "WyjdŸ", #);
+	Dialog_Show(playerid, DIALOG_CONTROL, DIALOG_STYLE_TABLIST, "Kontrola", string, "WyjdŸ", #);
 	return 1;
 }
 
@@ -648,7 +648,7 @@ CMD:wypadki(playerid)
 	strins(szString, "Nick\tLokalizacja\n", 0);
 	if(count < 1)
 		format(szString, sizeof szString, "%sBrak wypadków.", szString);
-	ShowPlayerDialog(playerid, DIALOG_CRASHES, DIALOG_STYLE_TABLIST_HEADERS, "Lista wypadków", szString, "WyjdŸ", #);
+	Dialog_Show(playerid, DIALOG_CRASHES, DIALOG_STYLE_TABLIST_HEADERS, "Lista wypadków", szString, "WyjdŸ", #);
 	return 1;
 }
 
@@ -1720,7 +1720,7 @@ CMD:dodajdok(playerid, params[])
 	if(!PlayerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	return ShowPlayerDialog(playerid, DIALOG_CREATE_DOK_NAME, DIALOG_STYLE_INPUT, " ", "Wpisz nazwê doku:", "Ok", "Zamknij");
+	return Dialog_Show(playerid, DIALOG_CREATE_DOK_NAME, DIALOG_STYLE_INPUT, " ", "Wpisz nazwê doku:", "Ok", "Zamknij");
 }
 
 CMD:usundok(playerid, params[])
@@ -1784,7 +1784,7 @@ CMD:dodajtowar(playerid, params[])
 	if(!PlayerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	return ShowPlayerDialog(playerid, DIALOG_CREATE_TOWAR_NAME, DIALOG_STYLE_INPUT, " ", "Wpisz nazwê towaru:", "Ok", "Zamknij");
+	return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_NAME, DIALOG_STYLE_INPUT, " ", "Wpisz nazwê towaru:", "Ok", "Zamknij");
 }
 
 CMD:usuntowar(playerid, params[])
@@ -1813,7 +1813,7 @@ CMD:dodajradio(playerid, params[])
 	if(!PlayerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	return ShowPlayerDialog(playerid, DIALOG_ID_RADIO_ADD, DIALOG_STYLE_INPUT, " ", "Wpisz nazwê radia:", "Dalej", "Zamknij");
+	return Dialog_Show(playerid, DIALOG_ID_RADIO_ADD, DIALOG_STYLE_INPUT, " ", "Wpisz nazwê radia:", "Dalej", "Zamknij");
 }
 
 CMD:dodajstacje(playerid, params[])
@@ -1976,7 +1976,7 @@ CMD:debug(playerid, params[])
 	    }
 	}
  
-	ShowPlayerDialog(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST_HEADERS, "Debug PVAR", string, "Ok", "");
+	Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST_HEADERS, "Debug PVAR", string, "Ok", "");
 
 	return 1;
 }

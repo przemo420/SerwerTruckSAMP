@@ -58,18 +58,18 @@ CMD:adr(playerid)
 	szForm = (class == 1) ? ("szej") : ((class == 2) ? ("giej") : ("ciej"));
 
 	format(szBuffer, sizeof szBuffer, "{488CDB}Licencja ADR\n \n{FFFFFF}Czy jesteœ pewien, ¿e chcesz przyst¹piæ do testu na licencjê ADR klasy %d-%s?\n \nW przypadku oblania testów koszta ($%d) nie zostan¹ zwrócone\nW zale¿noœci od klasy test sk³ada siê od 3 do 5 pytañ.\nPowodzenia. :)", class, szForm, ADR_Cost[class - 1]);
-	ShowPlayerDialog(playerid, DIALOG_ADR, DIALOG_STYLE_MSGBOX, " ", szBuffer, "Rozumiem", "Anuluj");
+	Dialog_Show(playerid, DIALOG_ADR, DIALOG_STYLE_MSGBOX, " ", szBuffer, "Rozumiem", "Anuluj");
 	return 1;
 }
 
-DIALOG:DIALOG_ADR(playerid, response, listitem, inputtext[])
+Dialog:DIALOG_ADR(playerid, response, listitem, inputtext[])
 {
 	if(response)
 	{
 		new questNumb = PlayerInfo[playerid][pADR] * 5;
 
 		GiveMoney(playerid, -ADR_Cost[PlayerInfo[playerid][pADR]]);
-		ShowPlayerDialog(playerid, DIALOG_ADR2, DIALOG_STYLE_INPUT, " ", ADRQuestions[questNumb][2], "Dalej", #);
+		Dialog_Show(playerid, DIALOG_ADR2, DIALOG_STYLE_INPUT, " ", ADRQuestions[questNumb][2], "Dalej", #);
 		SetPVarInt(playerid, "ADR_Step", 0);
 		SetPVarInt(playerid, "ADR_Balance", 0);
 	}
@@ -77,7 +77,7 @@ DIALOG:DIALOG_ADR(playerid, response, listitem, inputtext[])
 	return 1;
 }
 
-DIALOG:DIALOG_ADR2(playerid, response, listitem, inputtext[])
+Dialog:DIALOG_ADR2(playerid, response, listitem, inputtext[])
 {
 	new step = GetPVarInt(playerid, "ADR_Step"), questNumb = (PlayerInfo[playerid][pADR] * 5) + step;
 	if(response)
@@ -116,24 +116,24 @@ DIALOG:DIALOG_ADR2(playerid, response, listitem, inputtext[])
 				}
 				DeletePVar(playerid, "ADR_Step");
 				DeletePVar(playerid, "ADR_Balance");
-				ShowPlayerDialog(playerid, DIALOG_ADR3, DIALOG_STYLE_MSGBOX, " ", szBuffer, "Rozumiem", #);
+				Dialog_Show(playerid, DIALOG_ADR3, DIALOG_STYLE_MSGBOX, " ", szBuffer, "Rozumiem", #);
 				return 1;
 			}
 			else
-				ShowPlayerDialog(playerid, DIALOG_ADR2, DIALOG_STYLE_INPUT, " ", ADRQuestions[questNumb + 1][2], "Dalej", #),
+				Dialog_Show(playerid, DIALOG_ADR2, DIALOG_STYLE_INPUT, " ", ADRQuestions[questNumb + 1][2], "Dalej", #),
 				step++,
 				SetPVarInt(playerid, "ADR_Step", step);
 		}
 		else
-			ShowPlayerDialog(playerid, DIALOG_ADR2, DIALOG_STYLE_INPUT, " ", ADRQuestions[questNumb][2], "Dalej", #);
+			Dialog_Show(playerid, DIALOG_ADR2, DIALOG_STYLE_INPUT, " ", ADRQuestions[questNumb][2], "Dalej", #);
 	}
 	else
-		ShowPlayerDialog(playerid, DIALOG_ADR2, DIALOG_STYLE_INPUT, " ", ADRQuestions[questNumb][2], "Dalej", #);
+		Dialog_Show(playerid, DIALOG_ADR2, DIALOG_STYLE_INPUT, " ", ADRQuestions[questNumb][2], "Dalej", #);
 
 	return 1;
 }
 
-DIALOG:DIALOG_ADR3(playerid, response, listitem, inputtext[])
+Dialog:DIALOG_ADR3(playerid, response, listitem, inputtext[])
 {
 	return 1;
 }

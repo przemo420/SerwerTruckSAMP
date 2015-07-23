@@ -52,7 +52,7 @@ CMD:bankomat(playerid, params[])
 		if(GetDistanceFromMeToPoint(playerid, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ]) <= 20)
 		{
 			if(PlayerInfo[playerid][pBankomat] == (-1))
-				return ShowPlayerDialog(playerid, DIALOG_BANK_CONNECT, DIALOG_STYLE_MSGBOX, " ", "{FFB90F}Nie posiadasz konta bankowego, czy chcesz je za³o¿yæ za kwotê{FFFFFF}5000$?", "Tak", "Nie");
+				return Dialog_Show(playerid, DIALOG_BANK_CONNECT, DIALOG_STYLE_MSGBOX, " ", "{FFB90F}Nie posiadasz konta bankowego, czy chcesz je za³o¿yæ za kwotê{FFFFFF}5000$?", "Tak", "Nie");
 
 			new x[200];
 			new string[120];
@@ -66,7 +66,7 @@ CMD:bankomat(playerid, params[])
 			strcat(x, " \n");
 			strcat(x,"{FFFFFF}www.serwertruck.eu");
 
-			ShowPlayerDialog(playerid, DIALOG_BANK_CONNECT1, DIALOG_STYLE_LIST, " ", x, "Wybierz", "Wyjd?");
+			Dialog_Show(playerid, DIALOG_BANK_CONNECT1, DIALOG_STYLE_LIST, " ", x, "Wybierz", "Wyjd?");
 			DeletePVar(playerid, "Banklisitem");
 			find=true;
 			break;

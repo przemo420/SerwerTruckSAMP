@@ -58,7 +58,7 @@ CMD:tablica(playerid, params[])
 			}
 
 			find=true;
-			ShowPlayerDialog(playerid, DIALOG_ID_OGLOSZENIE, (mysql_num_rows() ? DIALOG_STYLE_TABLIST_HEADERS : DIALOG_STYLE_MSGBOX), "Og³oszenia", wiadomosc, "Dodaj", "Zamknij");
+			Dialog_Show(playerid, DIALOG_ID_OGLOSZENIE, (mysql_num_rows() ? DIALOG_STYLE_TABLIST_HEADERS : DIALOG_STYLE_MSGBOX), "Og³oszenia", wiadomosc, "Dodaj", "Zamknij");
 			break;
 		}
 

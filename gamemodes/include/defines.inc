@@ -41,7 +41,7 @@ enum {
 #define isnull(%1) ((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))))
 #define Loop(%1,%2) for(new %1 = 0; %1 < %2; %1++)
 #define ResetVariablesInEnum(%0,%1) 	for(new __rvine; %1:__rvine != %1; __rvine++) %0[%1:__rvine]=0
-#define ShowInfo(%0,%1) ShowPlayerDialog(%0, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "{FF0000}Informacja", %1, "Ok", "")
+#define ShowInfo(%0,%1) Dialog_Show(%0, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "{FF0000}Informacja", %1, "Ok", "")
 
 enum
 {
@@ -62,9 +62,7 @@ enum
 	DIALOG_ID_RADIO,
 	DIALOG_ID_LOAD_CARGO,
 	DIALOG_ID_LOAD_CARGO_WEIGHT,
-	NEVER_DIALOG,
 	DIALOG_ID_REGISTER,
-	DIALOG_ID_LOGIN,
 	COMPANY_DIALOG,
 	GTIMEG_DIALOG,
 	GTIMEG_LIST_DIALOG,

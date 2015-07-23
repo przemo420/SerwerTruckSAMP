@@ -432,7 +432,7 @@ public AlcoholTest(playerid, trgtid)
 {
 	new szString[128], Float:alcohol = GetPlayerDrunkLevel(trgtid) / 400;
 	format(szString, sizeof szString, "{FFFFFF}Gracz {82C412}%s{FFFFFF} jest %s{FFFFFF}\nPosiada {82C412}%.02f{FFFFFF} we krwi.", PlayerName(trgtid), (alcohol <= 0.2) ? ("{82C412}trzewy") : ("{BA0B0B}pijany"), alcohol);
-	ShowPlayerDialog(playerid, DIALOG_ALCOHOL, DIALOG_STYLE_MSGBOX, "Alkomat", szString, "Wyjd?", #);
+	Dialog_Show(playerid, DIALOG_ALCOHOL, DIALOG_STYLE_MSGBOX, "Alkomat", szString, "Wyjd?", #);
 	return 1;
 }
 
