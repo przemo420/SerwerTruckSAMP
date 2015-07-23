@@ -1,9 +1,3 @@
-#define DIALOG:%0(%1)\
-        forward dial_%0(%1);\
-        public dial_%0(%1)
-#define DIAL:%0(%1)\
-		DIALOG:%0(%1)
-        
 #undef MAX_PLAYERS
 
 #define MAX_PLAYERS 		25
@@ -300,8 +294,6 @@ enum vInfo
 	vTires,
 	vOwnerVC,
 	vPlate[32],
-	vCargoID,
-	vCargoWeight,
 	vSAMPID
 };
 new vehInfo[MAX_VEHICLES_DB][vInfo];
@@ -352,6 +344,7 @@ enum Player {
 	pGTime,
 	pWorkTime,
 	pBuildmaster,
+	pADR,
 	bool:pInvited[8],
 	chained,
 	chainedTimer
@@ -434,6 +427,7 @@ enum Towarys
 	Float:Stawka,
 	MinimalnyCzas,
 	Poziom,
+	Adr,
 	NazwaTowaru[40]
 };
 new Towary[MAX_TOWAROW][Towarys];

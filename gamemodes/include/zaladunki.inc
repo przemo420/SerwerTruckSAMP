@@ -30,7 +30,7 @@ LadujDoki()
 
 LadujTowary()
 {
-	mysql_query("SELECT `id`, `typ`, `stawka`, `minczas`, `poziom`, `nazwa` FROM `Towary`");
+	mysql_query("SELECT `id`, `typ`, `stawka`, `minczas`, `poziom`, `adr`, `nazwa` FROM `Towary`");
 	mysql_store_result();
 
 	if(mysql_num_rows()==0)
@@ -39,7 +39,7 @@ LadujTowary()
 	new id=1, string[140];
 	while(mysql_fetch_row(string, "|")) 
 	{
-    	sscanf(string, "e<p<|>ddfdds[32]>", Towary[id]);
+    	sscanf(string, "e<p<|>ddfddds[32]>", Towary[id]);
     	id++;
 	} 
 
@@ -57,7 +57,7 @@ public LoadVehicle(playerid)
 
     if(GetPVarInt(playerid, "LadowanieCzas") == 0)
 	{
-		new towarid, waga, vehicleid, vehicleUID;
+		new towarid, waga, vehicleid;
 
 		KillTimer(GetPVarInt(playerid, "LadowanieTimer"));
 		DeletePVar(playerid, "LadowanieCzas");
@@ -76,30 +76,12 @@ public LoadVehicle(playerid)
 		PlayerTextDrawShow(playerid, Speedometer[VehicleCargo][playerid]);
 
 		if(IsPlayerInTruck(playerid))
-		{
 			vehicleid = GetVehicleTrailer(GetPlayerVehicleID(playerid));
-
-			if(!Spawned[vehicleid])
-				vehicleUID = DBVehID[vehicleid];
-		}
 		else
-		{
 			vehicleid = GetPlayerVehicleID(playerid);
 
-			if(!Spawned[vehicleid])
-				vehicleUID = DBVehID[vehicleid];
-		}
-
-		if(Spawned[vehicleid])
-		{
-			towarid = vehOtherInfo[vehicleid][vCargoID];
-			waga = vehOtherInfo[vehicleid][vCargoWeight]; 
-		}
-		else
-		{
-			towarid = vehInfo[vehicleUID][vCargoID]; 
-			waga = vehInfo[vehicleUID][vCargoWeight];
-		}
+		towarid = vehOtherInfo[vehicleid][vCargoID];
+		waga = vehOtherInfo[vehicleid][vCargoWeight]; 
 
 		format(string,sizeof string,"%s~n~%dkg", Towary[towarid][NazwaTowaru], waga);
 		PlayerTextDrawSetString(playerid, Speedometer[VehicleCargo][playerid], string);
@@ -126,9 +108,6 @@ forward UnLoadVehicle(playerid, towarid, weight, vehicleid);
 public UnLoadVehicle(playerid, towarid, weight, vehicleid)
 {
 	new string[256];
-	new vehicleuid;
-
-	vehicleuid = DBVehID[vehicleid];
 
 	new dokid = GetPVarInt(playerid, "dokid"), stacjaid = GetStacja(playerid);
     new Float:Money;
@@ -141,32 +120,16 @@ public UnLoadVehicle(playerid, towarid, weight, vehicleid)
 		
   		if(ile_potrzeba < ile_ma)
   		{
-  			if(Spawned[vehicleid])
-  			{
-  				format(string, sizeof(string), "%s~n~%dkg", Towary[vehOtherInfo[vehicleid][vCargoID]][NazwaTowaru], vehOtherInfo[vehicleid][vCargoWeight]);
-  				vehOtherInfo[vehicleid][vCargoWeight] -= ile_potrzeba*8;
-  			}
-  			else
-  			{
-  				format(string, sizeof(string), "%s~n~%dkg", Towary[vehInfo[vehicleuid][vCargoID]][NazwaTowaru], vehInfo[vehicleuid][vCargoWeight]);
-  				vehInfo[vehicleuid][vCargoWeight] -= ile_potrzeba*8;
-  			}
+  			format(string, sizeof(string), "%s~n~%dkg", Towary[vehOtherInfo[vehicleid][vCargoID]][NazwaTowaru], vehOtherInfo[vehicleid][vCargoWeight]);
+  			vehOtherInfo[vehicleid][vCargoWeight] -= ile_potrzeba*8;
 
 			PlayerTextDrawSetString(playerid, Speedometer[VehicleCargo][playerid], string);
 			ile_da = 3000;
   		}
   		else
   		{
-  			if(Spawned[vehicleid])
-  			{
-  				vehOtherInfo[vehicleid][vCargoID] = 0;
-				vehOtherInfo[vehicleid][vCargoWeight] = 0;
-  			}
-  			else
-  			{
-  				vehInfo[vehicleuid][vCargoID] = 0;
-				vehInfo[vehicleuid][vCargoWeight] = 0;
-			}
+  			vehOtherInfo[vehicleid][vCargoID] = 0;
+			vehOtherInfo[vehicleid][vCargoWeight] = 0;
 
 			TextDrawHideForPlayer(playerid, Speedometer[CargoInfoTD]);
 			PlayerTextDrawHide(playerid, Speedometer[VehicleCargo][playerid]);
@@ -182,16 +145,8 @@ public UnLoadVehicle(playerid, towarid, weight, vehicleid)
 	}
   	else
   	{
-  		if(Spawned[vehicleid])
-  		{
-  			vehOtherInfo[vehicleid][vCargoID] = 0;
-			vehOtherInfo[vehicleid][vCargoWeight] = 0;
-  		}
-  		else
-  		{
-  			vehInfo[vehicleuid][vCargoID] = 0;
-			vehInfo[vehicleuid][vCargoWeight] = 0;
-		}
+  		vehOtherInfo[vehicleid][vCargoID] = 0;
+		vehOtherInfo[vehicleid][vCargoWeight] = 0;
 
 		TextDrawHideForPlayer(playerid, Speedometer[CargoInfoTD]);
 		PlayerTextDrawHide(playerid, Speedometer[VehicleCargo][playerid]);
@@ -265,7 +220,7 @@ CMD:zaladuj(playerid, params[])
 			return ShowPlayerDialog(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", string, "Ok", "");
 		}
 
-		else if( (Spawned[vehicleid] && vehOtherInfo[vehicleid][vCargoID]) || (!Spawned[vehicleid] && vehInfo[DBVehID[vehicleid]][vCargoID]) )
+		else if( vehOtherInfo[vehicleid][vCargoID] )
 			return ShowInfo(playerid, "Jesteœ ju¿ za³adowany.");
 
 		else if(GetPVarInt(playerid, "LadowanieCzas"))
@@ -273,7 +228,7 @@ CMD:zaladuj(playerid, params[])
 	}
 	else if(IsPlayerInBus(playerid))
 	{
-		if( (Spawned[vehicleid] && vehOtherInfo[vehicleid][vCargoID]) || (!Spawned[vehicleid] && vehInfo[DBVehID[vehicleid]][vCargoID]) )
+		if( vehOtherInfo[vehicleid][vCargoID] )
 			return ShowInfo(playerid, "Jesteœ ju¿ za³adowany.");
 	}
 	else
@@ -300,7 +255,7 @@ CMD:rozladuj(playerid, params[])
 {
 	new LoadingPoint = GetPlayerLoadingPoint(playerid);
 	new vehicleid = GetPlayerVehicleID(playerid);
-	new towarid, waga, str[80];
+	new towarid, waga;
 
 	if(!IsPlayerInAnyVehicle(playerid))
 		return ShowInfo(playerid, "Nie jesteœ w pojeŸdzie.");
@@ -314,22 +269,15 @@ CMD:rozladuj(playerid, params[])
 	{
 		if(!IsTrailerAttachedToVehicle(GetPlayerVehicleID(playerid)))
 			return ShowInfo(playerid, "Nie posiadasz naczepy.");
-		else
-		{
-			towarid = (Spawned[vehicleid] ? vehOtherInfo[vehicleid][vCargoID] : vehInfo[DBVehID[vehicleid]][vCargoID]);
-			waga = (Spawned[vehicleid] ? vehOtherInfo[vehicleid][vCargoWeight] : vehInfo[DBVehID[vehicleid]][vCargoWeight]);
-		}
 	}
 	else 
 	{
 		if(!IsPlayerInBus(playerid))
 			return ShowInfo(playerid, "Nie obs³ugujemy tego pojazdu.");
-		else
-		{
-			towarid = (Spawned[vehicleid] ? vehOtherInfo[vehicleid][vCargoID] : vehInfo[DBVehID[vehicleid]][vCargoID]);
-			waga = (Spawned[vehicleid] ? vehOtherInfo[vehicleid][vCargoWeight] : vehInfo[DBVehID[vehicleid]][vCargoWeight]);
-		}
 	}
+
+	towarid = vehOtherInfo[vehicleid][vCargoID];
+	waga = vehOtherInfo[vehicleid][vCargoWeight];
 
 	if(towarid == 0 || waga == 0)
 		return SendClientMessage(playerid, LIGHTRED, "Nie jesteœ za³adowany.");
@@ -370,8 +318,5 @@ CMD:rozladuj(playerid, params[])
 	SetPVarInt(playerid, "rozladowywuje", 1);
 	SendClientMessage(playerid, LIGHTRED, "Trwa roz³adowywanie...");
 	SetTimerEx("UnLoadVehicle", 10*1000, 0, "dddd", playerid, towarid, waga, vehicleid);
-
-	format(str, sizeof(str), "ID Towaru: {b}%d{/b}", towarid);
-	Msg(playerid, COLOR_INFO, str);
 	return 1;
 }

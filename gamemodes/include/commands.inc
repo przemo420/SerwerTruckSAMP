@@ -416,9 +416,6 @@ CMD:kontrola(playerid, params[])
 	new targetid,
 		string[256],
 		vehicleid,
-		vehicleUID,
-		cargoId = 0,
-		weight,
 		towarname[40];
 
 	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
@@ -440,34 +437,16 @@ CMD:kontrola(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest w pojeüdzie.");
 
 	if(IsPlayerInTruck(playerid))
-	{
 		vehicleid = GetVehicleTrailer(GetPlayerVehicleID(playerid));
-		if(!Spawned[vehicleid])
-			vehicleUID = DBVehID[vehicleid];
-	}
 	else
-	{
 		vehicleid = GetPlayerVehicleID(playerid);
-		if(!Spawned[vehicleid])
-			vehicleUID = DBVehID[vehicleid];
-	}
-	if(Spawned[vehicleid])
-	{
-		cargoId = vehOtherInfo[vehicleid][vCargoID];
-		weight = vehOtherInfo[vehicleid][vCargoWeight]; 
-	}
-	else
-	{
-		cargoId = vehInfo[vehicleUID][vCargoID]; 
-		weight = vehInfo[vehicleUID][vCargoWeight];
-	}
-
-	if(cargoId <= 0)
+	
+	if(vehOtherInfo[vehicleid][vCargoID] <= 0)
 		strcat(towarname, "Brak");
 	else
-		strcat(towarname, Towary[cargoId][NazwaTowaru]);
+		strcat(towarname, Towary[vehOtherInfo[vehicleid][vCargoID]][NazwaTowaru]);
 
-	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzeglπd:\tWAØNY\nTowar:\t%s\nWaga:\t%dkg", PlayerName(targetid), towarname, weight);
+	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzeglπd:\tWAØNY\nTowar:\t%s\nWaga:\t%dkg", PlayerName(targetid), towarname, vehOtherInfo[vehicleid][vCargoWeight]);
 	ShowPlayerDialog(playerid, DIALOG_CONTROL, DIALOG_STYLE_TABLIST, "Kontrola", string, "Wyjdü", #);
 	return 1;
 }
