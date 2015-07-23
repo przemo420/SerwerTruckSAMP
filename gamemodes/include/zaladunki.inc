@@ -13,7 +13,7 @@ LadujDoki()
     	sscanf(string, "e<p<|>ds[32]fffd>", LoadingPoints[ID_DOKOW]);
 
     	new str[80];
-		format(str, sizeof str, "{F0F000}%s (%s) [bID: %d | sID: %d]", LoadingPoints[ID_DOKOW][PointName], KategorieTowarow[LoadingPoints[ID_DOKOW][pType]], LoadingPoints[ID_DOKOW][lID], ID_DOKOW);
+		format(str, sizeof str, "{F0F000}%s (%s)\n[bID: %d | sID: %d]", LoadingPoints[ID_DOKOW][PointName], KategorieTowarow[LoadingPoints[ID_DOKOW][pType]], LoadingPoints[ID_DOKOW][lID], ID_DOKOW);
 		LoadingPointsText3D[ID_DOKOW]= CreateDynamic3DTextLabel(str, ZIELONY99, LoadingPoints[ID_DOKOW][PointPosX], LoadingPoints[ID_DOKOW][PointPosY], LoadingPoints[ID_DOKOW][PointPosZ]+0.5, 50.0);
 
 		for(new playerid; playerid < MAX_PLAYERS; playerid++)
@@ -178,7 +178,7 @@ public UnLoadVehicle(playerid, towarid, weight, vehicleid)
 	}
 	ShowInfo(playerid, string);
 
-	format(string, sizeof(string), "Roz³adowano towar (vehicleUID: %d | vehicleid: %d | towarid: %d | roz³adowano: %d)", Spawned[vehicleid] ? (-1) : vehInfo[DBVehID[vehicleid]][vID], vehicleid, GetPVarInt(playerid, "dokid"), towarid, GetPVarInt(playerid, "w_stacji") ? weight : ile_da);
+	format(string, sizeof(string), "Roz³adowano towar (vehicleUID: %d | vehicleid: %d | towarid: %d | roz³adowano: %d | nagroda: %d)", Spawned[vehicleid] ? (-1) : vehInfo[DBVehID[vehicleid]][vID], vehicleid, GetPVarInt(playerid, "dokid"), towarid, GetPVarInt(playerid, "w_stacji") ? weight : ile_da, floatround(Money, floatround_ceil));
 	ToLog(PlayerInfo[playerid][pID], LOG_TYPE_PLAYER, string);
 
    	DeletePVar(playerid, "dokid");
@@ -215,10 +215,7 @@ CMD:zaladuj(playerid, params[])
 			return ShowInfo(playerid, "Nie posiadasz naczepy.");
 
 		else if(!IsValidTrailerType(vehicleid, LoadingPoints[dokid][pType]))
-		{
-			format(string, sizeof(string), "Nie obs³ugujemy tej naczepy.\n\nKategoria towarów: %s\nModel naczepy: %d", KategorieTowarow[LoadingPoints[dokid][pType]], GetVehicleModel(vehicleid));
-			return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", string, "Ok", "");
-		}
+			return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "Za³adunek", "Nie obs³ugujemy tej naczepy.\n\nKategoria towarów: %s\nModel naczepy: %d", "Ok", "", KategorieTowarow[LoadingPoints[dokid][pType]], GetVehicleModel(vehicleid));
 
 		else if( vehOtherInfo[vehicleid][vCargoID] )
 			return ShowInfo(playerid, "Jesteœ ju¿ za³adowany.");
@@ -319,4 +316,82 @@ CMD:rozladuj(playerid, params[])
 	SendClientMessage(playerid, LIGHTRED, "Trwa roz³adowywanie...");
 	SetTimerEx("UnLoadVehicle", 10*1000, 0, "dddd", playerid, towarid, waga, vehicleid);
 	return 1;
+}
+
+Dialog:DIALOG_ID_LOAD_CARGO(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+ 
+    new dokid = GetPVarInt(playerid, "dokid");
+    new towar;
+    new string[120];
+    new Przeladowanie = (IsPlayerInTruck(playerid) ? (20001) : (6001));
+    new MaxMasa = (IsPlayerInTruck(playerid) ? (24000) : (8000));
+
+    for(new i; i < MAX_TOWAROW; i++)
+    {
+            if(Towary[i][tID] && Towary[i][Typ] == LoadingPoints[dokid][pType])
+            {
+                    if(Towary[i][Poziom] <= GetPVarInt(playerid, "LEVEL"))
+                    {
+                            if(towar == listitem)
+                            {
+                                    SetPVarInt(playerid, "towarid", i);
+                                                   
+                                    format(string, sizeof(string), "Wpisz poni¿ej iloœæ ³adowanego towaru w KG.\n\nPrze³adowanie zaczyna siê od: %d\nMaksymalna iloœæ towaru: %d", Przeladowanie, MaxMasa);
+                                    Dialog_Show(playerid, DIALOG_ID_LOAD_CARGO_WEIGHT, DIALOG_STYLE_INPUT, " ", string, "Za³aduj", "Anuluj");
+                                    break;
+                            }
+                            towar++;
+                    }
+            }
+    }
+
+    return 1;
+}
+
+Dialog:DIALOG_ID_LOAD_CARGO_WEIGHT(playerid, response, listitem, inputtext[])
+{
+    if(!response)
+        return 1;
+
+    new towar = GetPVarInt(playerid, "towarid");
+    new ladowany = strval(inputtext);
+    new h, m, s, h2, m2, s2;
+    new string[256];
+    new Przeladowanie = (IsPlayerInTruck(playerid) ? (20001) : (6001));
+    new MaxMasa = (IsPlayerInTruck(playerid) ? (24000) : (8000));
+    new vehicleid;
+    new CzasLadowania = floatround(ladowany*7.5);
+
+    if(ladowany > MaxMasa || ladowany <= 2000)
+    {
+            format(string, sizeof(string), "B³êdna iloœæ towaru (prawid³owy przedzia³: 2000-%d).\n\nPrze³adowanie zaczyna siê od: %d", MaxMasa, Przeladowanie);
+            return Dialog_Show(playerid, DIALOG_ID_LOAD_CARGO_WEIGHT, DIALOG_STYLE_INPUT, " ", string, "Za?aduj", "Anuluj");
+    }
+
+    ConvertSeconds(Towary[towar][MinimalnyCzas], h, m, s);
+    ConvertMS(CzasLadowania, h2, m2, s2);
+    format(string, sizeof(string), "£adowanie towaru:\n\nNazwa: %s\nTyp: %s\nStawka: %.02f\nMinimalny czas wy³adunku: %dm %ds\nOd poziomu: %d\nCzas ³adowania: %dm %ds", Towary[towar][NazwaTowaru], KategorieTowarow[Towary[towar][Typ]], Towary[towar][Stawka], m, s, Towary[towar][Poziom],  m2, s2);
+    ShowInfo(playerid, string);
+   
+    SetPVarInt(playerid, "CzasDoRozladunku", Towary[towar][MinimalnyCzas]);
+    SetPVarInt(playerid, "LadowanieTimer", SetTimerEx("LoadVehicle", CzasLadowania, true, "d", playerid));
+    
+    new engine,lights,alarm,doors,bonnet,boot,objective;
+    GetVehicleParamsEx(vehicleid,engine,lights,alarm,doors,bonnet,boot,objective);
+    SetVehicleParamsEx(vehicleid,VEHICLE_PARAMS_OFF,lights,alarm,doors,bonnet,boot,objective);
+    
+    TogglePlayerControllable(playerid, false);
+
+    if(IsPlayerInTruck(playerid))
+            vehicleid = GetVehicleTrailer(GetPlayerVehicleID(playerid));
+    else
+            vehicleid = GetPlayerVehicleID(playerid);
+
+    vehOtherInfo[vehicleid][vCargoID] = towar;
+    vehOtherInfo[vehicleid][vCargoWeight] = ladowany;
+
+    return 1;
 }

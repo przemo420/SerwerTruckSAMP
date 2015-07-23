@@ -52,21 +52,9 @@ CMD:bankomat(playerid, params[])
 		if(GetDistanceFromMeToPoint(playerid, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ]) <= 20)
 		{
 			if(PlayerInfo[playerid][pBankomat] == (-1))
-				return Dialog_Show(playerid, DIALOG_BANK_ZALOZ, DIALOG_STYLE_MSGBOX, " ", "{FFB90F}Nie posiadasz konta bankowego, czy chcesz je za³o¿yæ za kwotê{FFFFFF}5000$?", "Tak", "Nie");
+				return Dialog_Show(playerid, DIALOG_BANK_ZALOZ, DIALOG_STYLE_MSGBOX, "Bankomat > Za³ó¿", "{FFB90F}Nie posiadasz konta bankowego, czy chcesz je za³o¿yæ za kwotê{FFFFFF}5000$?", "Tak", "Nie");
 
-			new x[200];
-			new string[120];
-			strcat(x, "{FFFFFF}Serwer-Truck SAMP - bankomaty.\n");
-			strcat(x, " \n");
-			strcat(x, "{FFB90F}- wp³aæ pieni¹dze na konto\n");
-			strcat(x, "{FFB90F}- wyp³aæ pieni¹dze z konta\n");
-			strcat(x, " \n");
-			format(string, sizeof string, "{FFB90F}Stan konta: {FFFFFF}%d$\n", PlayerInfo[playerid][pBankomat]);
-			strcat(x, string);
-			strcat(x, " \n");
-			strcat(x,"{FFFFFF}www.serwertruck.eu");
-
-			Dialog_Show(playerid, DIALOG_BANK, DIALOG_STYLE_LIST, " ", x, "Wybierz", "Wyjd?");
+			Dialog_Show(playerid, DIALOG_BANK, DIALOG_STYLE_LIST, "Bankomat", "{FFFFFF}Serwer-Truck SAMP - bankomaty.\n\n{FFB90F}- wp³aæ pieni¹dze na konto\n{FFB90F}- wyp³aæ pieni¹dze z konta\n\n{FFB90F}Stan konta: {FFFFFF}%d$\n\n{FFFFFF}www.serwertruck.eu", "Wybierz", "WyjdŸ", PlayerInfo[playerid][pBankomat]);
 			find=true;
 			break;
 		}
@@ -99,10 +87,10 @@ Dialog:DIALOG_BANK(playerid, response, listitem, inputtext[])
 	switch(listitem)
 	{
 		case 2:
-			Dialog_Show(playerid, DIALOG_BANK_WPLAC, DIALOG_STYLE_INPUT, " ", "Wpisz kwotê, któr¹ chcesz wp³aciæ na konto:", "Dalej", "WyjdŸ");
+			Dialog_Show(playerid, DIALOG_BANK_WPLAC, DIALOG_STYLE_INPUT, "Bankomat > Wp³aæ", "Wpisz kwotê, któr¹ chcesz wp³aciæ na konto:", "Dalej", "WyjdŸ");
 
 		case 3:
-			Dialog_Show(playerid, DIALOG_BANK_WYPLAC, DIALOG_STYLE_INPUT, " ", "Wpisz kwotê, któr¹ chcesz wyp³aciæ z konta:", "Dalej", "WyjdŸ");
+			Dialog_Show(playerid, DIALOG_BANK_WYPLAC, DIALOG_STYLE_INPUT, "Bankomat > Wyp³aæ", "Wpisz kwotê, któr¹ chcesz wyp³aciæ z konta:", "Dalej", "WyjdŸ");
 
 		default: cmd_bankomat(playerid, "");
 	}
@@ -115,33 +103,35 @@ Dialog:DIALOG_BANK_WPLAC(playerid, response, listitem, inputtext[])
 	if(!response)
 		return 1;
 
-	new string[70];
 	new pPieniadze = strval(inputtext);
 
 	if(pPieniadze <= 0)
 		return ShowInfo(playerid, "Zbyt ma³a kwota.");
 		
-	/*switch(GetPVarInt(playerid, "Banklisitem"))
-	{
-			case 1:
-			{
-			if(GetMoney(playerid) < pPieniadze)
-				return ShowInfo(playerid, "Nie posiadasz tylu pieniêdzy.");	
-			
-			GiveMoney(playerid, -pPieniadze);
-			PlayerInfo[playerid][pBankomat] += pPieniadze;
-			format(string, sizeof(string), "Wp?aci?e? {FFB90F}$%d {FFFFFF}na konto bankowe.", pPieniadze);
-			ShowInfo(playerid, string);
-			}
-			
-			case 2:
-		{
-			if(pPieniadze > PlayerInfo[playerid][pBankomat])
-				return ShowInfo(playerid, "Konto nie posiada takiego zasobu got?ki.");
-			GiveMoney(playerid, pPieniadze);
-			PlayerInfo[playerid][pBankomat] -= pPieniadze;
-			format(string, sizeof string, "Wyp?aci?e? {FFB90F}$%d {FFFFFF}z konta bankowego.", pPieniadze);
-			ShowInfo(playerid, string);
-		}
-	}*/
+	if(GetMoney(playerid) < pPieniadze)
+		pPieniadze = GetMoney(playerid);
+
+	GiveMoney(playerid, -pPieniadze);
+	PlayerInfo[playerid][pBankomat] += pPieniadze;
+
+	return Dialog_Show(playerid, DIALOG_BANK_WYPLAC, DIALOG_STYLE_INPUT, "Bankomat > Wp³aæ", "Wp³aci³eœ {FFB90F}$%d {FFFFFF}na konto bankowe.", "Dalej", "WyjdŸ", pPieniadze);
+}
+
+Dialog:DIALOG_BANK_WYPLAC(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	new pPieniadze = strval(inputtext);
+
+	if(pPieniadze <= 0)
+		return ShowInfo(playerid, "Zbyt ma³a kwota.");
+
+	if(pPieniadze > PlayerInfo[playerid][pBankomat])
+		pPieniadze = PlayerInfo[playerid][pBankomat];
+
+	GiveMoney(playerid, pPieniadze);
+	PlayerInfo[playerid][pBankomat] -= pPieniadze;
+
+	return Dialog_Show(playerid, DIALOG_BANK_WYPLAC, DIALOG_STYLE_INPUT, "Bankomat > Wyp³aæ", "Wyp³aci³eœ {FFB90F}$%d {FFFFFF}z konta bankowego.", "Dalej", "WyjdŸ", pPieniadze);
 }

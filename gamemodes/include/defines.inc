@@ -384,6 +384,7 @@ enum sxInfo
 	Float:sY,
 	Float:sZ,
 	sObject,
+	Text3D:sText
 }
 
 new ssInfo[MAX_SPIKESTRIPS][sxInfo];

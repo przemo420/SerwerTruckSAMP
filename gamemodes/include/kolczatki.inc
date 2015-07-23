@@ -61,19 +61,24 @@ stock GetDistancePointToPoint(Float:x1, Float:y1, Float:z1, Float:x2, Float:y2, 
 	return floatround(floatsqroot(((( x1 - x2 ) * ( x1 - x2 )) + (( y1 - y2 ) * ( y1 - y2 )) + (( z1 - z2 ) * ( z1 - z2 )))));
 }
 
-stock CreateStrip(Float:x, Float:y, Float:z, Float:Angle)
+stock CreateStrip(playerid, Float:x, Float:y, Float:z, Float:Angle)
 {
 	new count = -1;
 	for(new i = 0; i < MAX_SPIKESTRIPS; i++)
 	{
 		if(ssInfo[i][sCreated] == 0)
 		{
+			new string[50];
+			format(string, sizeof(string), "{FFFFFF}UID: %d\nUtworzy³: %s", obiektyBTID, PlayerName(playerid));
+
 			count = i;
 			ssInfo[i][sCreated] = 1;
 			ssInfo[i][sX] = x;
 			ssInfo[i][sY] = y;
 			ssInfo[i][sZ] = z-0.7;
 			ssInfo[i][sObject] = CreateDynamicObject(2899, x, y, z-0.9, 0.0, 0.0, Angle-90);
+			ssInfo[i][sText] = CreateDynamic3DTextLabel(string, ZIELONY6, x, y, z, 5.0);
+
 			return 1;
 		}
 	}
@@ -91,7 +96,77 @@ stock DeleteAllStrip()
 			ssInfo[i][sY] = 0.0;
 			ssInfo[i][sZ] = 0.0;
 			DestroyDynamicObject(ssInfo[i][sObject]);
+			DestroyDynamic3DTextLabel(ssInfo[i][sText]);
 		}
 	}
+	return 1;
+}
+
+CMD:kolczatka(playerid)
+{
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
+
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
+	new Float:pos[4], id;
+	GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+	GetPlayerFacingAngle(playerid, pos[3]);
+	id = CreateStrip(playerid, pos[0], pos[1], pos[2], pos[3]);
+
+	if(id < 0)
+		Msg(playerid, COLOR_INFO, "Nie mo¿na rozstawiæ wiêcej kolczatek.");
+	else
+		Msg(playerid, COLOR_INFO, "Pomyœlnie ustawiono kolczatke");
+
+	return 1;
+}
+
+CMD:usunkolczatke(playerid, params[])
+{
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
+
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
+	if(isnull(params))
+		return Msg(playerid, COLOR_ERROR, "/usunkolczatke [id]");
+
+	new i = strval(params);
+
+	if(i < 0 || i > MAX_SPIKESTRIPS)
+		return Msg(playerid, COLOR_ERROR, "B³êdne ID kolczatki.");
+
+	if(ssInfo[i][sCreated] == 0)
+		return Msg(playerid, COLOR_ERROR, "Kolczatka o danym ID nie istnieje.");
+
+	ssInfo[i][sCreated] = 0;
+	ssInfo[i][sX] = 0.0;
+	ssInfo[i][sY] = 0.0;
+	ssInfo[i][sZ] = 0.0;
+	DestroyDynamicObject(ssInfo[i][sObject]);
+	DestroyDynamic3DTextLabel(ssInfo[i][sText]);
+
+	Msg(playerid, COLOR_INFO, "Pomyœlnie usuniêto kolczatkê.");	
+
+	return 1;
+}
+
+CMD:usunkolczatki(playerid)
+{
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
+
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
+	if(ssInfo[0][sCreated] == 0)
+		return Msg(playerid, COLOR_ERROR, "Brak kolczatek do usuniêcia.");
+	else
+		DeleteAllStrip();
+
+	Msg(playerid, COLOR_INFO, "Pomyœlnie usuniêto {b}wszystkie{/b} kolczatki.");
 	return 1;
 }

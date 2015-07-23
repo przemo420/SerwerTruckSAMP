@@ -96,9 +96,12 @@ Dialog:DIALOG_ADR2(playerid, response, listitem, inputtext[])
 				case 'C': answer = 3;
 			}
 			balance = GetPVarInt(playerid, "ADR_Balance");
+
 			if(ADRQuestions[questNumb][3][0] == answer)
 				balance++;
+
 			SetPVarInt(playerid, "ADR_Balance", balance);
+			
 			if(ADR_QuestNumb[PlayerInfo[playerid][pADR]] == step + 1)
 			{
 				new szBuffer[128], szForm[5];

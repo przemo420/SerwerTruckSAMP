@@ -16,7 +16,7 @@
 #endif
 
 #define Dialog:%0(%1) \
-	forward dialog_%0(%1); public dialog_%0(%1)
+	forward %0(%1); public %0(%1)
 
 #define Dialog_Show(%0,%1, \
 	Dialog_Open(%0, #%1,
@@ -121,7 +121,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		new
 		    string[40];
 
-		strcat(string, "dialog_");
 		strcat(string, s_DialogName[playerid]);
 
 		Dialog_Close(playerid);
