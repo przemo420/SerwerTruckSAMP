@@ -5,331 +5,241 @@
 		ToLog(PlayerInfo[playerid][pID], LOG_TYPE_PLAYER, str);
 	}*/
 
-		Dialog:DIALOG_ID_CREATE_VEHICLE(playerid, response, listitem, inputtext[])
+Dialog:DIALOG_ID_CREATE_VEHICLE(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	switch(listitem)
+	{
+		case 0: Dialog_Show(playerid, DIALOG_ID_CREATE_VEHICLE_TRUCK, DIALOG_STYLE_LIST, " ", "RoadTrain\nLinerunner\nTanker\nFlatbed\nDFT-30\nTopFun Van\nRumpo", "Wybierz", "Zamknij");
+		case 1: Dialog_Show(playerid, DIALOG_ID_CREATE_VEHICLE_TRAILE, DIALOG_STYLE_LIST, " ", "Cysterna\nWywrotka\nPe³na\nCh³odnia", "Wybierz", "Zamknij");
+		case 2:
 		{
-			if(!response)
-				return 1;
+			Spawned[GetPVarInt(playerid, "pojazd")] = false;
+			Spawned[GetPVarInt(playerid, "naczepa")] = false;
 
-			switch(listitem)
-			{
-				case 0: Dialog_Show(playerid, DIALOG_ID_CREATE_VEHICLE_TRUCK, DIALOG_STYLE_LIST, " ", "RoadTrain\nLinerunner\nTanker\nFlatbed\nDFT-30\nTopFun Van\nRumpo", "Wybierz", "Zamknij");
-				case 1: Dialog_Show(playerid, DIALOG_ID_CREATE_VEHICLE_TRAILE, DIALOG_STYLE_LIST, " ", "Cysterna\nWywrotka\nPe³na\nCh³odnia", "Wybierz", "Zamknij");
-				case 2:
-				{
-					Spawned[GetPVarInt(playerid, "pojazd")] = false;
-					Spawned[GetPVarInt(playerid, "naczepa")] = false;
-
-					SendClientMessage(playerid,0x0080FFFF,"Stworzone pojazdy zosta³y usuniête.");
-
-					vehOtherInfo[GetPVarInt(playerid, "pojazd")][vCargoID] = 0;
-					vehOtherInfo[GetPVarInt(playerid, "naczepa")][vCargoID] = 0; 
-
-					DestroyVehicle(GetPVarInt(playerid, "pojazd"));
-					DestroyVehicle(GetPVarInt(playerid, "naczepa"));
-					DeletePVar(playerid, "pojazd");
-					DeletePVar(playerid, "naczepa");
-				}
-			}
-		}
-
-		Dialog:DIALOG_ID_CREATE_VEHICLE_TRUCK(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
-
-			new Vehicle, Float:Pos[4];
-
-			GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
-			GetPlayerFacingAngle(playerid, Pos[3]);
+			SendClientMessage(playerid,0x0080FFFF,"Stworzone pojazdy zosta³y usuniête.");
 
 			vehOtherInfo[GetPVarInt(playerid, "pojazd")][vCargoID] = 0;
+			vehOtherInfo[GetPVarInt(playerid, "naczepa")][vCargoID] = 0; 
+
 			DestroyVehicle(GetPVarInt(playerid, "pojazd"));
-
-			switch(listitem)
-			{
-				case 0: Vehicle = CreateVehicle(515, Pos[0], Pos[1]+5, Pos[2], Pos[3], 16, 16, -1);
-				case 1: Vehicle = CreateVehicle(403, Pos[0], Pos[1]+5, Pos[2], Pos[3], 16, 16, -1);
-				case 2: Vehicle = CreateVehicle(514, Pos[0], Pos[1]+5, Pos[2], Pos[3], 16, 16, -1);
-				case 3: Vehicle = CreateVehicle(455, Pos[0], Pos[1]+5, Pos[2], Pos[3], 16, 16, -1);
-				case 4: Vehicle = CreateVehicle(578, Pos[0], Pos[1]+5, Pos[2], Pos[3], 16, 16, -1);
-				case 5: Vehicle = CreateVehicle(459, Pos[0], Pos[1]+5, Pos[2], Pos[3], 16, 16, -1);
-				case 6: Vehicle = CreateVehicle(440, Pos[0], Pos[1]+5, Pos[2], Pos[3], 16, 16, -1);
-			}
-
-			Spawned[Vehicle]=true;
-			SetPVarInt(playerid, "pojazd", Vehicle);
-
-			vehOtherInfo[Vehicle][vFuel] = MaxFuel(GetVehicleModel(Vehicle))/2;
-			vehOtherInfo[Vehicle][vFuelType] = IsVehicleTruck(Vehicle) ? FUEL_TYPE_TDI : FUEL_TYPE_BENZ;
-			vehOtherInfo[Vehicle][vPrzebieg] = -2.0;
-			vehOtherInfo[Vehicle][vCargoID] = 0;
-			vehOtherInfo[Vehicle][vCargoWeight] = 0; 
-
-			PutPlayerInVehicle(playerid, Vehicle, 0);
-		}
-
-		Dialog:DIALOG_ID_CREATE_VEHICLE_TRAILE(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
-
-			new Vehicle, Float:Pos[4];
-
-			GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
-			GetPlayerFacingAngle(playerid, Pos[3]);
-
-			vehOtherInfo[GetPVarInt(playerid, "naczepa")][vCargoID] = 0;
 			DestroyVehicle(GetPVarInt(playerid, "naczepa"));
-
-			switch(listitem)
-			{
-				case 0: Vehicle = CreateVehicle(584, Pos[0], Pos[1]+2, Pos[2], Pos[3], 16, 16, -1);
-				case 1: Vehicle = CreateVehicle(450, Pos[0], Pos[1]+2, Pos[2], Pos[3], 16, 16, -1);
-				case 2: Vehicle = CreateVehicle(435, Pos[0], Pos[1]+2, Pos[2], Pos[3], 16, 16, -1);
-				case 3: Vehicle = CreateVehicle(591, Pos[0], Pos[1]+2, Pos[2], Pos[3], 16, 16, -1);
-			}
-
-			Spawned[Vehicle]=true;
-			SetPVarInt(playerid, "naczepa", Vehicle);
-
-			if(IsPlayerInAnyVehicle(playerid))
-				AttachTrailerToVehicle(Vehicle, GetPlayerVehicleID(playerid));
-
-			vehOtherInfo[Vehicle][vFuel] = MaxFuel(Vehicle);
-			vehOtherInfo[Vehicle][vFuelType] = IsVehicleTruck(Vehicle) ? FUEL_TYPE_TDI : FUEL_TYPE_BENZ;
-			vehOtherInfo[Vehicle][vPrzebieg] = 0.0;
-			vehOtherInfo[Vehicle][vCargoID] = 0;
-			vehOtherInfo[Vehicle][vCargoWeight] = 0; 
+			DeletePVar(playerid, "pojazd");
+			DeletePVar(playerid, "naczepa");
 		}
+	}
+}
 
-		Dialog:DIALOG_ID_SPAWN_SELECT(playerid, response, listitem, inputtext[])
-		{
-			switch(listitem)
-			{
-				case 0: SetPlayerPos(playerid,1648.4308,-1053.9159,23.8984);
-				case 1: SetPlayerPos(playerid,1398.5642,1009.4103,10.9297);
-				case 2: SetPlayerPos(playerid,-240.4012,-231.1620,2.3985);
-				case 3: SetPlayerPos(playerid,-2136.7207,-126.3667,36.5191);
-				case 4: SetPlayerPos(playerid, Firmy[PlayerInfo[playerid][pFirma]][tSpawnX], Firmy[PlayerInfo[playerid][pFirma]][tSpawnY], Firmy[PlayerInfo[playerid][pFirma]][tSpawnZ]);
-			}
-		}
+Dialog:DIALOG_ID_CREATE_VEHICLE_TRUCK(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
 
-		Dialog:DIALOG_CREATE_DOK_NAME(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
+	new Vehicle, Float:Pos[4];
 
-			SetPVarString(playerid, "CreateDok_Name", inputtext);
-			Dialog_Show(playerid, DIALOG_CREATE_DOK_TYPE, DIALOG_STYLE_LIST, " ", "Budowlane\nElektroniczne\nProdukty spo?ywcze\nArtyku³y odzie¿owe\nNiebezpieczne\nNielegalne", "OK", "Zamknij");
-		}
+	GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
+	GetPlayerFacingAngle(playerid, Pos[3]);
 
-		Dialog:DIALOG_CREATE_DOK_TYPE(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
+	vehOtherInfo[GetPVarInt(playerid, "pojazd")][vCargoID] = 0;
+	DestroyVehicle(GetPVarInt(playerid, "pojazd"));
 
-			new dok_name[100], string[256];
-			GetPVarString(playerid, "CreateDok_Name", dok_name, sizeof(dok_name));
-			DeletePVar(playerid, "CreateDok_Name");
+	switch(listitem)
+	{
+		case 0: Vehicle = CreateVehicle(515, Pos[0], Pos[1]+5, Pos[2], Pos[3], 16, 16, -1);
+		case 1: Vehicle = CreateVehicle(403, Pos[0], Pos[1]+5, Pos[2], Pos[3], 16, 16, -1);
+		case 2: Vehicle = CreateVehicle(514, Pos[0], Pos[1]+5, Pos[2], Pos[3], 16, 16, -1);
+		case 3: Vehicle = CreateVehicle(455, Pos[0], Pos[1]+5, Pos[2], Pos[3], 16, 16, -1);
+		case 4: Vehicle = CreateVehicle(578, Pos[0], Pos[1]+5, Pos[2], Pos[3], 16, 16, -1);
+		case 5: Vehicle = CreateVehicle(459, Pos[0], Pos[1]+5, Pos[2], Pos[3], 16, 16, -1);
+		case 6: Vehicle = CreateVehicle(440, Pos[0], Pos[1]+5, Pos[2], Pos[3], 16, 16, -1);
+	}
 
-			new Float:playerPos[3];
-			GetPlayerPos(playerid, playerPos[0], playerPos[1], playerPos[2]);
+	Spawned[Vehicle]=true;
+	SetPVarInt(playerid, "pojazd", Vehicle);
 
-			format(string, sizeof string, "INSERT INTO `Doki` VALUES(NULL, '%s', '%f', '%f', '%f', '%d')", dok_name, playerPos[0], playerPos[1], playerPos[2], listitem);
-			mysql_query(string);
-		}
+	vehOtherInfo[Vehicle][vFuel] = MaxFuel(GetVehicleModel(Vehicle))/2;
+	vehOtherInfo[Vehicle][vFuelType] = IsVehicleTruck(Vehicle) ? FUEL_TYPE_TDI : FUEL_TYPE_BENZ;
+	vehOtherInfo[Vehicle][vPrzebieg] = -2.0;
+	vehOtherInfo[Vehicle][vCargoID] = 0;
+	vehOtherInfo[Vehicle][vCargoWeight] = 0; 
 
-		Dialog:DIALOG_CREATE_TOWAR_NAME(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
+	return PutPlayerInVehicle(playerid, Vehicle, 0);
+}
+
+Dialog:DIALOG_ID_CREATE_VEHICLE_TRAILE(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	new Vehicle, Float:Pos[4];
+
+	GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
+	GetPlayerFacingAngle(playerid, Pos[3]);
+
+	vehOtherInfo[GetPVarInt(playerid, "naczepa")][vCargoID] = 0;
+	DestroyVehicle(GetPVarInt(playerid, "naczepa"));
+
+	switch(listitem)
+	{
+		case 0: Vehicle = CreateVehicle(584, Pos[0], Pos[1]+2, Pos[2], Pos[3], 16, 16, -1);
+		case 1: Vehicle = CreateVehicle(450, Pos[0], Pos[1]+2, Pos[2], Pos[3], 16, 16, -1);
+		case 2: Vehicle = CreateVehicle(435, Pos[0], Pos[1]+2, Pos[2], Pos[3], 16, 16, -1);
+		case 3: Vehicle = CreateVehicle(591, Pos[0], Pos[1]+2, Pos[2], Pos[3], 16, 16, -1);
+	}
+
+	Spawned[Vehicle]=true;
+	SetPVarInt(playerid, "naczepa", Vehicle);
+
+	if(IsPlayerInAnyVehicle(playerid))
+		AttachTrailerToVehicle(Vehicle, GetPlayerVehicleID(playerid));
+
+	vehOtherInfo[Vehicle][vFuel] = MaxFuel(Vehicle);
+	vehOtherInfo[Vehicle][vFuelType] = IsVehicleTruck(Vehicle) ? FUEL_TYPE_TDI : FUEL_TYPE_BENZ;
+	vehOtherInfo[Vehicle][vPrzebieg] = 0.0;
+	vehOtherInfo[Vehicle][vCargoID] = 0;
+	vehOtherInfo[Vehicle][vCargoWeight] = 0; 
+	return 1;
+}
+
+Dialog:DIALOG_ID_SPAWN_SELECT(playerid, response, listitem, inputtext[])
+{
+	switch(listitem)
+	{
+		case 0: SetPlayerPos(playerid,1648.4308,-1053.9159,23.8984);
+		case 1: SetPlayerPos(playerid,1398.5642,1009.4103,10.9297);
+		case 2: SetPlayerPos(playerid,-240.4012,-231.1620,2.3985);
+		case 3: SetPlayerPos(playerid,-2136.7207,-126.3667,36.5191);
+		case 4: SetPlayerPos(playerid, Firmy[PlayerInfo[playerid][pFirma]][tSpawnX], Firmy[PlayerInfo[playerid][pFirma]][tSpawnY], Firmy[PlayerInfo[playerid][pFirma]][tSpawnZ]);
+	}
+
+	return 1;
+}
+
+Dialog:DIALOG_CREATE_DOK_NAME(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	SetPVarString(playerid, "CreateDok_Name", inputtext);
+	return Dialog_Show(playerid, DIALOG_CREATE_DOK_TYPE, DIALOG_STYLE_LIST, " ", "Budowlane\nElektroniczne\nProdukty spo?ywcze\nArtyku³y odzie¿owe\nNiebezpieczne\nNielegalne", "OK", "Zamknij");
+}
+
+Dialog:DIALOG_CREATE_DOK_TYPE(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	new dok_name[100], string[256];
+	GetPVarString(playerid, "CreateDok_Name", dok_name, sizeof(dok_name));
+	DeletePVar(playerid, "CreateDok_Name");
+
+	new Float:playerPos[3];
+	GetPlayerPos(playerid, playerPos[0], playerPos[1], playerPos[2]);
+
+	format(string, sizeof string, "INSERT INTO `Doki` VALUES(NULL, '%s', '%f', '%f', '%f', '%d')", dok_name, playerPos[0], playerPos[1], playerPos[2], listitem);
+	return mysql_query(string);
+}
+
+Dialog:DIALOG_CREATE_TOWAR_NAME(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
 			
-			if(isnull(inputtext))
-			{
-				SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} B³êdna nazwa towaru.");
-				//cmd_dodajtowar(playerid, "");
-				return 1;
-			}
+	if(isnull(inputtext))
+	{
+		SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} B³êdna nazwa towaru.");
+		//cmd_dodajtowar(playerid, "");
+		return 1;
+	}
 
-			SetPVarString(playerid, "DodajTowar_Nazwa", inputtext);
+	SetPVarString(playerid, "DodajTowar_Nazwa", inputtext);
 
-			new string[256];
-			format(string, sizeof(string), "Nazwa: %s | Wybierz typ:", inputtext);
-			Dialog_Show(playerid, DIALOG_CREATE_TOWAR_TYPE, DIALOG_STYLE_LIST, string, "Budowlane\nElektroniczne\nProdukty spo?ywcze\nArtyku³y odzie¿owe\nNiebezpieczne\nNielegalne", "Wybierz", "Anuluj");
-		}
+	new string[256];
+	format(string, sizeof(string), "Nazwa: %s | Wybierz typ:", inputtext);
+	return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_TYPE, DIALOG_STYLE_LIST, string, "Budowlane\nElektroniczne\nProdukty spo?ywcze\nArtyku³y odzie¿owe\nNiebezpieczne\nNielegalne", "Wybierz", "Anuluj");
+}
 
-		Dialog:DIALOG_CREATE_TOWAR_TYPE(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
+Dialog:DIALOG_CREATE_TOWAR_TYPE(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
 
-			new string[256];
-			GetPVarString(playerid, "DodajTowar_Nazwa", string, sizeof(string));
-			SetPVarInt(playerid, "DodajTowar_Typ", listitem);
+	new string[256];
+	GetPVarString(playerid, "DodajTowar_Nazwa", string, sizeof(string));
+	SetPVarInt(playerid, "DodajTowar_Typ", listitem);
 
-			format(string, sizeof(string), "Nazwa: %s\nTyp: %d\n\nPodaj stawk?za km (liczba z kropk?, np. 1.0):", string, listitem);
-			Dialog_Show(playerid, DIALOG_CREATE_TOWAR_STAWKA, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
-		}
+	format(string, sizeof(string), "Nazwa: %s\nTyp: %d\n\nPodaj stawk?za km (liczba z kropk?, np. 1.0):", string, listitem);
+	return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_STAWKA, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
+}
 
-		Dialog:DIALOG_CREATE_TOWAR_STAWKA(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
+Dialog:DIALOG_CREATE_TOWAR_STAWKA(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
 
-			new string[256];
-			GetPVarString(playerid, "DodajTowar_Nazwa", string, sizeof(string));
+	new string[256];
+	GetPVarString(playerid, "DodajTowar_Nazwa", string, sizeof(string));
 
-			if(floatstr(inputtext) < 0)
-			{
-				format(string, sizeof(string), "NIEPRAWID?OWA STAWKA!\n\nNazwa: %s\nTyp: %d\n\nPodaj stawk?za km (liczba z kropk?, np. 1.0):", string, GetPVarInt(playerid, "DodajTowar_Typ"));
-				Dialog_Show(playerid, DIALOG_CREATE_TOWAR_STAWKA, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
-				return 1;
-			}
+	if(floatstr(inputtext) < 0)
+	{
+		format(string, sizeof(string), "NIEPRAWID?OWA STAWKA!\n\nNazwa: %s\nTyp: %d\n\nPodaj stawk?za km (liczba z kropk?, np. 1.0):", string, GetPVarInt(playerid, "DodajTowar_Typ"));
+		return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_STAWKA, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
+	}
 
-			SetPVarFloat(playerid, "DodajTowar_Stawka", floatstr(inputtext));
+	SetPVarFloat(playerid, "DodajTowar_Stawka", floatstr(inputtext));
+	format(string, sizeof(string), "Nazwa: %s\nTyp: %d\nStawka: %f\n\nPodaj czas roz?adunku (w sekundach):", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"));
+	return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_CZAS, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
+}
 
-			format(string, sizeof(string), "Nazwa: %s\nTyp: %d\nStawka: %f\n\nPodaj czas roz?adunku (w sekundach):", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"));
-			Dialog_Show(playerid, DIALOG_CREATE_TOWAR_CZAS, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
-		}
+Dialog:DIALOG_CREATE_TOWAR_CZAS(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
 
-		Dialog:DIALOG_CREATE_TOWAR_CZAS(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
+	new string[256];
+	GetPVarString(playerid, "DodajTowar_Nazwa", string, sizeof(string));
 
-			new string[256];
-			GetPVarString(playerid, "DodajTowar_Nazwa", string, sizeof(string));
+	if(strval(inputtext) < 0)
+	{
+		format(string, sizeof(string), "NIEPRAWID?OWY CZAS!\n\nNazwa: %s\nTyp: %d\nStawka: %f\n\nPodaj czas roz?adunku (w sekundach):", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"));
+		return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_CZAS, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
+	}
 
-			if(strval(inputtext) < 0)
-			{
-				format(string, sizeof(string), "NIEPRAWID?OWY CZAS!\n\nNazwa: %s\nTyp: %d\nStawka: %f\n\nPodaj czas roz?adunku (w sekundach):", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"));
-				Dialog_Show(playerid, DIALOG_CREATE_TOWAR_CZAS, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
-				return 1;
-			}
+	SetPVarInt(playerid, "DodajTowar_Czas", strval(inputtext));
 
-			SetPVarInt(playerid, "DodajTowar_Czas", strval(inputtext));
+	format(string, sizeof(string), "Nazwa: %s\nTyp: %d\nStawka: %f\n\nPodaj poziom:", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"));
+	return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_POZIOM, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
+}
 
-			format(string, sizeof(string), "Nazwa: %s\nTyp: %d\nStawka: %f\n\nPodaj poziom:", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"));
-			Dialog_Show(playerid, DIALOG_CREATE_TOWAR_POZIOM, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
-		}
+Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
 
-		Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
+	new string[256];
 
-			new string[256];
+	if(strval(inputtext) < 0)
+	{
+		format(string, sizeof(string), "NIEPRAWID?OWY CZAS!\n\nNazwa: %s\nTyp: %d\nStawka: %f\n\nPodaj poziom:", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"));
+		return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_POZIOM, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
+	}
 
-			if(strval(inputtext) < 0)
-			{
-				format(string, sizeof(string), "NIEPRAWID?OWY CZAS!\n\nNazwa: %s\nTyp: %d\nStawka: %f\n\nPodaj poziom:", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"));
-				Dialog_Show(playerid, DIALOG_CREATE_TOWAR_POZIOM, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
-				return 1;
-			}
+	format(string, sizeof string, "INSERT INTO `Towary` VALUES(NULL, '%s', '%d', '%f', '%d', '%d')", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"), GetPVarInt(playerid, "DodajTowar_Czas"), GetPVarInt(playerid, "DodajTowar_Poziom"));
+	mysql_query(string);
 
-			format(string, sizeof string, "INSERT INTO `Towary` VALUES(NULL, '%s', '%d', '%f', '%d', '%d')", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"), GetPVarInt(playerid, "DodajTowar_Czas"), GetPVarInt(playerid, "DodajTowar_Poziom"));
-			mysql_query(string);
+	format(string, sizeof(string), "Dodano towar:\n\nID: %d\nNazwa: %s\nTyp: %d\nStawka: %f\nPoziom: %d\n\nDost?ny b?zie po resecie.", mysql_insert_id(), string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"), GetPVarInt(playerid, "DodajTowar_Poziom"));
+	Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_LIST, " ", string, "Wybierz", "Anuluj");
 
-			format(string, sizeof(string), "Dodano towar:\n\nID: %d\nNazwa: %s\nTyp: %d\nStawka: %f\nPoziom: %d\n\nDost?ny b?zie po resecie.", mysql_insert_id(), string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"), GetPVarInt(playerid, "DodajTowar_Poziom"));
-			Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_LIST, " ", string, "Wybierz", "Anuluj");
+	DeletePVar(playerid, "DodajTowar_Nazwa");
+	DeletePVar(playerid, "DodajTowar_Stawka");
+	DeletePVar(playerid, "DodajTowar_Typ");
+	DeletePVar(playerid, "DodajTowar_Czas");
+	return DeletePVar(playerid, "DodajTowar_Poziom");
+}
 
-			DeletePVar(playerid, "DodajTowar_Nazwa");
-			DeletePVar(playerid, "DodajTowar_Stawka");
-			DeletePVar(playerid, "DodajTowar_Typ");
-			DeletePVar(playerid, "DodajTowar_Czas");
-			DeletePVar(playerid, "DodajTowar_Poziom");
-		}
 
-		Dialog:DIALOG_ID_RADIO_ADD(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
-
-			new string[126];
-			if(isnull(inputtext))
-			{
-				Dialog_Show(playerid, DIALOG_ID_RADIO_ADD, DIALOG_STYLE_INPUT, " ", "B³êdna nazwa radia!\n\nWpisz nazw?radia:", "Dalej", "Zamknij");
-				return 1;
-			}
-
-			SetPVarString(playerid, "DodajRadio_Nazwa", inputtext);
-
-			format(string, sizeof(string), "Nazwa radia: %s\n\nPodaj link:", inputtext);
-			Dialog_Show(playerid, DIALOG_ID_RADIO_LINK, DIALOG_STYLE_INPUT, " ", string, "Dalej", "Zamknij");
-		}
-
-		Dialog:DIALOG_ID_RADIO_LINK(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
-
-			new string[126], nazwa[40];
-
-			GetPVarString(playerid, "DodajRadio_Nazwa", nazwa, sizeof(nazwa));
-			if(isnull(inputtext))
-			{
-				format(string, sizeof(string), "B??ny link radia!\n\nNazwa: %s\n\nPodaj link radia:", nazwa);
-				Dialog_Show(playerid, DIALOG_ID_RADIO_LINK, DIALOG_STYLE_INPUT, " ", string, "Dalej", "Zamknij");
-				return 1;
-			}
-
-			format(string, sizeof(string), "Dodano radio:\n\nNazwa: %s\nLink: %sn\n\nDost?ne b?zie po resecie.", nazwa, inputtext);
-			Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", string, "Ok", "");
-
-			format(string, sizeof(string), "INSERT INTO `Radia` VALUES (NULL, '%s', '%s');", nazwa, inputtext);
-			mysql_query(string);
-
-			LadujRadia();
-		}
-
-		Dialog:DIALOG_TP_LOGIN_SKIN(playerid, response, listitem, inputtext[])
-		{
-			new firmaid = PlayerInfo[playerid][pFirma];
-
-			switch(listitem)
-			{
-				case 0: 
-				{
-					if(Firmy[firmaid][tChef] != PlayerInfo[playerid][pID] && Firmy[firmaid][tVcChef] != PlayerInfo[playerid][pID])
-					{
-						SendClientMessage(playerid, LIGHTRED, "Ten skin jest dla szefa!");
-						return Dialog_Show(playerid, DIALOG_TP_LOGIN_SKIN, DIALOG_STYLE_LIST, "Firma > Skiny", "Skin 1\nSkin 2\nSkin 3\nSkin 4\nSkin 5", "Ok", "");
-					}
-
-					SetPlayerSkin(playerid, Firmy[firmaid][tSkin1]);
-				}
-				case 1: SetPlayerSkin(playerid, Firmy[firmaid][tSkin2]);
-				case 2: SetPlayerSkin(playerid, Firmy[firmaid][tSkin3]);
-				case 3: SetPlayerSkin(playerid, Firmy[firmaid][tSkin4]);
-				case 4: SetPlayerSkin(playerid, Firmy[firmaid][tSkin5]);
-			}
-		}
-
-		Dialog:DIALOG_ID_RADIO(playerid, response, listitem, inputtext[])
-		{
-			if(!response)
-				return 1;
-
-			new string[70];
-
-			if(listitem == 0)
-			{
-				if(!GetPVarInt(playerid, "RADIO"))
-					return 1;
-
-				SendClientMessage(playerid, 0x0, "{0080C0}Radio zosta³o wy³¹czone.");
-				DeletePVar(playerid, "RADIO");
-				StopAudioStreamForPlayer(playerid);
-			}
-			else if(listitem >= 2)
-			{
-				SetPVarInt(playerid, "RADIO", listitem-2);
-				StopAudioStreamForPlayer(playerid);
-				PlayAudioStreamForPlayer(playerid, RadioStations[listitem-2][sURL]);
-				format(string, sizeof string, "{0080C0}Zmieni³êœ stacjê radiow¹ na: {FFFFFF}%s.", RadioStations[listitem-2][sName]);
-				SendClientMessage(playerid, 0x0, string);
-			}
-		}
 		
 		Dialog:DIALOG_ID_REGISTER(playerid, response, listitem, inputtext[])
 		{
@@ -1515,4 +1425,70 @@ DeletePVar(playerid, "opcja2");
 }
 
 	return 1;
+}
+
+Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+				return Kick(playerid);
+
+			new s_buf[500], Name[32], Pass[129], ip[16];
+
+			if(isnull(inputtext))
+			{
+				format(s_buf, sizeof(s_buf), "{FFFFFF}Serwer-Truck SAMP - Logowanie konta.\n\n{a9c4e4}WprowadŸ has³o do konta, aby zacz¹æ rozgrywkê.\n\n");
+				format(s_buf, sizeof(s_buf), "%s{a9c4e4}Wykorzysta³eœ ju¿ {FFFFFF}[%d/3] {a9c4e4}próby zalogowania.\n\n{FFFFFF}www.serwertruck.eu", s_buf, GetPVarInt(playerid, "leci"));
+
+				Dialog_Show(playerid, DIALOG_ID_LOGIN, DIALOG_STYLE_PASSWORD, "Panel > Logowanie", s_buf, "Zaloguj", "Zamknij");
+				return 1;
+			}
+
+			GetPlayerIp(playerid, ip, sizeof(ip));
+
+
+			WP_Hash(Pass, sizeof (Pass), inputtext);
+			mysql_real_escape_string(PlayerName(playerid), Name);
+
+			format(s_buf, sizeof(s_buf), "SELECT `ID`,`Money`,`Score`,`Admin`,`Bankomat`,`Firma`,`Skin`,`Tacho`,`Foto`,`Toll`,`Gtime`,`Worktime`,`BuildMaster`,`Adr` FROM `Accounts` WHERE `Name`='%s' AND `Pass` = '%s';", Name, Pass);
+			mysql_query(s_buf);
+			mysql_store_result();
+
+			if(mysql_fetch_row(s_buf, "|")) 
+			{
+				PlayerLogged(playerid);
+				ResetPlayerMoney(playerid);
+
+				sscanf(s_buf, "e<p<|>dddddddddddddd>", PlayerInfo[playerid]);
+
+				mysql_free_result();
+
+				format(s_buf, sizeof(s_buf), "UPDATE `Accounts` SET `Online`='1', `IP`='%s' WHERE `Name` = '%s'", ip, Name);
+				mysql_query(s_buf);
+
+				format(s_buf, sizeof(s_buf), "[IP: %s] Zalogowano poprawnie (próba: %d)", ip, GetPVarInt(playerid, "leci"));
+				ToLog(PlayerInfo[playerid][pID], LOG_TYPE_PLAYER, s_buf);
+
+				GivePlayerMoney(playerid, PlayerInfo[playerid][pMoney]);
+				SetPlayerScore(playerid, PlayerInfo[playerid][pScore]);
+
+				//LadujPojazd(PlayerInfo[playerid][pID], OWNER_TYPE_PLAYER);
+
+				SprawdzPoziom(playerid);
+				SetPlayerSkin(playerid, PlayerInfo[playerid][pSkin]);
+				SetTimerEx("ReqSpawnPlayer", 100, false, "d", playerid);
+				return 1;
+			}
+
+			SetPVarInt(playerid, "leci", GetPVarInt(playerid, "leci")+1);
+
+			if(GetPVarInt(playerid, "leci") == 3)
+			{
+				CheatKick(playerid, "trzy b??ne logowania");
+				timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "d", playerid);
+			}
+
+			format(s_buf, sizeof(s_buf), "{FFFFFF}Serwer-Truck SAMP - Logowanie konta.\n\n{a9c4e4}WprowadŸ has³o do konta aby zacz¹æ rozgrywkê.\n\n");
+			format(s_buf, sizeof(s_buf), "%s{a9c4e4}Wykorzysta³eœ ju¿ {FFFFFF}[%d/3] {a9c4e4}próby zalogowania.\n\n{FFFFFF}www.serwertruck.eu", s_buf, GetPVarInt(playerid, "leci"));
+
+			Dialog_Show(playerid, DIALOG_ID_LOGIN, DIALOG_STYLE_PASSWORD, "Panel > Logowanie", s_buf, "Zaloguj", "Zamknij");
 }

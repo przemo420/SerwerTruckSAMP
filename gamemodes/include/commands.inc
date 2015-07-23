@@ -105,21 +105,6 @@ CMD:phone(playerid, params[])
 CMD:telefon(playerid, params[])
 	return Dialog_Show(playerid, DIALOG_ID_TELEPHONE, DIALOG_STYLE_LIST, " ", "Policja\nPogotowie\nPomoc Drogowa", "Wybierz", "Anuluj");
 
-CMD:radio(playerid, params[])
-{
-	new string[1024];
-
-	format(string, sizeof(string), "Wy³¹cz radio\n--\n");
-
-	for(new i=0; i < sizeof(RadioStations); i++)
-		if(RadioStations[i][sName])
-			format(string, sizeof(string), "%s%s\n", string, RadioStations[i][sName]);
-
-	Dialog_Show(playerid, DIALOG_ID_RADIO, DIALOG_STYLE_LIST, " ", string, "OK", "Zamknij");
-
-	return 1;
-}
-
 CMD:pojazd(playerid, params[])
 {
 	new bool:find;
@@ -1769,14 +1754,6 @@ CMD:usuntowar(playerid, params[])
 	mysql_query(string);
 
 	return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Usuniêto towar.");
-}
-
-CMD:dodajradio(playerid, params[])
-{
-	if(!PlayerInfo[playerid][pAdmin])
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	return Dialog_Show(playerid, DIALOG_ID_RADIO_ADD, DIALOG_STYLE_INPUT, " ", "Wpisz nazwê radia:", "Dalej", "Zamknij");
 }
 
 CMD:dodajstacje(playerid, params[])

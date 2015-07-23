@@ -145,26 +145,6 @@ LadujStacje()
 	return 1;
 }
 
-LadujRadia()
-{
-	mysql_query("SELECT * FROM `Radia`");
-	mysql_store_result();
-
-	if(mysql_num_rows()==0)
-		return print("[RADIA] Brak radia do zaladowania.");
-
-	new id, string[140];
-	while(mysql_fetch_row(string, "|")) 
-	{
-    	sscanf(string, "e<p<|>ds[32]s[176]>", RadioStations[id]);
-		id++;
-	} 
-
-	printf("[RADIA] Zaladowano %d stacji radiowych.", id);
-	mysql_free_result();
-	return 1;
-}
-
 LadujPojazd(ownerid=(-1), ownertype=(-1), vehid=(-1))
 {
 	new query[80];
