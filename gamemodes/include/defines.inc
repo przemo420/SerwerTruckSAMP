@@ -83,7 +83,7 @@ enum {
 
 new szCommands[][] = {
 	"Pusto", // all commands
-	"/firma /mandat /aresztuj\n/wywal /wyrzuć /praca\n/dyzur /skuj /rozkuj\n/kontrola /alkomat /open\n/close /kolczatka /usunkolczatki", // policja
+	"/firma /mandat /aresztuj\n/wywal /wyrzuć /praca\n/dyzur /skuj /rozkuj\n/kontrola /alkomat /open\n/close /kolczatka /usunkolczatke /usunkolczatki", // policja
 	"/firma /ulecz /wypadki /wywal /wyrzuć /praca /dyzur /o[1 - 8] /c[1 - 8] /open /close", // pogotowie
 	"/firma /vehcolor /rachunek /zatankuj /praca /dyzur /open /close"  // pomoc drogowa
 };
@@ -110,7 +110,9 @@ new kogutPD[MAX_VEHICLES],
     bool:kpd[MAX_VEHICLES];
 new obiektyBT[MAX_BTOBJ];
 new obiektyBTID = 0;
-
+new kogutPOLI[MAX_VEHICLES],
+    bool:kpoli[MAX_VEHICLES];
+    
 new Text3D:obiektyBT3D[MAX_BTOBJTD];
 new bool:IsObiektBT[MAX_BTOBJ];
 

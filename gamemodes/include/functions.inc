@@ -436,26 +436,6 @@ public AlcoholTest(playerid, trgtid)
 	return 1;
 }
 
-forward SkutyTeleport(playerid, policjantid);
-public SkutyTeleport(playerid, policjantid)
-{
-	if(!IsPlayerConnected(policjantid))
-	{
-		SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
-		KillTimer(PlayerInfo[playerid][chainedTimer]);
-		
-		return TogglePlayerControllable(playerid, 1);
-	}
-
-	new Float:Pos[3];
-	GetPlayerPos(policjantid, Pos[0], Pos[1], Pos[2]);
-
-	if(GetDistancePlayerToPlayer(playerid, policjantid) > 10.0)
-		SetPlayerPos(playerid, Pos[0], Pos[1]+1.0, Pos[2]);
-		
-	return 1;
-}
-
 stock GetVehicleModelName(id)
 {
 	new szString[32];
