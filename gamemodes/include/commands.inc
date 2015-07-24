@@ -313,7 +313,7 @@ CMD:setplate(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
 	
 	if(strlen(params) < 3 || strlen(params) > 32)
-		return Msg(playerid, COLOR_ERROR, "Wprowadzono niepoprawn¹ treœæ rejestracji.");
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/setplate [treœæ]{/b}");
 
 	SetPVarString(playerid, "PLATE_Name", params);
 	new szString[128], Float:fPos[3], count = 0;

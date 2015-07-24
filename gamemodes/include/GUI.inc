@@ -1468,6 +1468,9 @@ Dialog:DIALOG_SET_PLATE(playerid, response, listitem, inputtext[])
 					SetTimerEx("SetPos", 1500, false, "dfff", i, fPos[0], fPos[1], fPos[2]);
 					SetVehicleNumberPlate(i, fName);
 					SetVehicleToRespawn(i);
+
+					DeletePVar(playerid, "PLATE_Name");
+					DeletePVar(playerid, "PLATE_Count");
 					break;
 				}
 			}
