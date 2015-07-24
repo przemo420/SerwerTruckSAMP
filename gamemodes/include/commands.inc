@@ -1681,6 +1681,9 @@ CMD:heal(playerid, params[])
 	return 1;
 }
 
+CMD:armor(playerid, params[])
+	return cmd_armour(playerid, params);
+
 CMD:armour(playerid, params[])
 {
 	new forplayerid, string[128];
@@ -1698,6 +1701,31 @@ CMD:armour(playerid, params[])
 	format(string, sizeof string, "Da³eœ pancerz graczowi {b}%s{/b}.", PlayerName(forplayerid));
 	Msg(playerid, COLOR_INFO, string);
 	format(string, sizeof string, "Administrator {b}%s{/b} da³ Ci pancerz.", PlayerName(playerid));
+	Msg(forplayerid, COLOR_INFO, string);
+	return 1;
+}
+
+CMD:setskin(playerid, params[])
+{
+	new forplayerid, skin, string[128];
+
+	if(!PlayerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
+	if(sscanf(params, "dd", forplayerid, skin))
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/setskin [id gracza] [id skinu 0-311]{/b}");
+
+	if(!IsPlayerConnected(forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
+
+	if(skin < 0 || skin > 311)
+		return Msg(playerid, COLOR_ERROR, "B³êdne ID skina.");
+
+	SetPlayerSkin(forplayerid, skin);
+
+	format(string, sizeof string, "Zmieni³eœ skin graczowi {b}%s{/b}.", PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
+	format(string, sizeof string, "Administrator {b}%s{/b} zmieni³ Ci skin na {b}%d{/b}.", PlayerName(playerid), skin);
 	Msg(forplayerid, COLOR_INFO, string);
 	return 1;
 }

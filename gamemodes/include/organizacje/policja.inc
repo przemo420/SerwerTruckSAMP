@@ -345,3 +345,15 @@ public AlcoholTest(playerid, trgtid)
 	Dialog_Show(playerid, DIALOG_ALCOHOL, DIALOG_STYLE_MSGBOX, "Alkomat", szString, "Wyjdü", #);
 	return 1;
 }
+
+forward Policja_OnPlayerEnterJob(playerid);
+public Policja_OnPlayerEnterJob(playerid)
+{
+	GivePlayerWeapon(playerid, 24, 99999);
+	GivePlayerWeapon(playerid, 25, 99999);
+	GivePlayerWeapon(playerid, 3, 99999);
+	
+	SetPlayerArmour(playerid, 100);
+
+	return 1;
+}
