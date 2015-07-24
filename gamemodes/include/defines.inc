@@ -38,6 +38,10 @@ enum {
 
 // ---------------------------
 
+	native IsValidVehicle(vehicle);
+
+// ---------------------------
+
 #define isnull(%1) ((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))))
 #define Loop(%1,%2) for(new %1 = 0; %1 < %2; %1++)
 #define ResetVariablesInEnum(%0,%1) 	for(new __rvine; %1:__rvine != %1; __rvine++) %0[%1:__rvine]=0
