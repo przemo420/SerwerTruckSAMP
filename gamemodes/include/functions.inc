@@ -493,3 +493,29 @@ stock GetIDByNick(nick[])
 
 	return result;
 }
+
+stock FindString(string1[], string2[], &start = 0, &end = 0)
+{
+	if(!strlen(string1) || !strlen(string2)) return false;
+
+	new
+		result;
+
+	for(new i = 0; i < strlen(string1) - strlen(string2) + 1; i++)
+	{
+		result = 0;
+
+		for(new g = 0; g < strlen(string2); g++)
+		{
+			if(toupper(string1[i + g]) == toupper(string2[g])) result++;
+		}
+
+		if(result == strlen(string2))
+		{
+			start = i;
+			end = i + strlen(string2);
+			return true;
+		}
+	}
+	return false;
+}
