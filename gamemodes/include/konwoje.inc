@@ -1,7 +1,3 @@
-/*
-	Konwoje - nietestowane zapraszanie graczy, 50% szans ¿e nie zadzia³a. Trzeba zintegrowaæ z za³adunkami bo póki co konwój nic nie daje..
-*/
-
 #define MAX_CONVOYS 			25
 #define MAX_CONVOY_MEMBERS 		20
 
@@ -41,7 +37,7 @@ public Konwoje_OnPlayerDisconnect(playerid)
 forward Konwoje_OnPlayerText(playerid, text[]);
 public Konwoje_OnPlayerText(playerid, text[])
 {
-	if(strcmp(text, "!", true, 1) || pConvoy[playerid] <= 0)
+	if(strcmp(text, "!", true, 1) || pConvoy[playerid] < 0)
 		return 0;
 
 	new string[200];
@@ -58,7 +54,7 @@ public Konwoje_OnPlayerText(playerid, text[])
 CMD:konwoj(playerid)
 {
 	new szString[128], IsBoss = GetPVarInt(playerid, "CONVOY_Boss");
-	if(pConvoy[playerid] > 0)
+	if(pConvoy[playerid] > -1)
 	{
 		if(IsBoss)
 			format(szString, sizeof szString, "Konwój (ID: %d)\n \nUczestnicy konwoju\nZaproœ graczy (%d/%d)\nWyproœ gracza\nUsuñ konwój", pConvoy[playerid], cInfo[pConvoy[playerid]][cPersons], MAX_CONVOY_MEMBERS);
@@ -76,7 +72,7 @@ CMD:konwoj(playerid)
 
 CMD:zaproszenia(playerid)
 {
-	if(pConvoy[playerid] > 0)
+	if(pConvoy[playerid] > -1)
 		return Msg(playerid, COLOR_ERROR, "Jesteœ ju¿ w konwoju.");
 	new szString[256], count;
 	for(new i = 0; i < MAX_CONVOYS; i++)
@@ -117,7 +113,7 @@ Dialog:DIALOG_CONVOY_INV_LIST(playerid, response, listitem, inputtext[])
 		{
 			if(listitem == c)
 			{
-				if(pConvoyInvites[playerid][c] <= 0)
+				if(pConvoyInvites[playerid][c] < 0)
 					return Msg(playerid, COLOR_ERROR, "Zaproszenie straci³o wa¿noœæ.");
 				
 				new szTemp[64];
@@ -142,7 +138,7 @@ Dialog:DIALOG_CONVOY_CREATE(playerid, response, listitem, inputtext[])
 		return 1;
 
 	new free = -1;
-	for(new i = 1; i < MAX_CONVOYS; i++)
+	for(new i = 0; i < MAX_CONVOYS; i++)
 	{	
 		if(cInfo[i][cPersons] == 0)
 		{
@@ -223,9 +219,7 @@ Dialog:DIALOG_CONVOY_MAIN_INVIT(playerid, response, listitem, inputtext[])
 	new targetid = GetIDByNick(inputtext);
 	if(targetid < 0)
 	{
-		targetid = strval(inputtext);
-		if(!IsPlayerConnected(targetid))
-			return Dialog_Show(playerid, DIALOG_CONVOY_MAIN_INVIT, DIALOG_STYLE_INPUT, " ", "WprowadŸ ID lub nick gracza którego chcesz zaprosiæ:\nNie odnaleziono takiego gracza na serwerze...", "Zaproœ", "Wstecz");
+		return Dialog_Show(playerid, DIALOG_CONVOY_MAIN_INVIT, DIALOG_STYLE_INPUT, " ", "WprowadŸ ID lub nick gracza którego chcesz zaprosiæ:\nNie odnaleziono takiego gracza na serwerze...", "Zaproœ", "Wstecz");
 	}
 	if(pConvoy[targetid] > 0)
 		return Dialog_Show(playerid, DIALOG_CONVOY_MAIN_INVIT, DIALOG_STYLE_INPUT, " ", "WprowadŸ ID lub nick gracza którego chcesz zaprosiæ:\nTen gracz uczestniczy w innym konwoju...", "Zaproœ", "Wstecz");
@@ -237,7 +231,7 @@ Dialog:DIALOG_CONVOY_MAIN_INVIT(playerid, response, listitem, inputtext[])
 	format(szTemp, sizeof szTemp, "Zosta³es zaproszony do konwoju gracza {b}%s{/b}. Aby odpowiedzieæ na zg³oszenie wpisz /zaproszenia.", PlayerName(playerid));
 	Msg(targetid, COLOR_INFO, szTemp);
 
-	for(new i = 1; i < MAX_CONVOYS; i++)
+	for(new i = 0; i < MAX_CONVOYS; i++)
 	{
 		if(pConvoyInvites[targetid][i] == 0)
 		{
@@ -256,9 +250,7 @@ Dialog:DIALOG_CONVOY_MAIN_KICK(playerid, response, listitem, inputtext[])
 	new targetid = GetIDByNick(inputtext);
 	if(targetid < 0)
 	{
-		targetid = strval(inputtext);
-		if(!IsPlayerConnected(targetid))
-			return Dialog_Show(playerid, DIALOG_CONVOY_MAIN_KICK, DIALOG_STYLE_INPUT, " ", "WprowadŸ ID lub nick gracza którego chcesz wyprosiæ:\nNie odnaleziono takiego gracza na serwerze", "Wyproœ", "Wstecz");
+		return Dialog_Show(playerid, DIALOG_CONVOY_MAIN_KICK, DIALOG_STYLE_INPUT, " ", "WprowadŸ ID lub nick gracza którego chcesz wyprosiæ:\nNie odnaleziono takiego gracza na serwerze", "Wyproœ", "Wstecz");
 	}
 	if(pConvoy[targetid] != pConvoy[playerid])
 		return Dialog_Show(playerid, DIALOG_CONVOY_MAIN_KICK, DIALOG_STYLE_INPUT, " ", "WprowadŸ ID lub nick gracza którego chcesz wyprosiæ:\nTen gracz nie uczestniczy w twoim konwoju...", "Zaproœ", "Wstecz");
@@ -312,20 +304,6 @@ Dialog:DIALOG_CONVOY_MAIN_DEL(playerid, response, listitem, inputtext[])
 	cInfo[pConvoy[playerid]][cBoss] = 0;
 	cInfo[pConvoy[playerid]][cPersons] = 0;
 	return 1;
-}
-
-stock GetIDByNick(nick[])
-{
-	new id = -1; 
-	for(new i = 0; i < MAX_PLAYERS; i++)
-	{
-		if(IsPlayerConnected(i))
-		{
-			if(!strcmp(PlayerName(i), nick))
-				return id;
-		}
-	}
-	return id;
 }
 
 stock GetConvoyMembers(convoyId)

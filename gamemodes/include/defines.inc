@@ -322,6 +322,7 @@ enum Points
 	Float:PointPosZ,
 	pType
 };
+
 new LoadingPoints[MAX_LOADING_POINTS][Points];
 new LoadingPoinstMapIcon[MAX_LOADING_POINTS][MAX_PLAYERS];
 new Text3D:LoadingPointsText3D[MAX_LOADING_POINTS];
@@ -394,7 +395,6 @@ new ssInfo[MAX_SPIKESTRIPS][sxInfo];
 
 new FotoradarOBJ[MAX_FOTORADAROW];
 
-// Nie miałem pojęcia czy jest taka tablica więc wstawiłem bo potrzebna 
 new VehicleNames[212][] = {
 {"Landstalker"},{"Bravura"},{"Buffalo"},{"Linerunner"},{"Perrenial"},{"Sentinel"},{"Dumper"},
 {"Firetruck"},{"Trashmaster"},{"Stretch"},{"Manana"},{"Infernus"},{"Voodoo"},{"Pony"},{"Mule"},

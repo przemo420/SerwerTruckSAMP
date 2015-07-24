@@ -446,23 +446,50 @@ stock GetModelIdByName(name[])
 
 stock delstr(src[], const sub[], idx = 0)
 {
-        new
-                f = strfind(src, sub, false, idx),
-                srclen = strlen(src),
-                sublen = strlen(sub),
-                count;
+	new
+		f = strfind(src, sub, false, idx),
+		srclen = strlen(src),
+		sublen = strlen(sub),
+		count;
  
-        if(!srclen || !sublen)
-                return 0;
+	if(!srclen || !sublen)
+		return 0;
  
-        if(idx >= sublen)
-                return 0;
+	if(idx >= sublen)
+		return 0;
  
-        while(f >= 0)
-        {
-                count++;
-                strdel(src, f + idx, f + sublen);
-                f = strfind(src, sub, false, idx);
-        }
-        return count;
+	while(f >= 0)
+	{
+		count++;
+		strdel(src, f + idx, f + sublen);
+		f = strfind(src, sub, false, idx);
+	}
+	return count;
+}
+
+stock GetIDByNick(nick[])
+{
+	new result = -1,
+		foundCount = 0;
+
+	if(IsNumeric(nick))
+	{
+		result = strval(nick);
+		if(!IsPlayerConnected(nick)) return -1;
+	}
+	else
+	{
+		foreach(i)
+		{
+			if(FindString(PlayerName(i), nick))
+			{
+				foundCount++;
+				result = i;
+			}
+		}
+		if(foundCount < 1) return -1;
+		else if(foundCount > 1) return -1;
+	}
+
+	return result;
 }

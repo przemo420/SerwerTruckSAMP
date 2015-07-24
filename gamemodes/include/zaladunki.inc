@@ -231,6 +231,16 @@ CMD:zaladuj(playerid, params[])
 	else
 		return ShowInfo(playerid, "Nie obs³ugujemy tego pojazdu.");
 
+	///////////// Konwój /////////////
+
+	if(pConvoy[playerid] > -1)
+	{
+		if(!GetPVarInt(playerid, "CONVOY_Boss"))
+			return Msg(playerid, COLOR_ERROR, "Nie jesteœ za³o¿ycielem konwoju.");
+	}
+							
+	//////////////////////////////////
+
 	format(string, sizeof(string), "Towar\tStawka\tCzas\tPoziom\n");
 
 	for(new i; i < MAX_TOWAROW; i++)
@@ -323,6 +333,45 @@ Dialog:DIALOG_ID_LOAD_CARGO(playerid, response, listitem, inputtext[])
 	if(!response)
 		return 1;
  
+	// Sprawdzanie konwoju, czy ka¿dy spe³nia wymagania itd.
+	if(pConvoy[playerid] > -1)
+	{
+		if(!GetPVarInt(playerid, "CONVOY_Boss")) // Niby siê tutaj nie dostanie zwyk³y gracz, ale przezorny zawsze ubezpieczony ;> 
+			return Msg(playerid, COLOR_ERROR, "Nie jesteœ za³o¿ycielem konwoju.");
+
+		new truck = 0, bus = 0, trailerType;
+		if(IsPlayerInBus(playerid))
+			bus = 1;
+		else
+			truck = 1;
+
+		if(truck > 0)
+		{
+			trailerType = GetVehicleModel(GetVehicleTrailer(GetPlayerVehicleID(playerid)));
+		}	
+
+		if(cInfo[pConvoy[playerid]][cPersons] > 1)
+		{
+			for(new i = 0; i < MAX_PLAYERS; i++)
+			{
+				if(IsPlayerConnected(i))
+				{
+					if(pConvoy[i] == pConvoy[playerid])
+					{
+						if(!IsPlayerInAnyVehicle(i))
+							return Msg(playerid, COLOR_ERROR, "Któryœ z cz³onków konwoju nie jest w pojeŸdzie.");
+						if(truck > 1)
+							if(GetVehicleModel(GetVehicleTrailer(GetPlayerVehicleID(playerid))) != trailerType)
+								return Msg(playerid, COLOR_ERROR, "Któryœ z cz³onków konwoju ma inn¹ naczepe ni¿ ty.");
+						if(bus > 1)
+							if(!IsPlayerInBus(i))
+								return Msg(playerid, COLOR_ERROR, "Któryœ z cz³onków konwoju ma z³y pojazd.");
+					}
+				}
+			}
+		}
+	}
+
     new dokid = GetPVarInt(playerid, "dokid");
     new towar;
     new string[120];
@@ -335,15 +384,32 @@ Dialog:DIALOG_ID_LOAD_CARGO(playerid, response, listitem, inputtext[])
             {
                     if(Towary[i][Poziom] <= GetPVarInt(playerid, "LEVEL"))
                     {
-                            if(towar == listitem)
-                            {
-                                    SetPVarInt(playerid, "towarid", i);
+                        if(towar == listitem)
+                        {
+                        	if(pConvoy[playerid] > -1)
+                        	{
+                        		if(cInfo[pConvoy[playerid]][cPersons] > 1)
+                        		{
+                        			for(new c = 0; c < MAX_PLAYERS; c++)
+                        			{
+                        				if(IsPlayerConnected(c) && pConvoy[c] == pConvoy[playerid])
+                        				{
+                        					if(Towary[i][Poziom] <= GetPVarInt(c, "LEVEL"))
+                        						continue;
+                        					else
+                        						return Msg(playerid, COLOR_ERROR, "Któryœ z cz³onków konwoju nie spe³nia wymagañ aby za³adowaæ ten towar.");
+                        				}
+
+                        			}
+                        		}
+                        	}
+                            SetPVarInt(playerid, "towarid", i);
                                                    
-                                    format(string, sizeof(string), "Wpisz poni¿ej iloœæ ³adowanego towaru w KG.\n\nPrze³adowanie zaczyna siê od: %d\nMaksymalna iloœæ towaru: %d", Przeladowanie, MaxMasa);
-                                    Dialog_Show(playerid, DIALOG_ID_LOAD_CARGO_WEIGHT, DIALOG_STYLE_INPUT, " ", string, "Za³aduj", "Anuluj");
-                                    break;
-                            }
-                            towar++;
+                            format(string, sizeof(string), "Wpisz poni¿ej iloœæ ³adowanego towaru w KG.\n\nPrze³adowanie zaczyna siê od: %d\nMaksymalna iloœæ towaru: %d", Przeladowanie, MaxMasa);
+                            Dialog_Show(playerid, DIALOG_ID_LOAD_CARGO_WEIGHT, DIALOG_STYLE_INPUT, " ", string, "Za³aduj", "Anuluj");
+                            break;
+                        }
+                        towar++;
                     }
             }
     }
@@ -374,24 +440,55 @@ Dialog:DIALOG_ID_LOAD_CARGO_WEIGHT(playerid, response, listitem, inputtext[])
     ConvertSeconds(Towary[towar][MinimalnyCzas], h, m, s);
     ConvertMS(CzasLadowania, h2, m2, s2);
     format(string, sizeof(string), "£adowanie towaru:\n\nNazwa: %s\nTyp: %s\nStawka: %.02f\nMinimalny czas wy³adunku: %dm %ds\nOd poziomu: %d\nCzas ³adowania: %dm %ds", Towary[towar][NazwaTowaru], KategorieTowarow[Towary[towar][Typ]], Towary[towar][Stawka], m, s, Towary[towar][Poziom],  m2, s2);
-    ShowInfo(playerid, string);
-   
-    SetPVarInt(playerid, "CzasDoRozladunku", Towary[towar][MinimalnyCzas]);
-    SetPVarInt(playerid, "LadowanieTimer", SetTimerEx("LoadVehicle", CzasLadowania, true, "d", playerid));
-    
-    new engine,lights,alarm,doors,bonnet,boot,objective;
-    GetVehicleParamsEx(vehicleid,engine,lights,alarm,doors,bonnet,boot,objective);
-    SetVehicleParamsEx(vehicleid,VEHICLE_PARAMS_OFF,lights,alarm,doors,bonnet,boot,objective);
-    
-    TogglePlayerControllable(playerid, false);
 
-    if(IsPlayerInTruck(playerid))
-            vehicleid = GetVehicleTrailer(GetPlayerVehicleID(playerid));
+    if(pConvoy[playerid] > -1)
+    {
+    	if(cInfo[pConvoy[playerid]][cPersons] > 1)
+    	{
+    		for(new i = 0; i < MAX_PLAYERS; i++)
+    		{
+    			if(IsPlayerConnected(i) && pConvoy[i] == pConvoy[playerid])
+    			{
+    				ShowInfo(i, string);
+			    	SetPVarInt(i, "CzasDoRozladunku", Towary[towar][MinimalnyCzas]);
+				    SetPVarInt(i, "LadowanieTimer", SetTimerEx("LoadVehicle", CzasLadowania, true, "d", i));
+				    				    
+				    TogglePlayerControllable(i, false);
+
+				    if(IsPlayerInTruck(i))
+				            vehicleid = GetVehicleTrailer(GetPlayerVehicleID(i));
+				    else
+				            vehicleid = GetPlayerVehicleID(i);
+
+				    new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx(vehicleid,engine,lights,alarm,doors,bonnet,boot,objective);
+				    SetVehicleParamsEx(vehicleid,VEHICLE_PARAMS_OFF,lights,alarm,doors,bonnet,boot,objective);
+
+				    vehOtherInfo[vehicleid][vCargoID] = towar;
+				    vehOtherInfo[vehicleid][vCargoWeight] = ladowany;
+    			}
+    		}
+    	}
+    }
     else
-            vehicleid = GetPlayerVehicleID(playerid);
+    {
+    	ShowInfo(playerid, string);
+    	SetPVarInt(playerid, "CzasDoRozladunku", Towary[towar][MinimalnyCzas]);
+	    SetPVarInt(playerid, "LadowanieTimer", SetTimerEx("LoadVehicle", CzasLadowania, true, "d", playerid));
+	    	    
+	    TogglePlayerControllable(playerid, false);
 
-    vehOtherInfo[vehicleid][vCargoID] = towar;
-    vehOtherInfo[vehicleid][vCargoWeight] = ladowany;
+	    if(IsPlayerInTruck(playerid))
+	            vehicleid = GetVehicleTrailer(GetPlayerVehicleID(playerid));
+	    else
+	            vehicleid = GetPlayerVehicleID(playerid);
 
+	    new engine,lights,alarm,doors,bonnet,boot,objective;
+	    GetVehicleParamsEx(vehicleid,engine,lights,alarm,doors,bonnet,boot,objective);
+	    SetVehicleParamsEx(vehicleid,VEHICLE_PARAMS_OFF,lights,alarm,doors,bonnet,boot,objective);
+
+	    vehOtherInfo[vehicleid][vCargoID] = towar;
+	    vehOtherInfo[vehicleid][vCargoWeight] = ladowany;
+    }
     return 1;
 }

@@ -123,7 +123,7 @@ Dialog:DIALOG_CREATE_DOK_NAME(playerid, response, listitem, inputtext[])
 		return 1;
 
 	SetPVarString(playerid, "CreateDok_Name", inputtext);
-	return Dialog_Show(playerid, DIALOG_CREATE_DOK_TYPE, DIALOG_STYLE_LIST, " ", "Budowlane\nElektroniczne\nProdukty spo?ywcze\nArtyku³y odzie¿owe\nNiebezpieczne\nNielegalne", "OK", "Zamknij");
+	return Dialog_Show(playerid, DIALOG_CREATE_DOK_TYPE, DIALOG_STYLE_LIST, " ", "Budowlane\nElektroniczne\nProdukty spo¿ywcze\nArtyku³y odzie¿owe\nNiebezpieczne\nNielegalne", "OK", "Zamknij");
 }
 
 Dialog:DIALOG_CREATE_DOK_TYPE(playerid, response, listitem, inputtext[])
@@ -158,7 +158,7 @@ Dialog:DIALOG_CREATE_TOWAR_NAME(playerid, response, listitem, inputtext[])
 
 	new string[256];
 	format(string, sizeof(string), "Nazwa: %s | Wybierz typ:", inputtext);
-	return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_TYPE, DIALOG_STYLE_LIST, string, "Budowlane\nElektroniczne\nProdukty spo?ywcze\nArtyku³y odzie¿owe\nNiebezpieczne\nNielegalne", "Wybierz", "Anuluj");
+	return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_TYPE, DIALOG_STYLE_LIST, string, "Budowlane\nElektroniczne\nProdukty spo¿ywcze\nArtyku³y odzie¿owe\nNiebezpieczne\nNielegalne", "Wybierz", "Anuluj");
 }
 
 Dialog:DIALOG_CREATE_TOWAR_TYPE(playerid, response, listitem, inputtext[])
@@ -184,12 +184,12 @@ Dialog:DIALOG_CREATE_TOWAR_STAWKA(playerid, response, listitem, inputtext[])
 
 	if(floatstr(inputtext) < 0)
 	{
-		format(string, sizeof(string), "NIEPRAWID?OWA STAWKA!\n\nNazwa: %s\nTyp: %d\n\nPodaj stawk?za km (liczba z kropk?, np. 1.0):", string, GetPVarInt(playerid, "DodajTowar_Typ"));
+		format(string, sizeof(string), "NIEPRAWID£OWA STAWKA!\n\nNazwa: %s\nTyp: %d\n\nPodaj stawk?za km (liczba z kropk?, np. 1.0):", string, GetPVarInt(playerid, "DodajTowar_Typ"));
 		return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_STAWKA, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
 	}
 
 	SetPVarFloat(playerid, "DodajTowar_Stawka", floatstr(inputtext));
-	format(string, sizeof(string), "Nazwa: %s\nTyp: %d\nStawka: %f\n\nPodaj czas roz?adunku (w sekundach):", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"));
+	format(string, sizeof(string), "Nazwa: %s\nTyp: %d\nStawka: %f\n\nPodaj czas roz³adunku (w sekundach):", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"));
 	return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_CZAS, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
 }
 
@@ -203,7 +203,7 @@ Dialog:DIALOG_CREATE_TOWAR_CZAS(playerid, response, listitem, inputtext[])
 
 	if(strval(inputtext) < 0)
 	{
-		format(string, sizeof(string), "NIEPRAWID?OWY CZAS!\n\nNazwa: %s\nTyp: %d\nStawka: %f\n\nPodaj czas roz?adunku (w sekundach):", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"));
+		format(string, sizeof(string), "NIEPRAWID£OWY CZAS!\n\nNazwa: %s\nTyp: %d\nStawka: %f\n\nPodaj czas roz³adunku (w sekundach):", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"));
 		return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_CZAS, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
 	}
 
@@ -222,7 +222,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 
 	if(strval(inputtext) < 0)
 	{
-		format(string, sizeof(string), "NIEPRAWID?OWY CZAS!\n\nNazwa: %s\nTyp: %d\nStawka: %f\n\nPodaj poziom:", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"));
+		format(string, sizeof(string), "NIEPRAWID£OWY CZAS!\n\nNazwa: %s\nTyp: %d\nStawka: %f\n\nPodaj poziom:", string, GetPVarInt(playerid, "DodajTowar_Typ"), GetPVarFloat(playerid, "DodajTowar_Stawka"));
 		return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_POZIOM, DIALOG_STYLE_INPUT, " ", string, "Wybierz", "Anuluj");
 	}
 
@@ -987,7 +987,7 @@ Dialog:DIALOG_TANKOWANIE(playerid, response, listitem, inputtext[])
 					stan = 100;
 					money = 250;
 
-					SendClientMessage(playerid, 0x008040FF, "Kupi?e? obiad.");
+					SendClientMessage(playerid, 0x008040FF, "Kupi³eœ obiad.");
 				}
 
 				case 3:
@@ -995,7 +995,7 @@ Dialog:DIALOG_TANKOWANIE(playerid, response, listitem, inputtext[])
 					stan = 70;
 					money = 200;
 
-					SendClientMessage(playerid, 0x008040FF, "Kupi?e? ?niadanie.");
+					SendClientMessage(playerid, 0x008040FF, "Kupi³eœ ?niadanie.");
 				}
 
 				case 4:
@@ -1003,7 +1003,7 @@ Dialog:DIALOG_TANKOWANIE(playerid, response, listitem, inputtext[])
 					stan = 50;
 					money = 150;
 
-					SendClientMessage(playerid, 0x008040FF, "Kupi?e? kolacj?");
+					SendClientMessage(playerid, 0x008040FF, "Kupi³eœ kolacj?");
 				}
 
 				case 5:
@@ -1011,7 +1011,7 @@ Dialog:DIALOG_TANKOWANIE(playerid, response, listitem, inputtext[])
 					stan = 25;
 					money = 100;
 
-					SendClientMessage(playerid, 0x008040FF, "Kupi?e? deser.");
+					SendClientMessage(playerid, 0x008040FF, "Kupi³eœ deser.");
 				}
 			}
 
@@ -1349,26 +1349,26 @@ new string[128];
 
 if(!response)
 {
-format(string, sizeof string, ""GCOLOR_YELLOW"Gracz %s odmówi³ przyjêcia mandatu.",PlayerName(playerid));
-SendClientMessage(GetPVarInt(playerid,"kontrola"), 0x0, string);
-SendClientMessage(playerid,0x0,""GCOLOR_YELLOW"Odmówi³eœ przyjêcia mandatu. Z twojego konta zosta³ pobrane podwojone punkty score.");
-GiveScore(playerid, -(GetPVarInt(playerid, "opcja2")*2));
+	format(string, sizeof string, ""GCOLOR_YELLOW"Gracz %s odmówi³ przyjêcia mandatu.",PlayerName(playerid));
+	SendClientMessage(GetPVarInt(playerid,"kontrola"), 0x0, string);
+	SendClientMessage(playerid,0x0,""GCOLOR_YELLOW"Odmówi³eœ przyjêcia mandatu. Z twojego konta zosta³ pobrane podwojone punkty score.");
+	GiveScore(playerid, -(GetPVarInt(playerid, "opcja2")*2));
 
-DeletePVar(playerid, "kontrola");
-DeletePVar(playerid, "opcja1");
-DeletePVar(playerid, "opcja2");
+	DeletePVar(playerid, "kontrola");
+	DeletePVar(playerid, "opcja1");
+	DeletePVar(playerid, "opcja2");
 }
 else
 {
-format(string, sizeof string, ""GCOLOR_YELLOW"Gracz %s przyj¹³ mandat.",PlayerName(playerid));
-SendClientMessage(GetPVarInt(playerid,"kontrola"), 0x0, string);
-SendClientMessage(playerid,0x0,""GCOLOR_YELLOW"Przyj¹³eœ mandat.");
-GiveMoney(playerid, -GetPVarInt(playerid, "opcja1"));
-GiveScore(playerid, -GetPVarInt(playerid, "opcja2"));
+	format(string, sizeof string, ""GCOLOR_YELLOW"Gracz %s przyj¹³ mandat.",PlayerName(playerid));
+	SendClientMessage(GetPVarInt(playerid,"kontrola"), 0x0, string);
+	SendClientMessage(playerid,0x0,""GCOLOR_YELLOW"Przyj¹³eœ mandat.");
+	GiveMoney(playerid, -GetPVarInt(playerid, "opcja1"));
+	GiveScore(playerid, -GetPVarInt(playerid, "opcja2"));
 
-DeletePVar(playerid, "kontrola");
-DeletePVar(playerid, "opcja1");
-DeletePVar(playerid, "opcja2");
+	DeletePVar(playerid, "kontrola");
+	DeletePVar(playerid, "opcja1");
+	DeletePVar(playerid, "opcja2");
 }
 
 	return 1;
