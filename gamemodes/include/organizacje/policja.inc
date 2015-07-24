@@ -109,6 +109,38 @@ CMD:aresztuj(playerid, params[])
 	return 1;
 }
 
+CMD:unareszt(playerid, params[])
+{
+	new forplayerid, string[200];
+
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+
+	if(sscanf(params, "d", forplayerid))
+		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /unareszt [id gracza]");
+
+	if(!IsPlayerConnected(forplayerid))
+		return SendClientMessage(playerid, LIGHTRED, "Gracz ten nie jest obecny na serwerze.");
+
+	if(!GetPVarInt(forplayerid, "Areszt"))
+		return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest w areszcie.");
+
+	DeletePVar(forplayerid,"Areszt");
+	DeletePVar(forplayerid,"Areszttime");
+
+	SetPlayerInterior(forplayerid, 0);
+	SetPlayerPos(forplayerid, 2286.5684,2431.8369,10.8203);
+	SetPlayerHealth(forplayerid, 100);
+	TogglePlayerControllable(forplayerid, 1);
+
+	format(string, sizeof string, "{C0C0C0}Wypuœci³eœ gracza %s.", PlayerName(forplayerid));
+	SendClientMessage(playerid, 0x0, string);
+	format(string, sizeof string, "{C0C0C0}Zosta³eœ wypuszczony dziêki policjantowi %s.", PlayerName(playerid));
+	SendClientMessage(forplayerid, 0x0, string);
+
+	return 1;
+}
+
 CMD:wyrzuc(playerid, cmdtext[])
 	return cmd_wywal(playerid, cmdtext);
 
@@ -262,10 +294,36 @@ CMD:rozkuj(playerid, params[])
 	return 1;
 }
 
+CMD:stop(playerid, params[])
+{
+	new string[100], Float:Pos[3];
+
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+
+	format(string, sizeof string, "Otrzyma³eœ alert od policjanta {FFFFFF}%s.", PlayerName(playerid));
+
+	Loop(player, MAX_PLAYERS)
+	{
+		if(GetDistancePlayerToPlayer(playerid, player) < 100 && IsPlayerInAnyVehicle(player) && GetPlayerState(player) == PLAYER_STATE_DRIVER)
+		{
+			TextDrawShowForPlayer(player, AlertTD);
+			timer9[player] = SetTimerEx("PolicjaAlert", 10000, 0, "d", player);
+
+			Msg(player, COLOR_INFO3, string, false);
+
+			GetPlayerPos(player, Pos[0], Pos[1], Pos[2]);
+			PlayerPlaySound(player, 1147, Pos[0], Pos[1], Pos[2]);
+		}
+	}
+	
+	return 1;
+}
+
 forward Policja_OnPlayerKey(playerid, newkeys, oldkeys);
 public Policja_OnPlayerKey(playerid, newkeys, oldkeys)
 {
-	if((newkeys & KEY_ANALOG_LEFT)  && GetPlayerState(playerid) == PLAYER_STATE_DRIVER)
+	if((newkeys & KEY_ANALOG_LEFT) && GetPlayerState(playerid) == PLAYER_STATE_DRIVER)
 	{
 		new vehicleid = GetPlayerVehicleID(playerid);
 
@@ -300,8 +358,7 @@ public Policja_OnPlayerKey(playerid, newkeys, oldkeys)
 			}
 		}
 	}
-	
-	if((newkeys & KEY_ANALOG_RIGHT)  && GetPlayerState(playerid) == PLAYER_STATE_DRIVER)
+	else if((newkeys & KEY_ANALOG_RIGHT) && GetPlayerState(playerid) == PLAYER_STATE_DRIVER)
 	{
 		new vehicleid = GetPlayerVehicleID(playerid);
 
@@ -317,6 +374,8 @@ public Policja_OnPlayerKey(playerid, newkeys, oldkeys)
 			}
 		}
 	}
+	else if((newkeys & KEY_ANALOG_UP) && GetPlayerState(playerid) == PLAYER_STATE_DRIVER)
+		cmd_stop(playerid, "");
 }
 
 forward SkutyTeleport(playerid, policjantid);
@@ -352,8 +411,16 @@ public Policja_OnPlayerEnterJob(playerid)
 	GivePlayerWeapon(playerid, 24, 99999);
 	GivePlayerWeapon(playerid, 25, 99999);
 	GivePlayerWeapon(playerid, 3, 99999);
-	
+
 	SetPlayerArmour(playerid, 100);
 
+	return 1;
+}
+
+forward PolicjaAlert(playerid);
+public PolicjaAlert(playerid)
+{
+	TextDrawHideForPlayer(playerid,AlertTD);
+	KillTimer(timer9[playerid]);
 	return 1;
 }
