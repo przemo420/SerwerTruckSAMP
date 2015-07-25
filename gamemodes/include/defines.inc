@@ -231,6 +231,10 @@ enum vOtherInfo {
 	Float:vPrzebieg,
 	vCargoID,
 	vCargoWeight,
+	vCargoLoadTime,
+	vCargoLoadTimer,
+	vCargoLoadPoint,
+	vCargoUnLoadTime,
 	Color1,
 	Color2
 }

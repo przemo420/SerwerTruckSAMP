@@ -227,42 +227,6 @@ ToLog(ownerid, typelog, param1[], param2[]="")
 	mysql_query(string);
 }
 
-/*GetVehicleCargoID(vehicleid)
-{
-	new vehicleuid, cargoid;
-
-	if(IsPlayerInTruck(playerid))
-	{
-		vehicleid = GetVehicleTrailer(vehicleid);
-
-		if(!Spawned[vehicleid])
-			vehicleUID = DBVehID[vehicleid];
-	}
-	else
-	{
-		if(!Spawned[vehicleid])
-			vehicleUID = DBVehID[vehicleid];
-	}
-
-	if()
-	{
-		cargoid = vehOtherInfo[vehicleid][vCargoID]
-		vehOtherInfo[vehicleid][vCargoWeight] = ladowany;
-	}
-	else
-	{
-		vehInfo[vehicleUID][vCargoID] = towar; 
-		vehInfo[vehicleUID][vCargoWeight] = ladowany;
-	}
-
-	return (Spawned[vehicleid]);
-}
-
-GetVehicleCargoVeight(vehicleid)
-{
-
-}*/
-
 stock Msg(playerid, colorid, text[], bool:playSound = true, bool:displayPrefix = true)
 {
 	new
@@ -475,11 +439,11 @@ stock GetIDByNick(nick[])
 	if(IsNumeric(nick))
 	{
 		result = strval(nick);
-		if(!IsPlayerConnected(nick)) return -1;
+		if(!IsPlayerConnected(result)) return -1;
 	}
 	else
 	{
-		foreach(i)
+		Loop(i, GetMaxPlayers())
 		{
 			if(FindString(PlayerName(i), nick))
 			{
