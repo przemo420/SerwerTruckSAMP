@@ -1439,3 +1439,42 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 
 			Dialog_Show(playerid, DIALOG_ID_LOGIN, DIALOG_STYLE_PASSWORD, "Panel > Logowanie", s_buf, "Zaloguj", "Zamknij");
 }
+
+Dialog:DIALOG_SET_PLATE(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+	new fName[32];
+	GetPVarString(playerid, "PLATE_Name", fName, sizeof fName);
+	if(GetPVarInt(playerid, "PLATE_Count") < 1)
+		return cmd_setplate(playerid, fName);
+
+	new Float:fPos[3], count = 0;
+	GetPlayerPos(playerid, fPos[0], fPos[1], fPos[2]);
+	for(new i = 0; i < MAX_VEHICLES; i++)
+	{
+		if(IsValidVehicle(i))
+		{
+			new Float:fDistance;
+			fDistance = GetVehicleDistanceFromPoint(i, fPos[0], fPos[1], fPos[2]);
+			if(fDistance < 10.0)
+			{
+				count++;
+				if(listitem+1 == count)
+				{
+					new szTemp[64];
+					format(szTemp, sizeof szTemp, "Pomyœlnie %s");
+					GetVehiclePos(i, fPos[0], fPos[1], fPos[2]);
+					SetTimerEx("SetPos", 1500, false, "dfff", i, fPos[0], fPos[1], fPos[2]);
+					SetVehicleNumberPlate(i, fName);
+					SetVehicleToRespawn(i);
+
+					DeletePVar(playerid, "PLATE_Name");
+					DeletePVar(playerid, "PLATE_Count");
+					break;
+				}
+			}
+		}
+	}
+	return 1;
+}

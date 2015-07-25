@@ -304,10 +304,59 @@ CMD:wypadki(playerid)
 	- /napraw
 */
 
+CMD:setplate(playerid, params[])
+{
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POMOC)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
+
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+	
+	if(strlen(params) < 3 || strlen(params) > 32)
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/setplate [treœæ]{/b}");
+
+	SetPVarString(playerid, "PLATE_Name", params);
+	new szString[128], Float:fPos[3], count = 0;
+	GetPlayerPos(playerid, fPos[0], fPos[1], fPos[2]);
+	for(new i = 0; i < MAX_VEHICLES; i++)
+	{
+		if(IsValidVehicle(i))
+		{
+			new Float:fDistance;
+			fDistance = GetVehicleDistanceFromPoint(i, fPos[0], fPos[1], fPos[2]);
+			if(fDistance < 10.0)
+			{
+				new szTemp[32];
+				format(szTemp, sizeof szTemp, "%s\t%d\n", GetVehicleModelName(GetVehicleModel(i)), i);
+				strcat(szString, szTemp);
+				count++;
+			}
+		}
+	}
+	if(count < 1)
+		strcat(szString, "Nie odnaleziono pojazdów w promieniu 5m.");
+	else
+		strins(szString, "Nazwa\tID\n", 0);
+
+	SetPVarInt(playerid, "PLATE_Count", count);
+	Dialog_Show(playerid, DIALOG_SET_PLATE, count > 0 ? DIALOG_STYLE_TABLIST_HEADERS : DIALOG_STYLE_LIST, " ", szString, "Wybierz", "WyjdŸ");
+	return 1;
+}
+
+forward SetPos(vehicleid, Float:x, Float:y, Float:z);
+public SetPos(vehicleid, Float:x, Float:y, Float:z)
+{
+	SetVehiclePos(vehicleid, x, y, z);
+	return 1;
+}
+
 CMD:napraw(playerid, params[])
 {
 	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POMOC)
-		return Msg(playerid, COLOR_INFO3, "Nie masz uprawnieñ.");
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
+
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
 
 	Firehold2[playerid] = 0;
 	Msg(playerid, COLOR_INFO3, "Mo¿esz {b}zacz¹æ{/b} naprawianie pojazdu.");
@@ -373,7 +422,6 @@ CMD:dyzur(playerid, params[])
 				}
 			}
 		}
-
 		default: Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 	}
 
