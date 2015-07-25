@@ -578,7 +578,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 						(vehOtherInfo[vehicleid][vFuelType] == FUEL_TYPE_BENZ ? ("Benzyna") : (vehOtherInfo[vehicleid][vFuelType] == FUEL_TYPE_TDI ? ("Diesel") : ("Gaz"))), 
 						vehOtherInfo[vehicleid][vPrzebieg]);
 					else
-						format(string, sizeof(string), "UID: \t%d\nID: \t%d\nW³aœciciel: \t%d\nSub w³aœciciel: \t%d\nTyp w³aœciciela: \t%s\nModel: \t%d\nHP: \t%0.0f\nPaliwo: \t%0.0f\nTyp paliwa: \t%s\nPrzebieg: %0.1fkm\nKolor: \t%d:%d", 
+						format(string, sizeof(string), "UID: \t%d\nID: \t%d\nW³aœciciel: \t%d\nSub w³aœciciel: \t%d\nTyp w³aœciciela: \t%s\nModel: \t%d\nHP: \t%0.0f\nPaliwo: \t%0.0f\nTyp paliwa: \t%s\nPrzebieg: %0.1fkm\nKolor: \t%d:%d\nPrzegl¹d: %s", 
 						vehuid, 
 						vehicleid, 
 						vehInfo[vehuid][vOwnerID], 
@@ -590,7 +590,8 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 						(vehInfo[vehuid][vFuelType] == FUEL_TYPE_BENZ ? ("Benzyna") : (vehInfo[vehuid][vFuelType] == FUEL_TYPE_TDI ? ("Diesel") : ("Gaz"))), 
 						vehInfo[vehuid][vPrzebieg], 
 						vehInfo[vehuid][vColor1], 
-						vehInfo[vehuid][vColor2]);
+						vehInfo[vehuid][vColor2],
+						vehInfo[vehuid][vPrzeglad]);
 
 					Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST, "Pojazd > Informacje", string, "Ok", "");
 				}
@@ -1438,43 +1439,4 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 			format(s_buf, sizeof(s_buf), "%s{a9c4e4}Wykorzysta³eœ ju¿ {FFFFFF}[%d/3] {a9c4e4}próby zalogowania.\n\n{FFFFFF}www.serwertruck.eu", s_buf, GetPVarInt(playerid, "leci"));
 
 			Dialog_Show(playerid, DIALOG_ID_LOGIN, DIALOG_STYLE_PASSWORD, "Panel > Logowanie", s_buf, "Zaloguj", "Zamknij");
-}
-
-Dialog:DIALOG_SET_PLATE(playerid, response, listitem, inputtext[])
-{
-	if(!response)
-		return 1;
-	new playerName[32];
-	GetPVarString(playerid, "PLATE_Name", playerName, sizeof playerName);
-	if(GetPVarInt(playerid, "PLATE_Count") < 1)
-		return cmd_setplate(playerid, playerName);
-
-	new Float:fPos[3], count = 0;
-	GetPlayerPos(playerid, fPos[0], fPos[1], fPos[2]);
-	for(new i = 0; i < MAX_VEHICLES; i++)
-	{
-		if(IsValidVehicle(i))
-		{
-			new Float:fDistance;
-			fDistance = GetVehicleDistanceFromPoint(i, fPos[0], fPos[1], fPos[2]);
-			if(fDistance < 10.0)
-			{
-				count++;
-				if(listitem+1 == count)
-				{
-					new szTemp[64];
-					format(szTemp, sizeof szTemp, "Pomyœlnie %s");
-					GetVehiclePos(i, fPos[0], fPos[1], fPos[2]);
-					SetTimerEx("SetPos", 1500, false, "dfff", i, fPos[0], fPos[1], fPos[2]);
-					SetVehicleNumberPlate(i, playerName);
-					SetVehicleToRespawn(i);
-
-					DeletePVar(playerid, "PLATE_Name");
-					DeletePVar(playerid, "PLATE_Count");
-					break;
-				}
-			}
-		}
-	}
-	return 1;
 }

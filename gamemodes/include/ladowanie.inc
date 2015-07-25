@@ -142,7 +142,7 @@ LadujPojazd(ownerid=(-1), ownertype=(-1), vehid=(-1))
 	{
 		mysql_fetch_field("id", id);
 
-    	sscanf(string, "e<p<|>ddddffffffdfdddddddds[32]>", vehInfo[strval(id)]);
+    	sscanf(string, "e<p<|>ddddffffffdfdddddddds[32]s[32]>", vehInfo[strval(id)]);
 
     	VehID = CreateVehicle(vehInfo[strval(id)][vModel], vehInfo[strval(id)][vPosX], vehInfo[strval(id)][vPosY], vehInfo[strval(id)][vPosZ], vehInfo[strval(id)][vPosA], vehInfo[strval(id)][vColor1], vehInfo[strval(id)][vColor2], -1);
 

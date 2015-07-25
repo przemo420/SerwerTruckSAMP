@@ -179,7 +179,8 @@ CMD:kontrola(playerid, params[])
 	new targetid,
 		string[256],
 		vehicleid,
-		towarname[40];
+		towarname[40],
+		przeglad[32];
 
 	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
 		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
@@ -209,7 +210,12 @@ CMD:kontrola(playerid, params[])
 	else
 		strcat(towarname, Towary[vehOtherInfo[vehicleid][vCargoID]][NazwaTowaru]);
 
-	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\tWA¯NY\nTowar:\t%s\nWaga:\t%dkg\nPasy:\t%s", PlayerName(targetid), towarname, vehOtherInfo[vehicleid][vCargoWeight], (GetPVarInt(playerid, "PASY") > 0) ? ("zapiête") : ("rozpiête"));
+	if(Spawned[GetPlayerVehicleID(playerid)])
+		strcat(przeglad, "AKTUALNY");
+	else
+		strcat(przeglad, vehInfo[DBVehID[GetPlayerVehicleID(playerid)]][vPrzeglad]);
+
+	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\t%s\nTowar:\t%s\nWaga:\t%dkg\nPasy:\t%s", PlayerName(targetid), przeglad, towarname, vehOtherInfo[vehicleid][vCargoWeight], (GetPVarInt(playerid, "PASY") > 0) ? ("zapiête") : ("rozpiête"));
 	Dialog_Show(playerid, DIALOG_CONTROL, DIALOG_STYLE_TABLIST, "Kontrola", string, "WyjdŸ", #);
 	return 1;
 }
@@ -411,16 +417,12 @@ public Policja_OnPlayerEnterJob(playerid)
 	GivePlayerWeapon(playerid, 24, 99999);
 	GivePlayerWeapon(playerid, 25, 99999);
 	GivePlayerWeapon(playerid, 3, 99999);
-
-	SetPlayerArmour(playerid, 100);
-
-	return 1;
+	return SetPlayerArmour(playerid, 100);
 }
 
 forward PolicjaAlert(playerid);
 public PolicjaAlert(playerid)
 {
 	TextDrawHideForPlayer(playerid,AlertTD);
-	KillTimer(timer9[playerid]);
-	return 1;
+	return KillTimer(timer9[playerid]);
 }

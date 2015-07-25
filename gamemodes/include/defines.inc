@@ -87,9 +87,9 @@ native IsValidVehicle(vehicle);
 
 new szCommands[][] = {
 	"Pusto", // all commands
-	"/firma /mandat /aresztuj\n/wywal /wyrzuć /praca\n/dyzur /skuj /rozkuj\n/kontrola /alkomat /open\n /close /kolczatka /usunkolczatke\n /usunkolczatki /stop /unareszt", // policja
+	"/firma /mandat /aresztuj\n/wywal /wyrzuć /praca\n/dyzur /skuj /rozkuj\n/kontrola /alkomat /open\n /close /kolczatka /usunkolczatke\n /usunkolczatki /stop /unareszt",
 	"/firma /ulecz /wypadki /wywal /wyrzuć /praca /dyzur /o[1 - 8] /c[1 - 8] /open /close", // pogotowie
-	"/firma /vehcolor /rachunek /zatankuj /praca /dyzur /open /close /setplate"  // pomoc drogowa
+	"/firma /vehcolor /rachunek /zatankuj /praca /dyzur /open /close /setplate /przeglad"  // pomoc drogowa
 };
 
 // ---------------------------
@@ -205,6 +205,7 @@ enum vInfo
 	vTires,
 	vOwnerVC,
 	vPlate[32],
+	vPrzeglad[32],
 	vSAMPID
 };
 new vehInfo[MAX_VEHICLES_DB][vInfo];
