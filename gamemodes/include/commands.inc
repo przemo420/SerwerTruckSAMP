@@ -389,40 +389,56 @@ CMD:zatankuj(playerid)
 
 CMD:dyzur(playerid, params[])
 {
-	new string[120];
+	new string[120], firmaid=PlayerInfo[playerid][pFirma], Float:ObjectPos[3];
 
-	switch(Firmy[PlayerInfo[playerid][pFirma]][tTyp])
+	if(Firmy[firmaid][tTyp] != TEAM_TYPE_POLICE && Firmy[firmaid][tTyp] != TEAM_TYPE_MEDIC && Firmy[firmaid][tTyp] != TEAM_TYPE_POMOC)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
+	if(!GetPVarInt(playerid, "Worked"))
 	{
-		case TEAM_TYPE_POLICE, TEAM_TYPE_MEDIC, TEAM_TYPE_POMOC:
+		SetPVarInt(playerid, "Worked", 1);
+		
+		Loop(player, MAX_PLAYERS)
 		{
-			if(!GetPVarInt(playerid, "Worked"))
+			if(GetDistancePlayerToPlayer(playerid, player) < 30)
 			{
-				SetPVarInt(playerid, "Worked", 1);
-				
-				Loop(player, MAX_PLAYERS)
-				{
-					if(GetDistancePlayerToPlayer(playerid, player) < 30)
-					{
-						format(string, sizeof string, "Gracz {b}%s{/b} rozpocz¹³ dy¿ur w: {b}%s{/b}.", PlayerName(playerid), Firmy[PlayerInfo[playerid][pFirma]][tName]);
-						Msg(player, COLOR_INFO2, string);
-					}
-				}
-			}
-			else
-			{
-				DeletePVar(playerid, "Worked");
-				
-				Loop(player, MAX_PLAYERS)
-				{
-					if(GetDistancePlayerToPlayer(playerid, player) < 30)
-					{
-						format(string, sizeof string, "Gracz {b}%s{/b} zakoñczy³ dy¿ur w: {b}%s{/b}.", PlayerName(playerid), Firmy[PlayerInfo[playerid][pFirma]][tName]);
-						Msg(player, COLOR_INFO2, string);
-					}
-				}
+				format(string, sizeof string, "Gracz {b}%s{/b} rozpocz¹³ dy¿ur w: {b}%s{/b}.", PlayerName(playerid), Firmy[firmaid][tName]);
+				Msg(player, COLOR_INFO2, string);
 			}
 		}
-		default: Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
+		NaDyzurze[firmaid]++;
+	}
+	else
+	{
+		DeletePVar(playerid, "Worked");
+		
+		Loop(player, MAX_PLAYERS)
+		{
+			if(GetDistancePlayerToPlayer(playerid, player) < 30)
+			{
+				format(string, sizeof string, "Gracz {b}%s{/b} zakoñczy³ dy¿ur w: {b}%s{/b}.", PlayerName(playerid), Firmy[firmaid][tName]);
+				Msg(player, COLOR_INFO2, string);
+			}
+		}
+
+		NaDyzurze[firmaid]--;
+	}
+
+	if(Firmy[firmaid][tTyp] == TEAM_TYPE_POMOC)
+	{
+		if(NaDyzurze[firmaid] == 1)
+		{
+			for(new i; i <= 8; i++)
+				GetDynamicObjectPos(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]),
+				MoveDynamicObject(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]-3.0, 10);
+		}
+		else
+		{
+			for(new i; i <= 8; i++)
+				GetDynamicObjectPos(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]),
+				MoveDynamicObject(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]+3.0, 10);
+		}
 	}
 
 	return 1;

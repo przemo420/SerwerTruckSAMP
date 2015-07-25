@@ -1444,10 +1444,10 @@ Dialog:DIALOG_SET_PLATE(playerid, response, listitem, inputtext[])
 {
 	if(!response)
 		return 1;
-	new fName[32];
-	GetPVarString(playerid, "PLATE_Name", fName, sizeof fName);
+	new playerName[32];
+	GetPVarString(playerid, "PLATE_Name", playerName, sizeof playerName);
 	if(GetPVarInt(playerid, "PLATE_Count") < 1)
-		return cmd_setplate(playerid, fName);
+		return cmd_setplate(playerid, playerName);
 
 	new Float:fPos[3], count = 0;
 	GetPlayerPos(playerid, fPos[0], fPos[1], fPos[2]);
@@ -1466,7 +1466,7 @@ Dialog:DIALOG_SET_PLATE(playerid, response, listitem, inputtext[])
 					format(szTemp, sizeof szTemp, "Pomyœlnie %s");
 					GetVehiclePos(i, fPos[0], fPos[1], fPos[2]);
 					SetTimerEx("SetPos", 1500, false, "dfff", i, fPos[0], fPos[1], fPos[2]);
-					SetVehicleNumberPlate(i, fName);
+					SetVehicleNumberPlate(i, playerName);
 					SetVehicleToRespawn(i);
 
 					DeletePVar(playerid, "PLATE_Name");

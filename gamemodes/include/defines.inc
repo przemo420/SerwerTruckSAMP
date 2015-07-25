@@ -38,7 +38,7 @@ enum {
 
 // ---------------------------
 
-	native IsValidVehicle(vehicle);
+native IsValidVehicle(vehicle);
 
 // ---------------------------
 
@@ -297,6 +297,7 @@ enum Teams {
 	tKolor
 }
 new Firmy[MAX_FIRM][Teams];
+new NaDyzurze[MAX_FIRM];
 
 new const KategorieTowarow[][] = {
 	"Budowlane",
