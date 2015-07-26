@@ -179,6 +179,7 @@ CMD:setplate(playerid, params[])
 	SetPVarString(playerid, "PLATE_Name", params);
 	new szString[128], Float:fPos[3], count = 0;
 	GetPlayerPos(playerid, fPos[0], fPos[1], fPos[2]);
+	
 	for(new i = 0; i < MAX_VEHICLES; i++)
 	{
 		if(IsValidVehicle(i))
@@ -188,7 +189,7 @@ CMD:setplate(playerid, params[])
 			if(fDistance < 10.0)
 			{
 				new szTemp[32];
-				format(szTemp, sizeof szTemp, "%s\t%d\n", GetVehicleModelName(GetVehicleModel(i)), i);
+				format(szTemp, sizeof szTemp, "%d\t%s\n", i, GetVehicleModelName(GetVehicleModel(i)));
 				strcat(szString, szTemp);
 				count++;
 			}
@@ -197,7 +198,7 @@ CMD:setplate(playerid, params[])
 	if(count < 1)
 		strcat(szString, "Nie odnaleziono pojazdÛw w promieniu 5m.");
 	else
-		strins(szString, "Nazwa\tID\n", 0);
+		strins(szString, "ID\tNazwa\n", 0);
 
 	SetPVarInt(playerid, "PLATE_Count", count);
 	Dialog_Show(playerid, DIALOG_SET_PLATE, count > 0 ? DIALOG_STYLE_TABLIST_HEADERS : DIALOG_STYLE_LIST, " ", szString, "Wybierz", "Wyjdü");
@@ -257,33 +258,22 @@ Dialog:DIALOG_SET_PLATE(playerid, response, listitem, inputtext[])
 	if(GetPVarInt(playerid, "PLATE_Count") < 1)
 		return cmd_setplate(playerid, playerName);
 
-	new Float:fPos[3], count = 0;
+	new Float:fPos[3], count = 0, vehicleid;
 	GetPlayerPos(playerid, fPos[0], fPos[1], fPos[2]);
-	for(new i = 0; i < MAX_VEHICLES; i++)
-	{
-		if(IsValidVehicle(i))
-		{
-			new Float:fDistance;
-			fDistance = GetVehicleDistanceFromPoint(i, fPos[0], fPos[1], fPos[2]);
-			if(fDistance < 10.0)
-			{
-				count++;
-				if(listitem+1 == count)
-				{
-					new szTemp[64];
-					format(szTemp, sizeof szTemp, "Pomyúlnie %s");
-					GetVehiclePos(i, fPos[0], fPos[1], fPos[2]);
-					SetTimerEx("SetPos", 1500, false, "dfff", i, fPos[0], fPos[1], fPos[2]);
-					SetVehicleNumberPlate(i, playerName);
-					SetVehicleToRespawn(i);
+	sscanf(inputtext, "d{s[20]}", vehicleid);
 
-					DeletePVar(playerid, "PLATE_Name");
-					DeletePVar(playerid, "PLATE_Count");
-					break;
-				}
-			}
-		}
-	}
+	new szTemp[64];
+	format(szTemp, sizeof szTemp, "Pomyúlnie zmieni≥eú rejestracjÍ pojazdu {b}%s{/b}.", playerName);
+	Msg(playerid, COLOR_INFO3, szTemp);
+	
+	GetVehiclePos(vehicleid, fPos[0], fPos[1], fPos[2]);
+	SetTimerEx("SetPos", 1500, false, "dfff", vehicleid, fPos[0], fPos[1], fPos[2]);
+	SetVehicleNumberPlate(vehicleid, playerName);
+	SetVehicleToRespawn(vehicleid);
+
+	DeletePVar(playerid, "PLATE_Name");
+	DeletePVar(playerid, "PLATE_Count");
+
 	return 1;
 }
 

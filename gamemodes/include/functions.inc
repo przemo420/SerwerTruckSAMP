@@ -25,6 +25,9 @@ OnePlayAnim(playerid,animlib[],animname[], Float:Speed, looping, lockx, locky, l
 StopLoopingAnim(playerid)
 	return DeletePVar(playerid, "UsingLoopingAnim");
 
+PreloadAnimLib(playerid, animlib[])
+	return ApplyAnimation(playerid,animlib,"null",0.0,0,0,0,0,0);
+
 GetVehicleSpeed(vehicleid, &Float:speed)
 {
 	new Float:x,
