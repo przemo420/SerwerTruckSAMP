@@ -1,11 +1,3 @@
-/*
-	W OnGameModeInit to:
-	DrawWeather();
-	WeatherChange();
-
-	I wypierdol to co jest teraz (t¹ zmiane pogody), bo tu 100% zmiany :E 
-*/
-
 enum eWeather
 {
 	wActual,
@@ -72,6 +64,13 @@ stock GetWeatherName(weather)
 	new szName[34];
 	format(szName, sizeof szName, "%s", weatherNames[weather]);
 	return szName;
+}
+
+forward Pogoda_OnGameModeInit();
+public Pogoda_OnGameModeInit()
+{
+	DrawWeather();
+	WeatherChange();
 }
 
 stock DrawWeather()
