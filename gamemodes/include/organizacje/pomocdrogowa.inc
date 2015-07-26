@@ -56,6 +56,12 @@ public Pomoc_OnPlayerKey(playerid, newkeys, oldkeys)
 	{
 		new nearveh = GetNearestVehicle(playerid,5);
 
+		if(Spawned[nearveh])
+			return Msg(playerid, COLOR_ERROR, "Nie mo¿esz przemalowaæ tego pojazdu.");
+
+		if(GetPVarType(playerid, "typ1") == PLAYER_VARTYPE_NONE)
+			return Dialog_Show(playerid, DIALOG_CHANGE_COLOR, DIALOG_STYLE_INPUT, "Malowanie pojazdu", "Wpisz kolor w postaci:\nkolor1:kolor2", "Maluj", "Anuluj");
+
 		if(IsPlayerFacingVehicle(playerid,nearveh))
 		{
 			SetTimerEx("ResprayTimer",3000,false,"ii",playerid,GetNearestVehicle(playerid,5));
@@ -92,55 +98,71 @@ public Pomoc_OnPlayerKey(playerid, newkeys, oldkeys)
 forward ResprayTimer(playerid,vehicleid);
 public ResprayTimer(playerid,vehicleid)
 {
-new kolor1 = GetPVarInt(playerid,"typ1");
-new kolor2 = GetPVarInt(playerid,"typ2");
+	new kolor1 = GetPVarInt(playerid,"typ1");
+	new kolor2 = GetPVarInt(playerid,"typ2");
 
-if(GetPlayerWeapon(playerid) == 41 && GetNearestVehicle(playerid,8) == vehicleid && Firehold[playerid] == 1)
-{
-if(IsPlayerFacingVehicle(playerid,vehicleid))
-{
-if(GetPVarInt(playerid,"typ1") && GetPVarInt(playerid,"typ2"))
-{
-ChangeVehicleColor(GetNearestVehicle(playerid,8),kolor1,kolor2);
-RepairVehicle(GetNearestVehicle(playerid,8));
-}
-else
-{
-ChangeVehicleColor(GetNearestVehicle(playerid,8),random(127),random(127));
-RepairVehicle(GetNearestVehicle(playerid,8));
-}
-new c[2];
-GetVehicleColor(GetNearestVehicle(playerid,8), c[0], c[1]);
+	if(GetPlayerWeapon(playerid) == 41 && GetNearestVehicle(playerid,8) == vehicleid && Firehold[playerid] == 1)
+	{
+		if(IsPlayerFacingVehicle(playerid,vehicleid))
+		{
+			ChangeVehicleColor(vehicleid, kolor1, kolor2);
+			RepairVehicle(vehicleid);
 
-SendClientMessage(playerid, 0x0, "{C0C0C0}Lakierowanie pojazdu zakoñczone.");
-DeletePVar(playerid, "typ1");
-DeletePVar(playerid, "typ2");
-ResetPlayerWeapons(playerid);
-GivePlayerWeapon(playerid, 43, 9999);
-GivePlayerWeapon(playerid, 11, 99999);
-GivePlayerWeapon(playerid, 41, 99999);
-}
-}
-return 1;
+			new vehuid = DBVehID[vehicleid];
+			if(!Spawned[vehicleid])
+			{	
+				vehInfo[vehuid][vColor1] = kolor1;
+				vehInfo[vehuid][vColor2] = kolor2;
+				vehInfo[vehuid][vHealth] = 1000.0;
+
+				SaveVehicle(vehicleid);
+			}
+
+			SendClientMessage(playerid, 0x0, "{C0C0C0}Lakierowanie pojazdu zakoñczone.");
+			DeletePVar(playerid, "typ1");
+			DeletePVar(playerid, "typ2");
+			ResetPlayerWeapons(playerid);
+			GivePlayerWeapon(playerid, 43, 9999);
+			GivePlayerWeapon(playerid, 11, 99999);
+			GivePlayerWeapon(playerid, 41, 99999);
+		}
+	}
+
+	return 1;
 }
 
 forward RepairTimer(playerid,vehicleid);
 public RepairTimer(playerid,vehicleid)
 {
-if(GetPlayerWeapon(playerid) == 11 && Firehold2[playerid] == 4)
-{
-if(IsPlayerFacingVehicle(playerid,vehicleid))
-{
-RepairVehicle(GetNearestVehicle(playerid,8));
-SendClientMessage(playerid, 0x0, "{C0C0C0}Naprawianie pojazdu zakoñczone.");
-ResetPlayerWeapons(playerid);
-GivePlayerWeapon(playerid, 43, 9999);
-GivePlayerWeapon(playerid, 11, 99999);
-GivePlayerWeapon(playerid, 41, 99999);
-Firehold2[playerid] = 0;
-}
-}
-return 1;
+	if(GetPlayerWeapon(playerid) == 11 && Firehold2[playerid] == 4)
+	{
+		if(IsPlayerFacingVehicle(playerid,vehicleid))
+		{
+			RepairVehicle(vehicleid);
+
+			new vehuid = DBVehID[vehicleid];
+
+			if(!Spawned[vehicleid])
+			{
+				vehInfo[vehuid][vPanels] = 0;
+				vehInfo[vehuid][vDoors] = 0;
+				vehInfo[vehuid][vLights] = 0;
+				vehInfo[vehuid][vTires] = 0;
+				vehInfo[vehuid][vHealth] = 1000.0;
+
+				SaveVehicle(vehicleid);
+			}
+
+			SendClientMessage(playerid, 0x0, "{C0C0C0}Naprawianie pojazdu zakoñczone.");
+			ResetPlayerWeapons(playerid);
+			GivePlayerWeapon(playerid, 43, 9999);
+			GivePlayerWeapon(playerid, 11, 99999);
+			GivePlayerWeapon(playerid, 41, 99999);
+			Firehold2[playerid] = 0;
+		}
+	}
+
+	return 1;
 }
 
 CMD:setplate(playerid, params[])
@@ -262,5 +284,22 @@ Dialog:DIALOG_SET_PLATE(playerid, response, listitem, inputtext[])
 			}
 		}
 	}
+	return 1;
+}
+
+Dialog:DIALOG_CHANGE_COLOR(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	new kolor1, kolor2;
+	if(sscanf(inputtext, "p<:>dd", kolor1, kolor2) || kolor1 < 0 || kolor2 < 0 || kolor1 > 255 || kolor2 > 255)
+		return Dialog_Show(playerid, DIALOG_CHANGE_COLOR, DIALOG_STYLE_INPUT, "Malowanie pojazdu", "Wpisz kolor w postaci:\nkolor1:kolor2", "Maluj", "Anuluj");
+
+	SetPVarInt(playerid, "typ1", kolor1);
+	SetPVarInt(playerid, "typ2", kolor2);
+
+	Msg(playerid, COLOR_INFO, "Mo¿esz zaz¹æ malowaæ pojazd.");
+
 	return 1;
 }

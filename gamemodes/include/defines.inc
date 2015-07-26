@@ -211,7 +211,8 @@ enum vInfo
 new vehInfo[MAX_VEHICLES_DB][vInfo];
 new Float:vPos[MAX_VEHICLES][6];
 new DBVehID[MAX_VEHICLES_DB];
-new HighVehicleID;
+new HighVehicleID=INVALID_VEHICLE_ID;
+new VehicleDriver[MAX_VEHICLES]=INVALID_PLAYER_ID;
 
 new timer[MAX_PLAYERS],
 	timer3[MAX_PLAYERS],
@@ -224,7 +225,6 @@ new timer[MAX_PLAYERS],
 	timer11[MAX_PLAYERS],
 	timer12[MAX_PLAYERS],
 	timer13[MAX_PLAYERS],
-	timer14[MAX_PLAYERS],
 	timer15[MAX_PLAYERS],
 	timer16[MAX_PLAYERS];
 

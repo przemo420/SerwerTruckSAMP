@@ -30,6 +30,7 @@ Dialog:DIALOG_ID_CREATE_VEHICLE(playerid, response, listitem, inputtext[])
 			DeletePVar(playerid, "naczepa");
 		}
 	}
+	return 1;
 }
 
 Dialog:DIALOG_ID_CREATE_VEHICLE_TRUCK(playerid, response, listitem, inputtext[])
@@ -278,6 +279,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 					PlayerInfo[playerid][pSkin] = 0;
 				}
 			}
+			return 1;
 		}
 
 		Dialog:DIALOG_FOTORADAR(playerid, response, listitem, inputtext[])
@@ -295,6 +297,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 			format(string, sizeof string, "{008000}Edytujesz fotoradar o uid: {FFFFFF}%d.", fotoradarid);
 			SendClientMessage(playerid,0x0,string);
 			EditObject(playerid, FotoradarOBJ[fotoradarid]);
+			return 1;
 		}
 
 		Dialog:DIALOG_ID_FIRMA(playerid, response, listitem, inputtext[])
@@ -366,6 +369,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 					Dialog_Show(playerid, DIALOG_ID_FIRMA_SKIN, DIALOG_STYLE_LIST, "Firma > Skiny", string, "Zmieñ", "Cofnij");
 				}
 			}
+			return 1;
 		}
 
 		Dialog:DIALOG_ID_FIRMA_WPLAC(playerid, response, listitem, inputtext[])
@@ -382,6 +386,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 			Firmy[PlayerInfo[playerid][pFirma]][tBank] += kasa;
 
 			ShowInfo(playerid, "Wp³aci³eœ pieni¹dze na konto firmy.");
+			return 1;
 		}
 
 		Dialog:DIALOG_ID_FIRMA_ZAPROS(playerid, response, listitem, inputtext[])
@@ -400,6 +405,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 			SetPVarInt(forplayerid, "FIRMA_ZAPROS", playerid);
 			format(string, sizeof(string), "%s zaprosi³ Ciê do firmy %s.", PlayerName(playerid), Firmy[PlayerInfo[playerid][pFirma]][tName]);
 			Dialog_Show(forplayerid, DIALOG_ID_FIRMA_ZAPROS_ACCEPT, DIALOG_STYLE_MSGBOX, "Firma > Zaproœ", string, "Akceptuj", "Odrzuæ");
+			return 1;
 		}
 
 		Dialog:DIALOG_ID_FIRMA_ZAPROS_ACCEPT(playerid, response, listitem, inputtext[])
@@ -409,6 +415,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 
 			PlayerInfo[playerid][pFirma] = PlayerInfo[GetPVarInt(playerid, "FIRMA_ZAPROS")][pFirma];
 			OnPlayerText(playerid, "#Przyj¹³em zaproszenie do firmy.");
+			return 1;
 		}
 
 		Dialog:DIALOG_ID_FIRMA_WYRZUC(playerid, response, listitem, inputtext[])
@@ -447,6 +454,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 
 			OnPlayerText(forplayerid, "#Zosta³em wyrzucony z firmy.");
 			PlayerInfo[forplayerid][pFirma] = 0;
+			return 1;
 		}
 
 		Dialog:DIALOG_ID_FIRMA_ZASTEPCA(playerid, response, listitem, inputtext[])
@@ -483,6 +491,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 
 			format(string, sizeof(string), "UPDATE `Firmy` SET `VcSzef` = '%d' WHERE `id` = '%d'", PlayerInfo[forplayerid][pID], firmaid);
 			mysql_query(string);
+			return 1;
 		}
 
 		Dialog:DIALOG_ID_FIRMA_KSIEGOWY(playerid, response, listitem, inputtext[])
@@ -519,6 +528,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 
 			format(string, sizeof(string), "UPDATE `Firmy` SET `Ksiegowy` = '%d' WHERE `id` = '%d'", PlayerInfo[forplayerid][pID], firmaid);
 			mysql_query(string);
+			return 1;
 		}
 
 		Dialog:DIALOG_ID_FIRMA_SKIN(playerid, response, listitem, inputtext[])
@@ -531,6 +541,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 			new string[80];
 			format(string, sizeof(string), "Zmieniasz skin: Skin %d\n\nWprowadŸ numer skina:", listitem+1);
 			Dialog_Show(playerid, DIALOG_ID_FIRMA_SKIN_ZMIEN, DIALOG_STYLE_INPUT, "Firma > Skin > Zmieñ", string, "Ok", "Cofnij");
+			return 1;
 		}
 
 		Dialog:DIALOG_ID_FIRMA_SKIN_ZMIEN(playerid, response, listitem, inputtext[])
@@ -557,6 +568,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 			format(string, sizeof(string), "UPDATE `Firmy` SET `Skin%d` = '%d' WHERE `id` = '%d'", GetPVarInt(playerid, "FIRMA_SKIN"), skinid, firmaid);
 			mysql_query(string);
 			printf(string);
+			return 1;
 		}
 
 		Dialog:DIALOG_ID_VEHICLE(playerid, response, listitem, inputtext[])
@@ -613,6 +625,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 					Dialog_Show(playerid, DIALOG_ID_VEHICLE_ZARZADZAJ, DIALOG_STYLE_LIST, "Pojazd > Zarz¹dzaj", "Zaparkuj\nUstaw zastêpcê", "Ok", "Anuluj");
 				}
 			}
+			return 1;
 		}
 
 		Dialog:DIALOG_ID_VEHICLE_ZARZADZAJ(playerid, response, listitem, inputtext[])
@@ -645,6 +658,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 
 				case 1: ShowInfo(playerid, "Ustawienie zastêpcy jest chwilowo nie mo¿liwe.");
 			}
+			return 1;
 		}
 
 		Dialog:DIALOG_ID_TELEPHONE(playerid, response, listitem, inputtext[])
@@ -653,6 +667,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 				return 1;
 
 			ShowInfo(playerid, "Brak zasiêgu!");
+			return 1;
 		}
 
 Dialog:GTIMEG_LIST_DIALOG(playerid, response, listitem, inputtext[])
@@ -665,6 +680,7 @@ SetPlayerTime(playerid,TimeGlobal[listitem][rHour],0);
 format(string, sizeof string, "{0080C0}Zmieni?e? por?w grze na {FFFFFF}%s.", TimeGlobal[listitem][rName]);
 SendClientMessage(playerid, 0x0, string);
 }
+return 1;
 }
 
 Dialog:ANIM1_DIALOG(playerid, response, listitem, inputtext[])
@@ -727,6 +743,7 @@ LoopingAnim(playerid,"PED","WALK_DRUNK",4.0,1,1,1,1,0); //Pijany
 }
 }
 }
+return 1;
 }
 
 Dialog:ANIM2_DIALOG(playerid, response, listitem, inputtext[])
@@ -753,6 +770,7 @@ SetPlayerSpecialAction(playerid, 5); //Taniec 4
 }
 }
 }
+return 1;
 }
 
 Dialog:ANIM3_DIALOG(playerid, response, listitem, inputtext[])
@@ -771,6 +789,7 @@ SetPlayerSpecialAction(playerid, 13); //Telefon (schowaj)
 }
 }
 }
+return 1;
 }
 
 Dialog:ANIM4_DIALOG(playerid, response, listitem, inputtext[])
@@ -833,6 +852,7 @@ LoopingAnim(playerid, "CRACK", "crckdeth2", 4.0, 1, 0, 0, 0, 0); //Umieraj
 }
 }
 }
+return 1;
 }
 
 Dialog:ANIM5_DIALOG(playerid, response, listitem, inputtext[])
@@ -883,6 +903,7 @@ LoopingAnim(playerid, "GANGS", "leanIDLE", 4.0, 1, 0, 0, 0, 0); //Opieraj siê
 }
 }
 }
+return 1;
 }
 
 Dialog:ANIM6_DIALOG(playerid, response, listitem, inputtext[])
@@ -945,6 +966,7 @@ LoopingAnim(playerid,"ped","WOMAN_walkold",4.0,1,1,1,1,0); //Starzec [2]
 }
 }
 }
+return 1;
 }
 
 Dialog:ANIM7_DIALOG(playerid, response, listitem, inputtext[])
@@ -963,10 +985,12 @@ LoopingAnim(playerid,"ped","WOMAN_walkshop",4.0,1,1,1,1,0); //Skulony
 }
 }
 }
+return 1;
 }
 
 Dialog:DIALOG_TANKOWANIE(playerid, response, listitem, inputtext[])
 {
+	return 1;
 }
 
 	Dialog:DIALOG_MENU_BAR(playerid, response, listitem, inputtext[])
@@ -1025,6 +1049,7 @@ Dialog:DIALOG_TANKOWANIE(playerid, response, listitem, inputtext[])
 				//UpdatePlayerProgressBar(playerid, Glod[playerid]);
 			}
 		}
+		return 1;
 	}
 
 /*Dialog:DIALOG_PANEL)
@@ -1439,4 +1464,6 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 			format(s_buf, sizeof(s_buf), "%s{a9c4e4}Wykorzysta³eœ ju¿ {FFFFFF}[%d/3] {a9c4e4}próby zalogowania.\n\n{FFFFFF}www.serwertruck.eu", s_buf, GetPVarInt(playerid, "leci"));
 
 			Dialog_Show(playerid, DIALOG_ID_LOGIN, DIALOG_STYLE_PASSWORD, "Panel > Logowanie", s_buf, "Zaloguj", "Zamknij");
+
+			return 1;
 }

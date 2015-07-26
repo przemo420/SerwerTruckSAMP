@@ -140,27 +140,20 @@ stock GetWeaponNameEx(weaponid)
     return weapon;
 }
 
-IsPlayerInTruck(playerid)
+IsVehicleTruck(modelid)
 {
-	new vehicleid = GetVehicleModel(GetPlayerVehicleID(playerid));
-
-	if(!IsPlayerInAnyVehicle(playerid))
-		return 0;
-
-	if(vehicleid == 515 || vehicleid == 514 || vehicleid == 403)
+	if(modelid == 515 || modelid == 514 || modelid == 403)
 		return 1;
 
 	return 0;
 }
 
-IsVehicleTruck(vehicleid)
+IsPlayerInTruck(playerid)
 {
-	vehicleid = GetVehicleModel(vehicleid);
-
-	if(vehicleid == 515 || vehicleid == 514 || vehicleid == 403)
-		return 1;
-
-	return 0;
+	if(!IsPlayerInAnyVehicle(playerid))
+		return 0;
+		
+	return IsVehicleTruck(GetVehicleModel(GetPlayerVehicleID(playerid)));
 }
 
 IsPlayerInBus(playerid)
@@ -482,4 +475,63 @@ stock FindString(string1[], string2[], &start = 0, &end = 0)
 		}
 	}
 	return false;
+}
+
+GetNearestVehicle(playerid, Float:Distance = 1000.0)
+{
+	Distance = floatabs(Distance);
+
+	if(Distance == 0.0) 
+		Distance = 1000.0;
+	new Float:X[2], Float:Y[2], Float:Z[2];
+	new Float:NearestPos = Distance;
+	new NearestVehicle = INVALID_VEHICLE_ID;
+	GetPlayerPos(playerid, X[0], Y[0], Z[0]);
+
+	for(new i; i<GetVehiclePoolSize(); i++)
+	{
+		if(!IsVehicleStreamedIn(i, playerid) || i == GetPlayerVehicleID(playerid)) 
+			continue;
+
+		GetVehiclePos(i, X[1], Y[1], Z[1]);
+
+		if(NearestPos > GetDistanceBetweenPoints(X[0], Y[0], Z[0], X[1], Y[1], Z[1])) 
+			NearestPos = GetDistanceBetweenPoints(X[0], Y[0], Z[0], X[1], Y[1], Z[1]), NearestVehicle = i;
+	}
+
+	if(NearestPos < Distance) 
+		return NearestVehicle;
+
+	return INVALID_VEHICLE_ID;
+}
+
+IsPlayerFacingVehicle(playerid,vehicleid)
+{
+	new Float:zX,Float:zY,Float:zZ,Float:X,Float:Y,Float:Z,Float:ang;
+
+	if(!IsPlayerConnected(playerid)) 
+		return 0;
+
+	GetVehiclePos(vehicleid, X, Y, Z);
+	GetPlayerPos(playerid, zX, zY, zZ);
+
+	if( Y > zY ) 
+		ang = (-acos((X - zX) / floatsqroot((X - zX)*(X - zX) + (Y - zY)*(Y - zY))) - 90.0);
+	else if( Y < zY && X < zX ) 
+		ang = (acos((X - zX) / floatsqroot((X - zX)*(X - zX) + (Y - zY)*(Y - zY))) - 450.0);
+	else if( Y < zY ) 
+		ang = (acos((X - zX) / floatsqroot((X - zX)*(X - zX) + (Y - zY)*(Y - zY))) - 90.0);
+
+	if(X > zX) 
+		ang = (floatabs(floatabs(ang) + 180.0));
+	else 
+		ang = (floatabs(ang) - 180.0);
+
+	new Float:russia;
+	GetPlayerFacingAngle(playerid,russia);
+
+	if(ang-russia<-130 || ang-russia>130) 
+		return 0;
+
+	return 1;
 }
