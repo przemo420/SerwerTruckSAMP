@@ -55,7 +55,8 @@ public FreezeVehicle(vehicleid)
 	return 1;
 }
 
-public OnGameModeInit()
+forward Reczny_OnGameModeInit();
+public Reczny_OnGameModeInit()
 {
 	SetTimer("CarReseter", 1000, true);
 	for(new i; i < MAX_VEHICLES; i++)
@@ -68,7 +69,8 @@ public OnGameModeInit()
 	return 1;
 }
 
-public OnVehicleSpawn(vehicleid)
+forward Reczny_OnVehicleSpawn(vehicleid);
+public Reczny_OnVehicleSpawn(vehicleid)
 {
 	if(brInfo[vehicleid][manualBrake] == true)
 	{
@@ -79,7 +81,8 @@ public OnVehicleSpawn(vehicleid)
 	return 1;
 }
 
-public OnPlayerExitVehicle(playerid, vehicleid)
+forward Reczny_OnPlayerExitVehicle(playerid, vehicleid);
+public Reczny_OnPlayerExitVehicle(playerid, vehicleid)
 {
 	if(brInfo[vehicleid][manualBrake] == true && GetPlayerState(playerid) == PLAYER_STATE_DRIVER)
 	{
@@ -89,7 +92,8 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 	return 1;
 }
 
-public OnPlayerStateChange(playerid, newstate, oldstate)
+forward Reczny_OnPlayerStateChange(playerid, newstate, oldstate);
+public Reczny_OnPlayerStateChange(playerid, newstate, oldstate)
 {
 	if(newstate == PLAYER_STATE_DRIVER && brInfo[GetPlayerVehicleID(playerid)][manualBrake] == true)
 	{

@@ -426,3 +426,29 @@ public PolicjaAlert(playerid)
 	TextDrawHideForPlayer(playerid,AlertTD);
 	return KillTimer(timer9[playerid]);
 }
+
+forward Unareszt(playerid);
+public Unareszt(playerid)
+{
+	new seconds = GetPVarInt(playerid, "Areszttime");
+	new h, m, s;
+	ConvertSeconds(seconds,h,m,s);
+
+	if(seconds == 0)
+	{
+		DeletePVar(playerid,"Areszt");
+		DeletePVar(playerid,"Areszttime");
+		SetPlayerInterior(playerid, 0);
+		SetPlayerPos(playerid, 2286.5684,2431.8369,10.8203);
+		SetPlayerHealth(playerid, 100);
+		TogglePlayerControllable(playerid, 1);
+	}
+	else
+	{
+		seconds--;
+		SetPVarInt(playerid, "Areszttime", seconds);
+		SetTimerEx("Unareszt", 1000, false, "d", playerid);
+	}
+
+	return 1;
+}

@@ -204,11 +204,41 @@ CMD:v(playerid, params[])
 
 CMD:cmds(playerid)
 {
-	if(!GetPVarInt(playerid, "Worked"))
-		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+	new szString[150], firmaid=PlayerInfo[playerid][pFirma];
+	strcat(szString, "Komendy wszystkich:\n");
+	strcat(szString, szCommands[0]);
 
-	new frm = Firmy[PlayerInfo[playerid][pFirma]][tTyp];
-	Dialog_Show(playerid, DIALOG_CMDS, DIALOG_STYLE_MSGBOX, "Dostêpne komendy", szCommands[frm], "WyjdŸ", #);
+	if(firmaid != 0)
+		strcat(szString, "\n\nKomendy firmy:\n"), strcat(szString, szCommands[Firmy[firmaid][tTyp]]);
+
+	return Dialog_Show(playerid, DIALOG_CMDS, DIALOG_STYLE_MSGBOX, "Dostêpne komendy", szString, "WyjdŸ", #);
+}
+
+CMD:tankuj(playerid, params[])
+{
+	if(!IsPlayerInAnyVehicle(playerid))
+		return SendClientMessage(playerid, LIGHTRED, "Nie znajdujesz siê w poje?dzie.");
+
+	new stacjaid = GetStacja(playerid);
+	if(!stacjaid)
+		return SendClientMessage(playerid, LIGHTRED, "Nie znajdujesz siê przy stacji.");
+
+	if(Stacje[stacjaid][Zbiornik]==0)
+		return ShowInfo(playerid, "Brak paliwa na stacji.");
+
+/*if(PlayerVehicleIsDiesel(playerid))
+{
+FuelTYP[playerid] = 1;
+format(string, sizeof string, "{a9c4e4}Rodzaj paliwa tego pojazdu to: {DFDF00}DIESEL\n \n{a9c4e4}Mo¿esz zatankowaæ: {DFDF00}%d L\n{a9c4e4}Czy chcesz rozpocz¹æ tankowanie?", MaxFuel(GetVehicleModel(GetPlayerVehicleID(playerid))) - vFuel[GetPlayerVehicleID(playerid)]);
+Dialog_Show(playerid, DIALOG_TANKOWANIE, DIALOG_STYLE_MSGBOX, " ", string, "Tak", "Nie");
+}
+else
+{
+FuelTYP[playerid] = 0;
+format(string, sizeof string, "{a9c4e4}Rodzaj paliwa tego pojazdu to: {DFDF00}BENZYNA\n \n{a9c4e4}Mo¿esz zatankowaæ: {DFDF00}%d L\n{a9c4e4}Czy chcesz rozpocz¹æ tankowanie?", MaxFuel(GetVehicleModel(GetPlayerVehicleID(playerid))) - vFuel[GetPlayerVehicleID(playerid)]);
+Dialog_Show(playerid, DIALOG_TANKOWANIE, DIALOG_STYLE_MSGBOX, " ", string, "Tak", "Nie");
+}*/
+	ShowInfo(playerid, "Stacja chwilowo nieczynna.");
 	return 1;
 }
 
@@ -347,6 +377,65 @@ CMD:dyzur(playerid, params[])
 				GetDynamicObjectPos(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]),
 				MoveDynamicObject(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]+3.0, 10);
 		}
+	}
+
+	return 1;
+}
+
+CMD:praca(playerid, params[])
+{
+	new firmaid = PlayerInfo[playerid][pFirma];
+
+	if(!firmaid)
+		return ShowInfo(playerid, "Nie posiadasz ¿adnej pracy.");
+
+	if(GetPVarInt(playerid, "Working"))
+	{
+		DeletePVar(playerid, "Worked");
+		DeletePVar(playerid, "Working");
+
+		SetPlayerSkin(playerid, PlayerInfo[playerid][pSkin]);
+		SendClientMessage(playerid, 0x0, "{808080}Zakoñczy³eœ pracê.");
+		ResetPlayerWeapons(playerid);
+		SetPlayerColor(playerid, 0x009300FF);
+		SetPlayerArmour(playerid, 0);
+	}
+	else
+	{
+		switch(Firmy[firmaid][tTyp])
+		{
+			case TEAM_TYPE_POLICE: CallLocalFunction("Policja_OnPlayerEnterJob", "d", playerid);
+
+			case TEAM_TYPE_MEDIC:
+			{
+				GivePlayerWeapon(playerid, 9, 99999);
+    			GivePlayerWeapon(playerid, 42, 99999);
+			}
+
+			case TEAM_TYPE_POMOC: CallLocalFunction("Pomoc_OnPlayerEnterJob", "d", playerid);
+
+			case TEAM_TYPE_BUILD:
+			{
+				if(GetPVarInt(playerid, "FLYKAMERA"))
+				{
+					new Float:Pos[3];
+					Pos[0] = GetPVarFloat(playerid, "BTP");
+					Pos[1] = GetPVarFloat(playerid, "BTP1");
+					Pos[2] = GetPVarFloat(playerid, "BTP2");
+					SetPlayerPos(playerid,Pos[0],Pos[1],Pos[2]+1);
+					
+					DeletePVar(playerid, "FLYKAMERA");
+					DeletePVar(playerid, "BTP");
+					DeletePVar(playerid, "BTP1");
+					DeletePVar(playerid, "BTP2");
+				}
+			}
+		}
+
+		SetPVarInt(playerid, "Working", 1);
+		SetPlayerColor(playerid, Firmy[firmaid][tKolor]);
+
+		Dialog_Show(playerid, DIALOG_TP_LOGIN_SKIN, DIALOG_STYLE_LIST, "Firma > Skiny", "Skin 1\nSkin 2\nSkin 3\nSkin 4\nSkin 5", "Ok", "");
 	}
 
 	return 1;

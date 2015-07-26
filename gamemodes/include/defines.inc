@@ -1,3 +1,5 @@
+native IsValidVehicle(vehicle);
+
 #undef MAX_PLAYERS
 
 #define MAX_PLAYERS 		25
@@ -24,6 +26,33 @@
 #define INVALID_DOK_ID 			0
 #define INVALID_BARYIN_ID 		0
 
+#define MOVE_SPEED              100.0
+#define ACCEL_RATE              0.03
+
+#define CAMERA_MODE_NONE    	0
+#define CAMERA_MODE_FLY     	1
+
+#define MOVE_FORWARD    		1
+#define MOVE_BACK       		2
+#define MOVE_LEFT       		3
+#define MOVE_RIGHT      		4
+#define MOVE_FORWARD_LEFT       5
+#define MOVE_FORWARD_RIGHT      6
+#define MOVE_BACK_LEFT          7
+#define MOVE_BACK_RIGHT         8
+
+enum noclipenum
+{
+	cameramode,
+	flyobject,
+	mode,
+	lrold,
+	udold,
+	lastmove,
+	Float:accelmul
+}
+new noclipdata[MAX_PLAYERS][noclipenum];
+
 // ---------------------------
 enum {
 	TEAM_TYPE_TRUCKER=0,
@@ -38,7 +67,7 @@ enum {
 
 // ---------------------------
 
-native IsValidVehicle(vehicle);
+//native IsValidVehicle(vehicle);
 
 // ---------------------------
 
@@ -63,6 +92,7 @@ native IsValidVehicle(vehicle);
 #define ZIELONY2 			0x00FF00FF
 #define ZIELONY3 			0x00FF00FF
 #define ZIELONY4 			0x00FF00FF
+#define ZIELONY7 			0x00FF00FF
 
 // ---------------------------
 
@@ -89,7 +119,11 @@ new szCommands[][] = {
 	"Pusto", // all commands
 	"/firma /mandat /aresztuj\n/wywal /wyrzuć /praca\n/dyzur /skuj /rozkuj\n/kontrola /alkomat /open\n /close /kolczatka /usunkolczatke\n /usunkolczatki /stop /unareszt",
 	"/firma /ulecz /wypadki /wywal /wyrzuć /praca /dyzur /o[1 - 8] /c[1 - 8] /open /close", // pogotowie
-	"/firma /vehcolor /rachunek /zatankuj /praca /dyzur /open /close /setplate /przeglad"  // pomoc drogowa
+	"/firma /vehcolor /rachunek /zatankuj /praca /dyzur /open /close /setplate /przeglad",  // pomoc drogowa
+	"/zaladuj /rozladuj", // cargo
+	"/zaladuj /rozladuj", // petrol
+	"/zaladuj /rozladuj", // smlog
+	"/stworzobiekt /kamera /createlabel /deletelabel /deletelabels /obiektname /changepos /delone /delone" // build
 };
 
 // ---------------------------
@@ -119,6 +153,11 @@ new kogutPOLI[MAX_VEHICLES],
     
 new Text3D:obiektyBT3D[MAX_BTOBJTD];
 new bool:IsObiektBT[MAX_BTOBJ];
+new obiektBTNAME[MAX_BTOBJTD][20];
+new obiektBTNAME2[MAX_BTOBJTD][20];
+new Text3D:remontBTTD[MAX_BTOBJTD];
+new bool:IsRemontBTID[MAX_BTOBJTD];
+
 new Text:AlertTD;
 
 new const DoswiadczeniePoziomy[] = 
