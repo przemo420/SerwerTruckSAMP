@@ -170,4 +170,14 @@ return 1;
 }
 
 Dialog:DIALOG_OBIEKT(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	new modelid, Float:Pos[3];
+	sscanf(inputtext, "d{s[20]}", modelid);
+	GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
+	PostawObiekt(playerid, modelid, Pos[0], Pos[1], Pos[2], 0.0, 0.0, 0.0, 5.0);
+
 	return 1;
+}
