@@ -115,7 +115,7 @@ enum {
 
 // ---------------------------
 
-new szCommands[][] = {
+new const szCommands[][] = {
 	"/pomoc /time /toll\n/animacja /autorzy /telefon\n/pojazd /spawn /pasy\n/stats /firma /viatoll\n/lastpos /v /tankuj\n/praca /dyzur /adr\n/pogodynka /reczny /konwoj\n/zaproszenia /radio /bankomat\n/tablica", // globalne
 	"/firma /mandat /aresztuj\n/wywal /wyrzuć /praca\n/dyzur /skuj /rozkuj\n/kontrola /alkomat /open\n /close /kolczatka /usunkolczatke\n /usunkolczatki /stop /unareszt",
 	"/firma /ulecz /wypadki /wywal /wyrzuć /praca /dyzur /o[1 - 8] /c[1 - 8] /open /close", // pogotowie
@@ -126,6 +126,43 @@ new szCommands[][] = {
 	"/stworzobiekt /kamera /createlabel /deletelabel /deletelabels /obiektname /changepos /delone /delone" // build
 };
 
+new const szHookInclude[][] = {
+	"Banki",
+	"Crash",
+	"Konwoje",
+	"Ladowanie",
+	"Pogoda",
+	"Radio",
+	"Reczny",
+	"Spectactor",
+	"TablicaOgloszen",
+	"ViaToll",
+	"Vote",
+	"Zaladunki"
+};
+
+/*
+	DOSTĘPNE FUNKCJE:
+		_OnGameModeInit()
+		_OnGameModeExit()
+		_OnPlayerConnect(playerid)
+		_OnPlayerDisconnect(playerid)
+		_OnPlayerEnterJob(playerid, jobid) (called with /praca and OnPlayerSpawn)
+		_OnPlayerSpawn(playerid)
+		_OnPlayerDeath(playerid, killerid, reason)
+		_OnVehicleSpawn(vehicleid)
+		_OnVehicleDeath(vehicleid, killerid)
+		_OnPlayerText(playerid, text[])
+		_OnVehicleDamage(vehicleid, playerid) -- OnVehicleDamageStatusUpdate
+		_OnPlayerExitVehicle(playerid, vehicleid)
+		_OnPlayerTakeDamage(playerid, issuerid, Float: amount, weaponid, bodypart)
+		_OnPlayerStateChange(playerid, newstate, oldstate)
+		_OnPlayerKey(playerid, newkeys, oldkeys)
+		_OnPlayerClickTextdraw(playerid, clickedid)
+		_OneSecTimer()
+		_OnTrailerUpdate(playerid, vehicleid)
+		_OnPlayerEditObject(playerid, playerobject, objectid, response, Float:fX, Float:fY, Float:fZ, Float:fRotX, Float:fRotY, Float:fRotZ)
+*/
 // ---------------------------
 
 #define KEY_AIM 			132
