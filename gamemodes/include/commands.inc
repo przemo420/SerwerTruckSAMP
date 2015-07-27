@@ -48,7 +48,7 @@ CMD:faq(playerid, params[])
 	//strcat(s,""GCOLOR_YELLOW"VII. Jak kupiæ domek?\n");
 	//strcat(s,""COLOR_GUI"JeÂ¿eli chcesz kupiæ dom jedziesz do jakiegokolwiek domku na mapce, zg³aszasz sie do administratora\n\t o wycenê - on stawia dom. Cennik domów znajduje siê na forum.\n");
 	//strcat(s," \n");
-	strcat(s,""GCOLOR_YELLOW"VIII. Co zrobiæ gdy ktoœ utrudnia grê?\n");
+	strcat(s,""GCOLOR_YELLOW"V. Co zrobiæ gdy ktoœ utrudnia grê?\n");
 	strcat(s,""COLOR_GUI"Sk³adamy na niego raport, u¿ywamy komendy /report. W razie spotkania z cheaterem - nie pisz na czacie.\n");
 	strcat(s," \n");
 	strcat(s,""GCOLOR_YELLOW"Mi³ej gry ¿yczy administracja.\n");
@@ -136,8 +136,6 @@ CMD:pasy(playerid, params[])
 CMD:spawn(playerid, params[])
 	return Selectspawn(playerid);
 
-
-
 CMD:zapisz(playerid, params[])
 	return SavePlayer(playerid);
 
@@ -204,14 +202,19 @@ CMD:v(playerid, params[])
 
 CMD:cmds(playerid)
 {
-	new szString[150], firmaid=PlayerInfo[playerid][pFirma];
+	new szString[372], firmaid=PlayerInfo[playerid][pFirma];
 	strcat(szString, "Komendy wszystkich:\n");
 	strcat(szString, szCommands[0]);
 
 	if(firmaid != 0)
-		strcat(szString, "\n\nKomendy firmy:\n"), strcat(szString, szCommands[Firmy[firmaid][tTyp]]);
+		strcat(szString, "\n \nKomendy firmy:\n"), strcat(szString, szCommands[Firmy[firmaid][tTyp]]);
 
 	return Dialog_Show(playerid, DIALOG_CMDS, DIALOG_STYLE_MSGBOX, "Dostêpne komendy", szString, "WyjdŸ", #);
+}
+
+CMD:komendy(playerid)
+{
+	return cmd_cmds(playerid);
 }
 
 CMD:tankuj(playerid, params[])

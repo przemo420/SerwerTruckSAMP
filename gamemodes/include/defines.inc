@@ -116,7 +116,7 @@ enum {
 // ---------------------------
 
 new szCommands[][] = {
-	"Pusto", // all commands
+	"/pomoc /time /toll\n/animacja /autorzy /telefon\n/pojazd /spawn /pasy\n/stats /firma /viatoll\n/lastpos /v /tankuj\n/praca /dyzur /adr\n/pogodynka /reczny /konwoj\n/zaproszenia /radio /bankomat\n/tablica", // globalne
 	"/firma /mandat /aresztuj\n/wywal /wyrzuć /praca\n/dyzur /skuj /rozkuj\n/kontrola /alkomat /open\n /close /kolczatka /usunkolczatke\n /usunkolczatki /stop /unareszt",
 	"/firma /ulecz /wypadki /wywal /wyrzuć /praca /dyzur /o[1 - 8] /c[1 - 8] /open /close", // pogotowie
 	"/firma /vehcolor /rachunek /zatankuj /praca /dyzur /open /close /setplate /przeglad",  // pomoc drogowa
