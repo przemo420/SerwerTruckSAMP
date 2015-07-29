@@ -89,11 +89,16 @@ public LoadVehicle(vehicleid)
 	{
 		if(IsPlayerConnected(playerid))
 		{
-			format(string, sizeof(string), "Ladowanie towaru %ds", vehOtherInfo[vCargoLoadTime]);
-			GameTextForPlayer(playerid, string, 1100, 3);
+			strcat(string, "Ladowanie towaru~n~");
 
-			printf(string);
-			ShowInfo(playerid, string);
+			new h, m, s;
+			ConvertSeconds(vehOtherInfo[vehicleid][vCargoLoadTime], h, m, s);
+
+			if(m>0)
+				format(string, sizeof(string), "%s%dm ", string, m);
+
+			format(string, sizeof(string), "%s%ds", string, s);
+			GameTextForPlayer(playerid, string, 1100, 3);
 		}
 
 		vehOtherInfo[vehicleid][vCargoLoadTime]--;

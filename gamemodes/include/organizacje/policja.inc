@@ -414,6 +414,7 @@ public AlcoholTest(playerid, trgtid)
 forward Policja_OnPlayerEnterJob(playerid);
 public Policja_OnPlayerEnterJob(playerid)
 {
+	SetPlayerTeam(playerid, 1);
 	GivePlayerWeapon(playerid, 24, 99999);
 	GivePlayerWeapon(playerid, 25, 99999);
 	GivePlayerWeapon(playerid, 3, 99999);

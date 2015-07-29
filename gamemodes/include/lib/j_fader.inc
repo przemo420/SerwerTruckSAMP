@@ -16,7 +16,6 @@ new _pStep[MAX_PLAYERS];
 new _pHold[MAX_PLAYERS];
 new _OPArray[MAX_PLAYERS];
 new _OnlinePlayers;
-new bool:EkranUkryty[MAX_PLAYERS];
 new Text:_text; //Look, only one!
 /*
 native ConvertToColor(RR,GG,BB,AA);
@@ -94,7 +93,6 @@ public Fade_OnPlayerConnect(playerid)
 	_UpdateOPA();
 	_pHold[playerid]=-1;
 	_pStep[playerid]=-1;
-	EkranUkryty[playerid] = false;
 	return 1;
 }
 forward Fade_OnPlayerDisconnect(playerid);
@@ -138,7 +136,6 @@ public _UpdateFadeTimer()
 		else if(_pStep[playerid]==0)
 		{
 			_pStep[playerid]=-1;
-			EkranUkryty[playerid] = false;
 			CallLocalFunction("OnFadeComplete","ii",playerid,1);
 		}
 		else if(_pHold[playerid])
@@ -152,25 +149,4 @@ public _UpdateFadeTimer()
 			CallLocalFunction("OnFadeComplete","ii",playerid,0);
 		}
 	}
-}
-
-forward UkryjEkran(playerid);
-public UkryjEkran(playerid)
-{
-	if(!EkranUkryty[playerid])
-	{
-		EkranUkryty[playerid] = true;
-		FadeColorForPlayer(playerid,0,0,0,0,0,0,0,255,15,0);
-	}
-
-	return 1;
-}
-
-forward PokazEkran(playerid);
-public PokazEkran(playerid)
-{
-	if(EkranUkryty[playerid])
-		FadeColorForPlayer(playerid,0,0,0,0,0,0,0,255,15,0);
-
-	return 1;
 }

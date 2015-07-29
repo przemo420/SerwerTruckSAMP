@@ -83,4 +83,10 @@ public FadePlayer_OnPlayerDeath(playerid)
 
 forward FadePlayer_OnPlayerSpawn(playerid);
 public FadePlayer_OnPlayerSpawn(playerid)
-	return FadeColorForPlayer(playerid,0,0,0,255,0,0,0,0,15,0); // odkryj ekran
+{
+	if(GetPVarInt(playerid, "RequestSpawn"))
+		return DeletePVar(playerid, "RequestSpawn");
+		
+	FadeColorForPlayer(playerid,0,0,0,255,0,0,0,0,15,0); // odkryj ekran
+	return 1;
+}

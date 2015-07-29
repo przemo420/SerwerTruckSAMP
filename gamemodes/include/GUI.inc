@@ -1450,8 +1450,10 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 				//LadujPojazd(PlayerInfo[playerid][pID], OWNER_TYPE_PLAYER);
 
 				SprawdzPoziom(playerid);
-				SetPlayerSkin(playerid, PlayerInfo[playerid][pSkin]);
-				SetTimerEx("ReqSpawnPlayer", 100, false, "d", playerid);
+				SetSpawnInfo(playerid, 0, PlayerInfo[playerid][pSkin], 1648.4308, -1053.9159, 23.8984, 0.0, 0, 0, 0, 0, 0, 0);
+				TogglePlayerSpectating(playerid, false);
+				SpawnPlayer(playerid);
+
 				return 1;
 			}
 
