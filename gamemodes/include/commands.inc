@@ -375,13 +375,13 @@ CMD:dyzur(playerid, params[])
 		{
 			for(new i; i <= 8; i++)
 				GetDynamicObjectPos(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]),
-				MoveDynamicObject(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]-3.0, 10);
+				MoveDynamicObject(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]+5.0, 10);
 		}
 		else
 		{
 			for(new i; i <= 8; i++)
 				GetDynamicObjectPos(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]),
-				MoveDynamicObject(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]+3.0, 10);
+				MoveDynamicObject(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]-5.0, 10);
 		}
 	}
 

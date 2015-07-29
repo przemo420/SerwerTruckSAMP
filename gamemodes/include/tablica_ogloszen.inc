@@ -40,7 +40,7 @@ CMD:tablica(playerid, params[])
 				strcat(wiadomosc, "Brak og³oszeñ.");
 			else
 			{
-				strcat(wiadomosc, "Gracz\tWiadomoœæ\tCzas\n");
+				strcat(wiadomosc, "Gracz\tWiadomoœæ\tData\n");
 				while(mysql_fetch_row(zapytanie, "|")) 
 				{
 			    	mysql_fetch_field("owner", zapytanie);
@@ -100,5 +100,6 @@ Dialog:DIALOG_ID_OGLOSZENIE_DODAJ(playerid, response, listitem, inputtext[])
 	format(tekst, sizeof(tekst), "INSERT INTO `st_tablica_ogloszen` (`owner`, `text`) VALUES ('%s', '%s')", Name, wiadomosc);
 	mysql_query(tekst);
 
-	return ShowInfo(playerid, "Doda³eœ og³oszenie.");
+
+	return cmd_tablica(playerid, "");
 }

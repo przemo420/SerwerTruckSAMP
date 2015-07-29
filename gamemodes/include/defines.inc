@@ -116,14 +116,14 @@ enum {
 // ---------------------------
 
 new const szCommands[][] = {
-	"/pomoc /time /toll\n/animacja /autorzy /telefon\n/pojazd /spawn /pasy\n/stats /firma /viatoll\n/lastpos /v /tankuj\n/praca /dyzur /adr\n/pogodynka /reczny /konwoj\n/zaproszenia /radio /bankomat\n/tablica", // globalne
-	"/firma /mandat /aresztuj\n/wywal /wyrzuć /praca\n/dyzur /skuj /rozkuj\n/kontrola /alkomat /open\n /close /kolczatka /usunkolczatke\n /usunkolczatki /stop /unareszt",
-	"/firma /ulecz /wypadki /wywal /wyrzuć /praca /dyzur /o[1 - 8] /c[1 - 8] /open /close", // pogotowie
-	"/firma /vehcolor /rachunek /zatankuj /praca /dyzur /open /close /setplate /przeglad",  // pomoc drogowa
-	"/zaladuj /rozladuj", // cargo
-	"/zaladuj /rozladuj", // petrol
-	"/zaladuj /rozladuj", // smlog
-	"/stworzobiekt /kamera /createlabel /deletelabel /deletelabels /obiektname /changepos /delone /delone" // build
+	"/pomoc\n/time\n/toll\n/animacja\n/autorzy\n/telefon\n/pojazd\n/spawn\n/pasy\n/stats\n/firma\n/viatoll\n/lastpos\n/v\n/tankuj\n/praca\n/dyzur\n/adr\n/pogodynka\n/reczny\n/konwoj\n/zaproszenia\n/radio\n/bankomat\n/tablica", // globalne
+	"/mandat /aresztuj\n/wywal\n/wyrzuć\n/praca\n/dyzur\n/skuj\n/rozkuj\n/kontrola\n/alkomat\n/open\n\n/close\n/kolczatka\n/usunkolczatke\n/usunkolczatki\n/stop\n/unareszt\n/kartoteka",
+	"/ulecz\n/wypadki\n/wywal\n/wyrzuć\n/praca\n/dyzur\n/o[1 - 8]\n/c[1 - 8]\n/open\n/close", // pogotowie
+	"/vehcolor\n/zatankuj\n/praca\n/dyzur\n/open\n/close\n/setplate\n/przeglad",  // pomoc drogowa
+	"/zaladuj\n/rozladuj", // cargo
+	"/zaladuj\n/rozladuj", // petrol
+	"/zaladuj\n/rozladuj", // smlog
+	"/stworzobiekt\n/kamera\n/createlabel\n/deletelabel\n/deletelabels\n/obiektname\n/changepos\n/delone\n/delone" // build
 };
 
 new const szHookInclude[][] = {

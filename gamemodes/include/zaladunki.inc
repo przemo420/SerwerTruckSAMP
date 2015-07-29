@@ -53,6 +53,12 @@ LadujTowary()
 forward LoadVehicle(vehicleid);
 public LoadVehicle(vehicleid)
 {
+	if(!IsValidVehicle(vehicleid))
+	{
+		KillTimer(vehOtherInfo[vehicleid][vCargoLoadTimer]);
+		return 0;
+	}
+
 	new string[124];
 
 	new playerid = VehicleDriver[vehicleid];
@@ -69,9 +75,6 @@ public LoadVehicle(vehicleid)
 
 			ShowInfo(playerid, "Towar zosta³ za³adowany.");
 			
-			TextDrawShowForPlayer(playerid, CargoTextDraws[CargoTDBox]);
-			PlayerTextDrawShow(playerid, CargoTextDraws[CargoTDInfo][playerid]);
-
 			TextDrawShowForPlayer(playerid, Speedometer[CargoInfoTD]);
 			PlayerTextDrawShow(playerid, Speedometer[VehicleCargo][playerid]);
 
@@ -293,9 +296,6 @@ CMD:rozladuj(playerid, params[])
 	if(towarid == 0 || waga == 0)
 		return SendClientMessage(playerid, LIGHTRED, "Nie jesteœ za³adowany.");
 
-	if(vehOtherInfo[vehicleid][vCargoUnLoadTime] > 0)
-		return SendClientMessage(playerid, LIGHTRED, "Czas do roz³adunku jeszcze nie min¹³.");
-
 	if(GetStacja(playerid) != (-1))
 	{
 		if(Towary[towarid][Typ] != TYPE_DANGEROUS)
@@ -432,7 +432,7 @@ Dialog:DIALOG_ID_LOAD_CARGO_WEIGHT(playerid, response, listitem, inputtext[])
     new Przeladowanie = (IsPlayerInTruck(playerid) ? (20001) : (6001));
     new MaxMasa = (IsPlayerInTruck(playerid) ? (24000) : (8000));
     new vehicleid;
-    new CzasLadowania = floatround(ladowany*7.5);
+    new CzasLadowania = floatround(ladowany*0.0125);
 
     if(ladowany > MaxMasa || ladowany <= 2000)
     {
@@ -441,7 +441,7 @@ Dialog:DIALOG_ID_LOAD_CARGO_WEIGHT(playerid, response, listitem, inputtext[])
     }
 
     ConvertSeconds(Towary[towar][MinimalnyCzas], h, m, s);
-    ConvertMS(CzasLadowania, h2, m2, s2);
+    ConvertSeconds(CzasLadowania, h2, m2, s2);
     format(string, sizeof(string), "£adowanie towaru:\n\nNazwa: %s\nTyp: %s\nStawka: %.02f\nMinimalny czas wy³adunku: %dm %ds\nOd poziomu: %d\nCzas ³adowania: %dm %ds", Towary[towar][NazwaTowaru], KategorieTowarow[Towary[towar][Typ]], Towary[towar][Stawka], m, s, Towary[towar][Poziom],  m2, s2);
 
     if(pConvoy[playerid] > -1)
@@ -465,7 +465,7 @@ Dialog:DIALOG_ID_LOAD_CARGO_WEIGHT(playerid, response, listitem, inputtext[])
 
 				    vehOtherInfo[vehicleid][vCargoID] = towar;
 				    vehOtherInfo[vehicleid][vCargoWeight] = ladowany;
-				    vehOtherInfo[vehicleid][vCargoUnLoadTime] = Towary[towar][MinimalnyCzas]; 
+				    vehOtherInfo[vehicleid][vCargoUnLoadTime] = GetTickCount(); 
 				    vehOtherInfo[vehicleid][vCargoLoadPoint] = GetPVarInt(playerid, "dokid");
 				    vehOtherInfo[vehicleid][vCargoLoadTime] = CzasLadowania;
 				    vehOtherInfo[vehicleid][vCargoLoadTimer] = SetTimerEx("LoadVehicle", 1000, true, "d", vehicleid);
@@ -484,7 +484,7 @@ Dialog:DIALOG_ID_LOAD_CARGO_WEIGHT(playerid, response, listitem, inputtext[])
 
     	vehOtherInfo[vehicleid][vCargoLoadTime] = CzasLadowania;
 	    vehOtherInfo[vehicleid][vCargoLoadTimer] = SetTimerEx("LoadVehicle", 1000, true, "d", vehicleid);
-	   	vehOtherInfo[vehicleid][vCargoUnLoadTime] = Towary[towar][MinimalnyCzas];
+	   	vehOtherInfo[vehicleid][vCargoUnLoadTime] = GetTickCount();
 	   	vehOtherInfo[vehicleid][vCargoID] = towar;
 	    vehOtherInfo[vehicleid][vCargoWeight] = ladowany;
 	    vehOtherInfo[vehicleid][vCargoLoadPoint] = GetPVarInt(playerid, "dokid");

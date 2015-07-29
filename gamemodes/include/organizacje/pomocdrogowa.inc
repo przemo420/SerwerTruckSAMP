@@ -25,7 +25,7 @@ CMD:przeglad(playerid, params[])
 	if(Spawned[vehicleid])
 		return Msg(playerid, COLOR_ERROR, "Nie mo¿esz zrobiæ przegl¹du w tym pojeŸdzie.");
 
-	format(string, sizeof(string), "UPDATE `Pojazdy` SET `Przeglad`= aktualny timestamp WHERE `id`='%d'", DBVehID[vehicleid]);
+	format(string, sizeof(string), "UPDATE `Pojazdy` SET `Przeglad`=CURRENT_TIMESTAMP() DEFAULT WHERE `id`='%d'", DBVehID[vehicleid]);
 	mysql_query(string);
 
 	format(string, sizeof(string), "SELECT `Przeglad` FROM `Pojazdy` WHERE `id`='%d'", DBVehID[vehicleid]);
@@ -273,6 +273,14 @@ Dialog:DIALOG_SET_PLATE(playerid, response, listitem, inputtext[])
 
 	DeletePVar(playerid, "PLATE_Name");
 	DeletePVar(playerid, "PLATE_Count");
+
+	if(!Spawned[vehicleid])
+	{
+		strdel(vehInfo[DBVehID[vehicleid]][vPlate], 0, 31);
+		strins(vehInfo[DBVehID[vehicleid]][vPlate], playerName, 0);
+
+		SaveVehicle(vehicleid);
+	}
 
 	return 1;
 }

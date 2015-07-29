@@ -302,6 +302,12 @@ CMD:rozkuj(playerid, params[])
 
 CMD:stop(playerid, params[])
 {
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
+
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
 	new string[100], Float:Pos[3];
 
 	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
@@ -323,6 +329,67 @@ CMD:stop(playerid, params[])
 		}
 	}
 	
+	return 1;
+}
+
+CMD:kartoteka(playerid, params[])
+{
+	new forplayerid, vehicleid = GetPlayerVehicleID(playerid), vehuid = DBVehID[vehicleid];
+
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
+
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
+	if(!IsPlayerInAnyVehicle(playerid))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ w pojeŸdzie.");
+
+	if(Spawned[vehicleid] || vehInfo[vehuid][vOwnerType] != OWNER_TYPE_TEAM || Firmy[vehInfo[vehuid][vOwnerID]][tTyp] != TEAM_TYPE_POLICE)
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ w pojeŸdzie s³u¿bowym.");
+
+	if(sscanf(params, "d", forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: {b}/kartoteka [id gracza]{/b}");
+
+	if(!IsPlayerConnected(forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Gracza o podanym ID nie ma online.");
+
+	if(GetDistancePlayerToPlayer(playerid, forplayerid) > 3.0)
+		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od tego gracza.");
+
+	new wiadomosc[600], zapytanie[70];
+	
+	format(wiadomosc, sizeof(wiadomosc), "SELECT `policjant`, `text`, `time` FROM `st_kartoteka` WHERE `ownerid` = '%d' ORDER BY `time` DESC LIMIT 0,20", PlayerInfo[forplayerid][pID]);
+	mysql_query(wiadomosc);
+	mysql_store_result();
+
+	strdel(wiadomosc, 0, 599);
+	strdel(zapytanie, 0, 69);
+
+	if(mysql_num_rows()==0)
+		strcat(wiadomosc, "Brak wpisów.");
+	else
+	{
+		strcat(wiadomosc, "Policjant\tWiadomoœæ\tData\n");
+		while(mysql_fetch_row(zapytanie, "|")) 
+		{
+			mysql_fetch_field("policjant", zapytanie);
+			strcat(wiadomosc, zapytanie);
+			strcat(wiadomosc, "\t");
+
+			mysql_fetch_field("text", zapytanie);
+			strcat(wiadomosc, zapytanie);
+			strcat(wiadomosc, "\n");
+
+			mysql_fetch_field("time", zapytanie);
+			strcat(wiadomosc, zapytanie);
+			strcat(wiadomosc, "\n");
+		} 
+	}
+
+	SetPVarInt(playerid, "Kartoteka_Dodaj", forplayerid);
+	Dialog_Show(playerid, DIALOG_ID_KARTOTEKA, (mysql_num_rows() ? DIALOG_STYLE_TABLIST_HEADERS : DIALOG_STYLE_MSGBOX), "Kartoteka", wiadomosc, "Dodaj wpis", "Zamknij");
+
 	return 1;
 }
 
@@ -452,4 +519,35 @@ public Unareszt(playerid)
 	}
 
 	return 1;
+}
+
+Dialog:DIALOG_ID_KARTOTEKA(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	return Dialog_Show(playerid, DIALOG_ID_KARTOTEKA_DODAJ, DIALOG_STYLE_INPUT, "Kartoteka > Dodaj wpis", "Wpisz treœæ:", "Dodaj", "Zamknij");
+}
+
+Dialog:DIALOG_ID_KARTOTEKA_DODAJ(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	new Name[32], tekst[160], wiadomosc[60];
+
+	format(wiadomosc, sizeof(wiadomosc), "%s", inputtext);
+	mysql_real_escape_string(PlayerName(playerid), Name);		
+	mysql_real_escape_string(wiadomosc, wiadomosc);
+
+	delstr(wiadomosc, "{");
+	delstr(wiadomosc, "}");
+	delstr(wiadomosc, "\t");
+	delstr(wiadomosc, "\n");
+
+	format(tekst, sizeof(tekst), "INSERT INTO `st_kartoteka` (`ownerid`, `policjant`, `text`) VALUES ('%d', '%s', '%s')", PlayerInfo[GetPVarInt(playerid, "Kartoteka_Dodaj")][pID], Name, wiadomosc);
+	mysql_query(tekst);
+
+	format(wiadomosc, sizeof(wiadomosc), "%d", GetPVarInt(playerid, "Kartoteka_Dodaj"));
+	return cmd_kartoteka(playerid, wiadomosc);
 }
