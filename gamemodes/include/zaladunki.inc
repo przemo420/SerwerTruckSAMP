@@ -50,10 +50,12 @@ LadujTowary()
 
 
 // £adowanie
-forward LoadVehicle(playerid, vehicleid);
-public LoadVehicle(playerid, vehicleid)
+forward LoadVehicle(vehicleid);
+public LoadVehicle(vehicleid)
 {
 	new string[124];
+
+	new playerid = VehicleDriver[vehicleid];
 
     if(vehOtherInfo[vehicleid][vCargoLoadTime] == 0)
 	{
@@ -61,32 +63,38 @@ public LoadVehicle(playerid, vehicleid)
 
 		KillTimer(vehOtherInfo[vehicleid][vCargoLoadTimer]);
 
-		TogglePlayerControllable(playerid, true);
+		if(IsPlayerConnected(playerid))
+		{
+			TogglePlayerControllable(playerid, true);
 
-		ShowInfo(playerid, "Towar zosta³ za³adowany.");
-		
-		TextDrawShowForPlayer(playerid, CargoTextDraws[CargoTDBox]);
-		PlayerTextDrawShow(playerid, CargoTextDraws[CargoTDInfo][playerid]);
+			ShowInfo(playerid, "Towar zosta³ za³adowany.");
+			
+			TextDrawShowForPlayer(playerid, CargoTextDraws[CargoTDBox]);
+			PlayerTextDrawShow(playerid, CargoTextDraws[CargoTDInfo][playerid]);
 
-		TextDrawShowForPlayer(playerid, Speedometer[CargoInfoTD]);
-		PlayerTextDrawShow(playerid, Speedometer[VehicleCargo][playerid]);
+			TextDrawShowForPlayer(playerid, Speedometer[CargoInfoTD]);
+			PlayerTextDrawShow(playerid, Speedometer[VehicleCargo][playerid]);
 
-		towarid = vehOtherInfo[vehicleid][vCargoID];
-		waga = vehOtherInfo[vehicleid][vCargoWeight]; 
+			towarid = vehOtherInfo[vehicleid][vCargoID];
+			waga = vehOtherInfo[vehicleid][vCargoWeight]; 
 
-		format(string,sizeof string,"%s~n~%dkg", Towary[towarid][NazwaTowaru], waga);
-		PlayerTextDrawSetString(playerid, Speedometer[VehicleCargo][playerid], string);
+			format(string,sizeof string,"%s~n~%dkg", Towary[towarid][NazwaTowaru], waga);
+			PlayerTextDrawSetString(playerid, Speedometer[VehicleCargo][playerid], string);
 
-		format(string, sizeof(string), "Za³adowano towar (vehicleUID: %d | vehicleid: %d | dokid: %d | towarid: %d | waga: %d)", Spawned[vehicleid] ? (-1) : vehInfo[DBVehID[vehicleid]][vID], vehicleid, vehOtherInfo[vehicleid][vCargoLoadPoint], towarid, waga);
-		ToLog(PlayerInfo[playerid][pID], LOG_TYPE_PLAYER, string);
+			format(string, sizeof(string), "Za³adowano towar (vehicleUID: %d | vehicleid: %d | dokid: %d | towarid: %d | waga: %d)", Spawned[vehicleid] ? (-1) : vehInfo[DBVehID[vehicleid]][vID], vehicleid, vehOtherInfo[vehicleid][vCargoLoadPoint], towarid, waga);
+			ToLog(PlayerInfo[playerid][pID], LOG_TYPE_PLAYER, string);
+		}
 	}
 	else
 	{
-		format(string, sizeof(string), "Ladowanie towaru %ds", vehOtherInfo[vCargoLoadTime]);
-		GameTextForPlayer(playerid, string, 1100, 3);
+		if(IsPlayerConnected(playerid))
+		{
+			format(string, sizeof(string), "Ladowanie towaru %ds", vehOtherInfo[vCargoLoadTime]);
+			GameTextForPlayer(playerid, string, 1100, 3);
 
-		printf(string);
-		ShowInfo(playerid, string);
+			printf(string);
+			ShowInfo(playerid, string);
+		}
 
 		vehOtherInfo[vehicleid][vCargoLoadTime]--;
 	}
@@ -455,7 +463,7 @@ Dialog:DIALOG_ID_LOAD_CARGO_WEIGHT(playerid, response, listitem, inputtext[])
 				    vehOtherInfo[vehicleid][vCargoUnLoadTime] = Towary[towar][MinimalnyCzas]; 
 				    vehOtherInfo[vehicleid][vCargoLoadPoint] = GetPVarInt(playerid, "dokid");
 				    vehOtherInfo[vehicleid][vCargoLoadTime] = CzasLadowania;
-				    vehOtherInfo[vehicleid][vCargoLoadTimer] = SetTimerEx("LoadVehicle", 1000, true, "dd", i, vehicleid);
+				    vehOtherInfo[vehicleid][vCargoLoadTimer] = SetTimerEx("LoadVehicle", 1000, true, "d", vehicleid);
     			}
     		}
     	}
@@ -470,7 +478,7 @@ Dialog:DIALOG_ID_LOAD_CARGO_WEIGHT(playerid, response, listitem, inputtext[])
 			vehicleid = GetPlayerVehicleID(playerid);
 
     	vehOtherInfo[vehicleid][vCargoLoadTime] = CzasLadowania;
-	    vehOtherInfo[vehicleid][vCargoLoadTimer] = SetTimerEx("LoadVehicle", 1000, true, "dd", playerid, vehicleid);
+	    vehOtherInfo[vehicleid][vCargoLoadTimer] = SetTimerEx("LoadVehicle", 1000, true, "d", vehicleid);
 	   	vehOtherInfo[vehicleid][vCargoUnLoadTime] = Towary[towar][MinimalnyCzas];
 	   	vehOtherInfo[vehicleid][vCargoID] = towar;
 	    vehOtherInfo[vehicleid][vCargoWeight] = ladowany;

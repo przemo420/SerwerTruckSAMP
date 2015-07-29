@@ -76,7 +76,8 @@ CMD:usunviatoll(playerid, params[])
 	return 1;
 }
 
-LadujSklepyVIA()
+forward ViaToll_OnGameModeInit();
+public ViaToll_OnGameModeInit()
 {
 	mysql_query("SELECT * FROM `VIASHOP`");
 	mysql_store_result();

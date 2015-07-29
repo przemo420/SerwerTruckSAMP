@@ -1,4 +1,5 @@
-LadujRadia()
+forward Radio_OnGameModeInit();
+public Radio_OnGameModeInit()
 {
 	mysql_query("SELECT * FROM `Radia`");
 	mysql_store_result();
@@ -77,7 +78,7 @@ Dialog:DIALOG_ID_RADIO_LINK(playerid, response, listitem, inputtext[])
 	format(string, sizeof(string), "INSERT INTO `Radia` VALUES (NULL, '%s', '%s');", nazwa, inputtext);
 	mysql_query(string);
 
-	LadujRadia();
+	Radio_OnGameModeInit();
 	return 1;
 }
 

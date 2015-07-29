@@ -1107,63 +1107,6 @@ CMD:put(playerid, params[])
 	return 1;
 }
 
-CMD:specon(playerid, params[])
-{
-	new forplayerid;
-
-	if(!PlayerInfo[playerid][pAdmin])
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	if(sscanf(params, "ddd", forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /specon [id gracza]");
-
-	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest pod³¹czony.");
-
-	if(GetPVarInt(forplayerid, "Przeglada"))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz ju¿ kogoœ przegl¹da.");
-
-	if(forplayerid == playerid)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nie mo¿esz przegl¹daæ siebie.");
-
-	if(GetPVarType(playerid, "Przeglada") == PLAYER_VARTYPE_NONE)
-	{
-		new Float:Pos[3];
-		GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
-
-		SetPVarFloat(playerid, "specPosX", Pos[0]);
-		SetPVarFloat(playerid, "specPosY", Pos[1]);
-		SetPVarFloat(playerid, "specPosZ", Pos[2]);
-	}
-
-	SpectactorTextDraw(playerid, true);
-	TogglePlayerSpectating(playerid, 1);
-
-	if(IsPlayerInAnyVehicle(forplayerid))
-		PlayerSpectateVehicle(playerid, GetPlayerVehicleID(forplayerid));
-	else
-		PlayerSpectatePlayer(playerid, forplayerid);
-
-	SetPVarInt(playerid, "Przeglada", forplayerid);
-	SetPVarInt(forplayerid, "jestPrzegladany", playerid);
-
-	return 1;
-}
-
-CMD:specoff(playerid, params[])
-{
-	if(!PlayerInfo[playerid][pAdmin])
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	if(GetPVarType(playerid, "Przeglada") == PLAYER_VARTYPE_NONE)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nie przegl¹dasz ¿adnego gracza.");
-
-	TogglePlayerSpectating(playerid, 0);
-	SpectactorTextDraw(playerid, false);
-
-	return 1;
-}
-
 CMD:restart(playerid, params[])
 {
 	if(!HasPlayerFullPermission(playerid))

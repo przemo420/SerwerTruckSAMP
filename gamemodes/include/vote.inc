@@ -15,19 +15,22 @@ forward VoteEnd();
 
 // ---------
 
-
+forward Vote_OnPlayerDisconnect(playerid, reason);
 public Vote_OnPlayerDisconnect(playerid, reason)
 {
 	DeletePVar(playerid, "voted");
 	return 1;
 }
 
+forward Vote_OnGameModeInit();
 public Vote_OnGameModeInit()
 {
 	VoteInit();
 	return 1;
 }
 
+
+forward Vote_OnGameModeExit();
 public Vote_OnGameModeExit()
 {
 	VoteExit();

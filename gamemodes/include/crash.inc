@@ -85,13 +85,6 @@ stock IsFreeCrash(crashid)
 	return false;
 }
 
-stock PlayerName(playerid)
-{
-	new name[MAX_PLAYER_NAME];
-	GetPlayerName(playerid, name, sizeof name);
-	return name;
-}
-
 stock TruncateCrashTable()
 {
 	for(new i = 0; i < MAX_CRASHS; i++)
