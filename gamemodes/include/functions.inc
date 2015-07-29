@@ -105,30 +105,6 @@ PlayerVehicleIsTruck(playerid)
 	return 0;
 }
 
-GetDistanceToNearestDriver(playerid)
-{
-	new Float:Distance;
-	Distance = -1;
-	new ReturnPlayerid;
-	ReturnPlayerid = -1;
-
-	Loop(player, MAX_PLAYERS)
-	{
-		if(IsPlayerConnected(player) && player != playerid && GetPlayerState(player) == PLAYER_STATE_DRIVER)
-		{
-			new Distance2 = GetDistancePlayerToPlayer(playerid, player);
-
-			if(Distance > Distance2 || Distance == -1)
-			{
-				Distance = Distance2;
-				ReturnPlayerid = player;
-			}
-		}
-	}
-
-	return ReturnPlayerid;
-}
-
 stock GetWeaponNameEx(weaponid)
 {
 	new weapon[32];
@@ -278,7 +254,7 @@ stock Msg(playerid, colorid, text[], bool:playSound = true, bool:displayPrefix =
 	}
 
 	if(displayPrefix)
-		strins(buffer, "??? ", 0);
+		strins(buffer, "››› ", 0);
 
 	SendClientMessage(playerid, curColor * 256, buffer);
 
@@ -920,12 +896,9 @@ SetVehicleSpeed(vehicleid, Float:speed)
     SetVehicleVelocity(vehicleid, x, y, z);
 }
 
-Float:GetDistanceBetweenPoints(Float:X, Float:Y, Float:Z, Float:PointX, Float:PointY, Float:PointZ)
-{
-	new Float:Distance;
-	Distance = floatabs(floatsub(X, PointX)) + floatabs(floatsub(Y, PointY)) + floatabs(floatsub(Z, PointZ));
-	return Distance;
-}
+forward Float:GetDistanceBetweenPoints(Float:X, Float:Y, Float:Z, Float:PointX, Float:PointY, Float:PointZ);
+public Float:GetDistanceBetweenPoints(Float:X, Float:Y, Float:Z, Float:PointX, Float:PointY, Float:PointZ)
+	return floatabs(floatsub(X, PointX)) + floatabs(floatsub(Y, PointY)) + floatabs(floatsub(Z, PointZ));
 
 restart(text[])
 {
@@ -984,94 +957,6 @@ if(strfind(text,"s%s%s%",true)!=-1
 return 1;
 return 0;
 }
-
-IsWWW(const str[])
-{
-	new string2[32];
-	new banned, nobanned;
-
-	banned = 0;
-	nobanned = 0;
-
-	new notWWW[][] =
-	{
-	    "%",
-	    ".pl",
-	    ".xaa",
-	    ".com",
-	    ".webd",
-	    "www.",
-	    ".net",
-	    ". pl",
-		". com",
-		"www .",
-		". net"
-	};
-	new size = strlen(str)+1;
-	Loop(i, size)
-	{
-	    Loop(g, size)
-	    {
-			strmid(string2, str, i, g);
-			Loop(f, sizeof (notWWW))
-			{
-				if(strlen(string2) > 0 && !strcmp(string2, notWWW[f], true))
-				{
-				    banned = 1;
-				}
-			}
-			if(strlen(string2) > 0 && !strcmp(string2, "serwertruck.eu", true))
-			{
-				nobanned = 1;
-			}
-		}
-	}
-
-	if(banned && !nobanned)
-	{
-	    return 1;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-IsIP(const str[], bool:port = false) // By RPS
-{
-    for(new cIP[2]; cIP[0] != strlen(str); cIP[0]++)
-    {
-        switch(str[cIP[0]])
-        {
-            case '.', ' ', ':', ',', '*', '/', ';', '\\', '|' : continue;
-            case '0' .. '9': cIP[1]++;
-            default: cIP[1] = 0;
-        }
-
-        if((port == false) && (cIP[1] == 8))
-        {
-            new strex[8];
-            strmid(strex, str, cIP[0] - 7, cIP[0]);
-            if(IsNumeric(strex))
-                return 0;
-
-            return 1;
-        }
-
-        if((port == true) && (cIP[1] == 12))
-        {
-            new strex[12];
-            strmid(strex, str, cIP[0] - 11, cIP[0]);
-            if(IsNumeric(strex))
-                return 0;
-
-            return 1;
-        }
-    }
-    return 0;
-}
-
-
 
 MaxFuel(vehicletype)
 {

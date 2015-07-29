@@ -117,7 +117,8 @@ stock WeatherInfo()
 	else
 		weather = allowedWeathers[random(sizeof allowedWeathers)];
 
-	format(wInfo[wText], sizeof wInfo[wText], "Obecna pogoda bêdzie utrzymywa³a siê do godziny {b}%02d:%02d{/b}. \nNastêpnie ma byæ {b}%s{/b} przez {b}%d{/b} minut. Poprawnoœæ wyników wynosi {b}%d{/b} %%.", 
+	format(wInfo[wText], sizeof wInfo[wText], "Obecna pogoda {b}(%s){/b} bêdzie utrzymywa³a siê do godziny {b}%02d:%02d{/b}. \nNastêpnie ma byæ {b}%s{/b} przez {b}%d{/b} minut. Poprawnoœæ wyników wynosi {b}%d{/b} %%.", 
+		weatherNames[wInfo[wWeather]], /* przy GetWeatherName undefined symbol dawa³o, haha :D */
 		time[3], 
 		time[4],
 		GetWeatherName(weather),

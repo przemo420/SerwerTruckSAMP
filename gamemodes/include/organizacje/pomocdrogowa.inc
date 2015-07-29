@@ -258,7 +258,7 @@ Dialog:DIALOG_SET_PLATE(playerid, response, listitem, inputtext[])
 	if(GetPVarInt(playerid, "PLATE_Count") < 1)
 		return cmd_setplate(playerid, playerName);
 
-	new Float:fPos[3], count = 0, vehicleid;
+	new Float:fPos[3], vehicleid;
 	GetPlayerPos(playerid, fPos[0], fPos[1], fPos[2]);
 	sscanf(inputtext, "d{s[20]}", vehicleid);
 

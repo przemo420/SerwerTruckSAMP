@@ -106,26 +106,22 @@ forward HideViaBlip(playerid);
 public HideViaBlip(playerid)
 	return SetPVarInt(playerid, "ViaPoint", 0), TextDrawHideForPlayer(playerid, Speedometer[ViaTollPlus]);
 
-ViaToll_Blink(playerid)
+forward ViaToll_OneSecPlayerTimer(playerid);
+public ViaToll_OneSecPlayerTimer(playerid)
 {
-	if( (IsPlayerInTruck(playerid) || IsPlayerInBus(playerid)) && GetPlayerState(playerid) == PLAYER_STATE_DRIVER)
+	if(!IsPlayerInAnyVehicle(playerid) || !IsPlayerInTruck(playerid) || GetPlayerState(playerid) != PLAYER_STATE_DRIVER)
+		return 1;
+
+	if(GetViaMoney(playerid) <= 0)
 	{
-		if(GetViaMoney(playerid) <= 0)
-		{
-			if(Speedometer[ViaTollVisible])
-				TextDrawShowForPlayer(playerid, Speedometer[ViaTollX]);
-			else
-				TextDrawHideForPlayer(playerid, Speedometer[ViaTollX]);
-		}
+		if(Speedometer[ViaTollVisible])
+			TextDrawShowForPlayer(playerid, Speedometer[ViaTollX]);
 		else
 			TextDrawHideForPlayer(playerid, Speedometer[ViaTollX]);
 	}
+	else
+		TextDrawHideForPlayer(playerid, Speedometer[ViaTollX]);
 
-	Speedometer[ViaTollVisible] = !Speedometer[ViaTollVisible];
-}
-
-ViaToll_Blip(playerid)
-{
 	Loop(i, sizeof viaPoints)
 	{
 		new viaTOLL = GetDistanceFromMeToPoint(playerid, viaPoints[i][0], viaPoints[i][1], viaPoints[i][2]);
@@ -146,7 +142,13 @@ ViaToll_Blip(playerid)
 			}
 		}
 	}
+	
+	return 1;
 }
+
+forward ViaToll_OneSecTimer();
+public ViaToll_OneSecTimer()
+	Speedometer[ViaTollVisible] = !Speedometer[ViaTollVisible];
 
 GetViaShop(playerid)
 {

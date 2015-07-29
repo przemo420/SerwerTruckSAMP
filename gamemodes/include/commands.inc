@@ -335,6 +335,9 @@ CMD:dyzur(playerid, params[])
 	if(Firmy[firmaid][tTyp] != TEAM_TYPE_POLICE && Firmy[firmaid][tTyp] != TEAM_TYPE_MEDIC && Firmy[firmaid][tTyp] != TEAM_TYPE_POMOC)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
+	if(!GetPVarInt(playerid, "Working"))
+		return Msg(playerid, COLOR_ERROR, "Musisz zacz¹æ pracê. Wpisz {b}/praca{/b}.");
+
 	if(!GetPVarInt(playerid, "Worked"))
 	{
 		SetPVarInt(playerid, "Worked", 1);
@@ -434,6 +437,8 @@ CMD:praca(playerid, params[])
 				}
 			}
 		}
+
+		Msg(playerid, COLOR_INFO, "Zaczynasz pracê. By móc u¿ywaæ komend wpisz {b}/dyzur{/b}.");
 
 		SetPVarInt(playerid, "Working", 1);
 		SetPlayerColor(playerid, Firmy[firmaid][tKolor]);

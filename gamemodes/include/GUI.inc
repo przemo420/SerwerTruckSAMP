@@ -5,6 +5,9 @@
 		ToLog(PlayerInfo[playerid][pID], LOG_TYPE_PLAYER, str);
 	}*/
 
+Dialog:NEVER_DIALOG(playerid, response, listitem, inputtext[])
+    return 1;
+    
 Dialog:DIALOG_ID_CREATE_VEHICLE(playerid, response, listitem, inputtext[])
 {
 	if(!response)

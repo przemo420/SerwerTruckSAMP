@@ -127,18 +127,20 @@ new const szCommands[][] = {
 };
 
 new const szHookInclude[][] = {
-	"Banki",
-	"Crash",
-	"Konwoje",
-	"Ladowanie",
-	"Pogoda",
-	"Radio",
-	"Reczny",
-	"Spectactor",
-	"TablicaOgloszen",
-	"ViaToll",
-	"Vote",
-	"Zaladunki"
+	"Banki", // banki.inc
+	"Crash", // crash.inc
+	"Konwoje", // konwoje.inc
+	"Ladowanie", // ladowanie.inc
+	"Pogoda", // pogoda.inc
+	"Radio", // radio.inc
+	"Reczny", // reczny.inc
+	"Spectactor", // spectactor.inc
+	"TablicaOgloszen", // tablicaogloszen.inc
+	"ViaToll", // viatoll.inc
+	"Vote", // vote.inc
+	"Zaladunki", // zaladunki.inc
+	"Fade", // lib/j_fader.inc
+	"FadePlayer" // fade.inc
 };
 
 /*
@@ -160,10 +162,55 @@ new const szHookInclude[][] = {
 		_OnPlayerKey(playerid, newkeys, oldkeys)
 		_OnPlayerClickTextdraw(playerid, clickedid)
 		_OneSecTimer()
+		_OneSecPlayerTimer(playerid)
 		_OnTrailerUpdate(playerid, vehicleid)
 		_OnPlayerEditObject(playerid, playerobject, objectid, response, Float:fX, Float:fY, Float:fZ, Float:fRotX, Float:fRotY, Float:fRotZ)
 */
 // ---------------------------
+
+new Odliczanie;
+new bool:OdliczanieWystartowalo;
+new OdliczanieTimer; 
+new OdliczanieFreeze;
+
+new const Float:gSpawnvehicleplayer[][3] = {
+	{1648.4308,-1053.9159,23.8984},
+	{1398.5642,1009.4103,10.9297},
+	{-240.4012,-231.1620,2.3985},
+	{-2136.7207,-126.3667,36.5191}
+};
+
+enum rInfo
+{
+	rName[32],
+	rHour
+};
+
+new TimeGlobal[][rInfo] =
+{
+	{"poranek", 6},
+	{"dzień", 12},
+	{"wieczór", 22},
+	{"noc", 1}
+};
+
+new SECURITYON = 1;
+
+new kierunki[MAX_VEHICLES][4],
+    bool:traffic[MAX_VEHICLES];
+
+#define INVALID_TOWAR_ID 0
+
+#define PRESSED(%0) \
+	(((newkeys & (%0)) == (%0)) && ((oldkeys & (%0)) != (%0)))
+
+//new Text:Radarpolice[MAX_PLAYERS][4];
+
+new brama[22];
+
+new Float:savpos[1000][5];
+new savedpos;
+new Spray[9];
 
 #define KEY_AIM 			132
 
