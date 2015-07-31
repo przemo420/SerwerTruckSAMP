@@ -93,33 +93,6 @@ LadujFotoradary()
 	return 1;
 }
 
-LadujStacje()
-{
-	mysql_query("SELECT * FROM `Stacje`");
-	mysql_store_result();
-
-	if(mysql_num_rows()==0)
-		return print("[STACJE] Brak stacji do zaladowania.");
-
-	new string[140];
-	while(mysql_fetch_row(string, "|")) 
-	{
-    	sscanf(string, "e<p<|>dfffd>", Stacje[ID_STACJA]);
-
-    	format(string, sizeof string, "{808040}STACJA BENZYNOWA {808040}[VID: {FFFFFF}%d{808040}]\n[ Zbiorniki: %d / 3000 ]\n{FFFFFF}/tankuj", ID_STACJA, Stacje[ID_STACJA][Zbiornik]);
-    	StacjeText3D[ID_STACJA] = CreateDynamic3DTextLabel(string, ZIELONY2, Stacje[ID_STACJA][sPosX], Stacje[ID_STACJA][sPosY], Stacje[ID_STACJA][sPosZ]+0.5, 30.0);
-
-    	for(new playerid; playerid < MAX_PLAYERS; playerid++)
-			StacjeMapIcon[ID_STACJA][playerid] = CreateDynamicMapIcon(Stacje[ID_STACJA][sPosX], Stacje[ID_STACJA][sPosY], Stacje[ID_STACJA][sPosZ], 55, 0, _, _, playerid, 300.0);
-
-		ID_STACJA++;
-	} 
-
-	printf("[STACJE] Zaladowano %d stacji.", ID_STACJA);
-	mysql_free_result();
-	return 1;
-}
-
 LadujPojazd(ownerid=(-1), ownertype=(-1), vehid=(-1))
 {
 	new query[80];

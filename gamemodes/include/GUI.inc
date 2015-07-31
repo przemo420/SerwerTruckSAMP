@@ -266,7 +266,7 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 				{
 					mysql_real_escape_string(PlayerName(playerid), Name);
 					WP_Hash(string, sizeof(string), inputtext);
-					format(string, sizeof string, "INSERT INTO `Accounts` VALUES(NULL, '0', '%s', '%s', '2000', '0', '0', '-1', '0', '1', '0', '0', '0', '0', '%d', '%d', '%d', '%d', '%d', '0', '%s', '0', '0', '1', '0')", 
+					format(string, sizeof string, "INSERT INTO `Accounts` VALUES(NULL, '0', '%s', '%s', '2000', '0', '0', '-1', '0', '1', '0', '0', '0', '0', '%d', '%d', '%d', '%d', '%d', '0', '%s', '0', '0', '1', '0', '0')", 
 						Name, string, H, Mi, D, Mo, Y, ip);
 
 					mysql_query(string);
@@ -989,11 +989,6 @@ LoopingAnim(playerid,"ped","WOMAN_walkshop",4.0,1,1,1,1,0); //Skulony
 }
 }
 return 1;
-}
-
-Dialog:DIALOG_TANKOWANIE(playerid, response, listitem, inputtext[])
-{
-	return 1;
 }
 
 	Dialog:DIALOG_MENU_BAR(playerid, response, listitem, inputtext[])

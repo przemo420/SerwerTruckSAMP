@@ -395,7 +395,12 @@ enum Stations {
 	Float:sPosX,
 	Float:sPosY,
 	Float:sPosZ,
-	Zbiornik
+	ZbiornikGaz,
+	ZbiornikRopa,
+	ZbiornikBenzyna,
+	Float:CenaGaz,
+	Float:CenaRopa,
+	Float:CenaBenzyna
 }
 new Stacje[MAX_STACJE][Stations];
 new Text3D:StacjeText3D[MAX_STACJE];

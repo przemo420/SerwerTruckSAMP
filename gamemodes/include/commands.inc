@@ -217,34 +217,6 @@ CMD:komendy(playerid)
 	return cmd_cmds(playerid);
 }
 
-CMD:tankuj(playerid, params[])
-{
-	if(!IsPlayerInAnyVehicle(playerid))
-		return SendClientMessage(playerid, LIGHTRED, "Nie znajdujesz siê w poje?dzie.");
-
-	new stacjaid = GetStacja(playerid);
-	if(!stacjaid)
-		return SendClientMessage(playerid, LIGHTRED, "Nie znajdujesz siê przy stacji.");
-
-	if(Stacje[stacjaid][Zbiornik]==0)
-		return ShowInfo(playerid, "Brak paliwa na stacji.");
-
-/*if(PlayerVehicleIsDiesel(playerid))
-{
-FuelTYP[playerid] = 1;
-format(string, sizeof string, "{a9c4e4}Rodzaj paliwa tego pojazdu to: {DFDF00}DIESEL\n \n{a9c4e4}Mo¿esz zatankowaæ: {DFDF00}%d L\n{a9c4e4}Czy chcesz rozpocz¹æ tankowanie?", MaxFuel(GetVehicleModel(GetPlayerVehicleID(playerid))) - vFuel[GetPlayerVehicleID(playerid)]);
-Dialog_Show(playerid, DIALOG_TANKOWANIE, DIALOG_STYLE_MSGBOX, " ", string, "Tak", "Nie");
-}
-else
-{
-FuelTYP[playerid] = 0;
-format(string, sizeof string, "{a9c4e4}Rodzaj paliwa tego pojazdu to: {DFDF00}BENZYNA\n \n{a9c4e4}Mo¿esz zatankowaæ: {DFDF00}%d L\n{a9c4e4}Czy chcesz rozpocz¹æ tankowanie?", MaxFuel(GetVehicleModel(GetPlayerVehicleID(playerid))) - vFuel[GetPlayerVehicleID(playerid)]);
-Dialog_Show(playerid, DIALOG_TANKOWANIE, DIALOG_STYLE_MSGBOX, " ", string, "Tak", "Nie");
-}*/
-	ShowInfo(playerid, "Stacja chwilowo nieczynna.");
-	return 1;
-}
-
 // KOMENDY POGOTOWIA
 /*
 	- /ulecz

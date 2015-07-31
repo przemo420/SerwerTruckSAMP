@@ -1185,3 +1185,21 @@ ColouredText(text[])
     }
     return string;
 }
+
+GetStacja(playerid)
+{
+	new Float:playerPos[3], stacjaid=(-1);
+	GetPlayerPos(playerid, playerPos[0], playerPos[1], playerPos[2]);
+
+	for(new i; i<MAX_STACJE; i++)
+	{
+	    if(Stacje[i][sID])
+			if(IsPlayerInRangeOfPoint(playerid, 10.0, Stacje[i][sPosX], Stacje[i][sPosY], Stacje[i][sPosZ]))
+			{
+			    stacjaid = i;
+			    break;
+			}
+	}
+
+	return stacjaid;
+}
