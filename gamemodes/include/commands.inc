@@ -173,8 +173,8 @@ CMD:stats(playerid, params[])
 	format(string, sizeof(string), "%sSkin:\t %d\n", string, PlayerInfo[playerid][pSkin]);
 	format(string, sizeof(string), "%sTachograf:\t %dh %dm %ds\n", string, czasBiezacy[0], czasBiezacy[1], czasBiezacy[2]);
 	format(string, sizeof(string), "%sViaToll:\t %d\n", string, GetViaMoney(playerid));
-	format(string, sizeof(string), "%sADR:\t %d\n", PlayerInfo[playerid][pADR]);
-	format(string, sizeof(string), "%sCzas pracy:\t %dh\n", string, GetWork(playerid));
+	format(string, sizeof(string), "%sADR:\t %d\n", string, PlayerInfo[playerid][pADR]);
+	format(string, sizeof(string), "%sCzas pracy:\t %dm\n", string, GetWork(playerid));
 	format(string, sizeof(string), "%sBuildMaster:\t %d\n", string, PlayerInfo[playerid][pBuildmaster]);
 
 	ConvertMS(GetTickCount()-GetPVarInt(playerid, "IleGral"), czasBiezacy[0], czasBiezacy[1], czasBiezacy[2]);
@@ -199,7 +199,7 @@ CMD:pauza(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "By krêciæ pauzê wy³¹cz silnik.");
 
 	SetPVarInt(playerid, "tacho_pauza", 1);
-	Msg(playerid, COLOR_INFO, "Krêcisz pauzê. By zobaczyæ czas tachografu wpisz {b}/stats{/b}");
+	Msg(playerid, COLOR_INFO, "Krêcenie pauzy {b}w³¹czone{/b}. By zobaczyæ czas tachografu wpisz {b}/stats{/b}");
 	return 1;
 }
 
