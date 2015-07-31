@@ -247,6 +247,9 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 		
 		Dialog:DIALOG_ID_REGISTER(playerid, response, listitem, inputtext[])
 		{
+			if(!response)
+				return Kick(playerid);
+
 			new string[400], Name[32], ip[16], Y, Mo, D, H, Mi, S;
 			getdate(Y, Mo, D);
 			gettime(H, Mi, S);
@@ -280,6 +283,10 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 					PlayerInfo[playerid][pID] = mysql_insert_id();
 					PlayerInfo[playerid][pBankomat] = -1;
 					PlayerInfo[playerid][pSkin] = 0;
+
+					SetSpawnInfo(playerid, 0, PlayerInfo[playerid][pSkin], 1648.4308, -1053.9159, 23.8984, 0.0, 0, 0, 0, 0, 0, 0);
+					TogglePlayerSpectating(playerid, false);
+					SpawnPlayer(playerid);
 				}
 			}
 			return 1;

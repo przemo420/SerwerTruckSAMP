@@ -1,37 +1,3 @@
-CMD:tankuj(playerid, params[])
-{
-	if(!IsPlayerInAnyVehicle(playerid))
-		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê w pojeŸdzie.");
-
-	new stacjaid = GetStacja(playerid);
-	if(!stacjaid)
-		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê przy stacji.");
-
-	new string[180], vehicleid=GetPlayerVehicleID(playerid), Float:fuel, fueltype[10];
-
-	if(Spawned[vehicle])
-	{
-
-	}
-
-	format(string, sizeof(string), "Zbiornik gazu:\t%dL\nZbiornik ropy:\t%dL\nZbiornik benzyny:\t%dL\n\nCena gazu:\t$%.02f\nCena ropy:\t$%0.2f\nCena benzyny:\t$%0.2f\n\nRodzaj paliwa pojazdu:\t%s", 
-			Stacje[stacjaid][ZbiornikGazu], Stacje[stacjaid][ZbiornikRopy], Stacje[stacjaid][ZbiornikBenzyny], Stacje[stacjaid][CenaGazu], Stacje[stacjaid][CenaRopy], Stacje[stacjaid][CenaBenzyny], );
-/*if(PlayerVehicleIsDiesel(playerid))
-{
-FuelTYP[playerid] = 1;
-format(string, sizeof string, "{a9c4e4}Rodzaj paliwa tego pojazdu to: {DFDF00}DIESEL\n \n{a9c4e4}Mo¿esz zatankowaæ: {DFDF00}%d L\n{a9c4e4}Czy chcesz rozpocz¹æ tankowanie?", MaxFuel(GetVehicleModel(GetPlayerVehicleID(playerid))) - vFuel[GetPlayerVehicleID(playerid)]);
-Dialog_Show(playerid, DIALOG_TANKOWANIE, DIALOG_STYLE_MSGBOX, " ", string, "Tak", "Nie");
-}
-else
-{
-FuelTYP[playerid] = 0;
-format(string, sizeof string, "{a9c4e4}Rodzaj paliwa tego pojazdu to: {DFDF00}BENZYNA\n \n{a9c4e4}Mo¿esz zatankowaæ: {DFDF00}%d L\n{a9c4e4}Czy chcesz rozpocz¹æ tankowanie?", MaxFuel(GetVehicleModel(GetPlayerVehicleID(playerid))) - vFuel[GetPlayerVehicleID(playerid)]);
-Dialog_Show(playerid, DIALOG_TANKOWANIE, DIALOG_STYLE_MSGBOX, " ", string, "Tak", "Nie");
-}*/
-	ShowInfo(playerid, "Stacja chwilowo nieczynna.");
-	return 1;
-}
-
 LadujStacje()
 {
 	mysql_query("SELECT * FROM `Stacje`");
@@ -43,7 +9,7 @@ LadujStacje()
 	new string[140];
 	while(mysql_fetch_row(string, "|")) 
 	{
-    	sscanf(string, "e<p<|>dfffddd>", Stacje[ID_STACJA]);
+    	sscanf(string, "e<p<|>dfffdddfff>", Stacje[ID_STACJA]);
 
     	format(string, sizeof string, "{808040}STACJA BENZYNOWA {808040}[VID: {FFFFFF}%d{808040}]\n{FFFFFF}/tankuj", ID_STACJA);
     	StacjeText3D[ID_STACJA] = CreateDynamic3DTextLabel(string, ZIELONY2, Stacje[ID_STACJA][sPosX], Stacje[ID_STACJA][sPosY], Stacje[ID_STACJA][sPosZ]+0.5, 30.0);
@@ -59,7 +25,108 @@ LadujStacje()
 	return 1;
 }
 
-Dialog:DIALOG_TANKOWANIE(playerid, response, listitem, inputtext[])
+CMD:tankuj(playerid, params[])
 {
+	if(!IsPlayerInAnyVehicle(playerid))
+		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê w pojeŸdzie.");
+
+	new stacjaid = GetStacja(playerid);
+	if(!stacjaid)
+		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê przy stacji.");
+
+	new vehicleid=GetPlayerVehicleID(playerid), fueltype[8];
+
+	switch( (Spawned[vehicleid]) ? (vehOtherInfo[vehicleid][vFuelType]) : (vehInfo[DBVehID[vehicleid]][vFuelType]) )
+	{
+		case FUEL_TYPE_GAS: strcat(fueltype, "Gaz");
+		case FUEL_TYPE_BENZ: strcat(fueltype, "Benzyna");
+		case FUEL_TYPE_TDI: strcat(fueltype, "Ropa");
+	}
+	
+	Dialog_Show(playerid, DIALOG_TANKOWANIE_ILOSC, DIALOG_STYLE_TABLIST, "Stacja", "Zbiornik gazu:\t%dL\nZbiornik ropy:\t%dL\nZbiornik benzyny:\t%dL\n---\nCena gazu:\t$%.02f\nCena ropy:\t$%0.2f\nCena benzyny:\t$%0.2f\n---\nRodzaj paliwa pojazdu:\t%s", "Tankuj", "Anuluj", 
+			Stacje[stacjaid][ZbiornikGaz], Stacje[stacjaid][ZbiornikRopa], Stacje[stacjaid][ZbiornikBenzyna], Stacje[stacjaid][CenaGaz], Stacje[stacjaid][CenaRopa], Stacje[stacjaid][CenaBenzyna], fueltype);
+
+	return 1;
+}
+
+Dialog:DIALOG_TANKOWANIE_ILOSC(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	new vehicleid=GetPlayerVehicleID(playerid), Float:mozeZatankowac=float(MaxFuel(GetVehicleModel(vehicleid)));
+
+	if(Spawned[vehicleid])
+		mozeZatankowac -= vehOtherInfo[vehicleid][vFuel];
+	else
+		mozeZatankowac -= vehInfo[DBVehID[vehicleid]][vFuel];
+
+	if(mozeZatankowac == 0)
+		return ShowInfo(playerid, "Nie mo¿esz zatankowaæ tego pojazdu - jest pe³en.");
+
+	Dialog_Show(playerid, DIALOG_TANKOWANIE_TANKUJ, DIALOG_STYLE_INPUT, "Stacja", "Mo¿esz zatankowaæ: %0.2fL\n\nWpisz iloœæ paliwa w litrach (0, by do pe³na):", "Tankuj", "Anuluj", mozeZatankowac);
+
+	return 1;
+}
+
+Dialog:DIALOG_TANKOWANIE_TANKUJ(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	new Float:ileZatankowac = floatstr(inputtext), vehicleid = GetPlayerVehicleID(playerid), Float:mozeZatankowac=float(MaxFuel(GetVehicleModel(vehicleid))), stacjaid = GetStacja(playerid), koszt;
+
+	if(Spawned[vehicleid])
+		mozeZatankowac -= vehOtherInfo[vehicleid][vFuel];
+	else
+		mozeZatankowac -= vehInfo[DBVehID[vehicleid]][vFuel];
+
+	if(ileZatankowac < 0)
+		return Dialog_Show(playerid, DIALOG_TANKOWANIE_TANKUJ, DIALOG_STYLE_INPUT, "Stacja", "Nieprawid³owa iloœæ.\nMo¿esz zatankowaæ: %0.2fL\n\nWpisz iloœæ paliwa w litrach (0, by do pe³na):", "Tankuj", "Anuluj", mozeZatankowac);
+
+	if(ileZatankowac == 0)
+		ileZatankowac = mozeZatankowac;
+
+	switch( (Spawned[vehicleid]) ? (vehOtherInfo[vehicleid][vFuelType]) : (vehInfo[DBVehID[vehicleid]][vFuelType]) )
+	{
+		case FUEL_TYPE_GAS: koszt = floatround(ileZatankowac * Stacje[stacjaid][CenaGaz]);
+		case FUEL_TYPE_BENZ: koszt = floatround(ileZatankowac * Stacje[stacjaid][CenaBenzyna]);
+		case FUEL_TYPE_TDI: koszt = floatround(ileZatankowac * Stacje[stacjaid][CenaRopa]);
+	}
+
+	if(GetMoney(playerid) < koszt) 
+		return Dialog_Show(playerid, DIALOG_TANKOWANIE_TANKUJ, DIALOG_STYLE_INPUT, "Stacja", "Nie masz tylu pieniêdzy! Potrzebujesz: $%d\nMo¿esz zatankowaæ: %0.2fL\n\nWpisz iloœæ paliwa w litrach (0, by do pe³na):", "Tankuj", "Anuluj", ileZatankowac * Stacje[stacjaid][CenaGaz], mozeZatankowac);
+
+	if(Spawned[vehicleid])
+		vehOtherInfo[vehicleid][vFuel] += ileZatankowac;
+	else
+		vehInfo[DBVehID[vehicleid]][vFuel] += ileZatankowac;
+
+	GiveMoney(playerid, -koszt);
+	Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "Stacja", "Zatankowa³eœ $%0.2fL za $%d.", "Ok", "", ileZatankowac, koszt);
+	return 1;
+}
+
+CMD:stacjatp(playerid, params[])
+{
+	if(Stacje[strval(params)][sID] == 0)
+		return 1;
+
+	SetPlayerPos(playerid, Stacje[strval(params)][sPosX], Stacje[strval(params)][sPosY], Stacje[strval(params)][sPosZ]+3.0);
+	return 1;
+}
+
+CMD:ustawzbiornik(playerid, params[])
+{
+	new vehicleid = GetPlayerVehicleID(playerid);
+
+	if(!IsPlayerInAnyVehicle(playerid))
+		return 1;
+
+	if(Spawned[vehicleid])
+		vehOtherInfo[vehicleid][vFuel] = strval(params);
+	else
+		vehInfo[DBVehID[vehicleid]][vFuel] = strval(params);
+
 	return 1;
 }

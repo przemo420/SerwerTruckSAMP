@@ -109,7 +109,7 @@ CMD:stworzobiekt(playerid, params[])
 
 	new szString[674];
 	strcat(szString, "Model\tNazwa\n");
-	strcat(szString, "2960\tBelka\n944\tSkrzynie\n3287\tBeczka\n1684\tBudka\n3567\t11292\tBudka2\nNaczepa\n1352\nSwiatla\n8873\tJupiter\n16599\tWodol");
+	strcat(szString, "2960\tBelka\n944\tSkrzynie\n3287\tBeczka\n1684\tBudka\n3567\tNaczepa\n11292\tBudka2\n1352\tSwiatla\n8873\tJupiter\n16599\tWodol");
 	strcat(szString, "3502\tRura\n3675\tRura2\n12930\tRury\n1685\tKostka\n3572\tKontener\n2699\tKontener2\n1358\tŒmietnik\n1372\tŒmietnik2\n18248\tKoparka\n");
 	strcat(szString, "3526\tLampka\n3385\tLampka2\n979\tStrza³ka lewo\n978\tStrza³ka prawo\n973\tBarierka\n3091\tBlokada2981\tBlokada\n1237\tPacholek\n");
 	strcat(szString, "1238\tPacholek2\n3504\tToiToi\n1322\tZnak\n3380\tZnak2\n3379\tZnak3\n2780\tDym\n974\tBramka\n16302\t¯wir\n10984\tGruz\n16317\tPiach\n");
@@ -132,7 +132,7 @@ GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
 new tekstid = GetFreeRemontBTID();
 format(string, sizeof string, "{004080}Build Trans UID {FFFFFF}(%d).\n%s", tekstid, params);
 remontBTTD[tekstid] = CreateDynamic3DTextLabel(string, ZIELONY7, Pos[0],Pos[1],Pos[2], 30.0);
-format(string, sizeof string, "{004080}Utworzy?etykiet?o id {FFFFFF}(%d).", tekstid);
+format(string, sizeof string, "{004080}Utworzy³eœ etykietê id {FFFFFF}(%d).", tekstid);
 SendClientMessage(playerid, 0x0, string);
 IsRemontBTID[tekstid] = true;
 return 1;
@@ -150,7 +150,7 @@ if(isnull(params)) return SendClientMessage(playerid, LIGHTRED, "Wpisz: /createl
 new tekstid = strval(params);
 DestroyDynamic3DTextLabel(remontBTTD[tekstid]);
 IsRemontBTID[tekstid] = false;
-format(string, sizeof string, "{004080}Etykieta o id {FFFFFF}(%d) {004080}zosta³usuni?a.", tekstid);
+format(string, sizeof string, "{004080}Etykieta o id {FFFFFF}(%d) {004080}zosta³a usuniêta.", tekstid);
 SendClientMessage(playerid, 0x0, string);
 return 1;
 }
@@ -174,10 +174,11 @@ Dialog:DIALOG_OBIEKT(playerid, response, listitem, inputtext[])
 	if(!response)
 		return 1;
 
-	new modelid, Float:Pos[3];
+	new modelid, Float:Pos;
 	sscanf(inputtext, "d{s[20]}", modelid);
-	GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
-	PostawObiekt(playerid, modelid, Pos[0], Pos[1], Pos[2], 0.0, 0.0, 0.0, 5.0);
+
+	GetPlayerFacingAngle(playerid, Pos);
+	PostawObiekt(playerid, modelid, 0, 0, 0, 0.0, 0.0, Pos, 5.0);
 
 	return 1;
 }

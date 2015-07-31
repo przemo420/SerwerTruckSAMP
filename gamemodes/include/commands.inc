@@ -159,7 +159,9 @@ CMD:firma(playerid, params[])
 
 CMD:stats(playerid, params[])
 {
-	new string[500], czasBierzacy[3];
+	new string[500], czasBiezacy[3];
+
+	ConvertSeconds(GetDTime(playerid), czasBiezacy[0], czasBiezacy[1], czasBiezacy[2]);
 	format(string, sizeof(string), "UID:\t %d\n", PlayerInfo[playerid][pID]);
 	format(string, sizeof(string), "%sNick:\t %s\n", string, PlayerName(playerid));
 	format(string, sizeof(string), "%sPieni¹dze:\t %d\n", string, GetMoney(playerid));
@@ -169,16 +171,35 @@ CMD:stats(playerid, params[])
 	format(string, sizeof(string), "%sPoziom uprawnieñ:\t %d\n", string, PlayerInfo[playerid][pAdmin]);
 	format(string, sizeof(string), "%sFirma:\t %d\n", string, PlayerInfo[playerid][pFirma]);
 	format(string, sizeof(string), "%sSkin:\t %d\n", string, PlayerInfo[playerid][pSkin]);
-	format(string, sizeof(string), "%sTachograf:\t ---\n", string);
+	format(string, sizeof(string), "%sTachograf:\t %dh %dm %ds\n", string, czasBiezacy[0], czasBiezacy[1], czasBiezacy[2]);
 	format(string, sizeof(string), "%sViaToll:\t %d\n", string, GetViaMoney(playerid));
-	format(string, sizeof(string), "%sADR:\t BRAK\n", string);
+	format(string, sizeof(string), "%sADR:\t %d\n", PlayerInfo[playerid][pADR]);
 	format(string, sizeof(string), "%sCzas pracy:\t %dh\n", string, GetWork(playerid));
 	format(string, sizeof(string), "%sBuildMaster:\t %d\n", string, PlayerInfo[playerid][pBuildmaster]);
 
-	ConvertMS(GetTickCount()-GetPVarInt(playerid, "IleGral"), czasBierzacy[0], czasBierzacy[1], czasBierzacy[2]);
+	ConvertMS(GetTickCount()-GetPVarInt(playerid, "IleGral"), czasBiezacy[0], czasBiezacy[1], czasBiezacy[2]);
 
-	format(string, sizeof(string), "%sCzas online (bie¿¹cy):\t %dh %dm %ds\n", string, czasBierzacy[0], czasBierzacy[1], czasBierzacy[2]);
+	format(string, sizeof(string), "%sCzas online (bie¿¹cy):\t %dh %dm %ds\n", string, czasBiezacy[0], czasBiezacy[1], czasBiezacy[2]);
 	Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST, "Statystyki gracza", string, "Ok", "");
+	return 1;
+}
+
+CMD:pauza(playerid, params[])
+{
+	new vehicleid = GetPlayerVehicleID(playerid), engine,lights,alarm,doors,bonnet,boot,objective;
+	GetVehicleParamsEx(vehicleid,engine,lights,alarm,doors,bonnet,boot,objective);
+
+	if(!IsPlayerInAnyVehicle(playerid))
+		return Msg(playerid, COLOR_ERROR, "Nie jesteœ w pojeŸdzie.");
+
+	if(!IsPlayerInTruck(playerid))
+		return Msg(playerid, COLOR_ERROR, "Nie mo¿esz krêciæ pauzy w tym samochodzie.");
+
+	if(engine)
+		return Msg(playerid, COLOR_ERROR, "By krêciæ pauzê wy³¹cz silnik.");
+
+	SetPVarInt(playerid, "tacho_pauza", 1);
+	Msg(playerid, COLOR_INFO, "Krêcisz pauzê. By zobaczyæ czas tachografu wpisz {b}/stats{/b}");
 	return 1;
 }
 
@@ -207,9 +228,9 @@ CMD:cmds(playerid)
 	strcat(szString, szCommands[0]);
 
 	if(firmaid != 0)
-		strcat(szString, "\n \nKomendy firmy:\n"), strcat(szString, szCommands[Firmy[firmaid][tTyp]]);
+		strcat(szString, "\n---\nKomendy firmy:\n"), strcat(szString, szCommands[Firmy[firmaid][tTyp]]);
 
-	return Dialog_Show(playerid, DIALOG_CMDS, DIALOG_STYLE_MSGBOX, "Dostêpne komendy", szString, "WyjdŸ", #);
+	return Dialog_Show(playerid, DIALOG_CMDS, DIALOG_STYLE_LIST, "Dostêpne komendy", szString, "WyjdŸ", #);
 }
 
 CMD:komendy(playerid)
@@ -568,7 +589,7 @@ CMD:tp(playerid, params[])
 	{
 		format(string, sizeof string, "Teleportowa³eœ siê do {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(wheplayerid), wheplayerid);
 		Msg(playerid, COLOR_INFO2, string);
-		format(string, sizeof string, "Administrator {b}%s{/b} (ID: {b}%d{/b}) teleportowa³ ciê do Ciebie.", PlayerName(playerid), playerid);
+		format(string, sizeof string, "Administrator {b}%s{/b} (ID: {b}%d{/b}) teleportowa³ siê do Ciebie.", PlayerName(playerid), playerid);
 		Msg(wheplayerid, COLOR_INFO2, string);
 	}
 	else if(playerid == wheplayerid)
@@ -996,7 +1017,7 @@ CMD:createveh(playerid, params[])
 
 	Spawned[AdminsVehs[vehicleID]]=true;
 
-	vehOtherInfo[AdminsVehs[vehicleID]][vFuel] = MaxFuel(vehicleID);
+	vehOtherInfo[AdminsVehs[vehicleID]][vFuel] = MaxFuel(GetVehicleModel(vehicleID));
 	vehOtherInfo[AdminsVehs[vehicleID]][vFuelType] = IsVehicleTruck(vehicleID) ? FUEL_TYPE_TDI : FUEL_TYPE_BENZ;
 	vehOtherInfo[AdminsVehs[vehicleID]][vPrzebieg] = 0.0;
 	vehOtherInfo[AdminsVehs[vehicleID]][vCargoID] = 0;

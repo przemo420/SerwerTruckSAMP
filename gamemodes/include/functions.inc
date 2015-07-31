@@ -526,13 +526,13 @@ public PostawObiekt(playerid, obiektid, Float:PosX, Float:PosY, Float:PosZ, Floa
 	obiektyBTID = obietid;
 
 	if(obiektyBTID >= 5000)
-		return SendClientMessage(playerid, LIGHTRED, "Limit obiekt? zosta³osi¹gni?y.");
+		return SendClientMessage(playerid, LIGHTRED, "Limit obiektów zosta³ osi¹gniêty.");
 
 	obiektyBT[obiektyBTID] = CreateDynamicObject(obiektid, Pos[0]+PosX,Pos[1]+PosY,Pos[2]+PosZ, rotX, rotY, rotZ);
 	new string[76];
 	format(string, sizeof string, "{FFFFFF}UID: %d\nUtworzy³: %s", obiektyBTID, PlayerName(playerid));
 	obiektyBT3D[obiektyBTID] = CreateDynamic3DTextLabel(string, ZIELONY6, Pos[0]+PosX,Pos[1]+PosY,Pos[2]+PosZ, 5.0);
-	format(string, sizeof string, "{004080}Utworzy?obiekt {FFFFFF}(%d) {004080}i uid {FFFFFF}%d.", obiektid, obiektyBTID);
+	format(string, sizeof string, "{004080}Utworzy³eœ obiekt {FFFFFF}(%d) {004080}o uid {FFFFFF}%d.", obiektid, obiektyBTID);
 	SendClientMessage(playerid, 0x0, string);
 	IsObiektBT[obiektyBTID] = true;
 	strmid(obiektBTNAME[obiektyBTID],PlayerName(playerid),0,20);
