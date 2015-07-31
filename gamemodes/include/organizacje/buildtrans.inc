@@ -14,7 +14,7 @@ return SendClientMessage(playerid, LIGHTRED, "Nie znaleziono takiego obiektu.");
 
 format(string, sizeof string, "{004080}Rozpocz¹³eœ edycjê obiektu o id {FFFFFF}%d.", id);
 SendClientMessage(playerid, 0x0, string);
-EditObject(playerid, obiektyBT[id]);
+EditDynamicObject(playerid, obiektyBT[id]);
 SetPVarInt(playerid, "OBIEKTCHANGEBTID", id);
 return 1;
 }
@@ -36,7 +36,7 @@ return SendClientMessage(playerid, LIGHTRED, "Nie znaleziono takiego obiektu.");
 format(string, sizeof string, "{004080}Obiekt o id {FFFFFF}%d {004080}zosta³ usuniêty.", id);
 SendClientMessage(playerid, 0x0, string);
 IsObiektBT[id] = false;
-DestroyObject(obiektyBT[id]);
+DestroyDynamicObject(obiektyBT[id]);
 DestroyDynamic3DTextLabel(obiektyBT3D[id]);
 strmid(obiektBTNAME[obiektyBTID],"nothing",0,20);
 strmid(obiektBTNAME2[obiektyBTID],"nothing",0,20);
@@ -53,7 +53,7 @@ SendClientMessage(playerid, 0x0, "{004080}Wszystkie obiekty zosta³ usuniête.");
 for(new x = 0; x < MAX_BTOBJTD; x++)
 {
 IsObiektBT[x] = false;
-DestroyObject(obiektyBT[x]);
+DestroyDynamicObject(obiektyBT[x]);
 DestroyDynamic3DTextLabel(obiektyBT3D[x]);
 strmid(obiektBTNAME[obiektyBTID],"nothing",0,20);
 strmid(obiektBTNAME2[obiektyBTID],"nothing",0,20);

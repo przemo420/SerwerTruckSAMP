@@ -40,7 +40,7 @@ CMD:tablica(playerid, params[])
 				strcat(wiadomosc, "Brak og³oszeñ.");
 			else
 			{
-				strcat(wiadomosc, "Gracz\tWiadomoœæ\tData\n");
+				format(wiadomosc, sizeof(wiadomosc), "Gracz\tWiadomoœæ\tData\n");
 				while(mysql_fetch_row(zapytanie, "|")) 
 				{
 			    	mysql_fetch_field("owner", zapytanie);
