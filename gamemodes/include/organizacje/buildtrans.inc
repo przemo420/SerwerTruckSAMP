@@ -1,105 +1,60 @@
-CMD:changepos(playerid, params[])
+CMD:projekt(playerid params[])
 {
-new id;
-new string[76];
+	new opcja[10];
 
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(sscanf(params, "d", id))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /changepos [id obiektu]");
+	if(sscanf(params, "s[10]", opcja))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /projekt [lista/stworz/usun/akceptuj]");
 
-if(IsObiektBT[id] == false)
-return SendClientMessage(playerid, LIGHTRED, "Nie znaleziono takiego obiektu.");
+	if(strcmp(opcja, "lista", true) == 0) {}
+	else if(strcmp(opcja, "stworz", true) == 0) {}
+	else if(strcmp(opcja, "usun", true) == 0) {}
+	else if(strcmp(opcja, "akceptuj", true) == 0) {}
+	else
+		Msg(playerid, COLOR_ERROR, "Wpisz: /projekt [lista/stworz/usun/akceptuj]");
 
-format(string, sizeof string, "{004080}Rozpocz¹³eœ edycjê obiektu o id {FFFFFF}%d.", id);
-SendClientMessage(playerid, 0x0, string);
-EditDynamicObject(playerid, obiektyBT[id]);
-SetPVarInt(playerid, "OBIEKTCHANGEBTID", id);
-return 1;
+	return 1;
 }
 
-CMD:delone(playerid, params[])
+CMD:obiekt(playerid)
 {
-new id;
-new string[76];
+	new opcja[10];
 
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(sscanf(params, "d", id))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /delone [id obiektu]");
+	if(sscanf(params, "s[10]", opcja))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /obiekt [lista/stworz/usun/polozenie]");
 
-if(IsObiektBT[id] == false)
-return SendClientMessage(playerid, LIGHTRED, "Nie znaleziono takiego obiektu.");
+	if(strcmp(opcja, "lista", true) == 0) {}
+	else if(strcmp(opcja, "stworz", true) == 0) {}
+	else if(strcmp(opcja, "usun", true) == 0) {}
+	else if(strcmp(opcja, "polozenie", true) == 0) {}
+	else
+		Msg(playerid, COLOR_ERROR, "Wpisz: /obiekt [lista/stworz/usun/polozenie]");
 
-format(string, sizeof string, "{004080}Obiekt o id {FFFFFF}%d {004080}zosta³ usuniêty.", id);
-SendClientMessage(playerid, 0x0, string);
-IsObiektBT[id] = false;
-DestroyDynamicObject(obiektyBT[id]);
-DestroyDynamic3DTextLabel(obiektyBT3D[id]);
-strmid(obiektBTNAME[obiektyBTID],"nothing",0,20);
-strmid(obiektBTNAME2[obiektyBTID],"nothing",0,20);
-return 1;
+	return 1;
 }
 
-CMD:delall(playerid, params[])
+CMD:napis(playerid)
 {
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	new opcja[10];
 
-SendClientMessage(playerid, 0x0, "{004080}Wszystkie obiekty zosta³ usuniête.");
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-for(new x = 0; x < MAX_BTOBJTD; x++)
-{
-IsObiektBT[x] = false;
-DestroyDynamicObject(obiektyBT[x]);
-DestroyDynamic3DTextLabel(obiektyBT3D[x]);
-strmid(obiektBTNAME[obiektyBTID],"nothing",0,20);
-strmid(obiektBTNAME2[obiektyBTID],"nothing",0,20);
-}
-return 1;
-}
+	if(sscanf(params, "s[10]", opcja))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /napis [lista/stworz/usun]");
 
-CMD:kamera(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(strcmp(opcja, "lista", true) == 0) {}
+	else if(strcmp(opcja, "stworz", true) == 0) {}
+	else if(strcmp(opcja, "usun", true) == 0) {}
+	else
+		Msg(playerid, COLOR_ERROR, "Wpisz: /napis [lista/stworz/usun]");
 
-if(GetPVarType(playerid, "FlyMode"))
-{
-CancelFlyMode(playerid);
-}
-else
-{
-new Float:tp[3];
-GetPlayerPos(playerid,tp[0],tp[1],tp[2]);
-SetPVarFloat(playerid, "BTP", tp[0]);
-SetPVarFloat(playerid, "BTP1", tp[1]);
-SetPVarFloat(playerid, "BTP2", tp[2]);
-SetPVarInt(playerid, "FLYKAMERA", 1);
-FlyMode(playerid);
-}
-return 1;
-}
-
-CMD:obiektname(playerid, params[])
-{
-new id;
-new string[200];
-
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
-
-if(sscanf(params, "d", id))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /obiektname [id obiektu]");
-
-if(IsObiektBT[id] == false)
-return SendClientMessage(playerid, LIGHTRED, "Nie znaleziono takiego obiektu.");
-
-format(string, sizeof string, "{004080}Obiekt o id {FFFFFF}%d {004080}zosta³ postawiony przez {FFFFFF}%s{004080}, edytowany przez {FFFFFF}%s.", id, obiektBTNAME[id], obiektBTNAME2[id]);
-SendClientMessage(playerid, 0x0, string);
-return 1;
+	return 1;
 }
 
 CMD:stworzobiekt(playerid, params[])
@@ -118,55 +73,159 @@ CMD:stworzobiekt(playerid, params[])
 	return Dialog_Show(playerid, DIALOG_OBIEKT, DIALOG_STYLE_TABLIST_HEADERS, "Wybierz obiekt", szString, "Wybierz", "Anuluj");
 }
 
+CMD:changepos(playerid, params[])
+{
+	new id;
+	new string[76];
+
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
+	if(sscanf(params, "d", id))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /changepos [id obiektu]");
+
+	if(IsObiektBT[id] == false)
+		return Msg(playerid, COLOR_ERROR, "Nie znaleziono tego obiektu.");
+
+	format(string, sizeof string, "{004080}Rozpocz¹³eœ edycjê obiektu o id {FFFFFF}%d.", id);
+	SendClientMessage(playerid, 0x0, string);
+	EditDynamicObject(playerid, obiektyBT[id]);
+	SetPVarInt(playerid, "OBIEKTCHANGEBTID", id);
+	return 1;
+}
+
+CMD:delone(playerid, params[])
+{
+	new id;
+	new string[76];
+
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
+	if(sscanf(params, "d", id))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /delone [id obiektu]");
+
+	if(IsObiektBT[id] == false)
+		return Msg(playerid, COLOR_ERROR, "Nie znaleziono tego obiektu.");
+
+	format(string, sizeof string, "{004080}Obiekt o id {FFFFFF}%d {004080}zosta³ usuniêty.", id);
+	SendClientMessage(playerid, 0x0, string);
+	IsObiektBT[id] = false;
+	DestroyDynamicObject(obiektyBT[id]);
+	DestroyDynamic3DTextLabel(obiektyBT3D[id]);
+	strmid(obiektBTNAME[obiektyBTID],"nothing",0,20);
+	strmid(obiektBTNAME2[obiektyBTID],"nothing",0,20);
+	return 1;
+}
+
+CMD:delall(playerid, params[])
+{
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
+	SendClientMessage(playerid, 0x0, "{004080}Wszystkie obiekty zosta³ usuniête.");
+
+	for(new x = 0; x < MAX_BTOBJTD; x++)
+	{
+		IsObiektBT[x] = false;
+		DestroyDynamicObject(obiektyBT[x]);
+		DestroyDynamic3DTextLabel(obiektyBT3D[x]);
+		strmid(obiektBTNAME[obiektyBTID],"nothing",0,20);
+		strmid(obiektBTNAME2[obiektyBTID],"nothing",0,20);
+	}
+	return 1;
+}
+
+CMD:kamera(playerid, params[])
+{
+	if(GetPVarType(playerid, "FlyMode"))
+		return CancelFlyMode(playerid);
+
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
+	new Float:tp[3];
+	GetPlayerPos(playerid,tp[0],tp[1],tp[2]);
+	SetPVarFloat(playerid, "BTP", tp[0]);
+	SetPVarFloat(playerid, "BTP1", tp[1]);
+	SetPVarFloat(playerid, "BTP2", tp[2]);
+	SetPVarInt(playerid, "FLYKAMERA", 1);
+	FlyMode(playerid);
+	
+	return 1;
+}
+
+CMD:obiektname(playerid, params[])
+{
+	new id;
+	new string[200];
+
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
+	if(sscanf(params, "d", id))
+		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /obiektname [id obiektu]");
+
+	if(IsObiektBT[id] == false)
+		return SendClientMessage(playerid, LIGHTRED, "Nie znaleziono takiego obiektu.");
+
+	format(string, sizeof string, "{004080}Obiekt o id {FFFFFF}%d {004080}zosta³ postawiony przez {FFFFFF}%s{004080}, edytowany przez {FFFFFF}%s.", id, obiektBTNAME[id], obiektBTNAME2[id]);
+	SendClientMessage(playerid, 0x0, string);
+	return 1;
+}
+
 CMD:createlabel(playerid, params[])
 {
-new string[256];
+	new string[256];
 
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(isnull(params)) return SendClientMessage(playerid, LIGHTRED, "Wpisz: /createlabel [tekst]");
+	if(isnull(params)) 
+		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /createlabel [tekst]");
 
-new Float:Pos[3];
-GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
-new tekstid = GetFreeRemontBTID();
-format(string, sizeof string, "{004080}Build Trans UID {FFFFFF}(%d).\n%s", tekstid, params);
-remontBTTD[tekstid] = CreateDynamic3DTextLabel(string, ZIELONY7, Pos[0],Pos[1],Pos[2], 30.0);
-format(string, sizeof string, "{004080}Utworzy³eœ etykietê id {FFFFFF}(%d).", tekstid);
-SendClientMessage(playerid, 0x0, string);
-IsRemontBTID[tekstid] = true;
-return 1;
+	new Float:Pos[3];
+	GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
+	new tekstid = GetFreeRemontBTID();
+	format(string, sizeof string, "{004080}Build Trans UID {FFFFFF}(%d).\n%s", tekstid, params);
+	remontBTTD[tekstid] = CreateDynamic3DTextLabel(string, ZIELONY7, Pos[0],Pos[1],Pos[2], 30.0);
+	format(string, sizeof string, "{004080}Utworzy³eœ etykietê id {FFFFFF}(%d).", tekstid);
+	SendClientMessage(playerid, 0x0, string);
+	IsRemontBTID[tekstid] = true;
+	return 1;
 }
 
 CMD:deletelabel(playerid, params[])
 {
 new string[128];
 
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(isnull(params)) return SendClientMessage(playerid, LIGHTRED, "Wpisz: /createlabel [tekst]");
+	if(isnull(params)) 
+		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /createlabel [tekst]");
 
-new tekstid = strval(params);
-DestroyDynamic3DTextLabel(remontBTTD[tekstid]);
-IsRemontBTID[tekstid] = false;
-format(string, sizeof string, "{004080}Etykieta o id {FFFFFF}(%d) {004080}zosta³a usuniêta.", tekstid);
-SendClientMessage(playerid, 0x0, string);
-return 1;
+	new tekstid = strval(params);
+	DestroyDynamic3DTextLabel(remontBTTD[tekstid]);
+	IsRemontBTID[tekstid] = false;
+	format(string, sizeof string, "{004080}Etykieta o id {FFFFFF}(%d) {004080}zosta³a usuniêta.", tekstid);
+	SendClientMessage(playerid, 0x0, string);
+	return 1;
 }
 
 CMD:deletelabels(playerid, params[])
 {
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-for(new x = 0; x < MAX_BTOBJTD; x++)
-{
-DestroyDynamic3DTextLabel(remontBTTD[x]);
-IsRemontBTID[x] = false;
-}
-SendClientMessage(playerid, 0x0, "{004080}Etykiety zosta³ usuniête.");
-return 1;
+	for(new x = 0; x < MAX_BTOBJTD; x++)
+	{
+		DestroyDynamic3DTextLabel(remontBTTD[x]);
+		IsRemontBTID[x] = false;
+	}
+
+	SendClientMessage(playerid, 0x0, "{004080}Etykiety zosta³ usuniête.");
+	return 1;
 }
 
 Dialog:DIALOG_OBIEKT(playerid, response, listitem, inputtext[])
