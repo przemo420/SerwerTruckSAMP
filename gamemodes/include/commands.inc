@@ -238,6 +238,9 @@ CMD:komendy(playerid)
 	return cmd_cmds(playerid);
 }
 
+CMD:tachograf(playerid)
+	return ShowInfo(playerid, "Tachograf - jest to urz¹dzenie pomiarowe, które pe³ni funkcjê zegara.\nZe wzglêdu na bezpieczeñstwo na drogach, wprowadzono ograniczenia\n czasu pracy kierowców pojazdów o DMC > 6t.\nBy zbiæ czas, nale¿y zjechaæ na pobocze i zgasiæ silnik.");
+
 // KOMENDY POGOTOWIA
 /*
 	- /ulecz
@@ -258,7 +261,7 @@ CMD:ulecz(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
 
 	if(sscanf(params, "d", forplayerid))
-		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/ulecz [id gracza]{/b}");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: {b}/ulecz [id gracza]{/b}");
 
 	if(!IsPlayerConnected(forplayerid))
 		return Msg(playerid, COLOR_ERROR, "Gracza z tym ID nie ma online.");

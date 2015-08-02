@@ -606,7 +606,7 @@ GetFreeRemontBTID()
 	while(obiektid == INVALID_REMONTBT3D_ID)
 	{
 	    counter++;
-	    if(IsRemontBTID[counter] == false)
+	    if(BTNapis[counter][btnNapis] == Text3D:INVALID_REMONTBT3D_ID)
 		 	obiektid = counter;
 	}
 	return obiektid;

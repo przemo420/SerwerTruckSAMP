@@ -13,8 +13,8 @@ native IsValidVehicle(vehicle);
 #define MAX_SPIKESTRIPS 	25
 #define MAX_BARY 			200
 #define MAX_BARYIN 			200
-#define MAX_BTOBJ 			5000
-#define MAX_BTOBJTD 		5000
+#define MAX_BTOBJ 			2000
+#define MAX_BTOBJTD 		2000
 
 // ---------------------------
 
@@ -92,7 +92,7 @@ enum {
 #define ZIELONY2 			0x00FF00FF
 #define ZIELONY3 			0x00FF00FF
 #define ZIELONY4 			0x00FF00FF
-#define ZIELONY7 			0x00FF00FF
+#define ZIELONY7 			0x004080FF
 
 // ---------------------------
 
@@ -123,7 +123,7 @@ new const szCommands[][] = {
 	"/zaladuj\n/rozladuj", // cargo
 	"/zaladuj\n/rozladuj", // petrol
 	"/zaladuj\n/rozladuj", // smlog
-	"/stworzobiekt\n/kamera\n/createlabel\n/deletelabel\n/deletelabels\n/obiektname\n/changepos\n/delone\n/delone" // build
+	"/stworzobiekt\n/napis\n/kamera\n\n/obiektname\n/changepos\n/delone\n/delone" // build
 };
 
 new const szHookInclude[][] = {
@@ -239,8 +239,13 @@ new Text3D:obiektyBT3D[MAX_BTOBJTD];
 new bool:IsObiektBT[MAX_BTOBJ];
 new obiektBTNAME[MAX_BTOBJTD][20];
 new obiektBTNAME2[MAX_BTOBJTD][20];
-new Text3D:remontBTTD[MAX_BTOBJTD];
-new bool:IsRemontBTID[MAX_BTOBJTD];
+
+enum eBTNapis {
+	btnStworzyl[MAX_PLAYER_NAME],
+	btnText[80],
+	Text3D:btnNapis
+}
+new BTNapis[MAX_BTOBJTD][eBTNapis];
 
 new Text:AlertTD;
 

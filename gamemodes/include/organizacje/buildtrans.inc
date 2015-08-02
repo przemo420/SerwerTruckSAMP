@@ -1,4 +1,4 @@
-CMD:projekt(playerid params[])
+CMD:projekt(playerid, params[])
 {
 	new opcja[10];
 
@@ -18,7 +18,7 @@ CMD:projekt(playerid params[])
 	return 1;
 }
 
-CMD:obiekt(playerid)
+CMD:obiekt(playerid, params[])
 {
 	new opcja[10];
 
@@ -38,19 +38,47 @@ CMD:obiekt(playerid)
 	return 1;
 }
 
-CMD:napis(playerid)
+CMD:napis(playerid, params[])
 {
-	new opcja[10];
+	new string[1024], opcja[10], opcja2, firmaid = PlayerInfo[playerid][pFirma];
 
 	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "s[10]", opcja))
+	if(sscanf(params, "s[10]D(0)", opcja, opcja2))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /napis [lista/stworz/usun]");
 
-	if(strcmp(opcja, "lista", true) == 0) {}
-	else if(strcmp(opcja, "stworz", true) == 0) {}
-	else if(strcmp(opcja, "usun", true) == 0) {}
+	if(strcmp(opcja, "lista", true) == 0) 
+	{
+		for(new i=1; i < MAX_BTOBJTD; i++)
+		{
+			if(BTNapis[i][btnNapis] == Text3D:INVALID_REMONTBT3D_ID)
+				continue;
+
+			format(string, sizeof(string), "%s%d\t%s\n", string, i, BTNapis[i][btnStworzyl]);
+		}
+
+		if(isnull(string))
+			return ShowInfo(playerid, "Brak stworzonych napisów.");
+		
+		Dialog_Show(playerid, DIALOG_NAPIS_LISTA, DIALOG_STYLE_TABLIST_HEADERS, "Napis > Lista", "ID\tStworzy³\n%s", "SprawdŸ", "Anuluj", string);
+	}
+	else if(strcmp(opcja, "stworz", true) == 0) 
+		Dialog_Show(playerid, DIALOG_NAPIS_STWORZ, DIALOG_STYLE_INPUT, "Napis > Stwórz", "Wpisz treœæ napisu:", "Ok", "Anuluj");
+	else if(strcmp(opcja, "usun", true) == 0) 
+	{
+		if(opcja2 == 0)
+			return Msg(playerid, COLOR_ERROR, "Wpisz: /napis usun [id]");
+
+		if(opcja2 >= MAX_BTOBJTD || BTNapis[opcja2][btnNapis] == Text3D:INVALID_REMONTBT3D_ID)
+			return Msg(playerid, COLOR_ERROR, "Nieprawid³owe ID.");
+
+		if(strcmp(BTNapis[opcja2][btnStworzyl], PlayerName(playerid), true) == -1 && Firmy[firmaid][tChef] != PlayerInfo[playerid][pID] && Firmy[firmaid][tVcChef] != PlayerInfo[playerid][pID])
+			return Msg(playerid, COLOR_ERROR, "Nie mo¿esz zniszczyæ tego napisu - nie Ty go stworzy³eœ.");
+		
+		SetPVarInt(playerid, "bt_napis_usun", opcja2);
+		Dialog_Show(playerid, DIALOG_NAPIS_USUN, DIALOG_STYLE_MSGBOX, "Napis > Usuñ", "Czy na pewno chcesz usun¹æ napis (ID: %d)?", "Tak", "Nie", opcja2);
+	}
 	else
 		Msg(playerid, COLOR_ERROR, "Wpisz: /napis [lista/stworz/usun]");
 
@@ -70,7 +98,7 @@ CMD:stworzobiekt(playerid, params[])
 	strcat(szString, "1238\tPacholek2\n3504\tToiToi\n1322\tZnak\n3380\tZnak2\n3379\tZnak3\n2780\tDym\n974\tBramka\n16302\t¯wir\n10984\tGruz\n16317\tPiach\n");
 	strcat(szString, "3578\tDockbar\n934\tGenerator\n1426\tRusztowanie\n1428\tDrabina\n1437\tDrabina2\n3867\tRusztowania\n1226\tLatarnia");
 
-	return Dialog_Show(playerid, DIALOG_OBIEKT, DIALOG_STYLE_TABLIST_HEADERS, "Wybierz obiekt", szString, "Wybierz", "Anuluj");
+	return Dialog_Show(playerid, DIALOG_OBIEKT_STWORZ, DIALOG_STYLE_TABLIST_HEADERS, "Wybierz obiekt", szString, "Wybierz", "Anuluj");
 }
 
 CMD:changepos(playerid, params[])
@@ -174,61 +202,7 @@ CMD:obiektname(playerid, params[])
 	return 1;
 }
 
-CMD:createlabel(playerid, params[])
-{
-	new string[256];
-
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	if(isnull(params)) 
-		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /createlabel [tekst]");
-
-	new Float:Pos[3];
-	GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
-	new tekstid = GetFreeRemontBTID();
-	format(string, sizeof string, "{004080}Build Trans UID {FFFFFF}(%d).\n%s", tekstid, params);
-	remontBTTD[tekstid] = CreateDynamic3DTextLabel(string, ZIELONY7, Pos[0],Pos[1],Pos[2], 30.0);
-	format(string, sizeof string, "{004080}Utworzy³eœ etykietê id {FFFFFF}(%d).", tekstid);
-	SendClientMessage(playerid, 0x0, string);
-	IsRemontBTID[tekstid] = true;
-	return 1;
-}
-
-CMD:deletelabel(playerid, params[])
-{
-new string[128];
-
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	if(isnull(params)) 
-		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /createlabel [tekst]");
-
-	new tekstid = strval(params);
-	DestroyDynamic3DTextLabel(remontBTTD[tekstid]);
-	IsRemontBTID[tekstid] = false;
-	format(string, sizeof string, "{004080}Etykieta o id {FFFFFF}(%d) {004080}zosta³a usuniêta.", tekstid);
-	SendClientMessage(playerid, 0x0, string);
-	return 1;
-}
-
-CMD:deletelabels(playerid, params[])
-{
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	for(new x = 0; x < MAX_BTOBJTD; x++)
-	{
-		DestroyDynamic3DTextLabel(remontBTTD[x]);
-		IsRemontBTID[x] = false;
-	}
-
-	SendClientMessage(playerid, 0x0, "{004080}Etykiety zosta³ usuniête.");
-	return 1;
-}
-
-Dialog:DIALOG_OBIEKT(playerid, response, listitem, inputtext[])
+Dialog:DIALOG_OBIEKT_STWORZ(playerid, response, listitem, inputtext[])
 {
 	if(!response)
 		return 1;
@@ -238,6 +212,69 @@ Dialog:DIALOG_OBIEKT(playerid, response, listitem, inputtext[])
 
 	GetPlayerFacingAngle(playerid, Pos);
 	PostawObiekt(playerid, modelid, 0, 0, 0, 0.0, 0.0, Pos, 5.0);
+
+	return 1;
+}
+
+Dialog:DIALOG_NAPIS_LISTA(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	new tekstid;
+	sscanf(inputtext, "d{s[20]}", tekstid);
+
+	Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "Napis > Lista > SprawdŸ", "ID: %d\nStworzy³: %s\nTekst: %s", "Ok", "", tekstid, BTNapis[tekstid][btnStworzyl], BTNapis[tekstid][btnText]);
+
+	return 1;
+}
+
+Dialog:DIALOG_NAPIS_STWORZ(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	if(strlen(inputtext) <= 5)
+		return cmd_napis(playerid, "stworz");
+
+	new string[80], tekstid = tekstid = GetFreeRemontBTID(), Float:Pos[3];
+
+	GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
+
+	strcat(string, inputtext);
+	delstr(string, "{");
+	delstr(string, "}");
+	delstr(string, "\t");
+	delstr(string, "\n");
+
+	format(BTNapis[tekstid][btnText], 80, "%s", string);
+	format(BTNapis[tekstid][btnStworzyl], MAX_PLAYER_NAME, "%s", PlayerName(playerid));
+	format(string, sizeof(string), "Build Trans(UID: %d)\nStworzy³: %s\n{FFFFFF}%s", tekstid, PlayerName(playerid), string);
+
+	BTNapis[tekstid][btnNapis] = CreateDynamic3DTextLabel(string, ZIELONY7, Pos[0], Pos[1], Pos[2], 30.0);
+
+	format(string, sizeof(string), "Utworzy³eœ etykietê {b}(ID: %d){/b}.", tekstid);
+	Msg(playerid, COLOR_INFO, string);
+
+	return 1;
+}
+
+Dialog:DIALOG_NAPIS_USUN(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	new opcja2 = GetPVarInt(playerid, "bt_napis_usun"), string[60];
+
+	DeletePVar(playerid, "bt_napis_usun");
+	DestroyDynamic3DTextLabel(BTNapis[opcja2][btnNapis]);
+
+	BTNapis[opcja2][btnText][0] = '\0';
+	BTNapis[opcja2][btnStworzyl][0] = '\0';
+	BTNapis[opcja2][btnNapis] = Text3D:INVALID_REMONTBT3D_ID;
+
+	format(string, sizeof string, "Etykieta {b}(ID: %d){/b} zosta³a usuniêta.", opcja2);
+	Msg(playerid, COLOR_INFO, string);
 
 	return 1;
 }
