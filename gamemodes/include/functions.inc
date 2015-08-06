@@ -119,14 +119,6 @@ stock GetWeaponNameEx(weaponid)
     return weapon;
 }
 
-IsVehicleTruck(modelid)
-{
-	if(modelid == 515 || modelid == 514 || modelid == 403)
-		return 1;
-
-	return 0;
-}
-
 IsPlayerInTruck(playerid)
 {
 	if(!IsPlayerInAnyVehicle(playerid))
@@ -144,35 +136,6 @@ IsPlayerInBus(playerid)
 
 	if(vehicleid == 440 || vehicleid == 455 || vehicleid == 456 || vehicleid == 459 || vehicleid == 482 || vehicleid == 498 || vehicleid == 499 || vehicleid == 578 || vehicleid ==  609)
 		return 1;
-
-	return 0;
-}
-
-IsValidTrailerType(vehicleid, type)
-{
-	new trailerid = GetVehicleModel(vehicleid);
-	
-	if(type == TYPE_ILLEGAL)
-		return 1;
-
-	switch(trailerid)
-	{
-		case 450: 
-			if(type == TYPE_BUILD)
-				return 1;
-
-		case 584:
-			if(type == TYPE_DANGEROUS)
-				return 1;
-
-		case 435:
-			if(type == TYPE_CLOTHES || type == TYPE_ELECTRONIC)
-				return 1;
-
-		case 591:
-			if(type == TYPE_EAT)
-				return 1;
-	}
 
 	return 0;
 }

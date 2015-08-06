@@ -205,17 +205,17 @@ CMD:kontrola(playerid, params[])
 	else
 		vehicleid = GetPlayerVehicleID(playerid);
 	
-	if(vehOtherInfo[vehicleid][vCargoID] <= 0)
+	if(!vlInfo[vehicleid][vLoaded])
 		strcat(towarname, "Brak");
 	else
-		strcat(towarname, Towary[vehOtherInfo[vehicleid][vCargoID]][NazwaTowaru]);
+		strcat(towarname, wInfo[vlInfo[vehicleid][vCargo]][wName]);
 
 	if(Spawned[GetPlayerVehicleID(playerid)])
 		strcat(przeglad, "AKTUALNY");
 	else
 		strcat(przeglad, vehInfo[DBVehID[GetPlayerVehicleID(playerid)]][vPrzeglad]);
 
-	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\t%s\nTowar:\t%s\nWaga:\t%dkg\nPasy:\t%s", PlayerName(targetid), przeglad, towarname, vehOtherInfo[vehicleid][vCargoWeight], (GetPVarInt(playerid, "PASY") > 0) ? ("zapiête") : ("rozpiête"));
+	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\t%s\nTowar:\t%s\nWaga:\t%dkg\nPasy:\t%s", PlayerName(targetid), przeglad, towarname, cInfo[vlInfo[vehicleid][vCargo]][cWeight], (GetPVarInt(playerid, "PASY") > 0) ? ("zapiête") : ("rozpiête"));
 	Dialog_Show(playerid, DIALOG_CONTROL, DIALOG_STYLE_TABLIST, "Kontrola", string, "WyjdŸ", #);
 	return 1;
 }
@@ -472,7 +472,7 @@ public SkutyTeleport(playerid, policjantid)
 forward AlcoholTest(playerid, trgtid);
 public AlcoholTest(playerid, trgtid)
 {
-	new szString[128], Float:alcohol = (GetPlayerDrunkLevel(trgtid) > 2000 ? (2000): (GetPlayerDrunkLevel(trgtid))) / 400;
+	new szString[128], Float:alcohol = GetPlayerDrunkLevel(trgtid) / 6000;
 	format(szString, sizeof szString, "{FFFFFF}Gracz {82C412}%s{FFFFFF} jest %s{FFFFFF}\nPosiada {82C412}%.02f{FFFFFF}‰ we krwi.", PlayerName(trgtid), (alcohol <= 0.2) ? ("{82C412}trzeÂŸwy") : ("{BA0B0B}pijany"), alcohol);
 	Dialog_Show(playerid, DIALOG_ALCOHOL, DIALOG_STYLE_MSGBOX, "Alkomat", szString, "WyjdŸ", #);
 	return 1;
