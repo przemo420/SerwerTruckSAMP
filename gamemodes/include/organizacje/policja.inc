@@ -215,7 +215,7 @@ CMD:kontrola(playerid, params[])
 	else
 		strcat(przeglad, vehInfo[DBVehID[GetPlayerVehicleID(playerid)]][vPrzeglad]);
 
-	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\t%s\nTowar:\t%s\nWaga:\t%dkg\nPasy:\t%s", PlayerName(targetid), przeglad, towarname, cInfo[vlInfo[vehicleid][vCargo]][cWeight], (GetPVarInt(playerid, "PASY") > 0) ? ("zapiête") : ("rozpiête"));
+	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\t%s\nTowar:\t%s\nWaga:\t%dkg\nPasy:\t%s\nZaleg³e mandaty:\t$%d", PlayerName(targetid), przeglad, towarname, cInfo[vlInfo[vehicleid][vCargo]][cWeight], (GetPVarInt(playerid, "PASY") > 0) ? ("zapiête") : ("rozpiête"), phAccount[targetid]);
 	Dialog_Show(playerid, DIALOG_CONTROL, DIALOG_STYLE_TABLIST, "Kontrola", string, "WyjdŸ", #);
 	return 1;
 }
