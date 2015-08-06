@@ -139,7 +139,8 @@ new const szHookInclude[][] = {
 	"Loadings", // zaladunki.inc
 	"Fade", // lib/j_fader.inc
 	"FadePlayer", // fade.inc
-	"Logo" // logo.inc
+	"Logo", // logo.inc
+	"Photo" // fotoradary.inc
 };
 
 /*
