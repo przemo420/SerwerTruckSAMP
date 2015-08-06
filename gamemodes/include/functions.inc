@@ -1203,3 +1203,145 @@ GetStacja(playerid)
 
 	return stacjaid;
 }
+
+new MonthTimes[12][4] =
+{
+		{ 31, 31, 2678400, 2678400 },
+		{ 28, 29, 2419200, 2505600 },
+		{ 31, 31, 2678400, 2678400 },
+		{ 30, 30, 2592000, 2592000 },
+		{ 31, 31, 2678400, 2678400 },
+		{ 30, 30, 2592000, 2592000 },
+		{ 31, 31, 2678400, 2678400 },
+		{ 31, 31, 2678400, 2678400 },
+		{ 30, 30, 2592000, 2592000 },
+		{ 31, 31, 2678400, 2678400 },
+		{ 30, 30, 2592000, 2592000 },
+		{ 31, 31, 2678400, 2678400 }
+};
+ 
+stock IsLeapYear(year)
+{
+		if(year % 4 == 0) return 1;
+		else return 0;
+}
+ 
+stock TimestampToDate(Timestamp, &year, &month, &day, &hour, &minute, &second, HourGMT = 2, MinuteGMT = 0)
+{
+		new tmp = 2;
+		year = 1970;
+		month = 1;
+		Timestamp -= 172800;
+		for(;;)
+		{
+				if(Timestamp >= 31536000)
+				{
+						year ++;
+						Timestamp -= 31536000;
+						tmp ++;
+						if(tmp == 4)
+						{
+								if(Timestamp >= 31622400)
+								{
+										tmp = 0;
+										year ++;
+										Timestamp -= 31622400;
+								}
+								else break;
+						}
+				}
+				else break;
+		}			  
+		for(new i = 0; i < 12; i ++)
+		{
+				if(Timestamp >= MonthTimes[i][2 + IsLeapYear(year)])
+				{
+						month ++;
+						Timestamp -= MonthTimes[i][2 + IsLeapYear(year)];
+				}
+				else break;
+		}
+		day = 1 + (Timestamp / 86400);
+		Timestamp %= 86400;
+		hour = HourGMT + (Timestamp / 3600);
+		Timestamp %= 3600;
+		minute = MinuteGMT + (Timestamp / 60);
+		second = (Timestamp % 60);
+		if(minute > 59)
+		{
+				minute = 0;
+				hour ++;
+		}
+		if(hour > 23)
+		{
+				hour -= 24;
+				day ++;
+		}	  
+		if(day > MonthTimes[month][IsLeapYear(year)])
+		{
+				day = 1;
+				month ++;
+		}
+		if(month > 12)
+		{
+				month = 1;
+				year ++;
+		}
+		return 1;
+}
+
+stock clText(colorid, text[])
+{
+	new
+		buffer[400],
+		curColor,
+		tmpColor[16],
+		tmpColorCode;
+
+	switch(colorid)
+	{
+		case COLOR_INFO:
+		{
+			curColor = HexToInt("FFFFFF");
+			tmpColorCode = HexToInt("82C412");
+		}
+		case COLOR_INFO2:
+		{
+			curColor = HexToInt("FFFFFF");
+			tmpColorCode = HexToInt("488CDB");
+		}
+		case COLOR_INFO3:
+		{
+			curColor = HexToInt("FFFFFF");
+			tmpColorCode = HexToInt("FFAB00");
+		}
+		case COLOR_ERROR:
+		{
+			curColor = HexToInt("FFFFFF");
+			tmpColorCode = HexToInt("BA0B0B");
+		}
+		default: curColor = colorid;
+	}
+
+	copy(text, buffer);
+	format(tmpColor, sizeof tmpColor, "{%06x}", tmpColorCode);
+
+	new f = strfind( buffer, "{b}" );
+	while ( f >= 0)
+	{
+		strdel(buffer, f, f + 3);
+		strins( buffer, tmpColor, f);
+		f = strfind(buffer, "{b}");
+	}
+
+	format(tmpColor, sizeof tmpColor, "{%06x}", curColor);
+
+	f = strfind( buffer, "{/b}" );
+	while ( f >= 0)
+	{
+		strdel(buffer, f, f + 4);
+		strins(buffer, tmpColor, f);
+		f = strfind(buffer, "{/b}");
+	}
+	return buffer;
+}

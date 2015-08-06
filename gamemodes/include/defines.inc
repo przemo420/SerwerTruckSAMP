@@ -3,8 +3,6 @@ native IsValidVehicle(vehicle);
 #undef MAX_PLAYERS
 
 #define MAX_PLAYERS 		25
-#define MAX_LOADING_POINTS 	300
-#define MAX_TOWAROW 		300
 #define MAX_STACJE 			200
 #define MAX_FOTORADAROW 	1000
 #define MAX_VIASHOP 		200
@@ -138,9 +136,10 @@ new const szHookInclude[][] = {
 	"TablicaOgloszen", // tablicaogloszen.inc
 	"ViaToll", // viatoll.inc
 	"Vote", // vote.inc
-	"Zaladunki", // zaladunki.inc
+	"Loadings", // zaladunki.inc
 	"Fade", // lib/j_fader.inc
-	"FadePlayer" // fade.inc
+	"FadePlayer", // fade.inc
+	"Logo" // logo.inc
 };
 
 /*
@@ -447,41 +446,8 @@ new colors[][] = {
 	"żółty", "brązowy", "zielony", "jasnoniebieski", "niebieski"
 };
 
-enum {
-	TYPE_BUILD,
-	TYPE_ELECTRONIC,
-	TYPE_EAT,
-	TYPE_CLOTHES,
-	TYPE_DANGEROUS,
-	TYPE_ILLEGAL
-}
-
-enum Points
-{
-	lID,
-	PointName[32],
-	Float:PointPosX,
-	Float:PointPosY,
-	Float:PointPosZ,
-	pType
-};
-
-new LoadingPoints[MAX_LOADING_POINTS][Points];
 new LoadingPoinstMapIcon[MAX_LOADING_POINTS][MAX_PLAYERS];
-new Text3D:LoadingPointsText3D[MAX_LOADING_POINTS];
 new ID_DOKOW=1;
-
-enum Towarys
-{
-	tID,
-	Typ,
-	Float:Stawka,
-	MinimalnyCzas,
-	Poziom,
-	Adr,
-	NazwaTowaru[40]
-};
-new Towary[MAX_TOWAROW][Towarys];
 
 enum GPSs
 {
