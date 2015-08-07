@@ -1321,7 +1321,7 @@ stock GetPlayerLevelName(level)
 		case 20 .. 24: {name = "Mistrz";}
 		case 25 .. 29: {name = "Instruktor";}
 		case 30 .. 34: {name = "Elita";}
-		case 35 .. 39: {name = "Król szos";}
+		case 34 .. 39: {name = "Król szos";}
 		default: {name = "Legenda";}
 	}
 	return name;

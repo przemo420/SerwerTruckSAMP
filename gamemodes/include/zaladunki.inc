@@ -404,6 +404,9 @@ stock GetOfferts(playerid, type)
 		if(GetPVarInt(playerid, "LEVEL") < wInfo[cInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < wInfo[cInfo[i][cType]][wAdr])
 			continue;
 
+		if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cInfo[i][cDistance])
+			continue;
+
 		if(wInfo[cInfo[i][cType]][wType] == type)
 			count++;
 	}
@@ -486,6 +489,9 @@ Dialog:DIALOG_OFFER(playerid, response, listitem, inputtext[])
 		if(GetPVarInt(playerid, "LEVEL") < wInfo[cInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < wInfo[cInfo[i][cType]][wAdr])
 			continue;
 
+		if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cInfo[i][cDistance])
+			continue;
+
 		if(count >= 10)
 			break;
 
@@ -512,7 +518,7 @@ Dialog:DIALOG_OFFER(playerid, response, listitem, inputtext[])
 	else
 	{
 		strins(szString, "ID\tTowar\tZa³adunek\tRoz³adunek", 0);
-		if(count == 10 && (listitem - GetMinOffert(type, GetPVarInt(playerid, "lastCargo"))) < 0)
+		if(count == 10 && (listitem - GetMinOffert(playerid, type, GetPVarInt(playerid, "lastCargo"))) < 0)
 			format(szString, sizeof szString, "%s\nDalej >>", szString);
 	}
 
@@ -541,10 +547,12 @@ Dialog:DIALOG_OFFER_LIST(playerid, response, listitem, inputtext[])
 
 	new	ZID = cInfo[id][cZID], 
 		RID = cInfo[id][cRID], 
-		time[6];
+		time[6],
+		bonusSkillReward = GetBiggerReward(GetPlayerSkill(playerid, SKILL_REWARD)),
+		bonusSkillTime = GetReducedTime(GetPlayerSkill(playerid, SKILL_TIME));
 
 	TimestampToDate(cInfo[id][cTimeEnd], time[0], time[1], time[2], time[3], time[4], time[5]);
-	format(szString, sizeof szString, "{b}%s{/b} - {b}%dt{/b}\nZarobek: {b}$%.02f{/b} ($%.02f / km)", wInfo[cInfo[id][cType]][wName], cInfo[id][cWeight], cInfo[id][cReward], wInfo[cInfo[id][cType]][wRate]);
+	format(szString, sizeof szString, "{b}%s{/b} - {b}%dt{/b}\nZarobek: {b}$%.02f{/b} (+%d%) ($%.02f / km)", wInfo[cInfo[id][cType]][wName], cInfo[id][cWeight], cInfo[id][cReward]*(1+(bonusSkillReward*0.01)), bonusSkillReward, wInfo[cInfo[id][cType]][wRate]);
 	strcat(szString, "\n \n");
 	format(szString, sizeof szString, "%sTyp:\t\t{b}%s{/b}", szString, GetWareVehicleName(cInfo[id][cType]));
 	strcat(szString, "\n");
@@ -554,7 +562,7 @@ Dialog:DIALOG_OFFER_LIST(playerid, response, listitem, inputtext[])
 	strcat(szString, "\n");
 	format(szString, sizeof szString, "%sDystans:\t{b}%.02f{/b} km", szString, cInfo[id][cDistance]);
 	strcat(szString, "\n");
-	format(szString, sizeof szString, "%sCzas na dostawê {b}%d{/b} minut/y.", szString, cInfo[id][cTime]);
+	format(szString, sizeof szString, "%sCzas na dostawê {b}%d{/b} minut/y.", szString, cInfo[id][cTime]+bonusSkillTime);
 	strcat(szString, "\n \n");
 	format(szString, sizeof szString, "%sOferta wygaœnie o {b}%02d:%02d{/b}.", szString, time[3], time[4]);
 
@@ -599,7 +607,7 @@ Dialog:DIALOG_OFFER_SUM(playerid, response, listitem, inputtext[])
 				type = TYPE_CLOTHES;
 		}
 
-		if(GetMaxOffert(type, GetPVarInt(playerid, "cargo")) <= 8) 
+		if(GetMaxOffert(playerid, type, GetPVarInt(playerid, "cargo")) <= 8) 
 			SetPVarInt(playerid, "lastCargo", GetPVarInt(playerid, "cargo"));
 		else
 		{
@@ -611,6 +619,9 @@ Dialog:DIALOG_OFFER_SUM(playerid, response, listitem, inputtext[])
 					continue;
 
 				if(GetPVarInt(playerid, "LEVEL") < wInfo[cInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < wInfo[cInfo[i][cType]][wAdr])
+					continue;
+
+				if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cInfo[i][cDistance])
 					continue;
 
 				if(count >= 8)
@@ -643,7 +654,7 @@ Dialog:DIALOG_OFFER_SUM(playerid, response, listitem, inputtext[])
 	return 1;
 }
 
-stock GetMaxOffert(type, maxid)
+stock GetMaxOffert(playerid, type, maxid)
 {
 	new count = 0;
 	for(new i = 0; i < MAX_CARGOS; i++)
@@ -652,6 +663,9 @@ stock GetMaxOffert(type, maxid)
 			continue;
 
 		if(GetPVarInt(playerid, "LEVEL") < wInfo[cInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < wInfo[cInfo[i][cType]][wAdr])
+			continue;
+
+		if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cInfo[i][cDistance])
 			continue;
 
 		if(i >= maxid)
@@ -663,7 +677,7 @@ stock GetMaxOffert(type, maxid)
 	return count;
 }
 
-stock GetMinOffert(type, minid)
+stock GetMinOffert(playerid, type, minid)
 {
 	new count = 0;
 	for(new i = minid; i < MAX_CARGOS; i++)
@@ -672,6 +686,9 @@ stock GetMinOffert(type, minid)
 			continue;
 
 		if(GetPVarInt(playerid, "LEVEL") < wInfo[cInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < wInfo[cInfo[i][cType]][wAdr])
+			continue;
+
+		if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cInfo[i][cDistance])
 			continue;
 
 		if(wInfo[cInfo[i][cType]][wType] == type)
@@ -1007,12 +1024,16 @@ public UnloadCargo(playerid, vehicleid)
 			szTemp[32], 
 			Float:realReward, 
 			score,
-			bonus;
+			bonus,
+			bonusSkillReward = GetBiggerReward(GetPlayerSkill(playerid, SKILL_REWARD)),
+			bonusSkillPenatly = GetLessPent(GetPlayerSkill(playerid, SKILL_PENATLY)),
+			bonusSkillTime = GetReducedTime(GetPlayerSkill(playerid, SKILL_TIME));
 
 		penatly = condition * (wInfo[cInfo[vlInfo[vehicleid][vCargo]][cType]][wRate] * 2) * (cInfo[vlInfo[vehicleid][vCargo]][cDistance] * 0.001) + (cInfo[vlInfo[vehicleid][vCargo]][cWeight] * (condition * 0.1));
 		late = gettime() - cInfo[vlInfo[vehicleid][vCargo]][cTimeStart];
 		late -= (cInfo[vlInfo[vehicleid][vCargo]][cTime] * 60);
 		bonus = late;
+		late += (bonusSkillTime*60);
 		if(late > 0)
 			penatly = penatly + ((late / 60) * 30);
 
@@ -1022,11 +1043,13 @@ public UnloadCargo(playerid, vehicleid)
 			bonus = 0;
 		score = wInfo[cInfo[vlInfo[vehicleid][vCargo]][cType]][wType] == TYPE_ILLEGAL ? 2 : 1;
 
+		penatly *= (1-(bonusSkillPenatly*0.01));
 		realReward = bonus + cInfo[vlInfo[vehicleid][vCargo]][cReward] - penatly;
+		realReward *= (1+(bonusSkillReward*0.01));
 
 		format(szString, sizeof szString, "{b}%s{/b} ({b}%d{/b}t)\nZlecenie zosta³o wykonane na {b}%s{/b} poziomie.", wInfo[cInfo[vlInfo[vehicleid][vCargo]][cType]][wName], cInfo[vlInfo[vehicleid][vCargo]][cWeight], GetCargoConditionName(floatround(penatly)));
 		strcat(szString, "\n \n");
-		format(szString, sizeof szString, "%sTwoje wynagrodzenie wynosi {b}$%d{/b} oraz {b}%d{/b} expa.", szString, floatround(realReward), score);
+		format(szString, sizeof szString, "%sTwoje wynagrodzenie wynosi {b}$%d{/b} (+%d%) oraz {b}%d{/b} expa.", szString, floatround(realReward), bonusSkillReward, score);
 		strcat(szString, "\n");
 		format(szString, sizeof szString, "%sDystans pomiêdzy za³adunkiem a roz³adunkiem to {b}%.02fj{/b}.", szString, cInfo[vlInfo[vehicleid][vCargo]][cDistance]);
 		strcat(szString, "\n");
@@ -1037,6 +1060,8 @@ public UnloadCargo(playerid, vehicleid)
 		strcat(szString, "\n");
 		format(szTemp, sizeof szTemp, "(spóŸnienie {b}$%d{/b})", (late/60) * 30);
 		format(szString, sizeof szString, "%sKara: {b}$%.02f{/b} %s", szString, penatly, late > 0 ? szTemp : "");
+		format(szTemp, sizeof szTemp, "(-%d%)", bonusSkillPenatly);
+		format(szString, sizeof szString, "%s %s", szString, penatly > 0 ? szTemp : "");
 		GivePlayerMoney(playerid, floatround(realReward));
 		Dialog_Show(playerid, DIALOG_OFFER_END, DIALOG_STYLE_MSGBOX, " ", clText(COLOR_INFO2, szString), "Okej", #);
 
@@ -1165,9 +1190,10 @@ CMD:papiery(playerid)
 		id = GetPVarInt(playerid, "cargoID"),
 		ZID = cInfo[id][cZID], 
 		RID = cInfo[id][cRID], 
-		time[6];
+		time[6],
+		bonusSkillTime = GetReducedTime(GetPlayerSkill(playerid, SKILL_TIME));
 
-	TimestampToDate((cInfo[id][cTime]*60)+cInfo[id][cTimeStart], time[0], time[1], time[2], time[3], time[4], time[5]);
+	TimestampToDate((cInfo[id][cTime]*60)+cInfo[id][cTimeStart]+(bonusSkillTime*60), time[0], time[1], time[2], time[3], time[4], time[5]);
 
 	format(szString, sizeof szString, "%s ({b}%d{/b}t)", wInfo[cInfo[id][cType]][wName], cInfo[id][cWeight]);
 	strcat(szString, "\n \n");

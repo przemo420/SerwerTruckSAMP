@@ -114,14 +114,14 @@ enum {
 // ---------------------------
 
 new const szCommands[][] = {
-	"/pomoc\n/pauza\n/time\n/toll\n/animacja\n/autorzy\n/telefon\n/pojazd\n/spawn\n/pasy\n/stats\n/firma\n/viatoll\n/lastpos\n/v\n/tankuj\n/praca\n/dyzur\n/adr\n/pogodynka\n/reczny\n/konwoj\n/zaproszenia\n/radio\n/bankomat\n/tablica", // globalne
-	"/mandat /aresztuj\n/wywal\n/wyrzuć\n/praca\n/dyzur\n/skuj\n/rozkuj\n/kontrola\n/alkomat\n/open\n\n/close\n/kolczatka\n/usunkolczatke\n/usunkolczatki\n/stop\n/unareszt\n/kartoteka",
+	"/pomoc\n/pauza\n/time\n/toll\n/animacja\n/autorzy\n/telefon\n/pojazd\n/spawn\n/pasy\n/stats\n/firma\n/viatoll\n/lastpos\n/v\n/tankuj\n/praca\n/dyzur\n/adr\n/pogodynka\n/reczny\n/konwoj\n/zaproszenia\n/radio\n/bankomat\n/tablica\n/spisfirm\n/zdolnosci\n/poziomy", // globalne
+	"/mandat /aresztuj\n/wywal\n/wyrzuć\n/praca\n/dyzur\n/skuj\n/rozkuj\n/kontrola\n/alkomat\n/open\n/close\n/kolczatka\n/usunkolczatke\n/usunkolczatki\n/stop\n/unareszt\n/kartoteka",
 	"/ulecz\n/wypadki\n/wywal\n/wyrzuć\n/praca\n/dyzur\n/o[1 - 8]\n/c[1 - 8]\n/open\n/close", // pogotowie
-	"/vehcolor\n/zatankuj\n/praca\n/dyzur\n/open\n/close\n/setplate\n/przeglad",  // pomoc drogowa
-	"/zaladuj\n/rozladuj", // cargo
-	"/zaladuj\n/rozladuj", // petrol
-	"/zaladuj\n/rozladuj", // smlog
-	"/stworzobiekt\n/napis\n/kamera\n\n/obiektname\n/changepos\n/delone\n/delone" // build
+	"/open\n/close\n/vehcolor\n/zatankuj\n/praca\n/dyzur\n/open\n/close\n/setplate\n/przeglad",  // pomoc drogowa
+	"/open\n/close\n/zaladuj\n/rozladuj", // cargo
+	"/open\n/close\n/zaladuj\n/rozladuj", // petrol
+	"/open\n/close\n/zaladuj\n/rozladuj", // smlog
+	"/open\n/close\n/stworzobiekt\n/napis\n/kamera\n\n/obiektname\n/changepos\n/delone\n/delone" // build
 };
 
 new const szHookInclude[][] = {

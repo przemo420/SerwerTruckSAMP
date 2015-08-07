@@ -24,6 +24,29 @@ CMD:help(playerid, params[])
 
 CMD:faq(playerid, params[])
 {
+	Dialog_Show(playerid, DIALOG_FAQ, DIALOG_STYLE_LIST, "FAQ - Spis", "Podstawowe informacje\nSpis firm\nPoziomy kierowcy\nSpecjalne zdolnoœci\nOgraniczenia\nKomendy\nAutorzy", "Wybierz", "WyjdŸ");
+	return 1;
+}
+
+Dialog:DIALOG_FAQ(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	switch(listitem)
+	{
+		case 0: return cmd_faq123321(playerid);
+		case 1: return cmd_spisfirm(playerid);
+		case 2: return cmd_poziomy(playerid);
+		case 3: return cmd_zdolnosci(playerid, "info");
+		case 4: return 1;
+		case 5: return cmd_komendy(playerid);
+		case 6: return cmd_autorzy(playerid);
+	}
+}
+
+CMD:faq123321(playerid)
+{
 	new s[2000];
 	strcat(s,""GCOLOR_YELLOW"I. Czym jest Serwer-Truck?\n");
 	strcat(s,""COLOR_GUI"Serwer Truck jest serwerem na którym jeŸdzimy pojazdami ciê¿arowymi lub dostawczymi i rozwozimy towary.\n");
@@ -53,7 +76,60 @@ CMD:faq(playerid, params[])
 	strcat(s," \n");
 	strcat(s,""GCOLOR_YELLOW"Mi³ej gry ¿yczy administracja.\n");
 	
-	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "FAQ", s, "Zamknij", "");
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", s, "Zamknij", #);
+}
+
+CMD:poziomy(playerid)
+{
+	new s[690];
+	strcat(s, ""GCOLOR_YELLOW"I. Jak dzia³aj¹ poziomy?");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"Poziomy s¹ okreœlane na podstawie posiadanych przez Ciebie punktów.");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"Im wiêcej punktów posiadasz, tym wiêkszy jest twój poziom.");
+	strcat(s, "\n");
+	strcat(s, ""GCOLOR_YELLOW"II. Ile poziomów mogê zdobyæ?");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"Na naszym serwerze mo¿na maksymalnie zdobyæ 40 poziomów, które s¹ podzielone na tzw. grupy.");
+	strcat(s, "\n");
+	strcat(s, ""GCOLOR_YELLOW"III. Zaraz, o co chodzi z tymi grupami?");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"Grupy to nic innego jak nazwy poziomów. Grupy zmieniaj¹ siê co 5 poziomów.");
+	strcat(s, "\n");
+	strcat(s, ""GCOLOR_YELLOW"IV. Wszystkie grupy");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"Poziom 1 - 4\tNowicjusz");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"Poziom 5 - 9\tEntuzjasta");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"Poziom 10 - 14\tUtalentowany pracownik");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"Poziom 15 - 19\tProfesjonalista");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"Poziom 20 - 24\tMistrz");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"Poziom 25 - 29\tInstruktor");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"Poziom 30 - 34\tElita");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"Poziom 35 - 39\tKról szos");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"Poziom 40\tLegenda");
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", s, "Zamknij", #);
+}
+
+CMD:spisfirm(playerid)
+{
+	new s[150];
+	strcat(s, ""GCOLOR_YELLOW"Frakcje");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"Policja\nPogotowie\nPomoc drogowa");
+	strcat(s, "\n \n");
+	strcat(s, ""GCOLOR_YELLOW"Firmy");
+	strcat(s, "\n");
+	strcat(s, ""COLOR_GUI"SM Logistic\nCargo Tranzit\nBuild Trans\nPetrol Tank");
+
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", s, "Zamknij", #);
 }
 
 CMD:time(playerid, params[])
@@ -227,7 +303,7 @@ CMD:cmds(playerid)
 	strcat(szString, "Komendy wszystkich:\n");
 	strcat(szString, szCommands[0]);
 
-	if(firmaid != 0)
+	if(GetPVarInt(playerid, "Worked") && firmaid != 0)
 		strcat(szString, "\n---\nKomendy firmy:\n"), strcat(szString, szCommands[Firmy[firmaid][tTyp]]);
 
 	return Dialog_Show(playerid, DIALOG_CMDS, DIALOG_STYLE_LIST, "Dostêpne komendy", szString, "WyjdŸ", #);
