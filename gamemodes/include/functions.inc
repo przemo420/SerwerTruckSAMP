@@ -1308,3 +1308,21 @@ stock clText(colorid, text[])
 	}
 	return buffer;
 }
+
+stock GetPlayerLevelName(level)
+{
+	new name[32];
+	switch(level)
+	{
+		case 1 .. 4: {name = "Nowicjusz";}
+		case 5 .. 9: {name = "Entuzjasta";}
+		case 10 .. 14: {name = "Utalentowany pracownik";}
+		case 15 .. 19: {name = "Profesjonalista";}
+		case 20 .. 24: {name = "Mistrz";}
+		case 25 .. 29: {name = "Instruktor";}
+		case 30 .. 34: {name = "Elita";}
+		case 35 .. 39: {name = "Król szos";}
+		default: {name = "Legenda";}
+	}
+	return name;
+}

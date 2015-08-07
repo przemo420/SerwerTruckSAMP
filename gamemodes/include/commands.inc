@@ -167,7 +167,7 @@ CMD:stats(playerid, params[])
 	format(string, sizeof(string), "%sPieni¹dze:\t %d\n", string, GetMoney(playerid));
 	format(string, sizeof(string), "%sBankomat:\t %d\n", string, PlayerInfo[playerid][pBankomat]);
 	format(string, sizeof(string), "%sPunkty:\t %d\n", string, GetScore(playerid));
-	format(string, sizeof(string), "%sPoziom:\t %d\n", string, GetPVarInt(playerid, "LEVEL"));
+	format(string, sizeof(string), "%sPoziom:\t %s (%d)\n", string, GetPlayerLevelName(GetPVarInt(playerid, "LEVEL")), GetPVarInt(playerid, "LEVEL"));
 	format(string, sizeof(string), "%sPoziom uprawnieñ:\t %d\n", string, PlayerInfo[playerid][pAdmin]);
 	format(string, sizeof(string), "%sFirma:\t %d\n", string, PlayerInfo[playerid][pFirma]);
 	format(string, sizeof(string), "%sSkin:\t %d\n", string, PlayerInfo[playerid][pSkin]);

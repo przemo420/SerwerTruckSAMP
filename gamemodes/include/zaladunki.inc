@@ -393,12 +393,15 @@ stock IsValidOffert(cargoid)
 	return false;
 }
 
-stock GetOfferts(type)
+stock GetOfferts(playerid, type)
 {
 	new count = 0;
 	for(new i = 0; i < MAX_CARGOS; i++)
 	{
 		if(!IsValidOffert(i) || cInfo[i][cReserved] == true || cInfo[i][cDeleted] == true || (gettime() - cInfo[i][cTimeEnd]) > 0)
+			continue;
+
+		if(GetPVarInt(playerid, "LEVEL") < wInfo[cInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < wInfo[cInfo[i][cType]][wAdr])
 			continue;
 
 		if(wInfo[cInfo[i][cType]][wType] == type)
@@ -429,12 +432,12 @@ CMD:oferta(playerid)
 	DeletePVar(playerid, "selectedType");
 	DeletePVar(playerid, "lastCargo");
 	format(szString, sizeof szString, "Towary budowlane\t%d\nTowary odzie¿owe\t%d\nTowary elektryczne\t%d\nTowary spo¿ywcze\t%d\nTowary niebezpieczne\t%d\nTowary nielegalne\t%d",
-		GetOfferts(TYPE_BUILD),
-		GetOfferts(TYPE_CLOTHES),
-		GetOfferts(TYPE_ELECTRONIC),
-		GetOfferts(TYPE_EAT),
-		GetOfferts(TYPE_DANGEROUS),
-		GetOfferts(TYPE_ILLEGAL));
+		GetOfferts(playerid, TYPE_BUILD),
+		GetOfferts(playerid, TYPE_CLOTHES),
+		GetOfferts(playerid, TYPE_ELECTRONIC),
+		GetOfferts(playerid, TYPE_EAT),
+		GetOfferts(playerid, TYPE_DANGEROUS),
+		GetOfferts(playerid, TYPE_ILLEGAL));
 
 	strins(szString, "Kategoria\tIloœæ ofert\n", 0);
 	Dialog_Show(playerid, DIALOG_OFFER, DIALOG_STYLE_TABLIST_HEADERS, " ", szString, "Wybierz", "WyjdŸ");
@@ -480,6 +483,9 @@ Dialog:DIALOG_OFFER(playerid, response, listitem, inputtext[])
 		if(!IsValidOffert(i) || (gettime() - cInfo[i][cTimeEnd]) > 0 || wInfo[cInfo[i][cType]][wType] != type || cInfo[i][cReserved] == true || i < minCargo || cInfo[i][cDeleted] == true)
 			continue;
 
+		if(GetPVarInt(playerid, "LEVEL") < wInfo[cInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < wInfo[cInfo[i][cType]][wAdr])
+			continue;
+
 		if(count >= 10)
 			break;
 
@@ -501,7 +507,7 @@ Dialog:DIALOG_OFFER(playerid, response, listitem, inputtext[])
 		SetPVarInt(playerid, "lastCargo", i);
 	}
 
-	if(count == 0 || GetOfferts(type) == 0)
+	if(count == 0 || GetOfferts(playerid, type) == 0)
 		format(szString, sizeof szString, "Brak ofert do wyœwietlenia.");
 	else
 	{
@@ -604,6 +610,9 @@ Dialog:DIALOG_OFFER_SUM(playerid, response, listitem, inputtext[])
 				if(!IsValidOffert(i) || i >= GetPVarInt(playerid, "cargo") || cInfo[i][cReserved] == true || wInfo[cInfo[i][cType]][wType] != type)
 					continue;
 
+				if(GetPVarInt(playerid, "LEVEL") < wInfo[cInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < wInfo[cInfo[i][cType]][wAdr])
+					continue;
+
 				if(count >= 8)
 				{
 					first = i;
@@ -624,7 +633,7 @@ Dialog:DIALOG_OFFER_SUM(playerid, response, listitem, inputtext[])
 	DeletePVar(playerid, "selectedType");
 	DeletePVar(playerid, "lastCargo");
 	Msg(playerid, COLOR_INFO, "Towar pomyœlnie zosta³ zarezerwowany. Teraz mo¿esz udaæ siê na za³adunek.");
-	if(!GetVehicleTrailer(GetPlayerVehicleID(playerid)) && (GetWareVehicle(cInfo[id][cType]) == WARE_TYPE_TRUCK || GetWareVehicle(cInfo[id][cType]) == WARE_TYPE_MULTIPLE) && IsVehicleTruck(GetVehicleModel(GetPlayerVehicleID(playerid))))
+	if(!PlayerInfo[playerid][pFirma] && !GetVehicleTrailer(GetPlayerVehicleID(playerid)) && (GetWareVehicle(cInfo[id][cType]) == WARE_TYPE_TRUCK || GetWareVehicle(cInfo[id][cType]) == WARE_TYPE_MULTIPLE) && IsVehicleTruck(GetVehicleModel(GetPlayerVehicleID(playerid))))
 		Dialog_Show(playerid, DIALOG_TRAILER, DIALOG_STYLE_MSGBOX, " ", "Czy chcia³yœ wypo¿yczyæ naczepê?\nJest to konieczne, je¿eli nie posiadasz w³asnej naczepy a chcesz przewieŸæ towar tylko dla ciê¿arówek.", "Tak", "Nie");
 	else
 	{
@@ -642,6 +651,9 @@ stock GetMaxOffert(type, maxid)
 		if(!IsValidOffert(i) || cInfo[i][cReserved] == true || cInfo[i][cDeleted] == true)
 			continue;
 
+		if(GetPVarInt(playerid, "LEVEL") < wInfo[cInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < wInfo[cInfo[i][cType]][wAdr])
+			continue;
+
 		if(i >= maxid)
 			break;
 
@@ -657,6 +669,9 @@ stock GetMinOffert(type, minid)
 	for(new i = minid; i < MAX_CARGOS; i++)
 	{
 		if(!IsValidOffert(i) || cInfo[i][cReserved] == true || cInfo[i][cDeleted] == true)
+			continue;
+
+		if(GetPVarInt(playerid, "LEVEL") < wInfo[cInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < wInfo[cInfo[i][cType]][wAdr])
 			continue;
 
 		if(wInfo[cInfo[i][cType]][wType] == type)
