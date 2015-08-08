@@ -505,9 +505,11 @@ public PostawObiekt(playerid, obiektid, Float:PosX, Float:PosY, Float:PosZ, Floa
 
 HasPlayerFullPermission(playerid)
 {
-	for(new i; i < sizeof(FullPermission); i++)
-		if(!strcmp(PlayerName(playerid), FullPermission[i]))
-			return 1;
+	new str[32];
+	format(str, sizeof(str), "full_permission/%s", PlayerName(playerid));
+	
+	if(djInt("config.json", str))
+		return 1;
 
 	return 0;
 }
