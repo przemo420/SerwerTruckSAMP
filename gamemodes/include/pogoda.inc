@@ -10,13 +10,13 @@ enum eWeather
 	wText[170]
 }
 
-new wInfo[eWeather];
+new weatherInfo[eWeather];
 
 stock SetWeatherEx(weather)
 {
 	SetWeather(weather);
-	wInfo[wActual] = weather;
-	wInfo[wTimeStart] = gettime();
+	weatherInfo[wActual] = weather;
+	weatherInfo[wTimeStart] = gettime();
  	return 1;   
 }
 
@@ -56,7 +56,7 @@ new weatherNames[][] = {
 
 stock GetWeather()
 {
-	return wInfo[wActual];
+	return weatherInfo[wActual];
 }
 
 stock GetWeatherName(weather)
@@ -75,27 +75,27 @@ public Pogoda_OnGameModeInit()
 
 stock DrawWeather()
 {
-	wInfo[wWeather] = allowedWeathers[random(sizeof allowedWeathers)];
-	wInfo[wNextWeather] = allowedWeathers[random(sizeof allowedWeathers)];
-	wInfo[wTime] = 5 + random(15);
-	wInfo[wNextTime] = 5 + random(15);
+	weatherInfo[wWeather] = allowedWeathers[random(sizeof allowedWeathers)];
+	weatherInfo[wNextWeather] = allowedWeathers[random(sizeof allowedWeathers)];
+	weatherInfo[wTime] = 5 + random(15);
+	weatherInfo[wNextTime] = 5 + random(15);
 	return 1;
 }
 
 forward WeatherChange();
 public WeatherChange()
 {
-	if(wInfo[wChange] == 0)
+	if(weatherInfo[wChange] == 0)
 	{
-		SetWeather(wInfo[wWeather]);
-		SetTimer("WeatherChange", wInfo[wTime] * 60 * 1000, false);
-		wInfo[wChange] = 1;
+		SetWeather(weatherInfo[wWeather]);
+		SetTimer("WeatherChange", weatherInfo[wTime] * 60 * 1000, false);
+		weatherInfo[wChange] = 1;
 	}
 	else 
 	{
-		SetWeather(wInfo[wNextWeather]);
-		SetTimer("WeatherChange", wInfo[wNextTime] * 60 * 1000, false);
-		wInfo[wChange] = 0;
+		SetWeather(weatherInfo[wNextWeather]);
+		SetTimer("WeatherChange", weatherInfo[wNextTime] * 60 * 1000, false);
+		weatherInfo[wChange] = 0;
 		DrawWeather();
 	}
 	WeatherInfo();
@@ -108,7 +108,7 @@ stock WeatherInfo()
 		probability = random(50) + 30, 
 		weather, 
 		time[6],
-		timestamp = (GetWeatherTime()*60) + wInfo[wTimeStart];
+		timestamp = (GetWeatherTime()*60) + weatherInfo[wTimeStart];
 
 	TimestampToDate(timestamp, time[0], time[1], time[2], time[3], time[4], time[5]);
 
@@ -117,8 +117,8 @@ stock WeatherInfo()
 	else
 		weather = allowedWeathers[random(sizeof allowedWeathers)];
 
-	format(wInfo[wText], sizeof wInfo[wText], "Obecna pogoda {b}(%s){/b} bêdzie utrzymywa³a siê do godziny {b}%02d:%02d{/b}. \nNastêpnie ma byæ {b}%s{/b} przez {b}%d{/b} minut. Poprawnoœæ wyników wynosi {b}%d{/b} %%.", 
-		weatherNames[wInfo[wWeather]], /* przy GetWeatherName undefined symbol dawa³o, haha :D */
+	format(weatherInfo[wText], sizeof weatherInfo[wText], "Obecna pogoda {b}(%s){/b} bêdzie utrzymywa³a siê do godziny {b}%02d:%02d{/b}. \nNastêpnie ma byæ {b}%s{/b} przez {b}%d{/b} minut. Poprawnoœæ wyników wynosi {b}%d{/b} %%.", 
+		weatherNames[weatherInfo[wWeather]], /* przy GetWeatherName undefined symbol dawa³o, haha :D */
 		time[3], 
 		time[4],
 		GetWeatherName(weather),
@@ -138,33 +138,33 @@ stock chanceEx(chance)
 
 stock GetNextWeather()
 {
-	if(wInfo[wChange] == 0)
-		return wInfo[wWeather];
+	if(weatherInfo[wChange] == 0)
+		return weatherInfo[wWeather];
 	else 
-		return wInfo[wNextWeather];
+		return weatherInfo[wNextWeather];
 }
 
 stock GetWeatherTime()
 {
-	if(wInfo[wChange] == 0)
-		return wInfo[wTime];
+	if(weatherInfo[wChange] == 0)
+		return weatherInfo[wTime];
 	else 
-		return wInfo[wNextTime];
+		return weatherInfo[wNextTime];
 }
 
 stock GetNextWeatherTime()
 {
-	if(wInfo[wChange] == 1)
-		return wInfo[wTime];
+	if(weatherInfo[wChange] == 1)
+		return weatherInfo[wTime];
 	else 
-		return wInfo[wNextTime];
+		return weatherInfo[wNextTime];
 }
 
 
 CMD:pogodynka(playerid)
 {
 	new szTemp[200];
-	copy(wInfo[wText], szTemp);
+	copy(weatherInfo[wText], szTemp);
 	replace(szTemp, "{b}", "{488CDB}");
 	replace(szTemp, "{/b}", "{FFFFFF}");
 	Dialog_Show(playerid, DIALOG_WEATHER, DIALOG_STYLE_MSGBOX, " ", szTemp, "WyjdŸ", #);

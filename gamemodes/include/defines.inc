@@ -13,6 +13,7 @@ native IsValidVehicle(vehicle);
 #define MAX_BARYIN 			200
 #define MAX_BTOBJ 			2000
 #define MAX_BTOBJTD 		2000
+#define MAX_LOADING_POINTS	200
 
 // ---------------------------
 
@@ -165,6 +166,7 @@ new const szHookInclude[][] = {
 		_OneSecPlayerTimer(playerid)
 		_OnTrailerUpdate(playerid, vehicleid)
 		_OnPlayerEditObject(playerid, playerobject, objectid, response, Float:fX, Float:fY, Float:fZ, Float:fRotX, Float:fRotY, Float:fRotZ)
+		_OnPlayerEditDynObject(playerid, objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz)
 */
 // ---------------------------
 
@@ -433,22 +435,10 @@ enum Teams {
 new Firmy[MAX_FIRM][Teams];
 new NaDyzurze[MAX_FIRM];
 
-new const KategorieTowarow[][] = {
-	"Budowlane",
-	"Elektroniczne",
-	"Art. spożywcze",
-	"Art. odzieżowe",
-	"Niebezpieczne",
-	"Nielegalne"
-};
-
 new colors[][] = {
 	"niewidoczny", "biały", "pomarańczowy", "czerwony", "różowy",
 	"żółty", "brązowy", "zielony", "jasnoniebieski", "niebieski"
 };
-
-new LoadingPoinstMapIcon[MAX_LOADING_POINTS][MAX_PLAYERS];
-new ID_DOKOW=1;
 
 enum GPSs
 {
@@ -458,23 +448,6 @@ enum GPSs
 	bool:GPSViatoll
 }
 new GPSGracz[MAX_PLAYERS][GPSs];
-new KtosJuzAktualizujeGPSa;
-
-enum eFoto {
-	fID,
-	Float:fPosX,
-	Float:fPosY,
-	Float:fPosZ,
-	Float:fRX,
-	Float:fRY,
-	Float:fRZ,
-	fDay,
-	fYear,
-	fMaxSpeed,
-	fName[30]
-}
-new Fotoradary[MAX_FOTORADAROW][eFoto];
-new ID_FOTO=1;
 
 enum eViaToll {
 	vtID,
@@ -502,8 +475,6 @@ enum sxInfo
 }
 
 new ssInfo[MAX_SPIKESTRIPS][sxInfo];
-
-new FotoradarOBJ[MAX_FOTORADAROW];
 
 new VehicleNames[212][] = {
 {"Landstalker"},{"Bravura"},{"Buffalo"},{"Linerunner"},{"Perrenial"},{"Sentinel"},{"Dumper"},

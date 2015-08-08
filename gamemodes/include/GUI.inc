@@ -292,24 +292,6 @@ Dialog:DIALOG_CREATE_TOWAR_POZIOM(playerid, response, listitem, inputtext[])
 			return 1;
 		}
 
-		Dialog:DIALOG_FOTORADAR(playerid, response, listitem, inputtext[])
-		{
-			if(!response || !inputtext[DIALOG_STYLE_INPUT])
-				return 1;
-
-			new fotoradarid = IsPlayerAtFoto(playerid);
-			new string[76];
-			format(string, sizeof string, "UPDATE `Fotoradary` SET `Maxspeed` = %d WHERE `ID` = '%d'", strval(inputtext), Fotoradary[fotoradarid][fID]);
-			mysql_query(string);
-
-			Fotoradary[fotoradarid][fMaxSpeed] = strval(inputtext);
-
-			format(string, sizeof string, "{008000}Edytujesz fotoradar o uid: {FFFFFF}%d.", fotoradarid);
-			SendClientMessage(playerid,0x0,string);
-			EditObject(playerid, FotoradarOBJ[fotoradarid]);
-			return 1;
-		}
-
 		Dialog:DIALOG_ID_FIRMA(playerid, response, listitem, inputtext[])
 		{
 			if(!response)

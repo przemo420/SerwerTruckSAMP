@@ -520,18 +520,6 @@ GetPlayerSpeed(playerid)
 	return floatround(ST[ 3 ])/2;
 }
 
-GetPlayerLoadingPoint(playerid)
-{
-	Loop(LoadingPoint, MAX_LOADING_POINTS)
-	{
-	    if(LoadingPoints[LoadingPoint][lID] && IsPlayerInRangeOfPoint(playerid, 15.0, LoadingPoints[LoadingPoint][PointPosX], LoadingPoints[LoadingPoint][PointPosY], LoadingPoints[LoadingPoint][PointPosZ]))
-		{
-		    return LoadingPoint;
-		}
-	}
-	return -1;
-}
-
 MaxWeight(vehicletype)
 {
 	switch(vehicletype)
@@ -1070,24 +1058,6 @@ stock GetInteriorInsidePos(interior, &Float:X, &Float:Y, &Float:Z)
 	return 1;
 }
 
-IsPlayerAtFoto(playerid)
-{
-	new Float:playerPos[3], fotoid;
-	GetPlayerPos(playerid, playerPos[0], playerPos[1], playerPos[2]);
-
-	for(new i; i<ID_FOTO; i++)
-	{
-		if(Fotoradary[i][fID])
-			if(IsPlayerInRangeOfPoint(playerid, 12.0, Fotoradary[i][fPosX], Fotoradary[i][fPosY], Fotoradary[i][fPosZ]))
-			{
-			   	fotoid = i;
-			    break;
-			}
-	}
-
-	return fotoid;
-}
-
 ColouredText(text[])
 {
     enum colorEnum
@@ -1314,6 +1284,7 @@ stock GetPlayerLevelName(level)
 	new name[32];
 	switch(level)
 	{
+		case 0: {name="Unranked haha"; }
 		case 1 .. 4: {name = "Nowicjusz";}
 		case 5 .. 9: {name = "Entuzjasta";}
 		case 10 .. 14: {name = "Utalentowany pracownik";}
@@ -1321,7 +1292,7 @@ stock GetPlayerLevelName(level)
 		case 20 .. 24: {name = "Mistrz";}
 		case 25 .. 29: {name = "Instruktor";}
 		case 30 .. 34: {name = "Elita";}
-		case 34 .. 39: {name = "Król szos";}
+		case 35 .. 39: {name = "Król szos";}
 		default: {name = "Legenda";}
 	}
 	return name;

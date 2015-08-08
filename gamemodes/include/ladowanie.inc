@@ -70,29 +70,6 @@ LadujOrganizacje()
 	return 1;
 }
 
-LadujFotoradary()
-{
-	mysql_query("SELECT * FROM `Fotoradary`");
-	mysql_store_result();
-
-	if(mysql_num_rows()==0)
-		return print("[FOTORADARY] Brak fotoradarow do zaladowania.");
-
-	new string[140];
-	while(mysql_fetch_row(string, "|")) 
-	{
-    	sscanf(string, "e<p<|>dffffffddds[30]>", Fotoradary[ID_FOTO]);
-
-    	FotoradarOBJ[ID_FOTO] = CreateObject(18880, Fotoradary[ID_FOTO][fPosX], Fotoradary[ID_FOTO][fPosY], Fotoradary[ID_FOTO][fPosZ], Fotoradary[ID_FOTO][fRX], Fotoradary[ID_FOTO][fRY], Fotoradary[ID_FOTO][fRZ]);
-
-		ID_FOTO++;
-	} 
-
-	printf("[FOTORADARY] Zaladowano %d fotoradarow.", ID_FOTO);
-	mysql_free_result();
-	return 1;
-}
-
 LadujPojazd(ownerid=(-1), ownertype=(-1), vehid=(-1))
 {
 	new query[80];

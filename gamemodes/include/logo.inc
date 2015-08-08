@@ -21,11 +21,6 @@ new EndColor[4],
 new Text:sLogo[3],
 	LogoFade;
 
-stock ConvertToColor(RR, GG, BB, AA)
-{
-	return (RR * 16777216) + (GG * 65536) + (BB*256) + AA;
-}
-
 stock FadeLogoColor(RR1, GG1, BB1, AA1, RR2, GG2, BB2, AA2, steps, holds)
 {
 	Step = steps;

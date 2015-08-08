@@ -314,7 +314,8 @@ Dialog:DIALOG_PHOTO_EDIT3(playerid, response, listitem, inputtext[])
 	return 1;
 }
 
-public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz)
+forward Photo_OnPlayerEditDynObject(playerid, objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz);
+public Photo_OnPlayerEditDynObject(playerid, objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz)
 {
 	if(objectid == GetPVarInt(playerid, "PHOTO_Object"))
 	{

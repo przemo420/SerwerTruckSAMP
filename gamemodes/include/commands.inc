@@ -41,8 +41,9 @@ Dialog:DIALOG_FAQ(playerid, response, listitem, inputtext[])
 		case 3: return cmd_zdolnosci(playerid, "info");
 		case 4: return 1;
 		case 5: return cmd_komendy(playerid);
-		case 6: return cmd_autorzy(playerid);
+		case 6: return cmd_autorzy(playerid, "");
 	}
+	return 1;
 }
 
 CMD:faq123321(playerid)
@@ -1442,43 +1443,6 @@ CMD:setname(playerid, params[])
 	return 1;
 }
 
-CMD:dodajdok(playerid, params[])
-{
-	if(!PlayerInfo[playerid][pAdmin])
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	return Dialog_Show(playerid, DIALOG_CREATE_DOK_NAME, DIALOG_STYLE_INPUT, " ", "Wpisz nazwê doku:", "Ok", "Zamknij");
-}
-
-CMD:usundok(playerid, params[])
-{
-	if(!PlayerInfo[playerid][pAdmin])
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	if(isnull(params))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /usundok [id doku]");
-
-	new dokid = strval(params), string[120];
-
-	if(!LoadingPoints[dokid][lID])
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nieprawid³owe ID doku.");
-
-	format(string, sizeof string, "{CC0000}>>{FFFFFF} Dok o ID {FFFFFF}%d {008000} zosta³ usuniêty.", dokid);
-	SendClientMessage(playerid,0x0,string);
-
-	LoadingPoints[dokid][lID] = 0;
-
-	DestroyDynamic3DTextLabel(LoadingPointsText3D[dokid]);
-
-	for(new playerids; playerids < MAX_PLAYERS; playerids++)
-		DestroyDynamicMapIcon(LoadingPoinstMapIcon[dokid][playerids]);
-
-	format(string, sizeof string, "DELETE FROM `Doki` WHERE `ID`= '%d'", dokid);
-	mysql_query(string);
-
-	return 1;
-}
-
 CMD:respawniko(playerid, params[])
 {
 	if(!PlayerInfo[playerid][pAdmin])
@@ -1504,35 +1468,6 @@ CMD:respawniko(playerid, params[])
 
 	SendClientMessageToAll(0x0, "{CC0000}>>{FFFFFF} Wszystkie pojazdy powróci³y na miejsce spawnu.");
 	return 1;
-}
-
-CMD:dodajtowar(playerid, params[])
-{
-	if(!PlayerInfo[playerid][pAdmin])
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	return Dialog_Show(playerid, DIALOG_CREATE_TOWAR_NAME, DIALOG_STYLE_INPUT, " ", "Wpisz nazwê towaru:", "Ok", "Zamknij");
-}
-
-CMD:usuntowar(playerid, params[])
-{
-	if(!PlayerInfo[playerid][pAdmin])
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	if(isnull(params))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /usuntowar [id towaru]");
-
-	new idtowar = strval(params), string[100];
-
-	if(!Towary[idtowar][tID])
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wybrany towar nie istnieje.");
-
-	Towary[idtowar][tID] = 0;
-	
-	format(string, sizeof string, "DELETE FROM `Towary` WHERE `ID`= '%d'", idtowar);
-	mysql_query(string);
-
-	return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Usuniêto towar.");
 }
 
 CMD:dodajstacje(playerid, params[])

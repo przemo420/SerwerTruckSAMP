@@ -205,17 +205,17 @@ CMD:kontrola(playerid, params[])
 	else
 		vehicleid = GetPlayerVehicleID(playerid);
 	
-	if(!vlInfo[vehicleid][vLoaded])
+	if(!vloadInfo[vehicleid][vLoaded])
 		strcat(towarname, "Brak");
 	else
-		strcat(towarname, wInfo[vlInfo[vehicleid][vCargo]][wName]);
+		strcat(towarname, waresInfo[vloadInfo[vehicleid][vCargo]][wName]);
 
 	if(Spawned[GetPlayerVehicleID(playerid)])
 		strcat(przeglad, "AKTUALNY");
 	else
 		strcat(przeglad, vehInfo[DBVehID[GetPlayerVehicleID(playerid)]][vPrzeglad]);
 
-	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\t%s\nTowar:\t%s\nWaga:\t%dkg\nPasy:\t%s\nZaleg³e mandaty:\t$%d", PlayerName(targetid), przeglad, towarname, cInfo[vlInfo[vehicleid][vCargo]][cWeight], (GetPVarInt(playerid, "PASY") > 0) ? ("zapiête") : ("rozpiête"), phAccount[targetid]);
+	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\t%s\nTowar:\t%s\nWaga:\t%dkg\nPasy:\t%s\nZaleg³e mandaty:\t$%d", PlayerName(targetid), przeglad, towarname, cargoInfo[vloadInfo[vehicleid][vCargo]][cWeight], (GetPVarInt(playerid, "PASY") > 0) ? ("zapiête") : ("rozpiête"), phAccount[targetid]);
 	Dialog_Show(playerid, DIALOG_CONTROL, DIALOG_STYLE_TABLIST, "Kontrola", string, "WyjdŸ", #);
 	return 1;
 }
