@@ -129,7 +129,7 @@ Dialog:DIALOG_SALOON_PERSONAL2(playerid, response, listitem, inputtext[])
 	format(szString, sizeof szString, "%s\n \nCena\t\t$%d", szString, saloonVehicles[id][S_PRICE]);
 	format(szString, sizeof szString, "%s\nMoc\t\t350KM", szString);
 	format(szString, sizeof szString, "%s\nDrzwi\t\t%d-%s", szString, saloonVehicles[id][S_DOORS], (GetPVarInt(playerid, "SALOON_Type") == 1) ? ("osobowy") : ("drzwiowy"));
-	format(szString, sizeof szString, "%s\nZbiornik\t60l", szString);
+	format(szString, sizeof szString, "%s\nZbiornik\t%dl", szString, MaxFuel(saloonVehicles[id][S_MODEL]));
 	format(szString, sizeof szString, "%s\nV-Max\t\t%d km/h", szString, saloonVehicles[id][S_VMAX]);
 	format(szString, sizeof szString, "%s\n \nKup ten pojazd", szString);
 	format(szString, sizeof szString, "%s\nObjerzyj pojazd", szString);
@@ -204,7 +204,7 @@ Dialog:DIALOG_SALOON_COMPANY2(playerid, response, listitem, inputtext[])
 	format(szString, sizeof szString, "Pojazd %s (%d)", GetVehicleModelName(saloonVehicles[id][S_MODEL]), saloonVehicles[id][S_MODEL]);
 	format(szString, sizeof szString, "%s\n \nCena\t\t$%d", szString, saloonVehicles[id][S_PRICE]);
 	format(szString, sizeof szString, "%s\nMoc\t\t350KM", szString);
-	format(szString, sizeof szString, "%s\nZbiornik\t60l", szString);
+	format(szString, sizeof szString, "%s\nZbiornik\t%dl", szString, MaxFuel(saloonVehicles[id][S_MODEL]));
 	format(szString, sizeof szString, "%s\nV-Max\t\t%d km/h", szString, saloonVehicles[id][S_VMAX]);
 	format(szString, sizeof szString, "%s\n \nKup ten pojazd", szString);
 	SetPVarInt(playerid, "SALOON_Vehicle", id);
@@ -230,7 +230,7 @@ Dialog:DIALOG_SALOON_COMPANY3(playerid, response, listitem, inputtext[])
 
 stock BuyCompanyVehicle(playerid)
 {
-	new szString[27], id = GetPVarInt(playerid, "SALOON_Vehicle"), cash = Firmy[PlayerInfo[playerid][pFirma]][tBank];
+	new firmaid = PlayerInfo[playerid][pFirma], szString[320], id = GetPVarInt(playerid, "SALOON_Vehicle"), cash = Firmy[firmaid][tBank];
 	format(szString, sizeof szString, "%d\tLinneruner\t$300000\n", id);
 	if(cash < saloonVehicles[id][S_PRICE])
 	{
@@ -238,11 +238,22 @@ stock BuyCompanyVehicle(playerid)
 		return DIALOG_SALOON_COMPANY2(playerid, true, 0, szString);
 	}
 
-	cash -= saloonVehicles[id][S_PRICE]; Firmy[PlayerInfo[playerid][pFirma]][tBank] = cash;
-	CreateVehicle(saloonVehicles[id][S_MODEL], -1646.6908,1215.5980,9.9067,225.8644, random(50), random(50), -1);
+	cash -= saloonVehicles[id][S_PRICE]; Firmy[firmaid][tBank] = cash;
 	DeletePVar(playerid, "SALOON_Type");
 	DeletePVar(playerid, "SALOON_Vehicle");
 	Msg(playerid, COLOR_INFO, "Pomyœlnie zakupiono pojazd firmowy.");
+
+	new vehicleid = CreateVehicle(saloonVehicles[id][S_MODEL], -1646.6908, 1215.5980, 9.9067, 225.8644, random(50), random(50), -1);
+
+	format(szString, sizeof(szString), "INSERT INTO `Pojazdy` (`model`, `owner_id`, `owner_type`, `PosX`, `PosY`, `PosZ`, `PosA`, `Health`, `Fuel`, `FuelType`, `Color1`, `Color2`, `Plate`, `Plate`, `Przeglad`) VALUES ('%d', '%d', '1', '-1646.6908', '1215.5980', '9.9067', '225.8644', '1000.0', '%d', '%d', '0', '0', 'SerwerTruck', '%d')", GetVehicleModel(vehicleid), firmaid, MaxFuel(GetVehicleModel(vehicleid)), 
+			(IsVehicleTruck(vehicleid) ? FUEL_TYPE_TDI : FUEL_TYPE_BENZ), gettime());
+	mysql_query(szString);
+	printf(szString);
+
+	DestroyVehicle(vehicleid);
+	Spawned[vehicleid] = false;
+
+	LadujPojazd(_, _, mysql_insert_id());
 	return 1;
 }
 
@@ -250,18 +261,23 @@ stock BuyPrivateVehicle(playerid)
 {
 	new szString[27], id = GetPVarInt(playerid, "SALOON_Vehicle");
 	format(szString, sizeof szString, "%d\tLinneruner\t$300000\n", id);
+	
+	Msg(playerid, COLOR_ERROR, "Funkcja tymczasowo wy³¹czona.");
+	return DIALOG_SALOON_PERSONAL2(playerid, true, 0, szString);
+	
+	/*
 	if(GetPlayerMoney(playerid) < saloonVehicles[id][S_PRICE])
 	{
 		Msg(playerid, COLOR_ERROR, "Nie posiadasz wystarczaj¹co pieniêdzy aby kupiæ ten pojazd.");
 		return DIALOG_SALOON_PERSONAL2(playerid, true, 0, szString);
 	}
 
-	GivePlayerMoney(playerid, -saloonVehicles[id][S_PRICE]);
+	GiveMoney(playerid, -saloonVehicles[id][S_PRICE]);
 	CreateVehicle(saloonVehicles[id][S_MODEL], -1988.6996, 275.1513, 34.8315, 87.2160, random(50), random(50), -1);
 	DeletePVar(playerid, "SALOON_Type");
 	DeletePVar(playerid, "SALOON_Vehicle");
 	Msg(playerid, COLOR_INFO, "Pomyœlnie zakupiono prywatny pojazd.");
-	return 1;
+	return 1;*/
 }
 
 stock PreviewPrivateVehicle(playerid)
