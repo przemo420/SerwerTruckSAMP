@@ -2,10 +2,6 @@
 	//return cmd_nawigacja(playerid, params);
 CMD:gpsnawi(playerid, params[])
 {
-	if(GetPVarType(playerid, "GPS_OstatniRaz") == PLAYER_VARTYPE_INT)
-		if( (GetTickCount() - GetPVarInt(playerid, "GPS_OstatniRaz"))/1000 < 1.0 )
-			return ShowInfo(playerid, "Odczekaj sekundê przed nastêpn¹ aktualizacj¹ GPSa.");
-
 	Dialog_Show(playerid, DIALOG_ID_GPS, DIALOG_STYLE_LIST, "GPS System", "Doki towarowe\nStacje\nBary\nSklepy ViaToll\nWy³¹cz", "Wybierz", "");
 	
 	return 1;
@@ -14,11 +10,6 @@ CMD:gpsnawi(playerid, params[])
 forward GPS_Function(playerid, listitem);
 public GPS_Function(playerid, listitem)
 {
-	if( (GetTickCount() - KtosJuzAktualizujeGPSa)/1000 <= 2)
-		return ShowInfo(playerid, "GPS przeci¹¿ony, musisz chwilê odczekaæ.");
-
-	KtosJuzAktualizujeGPSa = GetTickCount();
-
 	switch(listitem)
 	{
 		case 1: // Stacje
@@ -27,11 +18,9 @@ public GPS_Function(playerid, listitem)
 				return ShowInfo(playerid, "Ju¿ masz w³¹czonego GPSa, najpierw go wy³¹cz.");
 
 			for(new i; i <= ID_STACJA; i++)
-				if(IsValidDynamicMapIcon(StacjeMapIcon[i][playerid]))
-				{
-					Streamer_SetFloatData(STREAMER_TYPE_MAP_ICON, StacjeMapIcon[i][playerid], E_STREAMER_STREAM_DISTANCE, 6000.0);
-					Streamer_SetIntData(STREAMER_TYPE_MAP_ICON, StacjeMapIcon[i][playerid], E_STREAMER_STYLE, MAPICON_GLOBAL);
-				}
+				if(IsValidDynamicMapIcon(StacjeMapIconForAll[i]))
+					Streamer_AppendArrayData(STREAMER_TYPE_MAP_ICON, StacjeMapIconForAll[i], E_STREAMER_PLAYER_ID, playerid);
+
 			GPSGracz[playerid][GPSStacje]=true;
 		}
 		case 2: // Bary
@@ -46,30 +35,36 @@ public GPS_Function(playerid, listitem)
 			if(GPSGracz[playerid][GPSStacje] || GPSGracz[playerid][GPSDoki] || GPSGracz[playerid][GPSBary] || GPSGracz[playerid][GPSViatoll])
 				return ShowInfo(playerid, "Ju¿ masz w³¹czonego GPSa, najpierw go wy³¹cz.");
 
-			ShowInfo(playerid, "Funkcja chwilowo wy³¹czona.");
+			for(new i; i <= ID_STACJA; i++)
+				if(IsValidDynamicMapIcon(viashop3DForAll[i]))
+					Streamer_AppendArrayData(STREAMER_TYPE_MAP_ICON, viashop3DForAll[i], E_STREAMER_PLAYER_ID, playerid);
+
+			GPSGracz[playerid][GPSViatoll]=true;
 		}
 		case 4: // wy³¹cz
 		{
 			if(GPSGracz[playerid][GPSDoki])
 			{
 				for(new i; i <= ID_DOKOW; i++)
-					if(IsValidDynamicMapIcon(LoadingPoinstMapIcon[i][playerid]))
-					{
-						Streamer_SetFloatData(STREAMER_TYPE_MAP_ICON, LoadingPoinstMapIcon[i][playerid], E_STREAMER_STREAM_DISTANCE, 300.0);
-						Streamer_SetIntData(STREAMER_TYPE_MAP_ICON, LoadingPoinstMapIcon[i][playerid], E_STREAMER_STYLE, MAPICON_LOCAL);
-						Streamer_SetIntData(STREAMER_TYPE_MAP_ICON, LoadingPoinstMapIcon[i][playerid], E_STREAMER_TYPE, 51);
-					}
+					if(IsValidDynamicMapIcon(loadInfo[i][lMapIconForAll]))
+						Streamer_RemoveArrayData(STREAMER_TYPE_MAP_ICON, loadInfo[i][lMapIconForAll], E_STREAMER_PLAYER_ID, playerid);
 
 				GPSGracz[playerid][GPSDoki]=false;
 			}
 			else if(GPSGracz[playerid][GPSStacje])
 			{
 				for(new i; i <= ID_STACJA; i++)
-					if(IsValidDynamicMapIcon(StacjeMapIcon[i][playerid]))
-					{
-						Streamer_SetFloatData(STREAMER_TYPE_MAP_ICON, StacjeMapIcon[i][playerid], E_STREAMER_STREAM_DISTANCE, 300.0);
-						Streamer_SetIntData(STREAMER_TYPE_MAP_ICON, StacjeMapIcon[i][playerid], E_STREAMER_STYLE, MAPICON_LOCAL);
-					}
+					if(IsValidDynamicMapIcon(StacjeMapIconForAll[i]))
+						Streamer_RemoveArrayData(STREAMER_TYPE_MAP_ICON, StacjeMapIconForAll[i], E_STREAMER_PLAYER_ID, playerid);
+
+				GPSGracz[playerid][GPSStacje]=false;
+			}
+			else if(GPSGracz[playerid][GPSViatoll])
+			{
+				for(new i; i <= ID_STACJA; i++)
+					if(IsValidDynamicMapIcon(viashop3DForAll[i]))
+						Streamer_RemoveArrayData(STREAMER_TYPE_MAP_ICON, viashop3DForAll[i], E_STREAMER_PLAYER_ID, playerid);
+
 				GPSGracz[playerid][GPSStacje]=false;
 			}
 		}
@@ -80,13 +75,9 @@ public GPS_Function(playerid, listitem)
 				return ShowInfo(playerid, "Ju¿ masz w³¹czonego GPSa, najpierw go wy³¹cz.");
 
 			for(new i; i <= ID_DOKOW; i++)
-				if(LoadingPoints[i][pType] == listitem-10)
-					if(IsValidDynamicMapIcon(LoadingPoinstMapIcon[i][playerid]))
-					{
-						//Streamer_SetFloatData(STREAMER_TYPE_MAP_ICON, LoadingPoinstMapIcon[i][playerid], E_STREAMER_STREAM_DISTANCE, 6000.0);
-						Streamer_SetIntData(STREAMER_TYPE_MAP_ICON, LoadingPoinstMapIcon[i][playerid], E_STREAMER_STYLE, MAPICON_GLOBAL);
-						Streamer_SetIntData(STREAMER_TYPE_MAP_ICON, LoadingPoinstMapIcon[i][playerid], E_STREAMER_TYPE, 19);
-					}
+				if(loadInfo[i][lType] == listitem-10)
+					if(IsValidDynamicMapIcon(loadInfo[i][lMapIconForAll]))
+						Streamer_AppendArrayData(STREAMER_TYPE_MAP_ICON, loadInfo[i][lMapIconForAll], E_STREAMER_PLAYER_ID, playerid);
 
 			GPSGracz[playerid][GPSDoki]=true;
 		}

@@ -99,6 +99,7 @@ enum eLoad
 	lType,			// Typ za³adunku
 	lBaza,			// ID Bazy z której korzystamy
 	lMapIcon,		// ID Map Icona
+	lMapIconForAll,
 	Text3D:lText	// ID Labela
 }
 
@@ -115,7 +116,8 @@ new waresInfo[MAX_WARES][eWares],
 	bazaInfo[MAX_BASES][eBaza],
 	loadInfo[MAX_LOADINGS][eLoad],
 	vloadInfo[MAX_VEHICLES][eLoadVehicle],
-	objectsInfo[MAX_BASES_OBJECTS];
+	objectsInfo[MAX_BASES_OBJECTS],
+	ID_DOKOW=1;
 
 public Loadings_OnGameModeInit()
 {
@@ -162,6 +164,9 @@ stock LoadingsInit()
 			format(szString, sizeof szString, "Za³adunek towarów {b}%s{/b} w {b}%s{/b} (ID: {b}%d{/b})\nAby za³adowaæ towar wpisz {b}/zaladuj{/b}\nAby roz³adowaæ towar wpisz {b}/rozladuj{/b}", GetLoadTypeName(loadInfo[c][lType]), GetPointZone(loadInfo[c][lX], loadInfo[c][lY]), loadInfo[c][LID]);
 			loadInfo[c][lText] = CreateDynamic3DTextLabel(clText(COLOR_INFO2, szString), -1, loadInfo[c][lX], loadInfo[c][lY], loadInfo[c][lZ]+1.0, 50.0, INVALID_PLAYER_ID, INVALID_VEHICLE_ID, 1);
 			loadInfo[c][lMapIcon] = CreateDynamicMapIcon(loadInfo[c][lX], loadInfo[c][lY], loadInfo[c][lZ], 51, 0);
+			loadInfo[c][lMapIconForAll] = CreateDynamicMapIcon(loadInfo[c][lX], loadInfo[c][lY], loadInfo[c][lZ], 51, 0, _, _, GetMaxPlayers()+1, 6000.0);
+			Streamer_SetIntData(STREAMER_TYPE_MAP_ICON, loadInfo[c][lMapIconForAll], E_STREAMER_STYLE, MAPICON_GLOBAL);
+			ID_DOKOW=c;
 		}
 	}
 	mysql_free_result();

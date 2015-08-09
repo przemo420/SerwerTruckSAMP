@@ -222,8 +222,6 @@ new SpawnedAdminVehicles;
 
 new Text3D:Trucking[MAX_PLAYERS];
 new Text:FleshText;
-new Text3D:viashop3D[MAX_VIASHOP];
-new viashopIKON[MAX_VIASHOP];
 new Text3D:bary3D[MAX_BARY];
 new baryIKON[MAX_BARY];
 new Text3D:baryin3D[MAX_BARYIN];
@@ -411,7 +409,8 @@ enum Stations {
 }
 new Stacje[MAX_STACJE][Stations];
 new Text3D:StacjeText3D[MAX_STACJE];
-new StacjeMapIcon[MAX_STACJE][MAX_PLAYERS];
+new StacjeMapIcon[MAX_STACJE];
+new StacjeMapIconForAll[MAX_STACJE];
 new ID_STACJA=1;
 
 enum Teams {
@@ -456,6 +455,9 @@ enum eViaToll {
 	Float:vtPosZ
 }
 new ViaToll[MAX_VIASHOP][eViaToll];
+new Text3D:viashop3D[MAX_VIASHOP];
+new viashop3DForAll[MAX_VIASHOP];
+new viashopIKON[MAX_VIASHOP];
 new ID_VIATOLL=1;
 
 enum {

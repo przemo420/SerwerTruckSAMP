@@ -70,7 +70,7 @@ main()
 #include "include/tablica_ogloszen.inc"
 #include "include/adr.inc"
 #include "include/radio.inc"
-//#include "include/gps.inc"
+#include "include/gps.inc"
 #include "include/viatoll.inc"
 #include "include/pogoda.inc"
 #include "include/vote.inc"

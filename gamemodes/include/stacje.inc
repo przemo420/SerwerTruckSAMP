@@ -13,9 +13,10 @@ LadujStacje()
 
     	format(string, sizeof string, "{808040}STACJA BENZYNOWA {808040}[VID: {FFFFFF}%d{808040}]\n{FFFFFF}/tankuj", ID_STACJA);
     	StacjeText3D[ID_STACJA] = CreateDynamic3DTextLabel(string, ZIELONY2, Stacje[ID_STACJA][sPosX], Stacje[ID_STACJA][sPosY], Stacje[ID_STACJA][sPosZ]+0.5, 30.0);
-
-    	for(new playerid; playerid < MAX_PLAYERS; playerid++)
-			StacjeMapIcon[ID_STACJA][playerid] = CreateDynamicMapIcon(Stacje[ID_STACJA][sPosX], Stacje[ID_STACJA][sPosY], Stacje[ID_STACJA][sPosZ], 55, 0, _, _, playerid, 300.0);
+		StacjeMapIcon[ID_STACJA] = CreateDynamicMapIcon(Stacje[ID_STACJA][sPosX], Stacje[ID_STACJA][sPosY], Stacje[ID_STACJA][sPosZ], 55, 0, _, _, _, 300.0);
+		
+		StacjeMapIconForAll[ID_STACJA] = CreateDynamicMapIcon(Stacje[ID_STACJA][sPosX], Stacje[ID_STACJA][sPosY], Stacje[ID_STACJA][sPosZ], 55, 0, _, _, GetMaxPlayers()+1, 12000.0);
+		Streamer_SetIntData(STREAMER_TYPE_MAP_ICON, StacjeMapIconForAll[ID_STACJA], E_STREAMER_STYLE, MAPICON_GLOBAL);
 
 		ID_STACJA++;
 	} 

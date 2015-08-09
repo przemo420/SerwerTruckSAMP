@@ -1485,8 +1485,7 @@ CMD:dodajstacje(playerid, params[])
 	format(string, sizeof string, "{808040}STACJA BENZYNOWA {808040}[VID: {FFFFFF}%d{808040}]\n[ Zbiorniki: 3000/3000 ]\n{FFFFFF}/tankuj", ID_STACJA);
 	StacjeText3D[ID_STACJA] = CreateDynamic3DTextLabel(string, ZIELONY2, Pos[0], Pos[1], Pos[2]+0.5, 30.0);
 	
-	for(new playerids; playerids < MAX_PLAYERS; playerids++)
-		StacjeMapIcon[ID_STACJA][playerids] = CreateDynamicMapIcon(Stacje[ID_STACJA][sPosX], Stacje[ID_STACJA][sPosY], Stacje[ID_STACJA][sPosZ], 55, 0, _, _, playerids, 300.0);
+	StacjeMapIcon[ID_STACJA] = CreateDynamicMapIcon(Stacje[ID_STACJA][sPosX], Stacje[ID_STACJA][sPosY], Stacje[ID_STACJA][sPosZ], 55, 0, _, _, _, 300.0);
 
 	format(string, sizeof string, "{CC0000}>>{FFFFFF} {008000}Stacja o uid: {FFFFFF}%d {008000}zosta³a pomyœlnie utworzona.", ID_STACJA);
 	SendClientMessage(playerid,0x0,string);
@@ -1509,9 +1508,7 @@ CMD:usunstacje(playerid, params[])
 	SendClientMessage(playerid,0x0,string);
 
 	DestroyDynamic3DTextLabel(StacjeText3D[stacjaid]);
-
-	for(new playerids; playerids < MAX_PLAYERS; playerids++)
-		DestroyDynamicMapIcon(StacjeMapIcon[ID_STACJA][playerids]);
+	DestroyDynamicMapIcon(StacjeMapIcon[stacjaid]);
 
 	format(string, sizeof string, "DELETE FROM `Stacje` WHERE `ID`= '%d'", stacjaid);
 	mysql_query(string);
