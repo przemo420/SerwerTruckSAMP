@@ -1,17 +1,83 @@
+#define MAX_PROJECTS 20
+
+new obiektyBT[MAX_PROJECTS][MAX_BTOBJ];
+new obiektyBTOstatniID;
+
+enum eProjectBT {
+	bool:created,
+	ProjectBTName[32],
+	ProjectBTOwner[32]
+}
+new projektyBT[MAX_PROJECTS][eProjectBT];
+
 CMD:projekt(playerid, params[])
 {
-	new opcja[10];
+	new opcja[10], firmaid = PlayerInfo[playerid][pFirma], string[1024];
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+	if(Firmy[firmaid][tTyp] != TEAM_TYPE_BUILD)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "s[10]", opcja))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /projekt [lista/stworz/usun/akceptuj]");
 
-	if(strcmp(opcja, "lista", true) == 0) {}
-	else if(strcmp(opcja, "stworz", true) == 0) {}
-	else if(strcmp(opcja, "usun", true) == 0) {}
-	else if(strcmp(opcja, "akceptuj", true) == 0) {}
+	if(strcmp(opcja, "lista", true) == 0) 
+	{
+		for(new i; i < MAX_PROJECTS; i++)
+			if(projektyBT[i][created])
+				format(string, sizeof(string), "%s%d\t%s\t%s\n", string, i, projektyBT[i][ProjectBTOwner], projektyBT[i][ProjectBTOwner]);
+
+		if(isnull(string))
+			Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "Projekty > Lista", "Brak aktywnych projektów.", "Cofnij", #);
+		else
+			Dialog_Show(playerid, DIALOG_PROJEKT_AKTYWUJ, DIALOG_STYLE_TABLIST_HEADERS, "Projekty > Lista", "ID\tStworzy³\tNazwa\n%s", "Aktywuj", "Cofnij", string);
+	}
+	else if(strcmp(opcja, "stworz", true) == 0) 
+	{
+		new bool:znalazlo;
+
+		for(new i; i < MAX_PROJECTS; i++)
+			if(!projektyBT[i][created])
+			{
+				projektyBT[i][created]=true;
+				znalazlo=true;
+				SetPVarInt(playerid, "projektBT", i);
+				break;
+			}
+
+		if(!znalazlo)
+			return ShowInfo(playerid, "Stworzono maksymaln¹ iloœæ projektów.");
+
+		Dialog_Show(playerid, DIALOG_PROJEKT_STWORZ, DIALOG_STYLE_INPUT, "Projekty > Stwórz", "Wpisz nazwê projektu:", "Stwórz", "Anuluj");
+	}
+	else if(strcmp(opcja, "usun", true) == 0) 
+	{
+		//if(Firmy[firmaid][tChef] != PlayerInfo[playerid][pID] && Firmy[firmaid][tVcChef] != PlayerInfo[playerid][pID])
+			//return ShowInfo(playerid, "Nie masz uprawnieñ.");
+
+		for(new i; i < MAX_PROJECTS; i++)
+			if(projektyBT[i][created])
+				format(string, sizeof(string), "%s%d\t%s\t%s\n", string, i, projektyBT[i][ProjectBTOwner], projektyBT[i][ProjectBTOwner]);
+
+		if(isnull(string))
+			Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "Projekty > Usuñ", "Brak aktywnych projektów.", "Cofnij", #);
+		else
+			Dialog_Show(playerid, DIALOG_PROJEKT_USUN, DIALOG_STYLE_TABLIST_HEADERS, "Projekty > Usuñ", "ID\tStworzy³\tNazwa\n%s", "Usuñ", "Cofnij", string);
+	}
+	else if(strcmp(opcja, "akceptuj", true) == 0) 
+	{
+		//if(Firmy[firmaid][tChef] != PlayerInfo[playerid][pID] && Firmy[firmaid][tVcChef] != PlayerInfo[playerid][pID])
+			//return ShowInfo(playerid, "Nie masz uprawnieñ.");
+
+		for(new i; i < MAX_PROJECTS; i++)
+			if(projektyBT[i][created])
+				format(string, sizeof(string), "%s%d\t%s\t%s\n", string, i, projektyBT[i][ProjectBTOwner], projektyBT[i][ProjectBTOwner]);
+
+		if(isnull(string))
+			Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "Projekty > Akceptuj", "Brak aktywnych projektów.", "Cofnij", #);
+		else
+			Dialog_Show(playerid, DIALOG_PROJEKT_AKCEPTUJ, DIALOG_STYLE_TABLIST_HEADERS, "Projekty > Akceptuj", "ID\tStworzy³\tNazwa\n%s", "Akceptuj", "Cofnij", string);
+
+	}
 	else
 		Msg(playerid, COLOR_ERROR, "Wpisz: /projekt [lista/stworz/usun/akceptuj]");
 
@@ -101,69 +167,6 @@ CMD:stworzobiekt(playerid, params[])
 	return Dialog_Show(playerid, DIALOG_OBIEKT_STWORZ, DIALOG_STYLE_TABLIST_HEADERS, "Wybierz obiekt", szString, "Wybierz", "Anuluj");
 }
 
-CMD:changepos(playerid, params[])
-{
-	new id;
-	new string[76];
-
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	if(sscanf(params, "d", id))
-		return Msg(playerid, COLOR_ERROR, "Wpisz: /changepos [id obiektu]");
-
-	if(IsObiektBT[id] == false)
-		return Msg(playerid, COLOR_ERROR, "Nie znaleziono tego obiektu.");
-
-	format(string, sizeof string, "{004080}Rozpocz¹³eœ edycjê obiektu o id {FFFFFF}%d.", id);
-	SendClientMessage(playerid, 0x0, string);
-	EditDynamicObject(playerid, obiektyBT[id]);
-	SetPVarInt(playerid, "OBIEKTCHANGEBTID", id);
-	return 1;
-}
-
-CMD:delone(playerid, params[])
-{
-	new id;
-	new string[76];
-
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	if(sscanf(params, "d", id))
-		return Msg(playerid, COLOR_ERROR, "Wpisz: /delone [id obiektu]");
-
-	if(IsObiektBT[id] == false)
-		return Msg(playerid, COLOR_ERROR, "Nie znaleziono tego obiektu.");
-
-	format(string, sizeof string, "{004080}Obiekt o id {FFFFFF}%d {004080}zosta³ usuniêty.", id);
-	SendClientMessage(playerid, 0x0, string);
-	IsObiektBT[id] = false;
-	DestroyDynamicObject(obiektyBT[id]);
-	DestroyDynamic3DTextLabel(obiektyBT3D[id]);
-	strmid(obiektBTNAME[obiektyBTID],"nothing",0,20);
-	strmid(obiektBTNAME2[obiektyBTID],"nothing",0,20);
-	return 1;
-}
-
-CMD:delall(playerid, params[])
-{
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	SendClientMessage(playerid, 0x0, "{004080}Wszystkie obiekty zosta³ usuniête.");
-
-	for(new x = 0; x < MAX_BTOBJTD; x++)
-	{
-		IsObiektBT[x] = false;
-		DestroyDynamicObject(obiektyBT[x]);
-		DestroyDynamic3DTextLabel(obiektyBT3D[x]);
-		strmid(obiektBTNAME[obiektyBTID],"nothing",0,20);
-		strmid(obiektBTNAME2[obiektyBTID],"nothing",0,20);
-	}
-	return 1;
-}
-
 CMD:kamera(playerid, params[])
 {
 	if(GetPVarType(playerid, "FlyMode"))
@@ -183,22 +186,40 @@ CMD:kamera(playerid, params[])
 	return 1;
 }
 
-CMD:obiektname(playerid, params[])
+Dialog:DIALOG_PROJEKT_AKTYWUJ(playerid, response, listitem, inputtext[])
 {
-	new id;
-	new string[200];
+	return 1;
+}
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+Dialog:DIALOG_PROJEKT_STWORZ(playerid, response, listitem, inputtext[])
+{
+	new projektid = GetPVarInt(playerid, "projektBT");
 
-	if(sscanf(params, "d", id))
-		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /obiektname [id obiektu]");
+	if(!response)
+	{
+		projektyBT[projektid][created]=false;
+		return 1;
+	}
 
-	if(IsObiektBT[id] == false)
-		return SendClientMessage(playerid, LIGHTRED, "Nie znaleziono takiego obiektu.");
+	if(strlen(inputtext) <= 5)
+		return cmd_projekt(playerid, "stworz");
 
-	format(string, sizeof string, "{004080}Obiekt o id {FFFFFF}%d {004080}zosta³ postawiony przez {FFFFFF}%s{004080}, edytowany przez {FFFFFF}%s.", id, obiektBTNAME[id], obiektBTNAME2[id]);
-	SendClientMessage(playerid, 0x0, string);
+	
+	format(projektyBT[projektid][ProjectBTOwner], 31, "%s", PlayerName(playerid));
+	format(projektyBT[projektid][ProjectBTName], 31, "%s", inputtext);
+	SetPVarInt(playerid, "projektBTAktywny", projektid);
+	ShowInfo(playerid, "Stworzy³eœ projekt, zosta³ aktywowany.\nMo¿esz tworzyæ obiekty.");
+
+	return 1;
+}
+
+Dialog:DIALOG_PROJEKT_USUN(playerid, response, listitem, inputtext[])
+{
+	return 1;
+}
+
+Dialog:DIALOG_PROJEKT_AKCEPTUJ(playerid, response, listitem, inputtext[])
+{
 	return 1;
 }
 

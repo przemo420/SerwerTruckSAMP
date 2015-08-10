@@ -230,7 +230,7 @@ new Firehold[MAX_PLAYERS];
 new Firehold2[MAX_PLAYERS] = 0;
 new kogutPD[MAX_VEHICLES],
     bool:kpd[MAX_VEHICLES];
-new obiektyBT[MAX_BTOBJ];
+//new obiektyBT[MAX_BTOBJ];
 new obiektyBTID = 0;
 new kogutPOLI[MAX_VEHICLES],
     bool:kpoli[MAX_VEHICLES];
