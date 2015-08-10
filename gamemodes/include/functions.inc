@@ -478,31 +478,6 @@ IsPlayerFacingVehicle(playerid,vehicleid)
 	return 1;
 }
 
-forward PostawObiekt(playerid, obiektid, Float:PosX, Float:PosY, Float:PosZ, Float:rotX, Float:rotY, Float:rotZ, Float:jump);
-public PostawObiekt(playerid, obiektid, Float:PosX, Float:PosY, Float:PosZ, Float:rotX, Float:rotY, Float:rotZ, Float:jump)
-{
-	new Float:Pos[3];
-	GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
-	SetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]+jump);
-
-	new obietid = GetFreeObiektyBTID();
-	obiektyBTID = obietid;
-
-	if(obiektyBTID >= 5000)
-		return SendClientMessage(playerid, LIGHTRED, "Limit obiektów zosta³ osi¹gniêty.");
-
-	//obiektyBT[obiektyBTID] = CreateDynamicObject(obiektid, Pos[0]+PosX,Pos[1]+PosY,Pos[2]+PosZ, rotX, rotY, rotZ);
-	new string[76];
-	format(string, sizeof string, "{FFFFFF}UID: %d\nUtworzy³: %s", obiektyBTID, PlayerName(playerid));
-	//obiektyBT3D[obiektyBTID] = CreateDynamic3DTextLabel(string, ZIELONY6, Pos[0]+PosX,Pos[1]+PosY,Pos[2]+PosZ, 5.0);
-	format(string, sizeof string, "{004080}Utworzy³eœ obiekt {FFFFFF}(%d) {004080}o uid {FFFFFF}%d.", obiektid, obiektyBTID);
-	SendClientMessage(playerid, 0x0, string);
-	//IsObiektBT[obiektyBTID] = true;
-	//strmid(obiektBTNAME[obiektyBTID],PlayerName(playerid),0,20);
-	//strmid(obiektBTNAME2[obiektyBTID],PlayerName(playerid),0,20);
-	return 1;
-}
-
 HasPlayerFullPermission(playerid)
 {
 	new str[32];
@@ -560,18 +535,6 @@ GetFreeRemontBTID()
 	{
 	    counter++;
 	    if(BTNapis[counter][btnNapis] == Text3D:INVALID_REMONTBT3D_ID)
-		 	obiektid = counter;
-	}
-	return obiektid;
-}
-
-GetFreeObiektyBTID()
-{
-	new obiektid = INVALID_BTOBJ_ID, counter = 0;
-	while(obiektid == INVALID_BTOBJ_ID)
-	{
-	    counter++;
-	    if(IsObiektBT[counter] == false)
 		 	obiektid = counter;
 	}
 	return obiektid;
