@@ -1745,3 +1745,62 @@ CMD:setskin(playerid, params[])
 	Msg(forplayerid, COLOR_INFO, string);
 	return 1;
 }
+
+CMD:dodajzaladunek(playerid, params[])
+{
+	new type[15], typeid;
+	if(sscanf(params, "s[15]", type))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /dodajzaladunek [budowlany/odzie¿owy/elektroniczny/spo¿ywczy/niebezpieczny/nielegalny]");
+
+	if(!strcmp(type, "budowlany"))
+	{
+		typeid = TYPE_BUILD;
+	}
+	else if(!strcmp(type, "odzie¿owy"))
+	{
+		typeid = TYPE_CLOTHES;
+	}
+	else if(!strcmp(type, "elektroniczny"))
+	{
+		typeid = TYPE_ELECTRONIC;
+	}
+	else if(!strcmp(type, "spo¿ywczy"))
+	{
+		typeid = TYPE_EAT;
+	}
+	else if(!strcmp(type, "niebezpieczny"))
+	{
+		typeid = TYPE_DANGEROUS;
+	}
+	else if(!strcmp(type, "nielegalny"))
+	{
+		typeid = TYPE_ILLEGAL;
+	}
+	else 
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /dodajzaladunek [budowlany/odzie¿owy/elektroniczny/spo¿ywczy/niebezpieczny/nielegalny]");
+
+	new szString[256], baseid = GetClosestBase(playerid), load = -1;
+	for(new i = 0; i < MAX_LOADINGS; i++)
+	{
+		if(IsValidLoad(i))
+			continue;
+
+		load = i;
+		break;
+	}
+	if(load < 0)
+		return Msg(playerid, COLOR_ERROR, "Nie mo¿na dodaæ wiêcej za³adunków.");
+	GetPlayerPos(playerid, loadInfo[load][lX], loadInfo[load][lY], loadInfo[load][lZ]);
+	loadInfo[load][LID] = load; loadInfo[load][lType] = typeid; loadInfo[load][lBaza] = baseid;
+	format(szString, sizeof szString, "INSERT INTO loads (LID, lX, lY, lZ, lType, lBase) VALUES ('null', '%.04f', '%.04f', '%.04f', '%d', '%d')", loadInfo[load][lX], loadInfo[load][lY], loadInfo[load][lZ], typeid, baseid);
+	mysql_query(szString);
+	
+	format(szString, sizeof szString, "Za³adunek towarów {b}%s{/b} w {b}%s{/b} (ID: {b}%d{/b})\nAby za³adowaæ towar wpisz {b}/zaladuj{/b}\nAby roz³adowaæ towar wpisz {b}/rozladuj{/b}", GetLoadTypeName(loadInfo[load][lType]), GetPointZone(loadInfo[load][lX], loadInfo[load][lY]), loadInfo[load][LID]);
+	loadInfo[load][lText] = CreateDynamic3DTextLabel(clText(COLOR_INFO2, szString), -1, loadInfo[load][lX], loadInfo[load][lY], loadInfo[load][lZ]+1.0, 50.0, INVALID_PLAYER_ID, INVALID_VEHICLE_ID, 1);
+	loadInfo[load][lMapIcon] = CreateDynamicMapIcon(loadInfo[load][lX], loadInfo[load][lY], loadInfo[load][lZ], 51, 0);
+	loadInfo[load][lMapIconForAll] = CreateDynamicMapIcon(loadInfo[load][lX], loadInfo[load][lY], loadInfo[load][lZ], 51, 0, _, _, GetMaxPlayers()+1, 6000.0);
+	Streamer_SetIntData(STREAMER_TYPE_MAP_ICON, loadInfo[load][lMapIconForAll], E_STREAMER_STYLE, MAPICON_GLOBAL);
+	ID_DOKOW=load;
+	Msg(playerid, COLOR_INFO, "Pomyœlnie utworzono za³adunek.");
+	return 1;
+}

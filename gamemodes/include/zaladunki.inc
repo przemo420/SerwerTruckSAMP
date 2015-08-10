@@ -21,7 +21,7 @@
 #define MAX_BASES			5
 #define MAX_WARES			25
 #define MAX_CARGOS			500
-#define MAX_LOADINGS		22
+#define MAX_LOADINGS		100
 
 #define WARE_TYPE_TRUCK		0
 #define WARE_TYPE_VAN		1
@@ -1210,4 +1210,16 @@ CMD:papiery(playerid)
 
 	Dialog_Show(playerid, DIALOG_PAPERS, DIALOG_STYLE_MSGBOX, " ", clText(COLOR_INFO2, szString), "Okej", #);
 	return 1;
+}
+
+stock GetClosestBase(playerid)
+{
+	new base, Float:fDistance;
+	for(new i = 0; i < 4; i++)
+	{
+		new Float:fTemp = GetDistanceFromMeToPoint(playerid, bazaInfo[i][xPoint][0], bazaInfo[i][yPoint][0], bazaInfo[i][zPoint][0]);
+		if(fTemp < fDistance)
+			base = i;
+	}
+	return base;
 }
