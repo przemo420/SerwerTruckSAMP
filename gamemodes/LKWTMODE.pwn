@@ -79,6 +79,7 @@ main()
 #include "include/fotoradary.inc"
 #include "include/beep.inc"
 #include "include/logo.inc"
+#include "include/salon.inc"
 // -----
 #include "include/organizacje/policja.inc"
 #include "include/organizacje/pomocdrogowa.inc"
@@ -211,7 +212,9 @@ public OnGameModeInit()
     printf("- Zajelo: %dms", floatround(GetTickCount()-CzasLadowania));
     print("----------");
 
-	CreateDynamic3DTextLabel("{004080}Serwer Truck.\nSalon firmowych pojazdów\n{FFFFFF}06:00 - 22:00", ZIELONY5, -1655.9683,1217.7520,7.2500+0.5, 30.0);
+	CreateDynamic3DTextLabel("Salon pojazdów osobowych\nw San Fierro.\nWpisz /salon aby zobaczyæ menu", -1, -1969.291, 296.353, 35.171, 50.0, INVALID_PLAYER_ID, INVALID_VEHICLE_ID, 1);
+	CreateDynamic3DTextLabel("Salon pojazdów ciê¿arowych\nw San Fierro.\nWpisz /salon aby zobaczyæ menu", -1, -1649.904, 1209.725, 7.250, 50.0, INVALID_PLAYER_ID, INVALID_VEHICLE_ID, 1);
+	CreateDynamicMapIcon(-1649.904, 1209.725, 7.250, 36, 0, -1, -1, -1, 100.0, MAPICON_LOCAL);
 	
 	TextDrawCreate(0.000000, 0.000000, "_");
 
@@ -389,6 +392,10 @@ public OnPlayerConnect(playerid)
 		TogglePlayerSpectating(playerid, true);
 		mysql_free_result();
 	}
+
+	// Salon
+
+	SetPlayerMapIcon(playerid, 70, -1969.291, 296.353, 35.171, 38, 0, MAPICON_GLOBAL);
 
 	//PlayerObjects(playerid);
 
