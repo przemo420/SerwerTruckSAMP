@@ -231,9 +231,9 @@ Dialog:DIALOG_PROJEKT_USUN(playerid, response, listitem, inputtext[])
 	new projektid;
 	sscanf(inputtext, "d{s[60]}", projektid);
 
-	projektyBT[projektid][ProjectBTOwner]="\0";
-	projektyBT[projektid][ProjectBTName]="\0";
-	projektyBT[projektid][created]=false;
+	//projektyBT[projektid][ProjectBTOwner]="\0";
+	//projektyBT[projektid][ProjectBTName]="\0";
+	//projektyBT[projektid][created]=false;
 
 	// pêtla na usuwanie obiektów
 	return 1;

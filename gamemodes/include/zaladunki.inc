@@ -117,7 +117,8 @@ new waresInfo[MAX_WARES][eWares],
 	loadInfo[MAX_LOADINGS][eLoad],
 	vloadInfo[MAX_VEHICLES][eLoadVehicle],
 	objectsInfo[MAX_BASES_OBJECTS],
-	ID_DOKOW=1;
+	ID_DOKOW=1,
+	loadedObjectID[MAX_VEHICLES];
 
 public Loadings_OnGameModeInit()
 {
@@ -195,6 +196,18 @@ stock LoadingsInit()
 	CreateCargos();
 	SetTimer("RefreshCargos", 2 * 60 * 1000, true);
 	SetTimer("RenewCargos", 25 * 60 * 1000, true);
+	return 1;
+}
+
+forward Loadings_OnVehicleDeath(vehicleid, killerid);
+public Loadings_OnVehicleDeath(vehicleid, killerid)
+{
+	if(IsValidObject(loadedObjectID[vehicleid]))
+	{
+		DestroyObject(loadedObjectID[vehicleid]);
+		loadedObjectID[vehicleid]=INVALID_OBJECT_ID;
+	}
+
 	return 1;
 }
 
@@ -976,6 +989,25 @@ public LoadCargo(playerid, vehicleid)
 		vloadInfo[vehicleid][vLoaded] = true;
 		cargoHealth[vehicleid] = 1000.0;
 
+		if(waresInfo[GetPVarInt(playerid, "cargoID")][wType] == TYPE_DANGEROUS)
+		{
+			new ovehicleid = GetPlayerVehicleID(playerid);
+
+			new Float:Pos[3];
+			GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
+
+			loadedObjectID[ovehicleid] = CreateObject(19803, Pos[0], Pos[1], Pos[2], 0, 0, 0, 200.0);
+
+			new Float:WHEEL_F[3];
+			GetVehicleModelInfo(GetVehicleModel(ovehicleid), VEHICLE_MODEL_INFO_PETROLCAP, WHEEL_F[0], WHEEL_F[1], WHEEL_F[2]);
+
+			switch(GetVehicleModel(ovehicleid))
+			{
+				case 403: AttachObjectToVehicle(loadedObjectID[ovehicleid], ovehicleid, 0, WHEEL_F[1], -WHEEL_F[2], 0, 0, 0);
+				default: AttachObjectToVehicle(loadedObjectID[ovehicleid], ovehicleid, 0, WHEEL_F[1], -(floatround(WHEEL_F[2]*0.2)), 0, 0, 0); 
+			}
+		}
+
 		RemovePlayerMapIcon(playerid, 69);
 		SetPlayerMapIcon(playerid, 69, loadInfo[RID][lX], loadInfo[RID][lY], loadInfo[RID][lZ], 53, 0, MAPICON_GLOBAL);
 
@@ -1082,6 +1114,13 @@ public UnloadCargo(playerid, vehicleid)
 
 		if(GetPVarInt(playerid, "playerTrailer") > 0)
 			DestroyVehicle(GetPVarInt(playerid, "playerTrailer"));
+
+		if(IsValidObject(loadedObjectID[GetPlayerVehicleID(playerid)]))
+		{
+			DestroyObject(loadedObjectID[GetPlayerVehicleID(playerid)]);
+			loadedObjectID[GetPlayerVehicleID(playerid)]=INVALID_OBJECT_ID;
+		}
+
 		DeletePVar(playerid, "cargoID");
 		DeletePVar(playerid, "unloadTimer");
 		DeletePVar(playerid, "unloadTimerCount");

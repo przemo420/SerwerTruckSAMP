@@ -103,7 +103,12 @@ Dialog:DIALOG_TANKOWANIE_TANKUJ(playerid, response, listitem, inputtext[])
 	else
 		vehInfo[DBVehID[vehicleid]][vFuel] += ileZatankowac;
 
-	GiveMoney(playerid, -koszt);
+	new firmaid = PlayerInfo[playerid][pFirma];
+	if(Firmy[firmaid][tID])
+		Firmy[firmaid][tBank] -= koszt;
+	else
+		GiveMoney(playerid, -koszt);
+		
 	Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "Stacja", "Zatankowa³eœ $%0.2fL za $%d.", "Ok", "", ileZatankowac, koszt);
 	return 1;
 }
