@@ -188,10 +188,16 @@ Dialog:DIALOG_ID_VIATOLL(playerid, response, listitem, inputtext[])
 		default: {impulsow=0; koszt=0;}
 	}
 
-	if(GetMoney(playerid) < koszt)
+	new firmaid = PlayerInfo[playerid][pFirma];
+
+	if( (firmaid == 0 && GetMoney(playerid) < koszt) || (Firmy[firmaid][tID] && Firmy[firmaid][tBank] < koszt) )
 		return ShowInfo(playerid, "Nie masz tyle pieniêdzy.");
 
-	GiveMoney(playerid, -koszt);
+	if(Firmy[firmaid][tID])
+		Firmy[firmaid][tBank] -= koszt;
+	else
+		GiveMoney(playerid, -koszt);
+		
 	GiveViaMoney(playerid, impulsow);
 	format(str, sizeof(str), "Kupi³eœ %d impuls/ów za $%d.", impulsow, koszt);
 	ShowInfo(playerid, str);

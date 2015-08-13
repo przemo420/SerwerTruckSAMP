@@ -9,6 +9,7 @@
 	- /rozkuj
 	- /kontrola
 	- /alkomat
+	- /scigani
 */
 
 CMD:alkomat(playerid, params[])
@@ -389,6 +390,55 @@ CMD:kartoteka(playerid, params[])
 
 	SetPVarInt(playerid, "Kartoteka_Dodaj", forplayerid);
 	Dialog_Show(playerid, DIALOG_ID_KARTOTEKA, (mysql_num_rows() ? DIALOG_STYLE_TABLIST_HEADERS : DIALOG_STYLE_MSGBOX), "Kartoteka", wiadomosc, "Dodaj wpis", "Zamknij");
+
+	return 1;
+}
+
+CMD:scigani(playerid, cmdtext[])
+{
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
+	if(!IsPlayerInAnyVehicle(playerid))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ w pojeŸdzie.");
+
+	new wiadomosc[600], zapytanie[70];
+
+	mysql_query("SELECT scigani.powod, gracz.name AS graczname, gracz.online AS graczonline, policjant.name AS policjantname\
+		FROM st_scigani AS scigani\
+		LEFT JOIN Accounts AS gracz ON scigani.graczid = gracz.ID\
+		LEFT JOIN Accounts AS policjant ON scigani.policjantid = policjant.ID\
+		ORDER BY scigani.data DESC");
+	mysql_store_result();
+
+	if(mysql_num_rows()==0)
+		strcat(wiadomosc, "Brak œciganych graczy.");
+	else
+	{
+		format(wiadomosc, sizeof(wiadomosc), "Poszukiany\tDoda³\tPowód");
+		while(mysql_fetch_row(zapytanie, "|")) 
+		{
+			mysql_fetch_field("graczonline", zapytanie);
+			strcat(wiadomosc, strval(zapytanie) == 1 ? ("{C9FFAB}") : ("{F81414}"));
+
+			mysql_fetch_field("graczname", zapytanie);
+			strcat(wiadomosc, zapytanie);
+			strcat(wiadomosc, "\t");
+
+			mysql_fetch_field("policjantname", zapytanie);
+			strcat(wiadomosc, zapytanie);
+			strcat(wiadomosc, "\t");
+
+			mysql_fetch_field("powod", zapytanie);
+			strcat(wiadomosc, zapytanie);
+			strcat(wiadomosc, "\n{FFFFFF}");
+		} 
+	}
+
+	Dialog_Show(playerid, DIALOG_ID_SCIGANI, (mysql_num_rows() ? DIALOG_STYLE_TABLIST_HEADERS : DIALOG_STYLE_MSGBOX), "Œcigani", wiadomosc, "Dodaj", "Zamknij");
 
 	return 1;
 }

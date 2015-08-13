@@ -252,7 +252,6 @@ public OnGameModeInit()
 	SetTimer("OneSecTimer", 1000, true);
 	SetTimer("SaveALL", 60000, true);
 	SetTimer("Update2", 100, true);
-	SetTimer("Update3", 5000, true);
 
 	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
 	{
@@ -1365,7 +1364,7 @@ public SendClientMessageToAdmins(color, const message[])
 forward OneSecTimer();
 public OneSecTimer()
 {
-	new hour, minute, second/*, year, month, day*/, string[20];
+	new hour, minute, second/*, year, month, day*/, string[176];
 
 	gettime(hour, minute, second);
 	//getdate(year, month, day);
@@ -1379,10 +1378,11 @@ public OneSecTimer()
 	for(new i, maxPlayerID=GetPlayerPoolSize(); i <= maxPlayerID; i++)
 		if(IsPlayerConnected(i))
 		{
-	    	new vehicleid = GetPlayerVehicleID(i), Float:speed;
+	    	new vehicleid = GetPlayerVehicleID(i), Float:speed, Float:health, firmaid = PlayerInfo[i][pFirma];
     		new engine,lights,alarm,doors,bonnet,boot,objective;
 			GetVehicleParamsEx(vehicleid,engine,lights,alarm,doors,bonnet,boot,objective);
 			GetVehicleSpeed(vehicleid, speed);
+			GetPlayerHealth(i, health);
 
   			if(!IsPlayerInTruck(i) || (IsPlayerInTruck(i) && !engine && GetPVarInt(i, "tacho_pauza") && speed == 0))
   				if(GetDTime(i) != 0)
@@ -1399,6 +1399,16 @@ public OneSecTimer()
 				if(funcidx(szTemp) != -1)
 					CallLocalFunction(szTemp, "d", i);
 			}
+
+		    if(firmaid != 0 && GetPVarInt(i, "Working"))
+			    format(string, sizeof(string), "{%06x}%s\n", GetPlayerColor(i) >>> 8, Firmy[firmaid][tName]);
+					
+			format(string, sizeof(string), "%s{57AE00}%s {FFFFFF}[ {57AE00}ID: %d {FFFFFF}]\n{57AE00}HP: %0.1f\n", string, PlayerName(i), i, health);
+
+			if(GetPVarInt(i, "AFK"))
+				strcat(string, "AFK");
+
+			Update3DTextLabelText(Trucking[i], ZIELONY, string);
 		}
 
 	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
@@ -1564,35 +1574,6 @@ public Refresh()
 			else
 				vehInfo[DBVehID[vehicleid]][vFuel] = fuel;
 		}
-
-		/*if(IsVehicleTruck(GetVehicleModel(vehicleid)))
-	        vehicleid = GetVehicleTrailer(vehicleid);
-
-		if(vehOtherInfo[vehicleid][vCargoUnLoadTime] == 1)
-		{
-			if(IsPlayerConnected(VehicleDriver[vehicleid]))
-			{
-				PlayerPlaySound(playerid, 1139, 0.0, 0.0, 0.0);
-				SendClientMessage(playerid,0x0,"{3CBFFF}Towar gotowy do roz³adunku.");
-				TextDrawHideForPlayer(playerid, CargoTextDraws[CargoTDBox]);
-				PlayerTextDrawHide(playerid, CargoTextDraws[CargoTDInfo][playerid]);
-			}
-
-				
-			vehOtherInfo[vehicleid][vCargoUnLoadTime] = 0;
-		}
-		else if(vehOtherInfo[vehicleid][vCargoUnLoadTime] > 1)
-		{
-			if(IsPlayerConnected(VehicleDriver[vehicleid]))
-			{
-				new str[60], h, m, s;
-				ConvertSeconds(vehOtherInfo[vehicleid][vCargoUnLoadTime],h,m,s);
-				format(str, sizeof(str), "Do wyladunku zostalo:~n~%dm %ds", m, s);
-				PlayerTextDrawSetString(playerid, CargoTextDraws[CargoTDInfo][playerid], str);
-			}
-
-			vehOtherInfo[vehicleid][vCargoUnLoadTime]--;	
-		}*/
 	}
 
 	Wypadek();
@@ -1601,17 +1582,11 @@ public Refresh()
 
 forward Kickplayer(playerid);
 public Kickplayer(playerid)
-{
-Kick(playerid);
-return 1;
-}
+	return Kick(playerid);
 
 forward ReqSpawnPlayer(playerid);
 public ReqSpawnPlayer(playerid)
-{
-	SpawnPlayer(playerid);
-	return 1;
-}
+	return SpawnPlayer(playerid);
 
 stock SavePlayer(playerid, saveTime=0)
 {
@@ -1897,45 +1872,6 @@ public Update2()
 			}
 		}
 	}
-	return 1;
-}
-
-forward Update3();
-public Update3()
-{
-	Loop(playerid, MAX_PLAYERS)
-	{
-		new string[176];
-		new Float:health;
-		GetPlayerHealth(playerid,health);
-		new vehicleid = GetPlayerVehicleID(playerid);
-
-		if(IsPlayerConnected(playerid))
-		{
-		    if(GetPVarInt(playerid, "AFK"))
-		    {
-	     		format(string, sizeof(string), "{57AE00}%s {FFFFFF}[ {57AE00}ID: %d {FFFFFF}]\n{57AE00}HP: %0.1f\nAFK!", PlayerName(playerid),playerid, health);
-				Update3DTextLabelText(Trucking[playerid], ZIELONY, string);
-		    }
-		    else
-		    {
-		    	new firmaid = PlayerInfo[playerid][pFirma];
-
-		    	if(firmaid != 0 && GetPVarInt(playerid, "Working"))
-			    	format(string, sizeof(string), "{%06x}%s\n%s [{FFFFFF}ID: %d{%06x}]\nHP: %0.1f", GetPlayerColor(playerid) >>> 8, Firmy[firmaid][tName], PlayerName(playerid), playerid, GetPlayerColor(playerid) >>> 8, health);
-				else
-					format(string, sizeof(string), "{57AE00}%s {FFFFFF}[ {57AE00}ID: %d {FFFFFF}]\n{57AE00}HP: %0.1f", PlayerName(playerid),playerid, health);
-
-				Update3DTextLabelText(Trucking[playerid], ZIELONY, string);
-		    }
-		    
-			if(IsTrailerAttachedToVehicle(vehicleid) && PlayerVehicleIsTruck(playerid))
-			{
-				
-			}
-		}
-	}
-
 	return 1;
 }
 

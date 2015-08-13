@@ -389,6 +389,7 @@ enum Player {
 	pWorkTime,
 	pBuildmaster,
 	pADR,
+	pScigany,
 	bool:pInvited[8],
 	chained,
 	chainedTimer

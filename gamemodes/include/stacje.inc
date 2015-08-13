@@ -95,7 +95,9 @@ Dialog:DIALOG_TANKOWANIE_TANKUJ(playerid, response, listitem, inputtext[])
 		case FUEL_TYPE_TDI: koszt = floatround(ileZatankowac * Stacje[stacjaid][CenaRopa]);
 	}
 
-	if(GetMoney(playerid) < koszt) 
+	new firmaid = PlayerInfo[playerid][pFirma];
+
+	if( (firmaid == 0 && GetMoney(playerid) < koszt) || (Firmy[firmaid][tID] && Firmy[firmaid][tBank] < koszt) )
 		return Dialog_Show(playerid, DIALOG_TANKOWANIE_TANKUJ, DIALOG_STYLE_INPUT, "Stacja", "Nie masz tylu pieniêdzy! Potrzebujesz: $%d\nMo¿esz zatankowaæ: %0.2fL\n\nWpisz iloœæ paliwa w litrach (0, by do pe³na):", "Tankuj", "Anuluj", ileZatankowac * Stacje[stacjaid][CenaGaz], mozeZatankowac);
 
 	if(Spawned[vehicleid])
@@ -103,7 +105,6 @@ Dialog:DIALOG_TANKOWANIE_TANKUJ(playerid, response, listitem, inputtext[])
 	else
 		vehInfo[DBVehID[vehicleid]][vFuel] += ileZatankowac;
 
-	new firmaid = PlayerInfo[playerid][pFirma];
 	if(Firmy[firmaid][tID])
 		Firmy[firmaid][tBank] -= koszt;
 	else

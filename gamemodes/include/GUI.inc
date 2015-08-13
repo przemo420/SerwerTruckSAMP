@@ -1392,7 +1392,7 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 	if(!response)
 				return Kick(playerid);
 
-			new s_buf[500], Name[32], Pass[129], ip[16];
+			new s_buf[451+MAX_PLAYER_NAME+129], Name[32], Pass[129], ip[16];
 
 			if(isnull(inputtext))
 			{
@@ -1405,11 +1405,14 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 
 			GetPlayerIp(playerid, ip, sizeof(ip));
 
-
 			WP_Hash(Pass, sizeof (Pass), inputtext);
 			mysql_real_escape_string(PlayerName(playerid), Name);
 
-			format(s_buf, sizeof(s_buf), "SELECT `ID`,`Money`,`Score`,`Admin`,`Bankomat`,`Firma`,`Skin`,`Tacho`,`Foto`,`Toll`,`Gtime`,`Worktime`,`BuildMaster`,`Adr` FROM `Accounts` WHERE `Name`='%s' AND `Pass` = '%s';", Name, Pass);
+			format(s_buf, sizeof(s_buf), "SELECT gracze.ID, gracze.Money, gracze.Score, gracze.Admin, gracze.Bankomat, gracze.Firma, gracze.Skin, gracze.Tacho, gracze.Foto, gracze.Toll, gracze.Gtime, gracze.Worktime, gracze.BuildMaster, gracze.Adr,\
+				CASE WHEN scigani.id IS NOT NULL THEN scigani.id ELSE 0 END AS sciganiID\
+				FROM `Accounts` AS gracze\
+				LEFT JOIN `st_scigani` AS scigani ON gracze.ID = scigani.graczid AND scigani.aresztowanyprzez = 0\
+				WHERE gracze.name = '%s' AND `Pass` = '%s'", Name, Pass);
 			mysql_query(s_buf);
 			mysql_store_result();
 
@@ -1418,7 +1421,7 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 				PlayerLogged(playerid);
 				ResetPlayerMoney(playerid);
 
-				sscanf(s_buf, "e<p<|>dddddddddddddd>", PlayerInfo[playerid]);
+				sscanf(s_buf, "e<p<|>ddddddddddddddd>", PlayerInfo[playerid]);
 
 				mysql_free_result();
 
