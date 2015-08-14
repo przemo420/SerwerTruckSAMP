@@ -10,7 +10,7 @@
 
 // USTAWIENIA
 
-#define TXT_TEXT "%d | %d/20%",id, Fire[id][Health] // Ogólne ustawienia 3d tekstu (id - id po¿aru, health - ¿ycie po¿aru) - mo¿na tutaj kolorowaæ i takie tam
+#define TXT_TEXT "%d | %d/20%%",id, Fire[id][Health] // Ogólne ustawienia 3d tekstu (id - id po¿aru, health - ¿ycie po¿aru) - mo¿na tutaj kolorowaæ i takie tam
 
 enum _fire
 {
@@ -95,9 +95,9 @@ public RandomFire()
 	if(random(100) <= FireProbability[GetWeather()])
 	{
         new r = random(sizeof(RandomFires));
-        AddFire(RandomFires[r][0], RandomFires[r][1], RandomFires[r][2], 80+random(10));
-        return 1;
+        AddFire(RandomFires[r][0], RandomFires[r][1], RandomFires[r][2]+3.0, 80+random(10));
     }
+    return 1;
 }
 
 forward FireUpdate();
@@ -176,37 +176,19 @@ stock GetFreeFireID(){
 	return -1;
 }
 
-stock IsPlayerLookingAtPoint(playerid,Float:X,Float:Y,Float:Z,Float:ViewWidth=22.5,Float:ViewHeight=10.0)
+stock IsPlayerLookingAtPoint(playerid,Float:X,Float:Y,Float:Z,Float:Distance=30.0,RadiosToPoint=30)
 {
-    new Float:cx,Float:cy,Float:cz,Float:pa1,Float:pa2,Float:ca1,Float:ca2,Float:px,Float:py,Float:pz;
-    GetPlayerCameraFrontVector(playerid,cx,cy,cz);
-    GetPlayerPos(playerid,px,py,pz);
-    pz+=2.0;
-    cx=floatadd(cx,px);
-    cy=floatadd(cy,py);
-    cz=floatadd(cz,pz);
-    pa1=atan2(X-px,Y-py);
-    if(pa1>360)pa1=floatsub(pa1,360);
-    if(pa1<0)pa1=floatadd(pa1,360);
-    pa2=atan2(Y-py,Z-pz);
-    if(pa2>360)pa2=floatsub(pa2,360);
-    if(pa2<0)pa2=floatadd(pa2,360);
-    ca1=atan2(cx-px,cy-py);
-    if(ca1>360)ca1=floatsub(ca1,360);
-    if(ca1<0)ca1=floatadd(ca1,360);
-    ca2=atan2(cy-py,cz-pz);
-    if(ca2>360)ca2=floatsub(ca2,360);
-    if(ca2<0)ca2=floatadd(ca2,360);
-	if((ca1>(pa1-ViewWidth))&&(ca1<(pa1+ViewWidth))&&(ca2>(pa2-ViewHeight))&&(ca2<(pa2+ViewHeight)))return 1;
-    if((pa1-ViewWidth)<0)
-    {
-        ca1-=360.0;
-        if((ca1>(pa1-ViewWidth))&&(ca1<(pa1+ViewWidth))&&(ca2>(pa2-ViewHeight))&&(ca2<(pa2+ViewHeight)))return 1;
-    }
-    if((pa1+ViewWidth)>360)
-    {
-        ca1+=360.0;
-        if((ca1>(pa1-ViewWidth))&&(ca1<(pa1+ViewWidth))&&(ca2>(pa2-ViewHeight))&&(ca2<(pa2+ViewHeight)))return 1;
-    }
-    return 0;
+new Float:CX,Float:CY,Float:CZ,Float:FX,Float:FY,Float:FZ;
+new Float:PX,Float:PY,Float:PZ,Float:D;
+if(IsPlayerInRangeOfPoint(playerid,Distance,X ,Y ,Z))
+{
+GetPlayerCameraPos(playerid,CX,CY,CZ);
+GetPlayerCameraFrontVector(playerid, FX, FY, FZ);
+PX = FX*D+CX;
+PY = FY*D+CY;
+PZ = FZ*D+CZ;
+D = floatsqroot(((PX - X) * (PX - X)) + ((PY - Y) * (PY - Y)) + ((PZ - Z) * (PZ - Z)));
+return 1;
+}
+return 0; 
 }

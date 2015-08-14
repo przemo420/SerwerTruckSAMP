@@ -74,6 +74,7 @@ enum {
 #define Loop(%1,%2) for(new %1 = 0; %1 < %2; %1++)
 #define ResetVariablesInEnum(%0,%1) 	for(new __rvine; %1:__rvine != %1; __rvine++) %0[%1:__rvine]=0
 #define ShowInfo(%0,%1) Dialog_Show(%0, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "{FF0000}Informacja", %1, "Ok", "")
+#define HOLDING(%0) ((newkeys & (%0)) == (%0))
 
 #define LIGHTGREEN 			0xBCEE68FF
 #define LIGHTBLUE 			0xA8C3E3FF
@@ -141,7 +142,8 @@ new const szHookInclude[][] = {
 	"Fade", // lib/j_fader.inc
 	"FadePlayer", // fade.inc
 	"Logo", // logo.inc
-	"Photo" // fotoradary.inc
+	"Photo", // fotoradary.inc
+	"Fire" // pozary.inc
 };
 
 /*

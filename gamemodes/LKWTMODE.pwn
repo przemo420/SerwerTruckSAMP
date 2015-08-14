@@ -80,6 +80,7 @@ main()
 #include "include/beep.inc"
 #include "include/logo.inc"
 #include "include/salon.inc"
+#include "include/pozary.inc"
 // -----
 #include "include/organizacje/policja.inc"
 #include "include/organizacje/pomocdrogowa.inc"
@@ -1143,6 +1144,15 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	//}
 
 	return 1;
+}
+
+public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY, Float:fZ)
+{
+    new szString[144];
+    format(szString, sizeof(szString), "Weapon %i fired. hittype: %i   hitid: %i   pos: %f, %f, %f", weaponid, hittype, hitid, fX, fY, fZ);
+    SendClientMessage(playerid, -1, szString);
+ 
+    return 1;
 }
 
 public OnRconLoginAttempt(ip[], password[], success)

@@ -229,6 +229,16 @@ stock Msg(playerid, colorid, text[], bool:playSound = true, bool:displayPrefix =
 	return 1;
 }
 
+stock MsgTo(colorid, text[], teamtypeid)
+{
+	for(new i; i <= GetPlayerPoolSize(); i++)
+		if(IsPlayerConnected(i))
+			if(Firmy[PlayerInfo[i][pFirma]][tTyp] == teamtypeid)
+				Msg(i, colorid, text);
+
+	return 1;
+}
+
 stock MsgToAll(colorid, text[], bool:displayPrefix = true)
 {
 	new
