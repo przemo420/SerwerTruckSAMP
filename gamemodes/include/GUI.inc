@@ -1408,10 +1408,10 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 			WP_Hash(Pass, sizeof (Pass), inputtext);
 			mysql_real_escape_string(PlayerName(playerid), Name);
 
-			format(s_buf, sizeof(s_buf), "SELECT gracze.ID, gracze.Money, gracze.Score, gracze.Admin, gracze.Bankomat, gracze.Firma, gracze.Skin, gracze.Tacho, gracze.Foto, gracze.Toll, gracze.Gtime, gracze.Worktime, gracze.BuildMaster, gracze.Adr,\
-				CASE WHEN scigani.id IS NOT NULL THEN scigani.id ELSE 0 END AS sciganiID\
-				FROM `Accounts` AS gracze\
-				LEFT JOIN `st_scigani` AS scigani ON gracze.ID = scigani.graczid AND scigani.aresztowanyprzez = 0\
+			format(s_buf, sizeof(s_buf), "SELECT gracze.ID, gracze.Money, gracze.Score, gracze.Admin, gracze.Bankomat, gracze.Firma, gracze.Skin, gracze.Tacho, gracze.Foto, gracze.Toll, gracze.Gtime, gracze.Worktime, gracze.BuildMaster, gracze.Adr, \
+				CASE WHEN scigani.id IS NOT NULL THEN scigani.id ELSE 0 END AS sciganiID \
+				FROM `Accounts` AS gracze \
+				LEFT JOIN `st_scigani` AS scigani ON gracze.ID = scigani.graczid AND scigani.aresztowanyprzez = 0 \
 				WHERE gracze.name = '%s' AND `Pass` = '%s'", Name, Pass);
 			mysql_query(s_buf);
 			mysql_store_result();

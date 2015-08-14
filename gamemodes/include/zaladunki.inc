@@ -19,9 +19,9 @@
 #define MAX_BASES_OBJECTS	100
 #define MAX_SPAWN_POINTS 	25
 #define MAX_BASES			5
-#define MAX_WARES			25
+#define MAX_WARES			8
 #define MAX_CARGOS			500
-#define MAX_LOADINGS		100
+#define MAX_LOADINGS		23
 
 #define WARE_TYPE_TRUCK		0
 #define WARE_TYPE_VAN		1
@@ -141,6 +141,7 @@ stock LoadingsInit()
 	mysql_query("SELECT * FROM wares");
 	mysql_store_result();
 	nums = mysql_num_rows();
+	printf("Zaladowano %d towarow.", nums);
 	for(new i = 0; i < nums; i++)
 	{
 		if(mysql_fetch_row(szBuffer, "|") && i <= MAX_WARES)
@@ -155,6 +156,7 @@ stock LoadingsInit()
 	mysql_query("SELECT * FROM loads");
 	mysql_store_result();
 	nums = mysql_num_rows();
+	printf("Zaladowano %d punktow zaladunkowych.", nums);
 	for(new c = 0; c < nums; c++)
 	{
 		if(mysql_fetch_row(szBuffer, "|") && c <= MAX_LOADINGS)
@@ -177,6 +179,7 @@ stock LoadingsInit()
 	mysql_query("SELECT * FROM bases");
 	mysql_store_result();
 	nums = mysql_num_rows();
+	printf("Zaladowano %d wypozyczalni naczep.", nums);
 	for(new c = 0; c < nums; c++)
 	{
 		if(mysql_fetch_row(szBuffer, "|") && c <= MAX_SPAWN_POINTS*4)

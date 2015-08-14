@@ -7,7 +7,7 @@ enum eWeather
 	wWeather,
 	wNextWeather,
 	wNextTime,
-	wText[170]
+	wText[220]
 }
 
 new weatherInfo[eWeather];
@@ -117,7 +117,7 @@ stock WeatherInfo()
 	else
 		weather = allowedWeathers[random(sizeof allowedWeathers)];
 
-	format(weatherInfo[wText], sizeof weatherInfo[wText], "Obecna pogoda {b}(%s){/b} bêdzie utrzymywa³a siê do godziny {b}%02d:%02d{/b}. \nNastêpnie ma byæ {b}%s{/b} przez {b}%d{/b} minut. Poprawnoœæ wyników wynosi {b}%d{/b} %%.", 
+	format(weatherInfo[wText], sizeof weatherInfo[wText], "Obecna pogoda {488CDB}(%s){FFFFFF} bêdzie utrzymywa³a siê do godziny {488CDB}%02d:%02d{FFFFFF}. \nNastêpnie ma byæ {488CDB}%s{FFFFFF} przez {488CDB}%d{FFFFFF} minut. Poprawnoœæ wyników wynosi {488CDB}%d{FFFFFF} %%.", 
 		weatherNames[weatherInfo[wWeather]], /* przy GetWeatherName undefined symbol dawa³o, haha :D */
 		time[3], 
 		time[4],
@@ -162,14 +162,7 @@ stock GetNextWeatherTime()
 
 
 CMD:pogodynka(playerid)
-{
-	new szTemp[200];
-	copy(weatherInfo[wText], szTemp);
-	replace(szTemp, "{b}", "{488CDB}");
-	replace(szTemp, "{/b}", "{FFFFFF}");
-	Dialog_Show(playerid, DIALOG_WEATHER, DIALOG_STYLE_MSGBOX, " ", szTemp, "WyjdŸ", #);
-	return 1;
-}
+	return Dialog_Show(playerid, DIALOG_WEATHER, DIALOG_STYLE_MSGBOX, " ", weatherInfo[wText], "WyjdŸ", "");
 
 Dialog:DIALOG_WEATHER(playerid, response, listitem, inputtext[])
 {

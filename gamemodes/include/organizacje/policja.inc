@@ -107,6 +107,15 @@ CMD:aresztuj(playerid, params[])
 	SetPlayerHealth(forplayerid, 9999999);
 	TogglePlayerControllable(forplayerid, 0);
 	PlayerInfo[forplayerid][chained] = false;
+
+	if(PlayerInfo[forplayerid][pScigany])
+	{
+		format(string, sizeof(string), "UPDATE `st_scigani` SET `aresztowanyprzez` = %d WHERE `id` = %d", PlayerInfo[playerid][pID], PlayerInfo[forplayerid][pScigany]);
+		mysql_query(string);
+
+		PlayerInfo[forplayerid][pScigany]=0;
+	}
+
 	return 1;
 }
 
@@ -401,16 +410,14 @@ CMD:scigani(playerid, cmdtext[])
 
 	if(!GetPVarInt(playerid, "Worked"))
 		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
-
-	if(!IsPlayerInAnyVehicle(playerid))
-		return Msg(playerid, COLOR_ERROR, "Musisz byæ w pojeŸdzie.");
-
+		
 	new wiadomosc[600], zapytanie[70];
 
-	mysql_query("SELECT scigani.powod, gracz.name AS graczname, gracz.online AS graczonline, policjant.name AS policjantname\
-		FROM st_scigani AS scigani\
-		LEFT JOIN Accounts AS gracz ON scigani.graczid = gracz.ID\
-		LEFT JOIN Accounts AS policjant ON scigani.policjantid = policjant.ID\
+	mysql_query("SELECT scigani.powod, scigani.data, gracz.name AS graczname, gracz.online AS graczonline, policjant.name AS policjantname \
+		FROM st_scigani AS scigani \
+		LEFT JOIN Accounts AS gracz ON scigani.graczid = gracz.ID \
+		LEFT JOIN Accounts AS policjant ON scigani.policjantid = policjant.ID \
+		WHERE scigani.aresztowanyprzez = 0 \
 		ORDER BY scigani.data DESC");
 	mysql_store_result();
 
@@ -418,11 +425,12 @@ CMD:scigani(playerid, cmdtext[])
 		strcat(wiadomosc, "Brak œciganych graczy.");
 	else
 	{
-		format(wiadomosc, sizeof(wiadomosc), "Poszukiany\tDoda³\tPowód");
+		format(wiadomosc, sizeof(wiadomosc), "Poszukiany\tDoda³\tPowód\tData dodania");
 		while(mysql_fetch_row(zapytanie, "|")) 
 		{
+			strcat(wiadomosc, "\n");
 			mysql_fetch_field("graczonline", zapytanie);
-			strcat(wiadomosc, strval(zapytanie) == 1 ? ("{C9FFAB}") : ("{F81414}"));
+			strcat(wiadomosc, strval(zapytanie) == 1 ? ("{00FF00}") : ("{FF0000}"));
 
 			mysql_fetch_field("graczname", zapytanie);
 			strcat(wiadomosc, zapytanie);
@@ -434,11 +442,14 @@ CMD:scigani(playerid, cmdtext[])
 
 			mysql_fetch_field("powod", zapytanie);
 			strcat(wiadomosc, zapytanie);
-			strcat(wiadomosc, "\n{FFFFFF}");
+			strcat(wiadomosc, "\t");
+
+			mysql_fetch_field("data", zapytanie);
+			strcat(wiadomosc, zapytanie);
 		} 
 	}
 
-	Dialog_Show(playerid, DIALOG_ID_SCIGANI, (mysql_num_rows() ? DIALOG_STYLE_TABLIST_HEADERS : DIALOG_STYLE_MSGBOX), "Œcigani", wiadomosc, "Dodaj", "Zamknij");
+	Dialog_Show(playerid, DIALOG_SCIGANI, (mysql_num_rows() ? DIALOG_STYLE_TABLIST_HEADERS : DIALOG_STYLE_MSGBOX), "Œcigani", wiadomosc, "Dodaj", "Zamknij");
 
 	return 1;
 }
@@ -600,4 +611,37 @@ Dialog:DIALOG_ID_KARTOTEKA_DODAJ(playerid, response, listitem, inputtext[])
 
 	format(wiadomosc, sizeof(wiadomosc), "%d", GetPVarInt(playerid, "Kartoteka_Dodaj"));
 	return cmd_kartoteka(playerid, wiadomosc);
+}
+
+Dialog:DIALOG_SCIGANI(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	return Dialog_Show(playerid, DIALOG_SCIGANI_DODAJ, DIALOG_STYLE_INPUT, "Œcigani > Dodaj gracza", "By dodaæ, wpisz w poni¿szym formacie:\n[id] [powód]\nPrzyk³ad: 0 ucieczka z miejsca wypadku", "Dodaj", "Zamknij");
+}
+
+Dialog:DIALOG_SCIGANI_DODAJ(playerid, response, listitem, inputtext[])
+{
+	new forplayerid, powod[80], string[61+MAX_PLAYER_NAME+MAX_PLAYER_NAME+80];
+
+	if(!response)
+		return 1;
+
+	if(sscanf(inputtext, "ds[80]", forplayerid, powod))
+		return DIALOG_SCIGANI(playerid, response, listitem, inputtext);
+
+	if(!IsPlayerConnected(playerid))
+		return Dialog_Show(playerid, DIALOG_SCIGANI_DODAJ, DIALOG_STYLE_INPUT, "Œcigani > Dodaj gracza", "Gracz jest offline.\nWpisz id i powód:", "Dodaj", "Zamknij");
+
+	format(string, sizeof(string), "INSERT INTO `st_scigani` VALUES ('', '%d', '%d', '%s', CURRENT_TIMESTAMP(), 0)", PlayerInfo[forplayerid][pID], PlayerInfo[playerid][pID], powod);
+	mysql_query(string);
+
+	PlayerInfo[forplayerid][pScigany] = mysql_insert_id();
+	format(string, sizeof(string), "Policjant {b}%s{/b} doda³ Ciê do listy œciganych! Powód: {b}%s{/b}", PlayerName(playerid), powod);
+	Msg(forplayerid, COLOR_INFO2, string);
+
+	format(string, sizeof(string), "Doda³eœ {b}%s{/b} do listy œciganych! Powód: {b}%s{/b}", PlayerName(forplayerid), powod);
+	Msg(playerid, COLOR_INFO2, string);
+	return 1;
 }

@@ -283,7 +283,7 @@ public OnGameModeExit()
 			CallLocalFunction(szTemp, "");
 	}
 
-	mysql_close(MySQLConnection);
+	mysql_close();
 
    	return 1;
 }
@@ -1400,13 +1400,17 @@ public OneSecTimer()
 					CallLocalFunction(szTemp, "d", i);
 			}
 
+			string[0] = EOS;
 		    if(firmaid != 0 && GetPVarInt(i, "Working"))
 			    format(string, sizeof(string), "{%06x}%s\n", GetPlayerColor(i) >>> 8, Firmy[firmaid][tName]);
 					
 			format(string, sizeof(string), "%s{57AE00}%s {FFFFFF}[ {57AE00}ID: %d {FFFFFF}]\n{57AE00}HP: %0.1f\n", string, PlayerName(i), i, health);
 
 			if(GetPVarInt(i, "AFK"))
-				strcat(string, "AFK");
+				strcat(string, "AFK\n");
+
+			if(PlayerInfo[i][pScigany])
+				strcat(string, "{F81414}! POSZUKIWANY !{FFFFFF}\n");
 
 			Update3DTextLabelText(Trucking[i], ZIELONY, string);
 		}

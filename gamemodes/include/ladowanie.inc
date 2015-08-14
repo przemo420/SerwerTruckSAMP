@@ -57,7 +57,6 @@ LadujOrganizacje()
 		mysql_fetch_field("Kolor", string);
 		Firmy[id][tKolor] = strval(string);
 
-		printf("Name: %s Type: %d", Firmy[id][tName], Firmy[id][tTyp]);
 		ile++;
 	} 
 
