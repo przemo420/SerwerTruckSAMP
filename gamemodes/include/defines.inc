@@ -143,7 +143,8 @@ new const szHookInclude[][] = {
 	"FadePlayer", // fade.inc
 	"Logo", // logo.inc
 	"Photo", // fotoradary.inc
-	"Fire" // pozary.inc
+	"Fire", // pozary.inc
+	"GPS" // gps.inc
 };
 
 /*

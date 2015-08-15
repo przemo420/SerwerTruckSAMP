@@ -425,6 +425,9 @@ CMD:dyzur(playerid, params[])
 		}
 
 		NaDyzurze[firmaid]++;
+
+		if(Firmy[firmaid][tTyp] == TEAM_TYPE_MEDIC)
+			EnablePlayerCameraTarget(playerid, 1);
 	}
 	else
 	{
@@ -440,6 +443,9 @@ CMD:dyzur(playerid, params[])
 		}
 
 		NaDyzurze[firmaid]--;
+
+		if(Firmy[firmaid][tTyp] == TEAM_TYPE_MEDIC)
+			EnablePlayerCameraTarget(playerid, 0);
 	}
 
 	if(Firmy[firmaid][tTyp] == TEAM_TYPE_POMOC)

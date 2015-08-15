@@ -1,11 +1,11 @@
 //CMD:gps(playerid, params[])
 	//return cmd_nawigacja(playerid, params);
-CMD:gpsnawi(playerid, params[])
-{
-	Dialog_Show(playerid, DIALOG_ID_GPS, DIALOG_STYLE_LIST, "GPS System", "Doki towarowe\nStacje\nBary\nSklepy ViaToll\nWy³¹cz", "Wybierz", "");
-	
-	return 1;
-}
+CMD:gps(playerid, params[])
+	return Dialog_Show(playerid, DIALOG_ID_GPS, DIALOG_STYLE_LIST, "GPS System", "Doki towarowe\nStacje\nBary\nSklepy ViaToll\nWy³¹cz", "Wybierz", "");
+
+forward GPS_OnPlayerDisconnect(playerid);
+public GPS_OnPlayerDisconnect(playerid)
+	return GPS_Function(playerid, 4);
 
 forward GPS_Function(playerid, listitem);
 public GPS_Function(playerid, listitem)

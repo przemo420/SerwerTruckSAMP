@@ -8,17 +8,20 @@ public Fire_OnGameModeInit()
 	return 1;
 }
 
-forward LosujPozary();
-public LosujPozary()
+forward LosujPozary(Float:pos);
+public LosujPozary(Float:pos)
 {
 	if(NaDyzurze[2])
 	{
-		CallLocalFunction("RandomFire", ""),
+		CallLocalFunction("RandomFire", "f", pos),
 		MsgTo(COLOR_INFO, "Do wszystkich jednostek: ZG£OSZONO PO¯AR!", TEAM_TYPE_MEDIC);
 	}
 	
 	return 1;
 }
+
+CMD:pozar(playerid, cmdtext[])
+	return LosujPozary(floatstr(cmdtext));
 
 CMD:pozary(playerid, cmdtext[])
 {
@@ -35,11 +38,42 @@ CMD:nadyzurze(playerid, cmdtext[])
 	return ShowInfo(playerid, string);
 }
 
-forward Fire_OnPlayerKey(playerid, newkeys, oldkeys);
-public Fire_OnPlayerKey(playerid, newkeys, oldkeys)
+forward Fire_OneSecPlayerTimer(playerid);
+public Fire_OneSecPlayerTimer(playerid)
 {
-	//if(PRESSED(KEY_FIRE))
-	//{
-		//Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", "Odleg³oœæ od punktu: %d", "Wybierz", "Zamknij", IsPlayerLookingAtPoint(playerid, 1648.4308, -1053.9159, 23.8984));
-	//}
+	new newkeys, ud, lr;
+    GetPlayerKeys(playerid, newkeys, ud, lr);
+
+	if(HOLDING(KEY_FIRE))
+	{
+		new fireobject = GetPlayerCameraTargetObject(playerid);
+		new id = GetClosestFire(playerid);
+
+		if(fireobject == INVALID_OBJECT_ID)
+			return 1;
+
+		if(Fire[id][object] != fireobject)
+			return 1;
+
+		if(GetPlayerWeapon(playerid) != 42)
+			return Msg(playerid, COLOR_ERROR, "Tylko gaœnic¹ mo¿esz zgasiæ po¿ar.");
+
+		if(Fire[id][Health] != 0)
+		{
+			Fire[id][Health]-=1;
+			format(_firestr, sizeof(_firestr), TXT_TEXT);
+			Update3DTextLabelText(Fire[id][info], 0xFFFFFFFFF, _firestr);
+		}
+		else 
+		{
+			DeleteFire(id);
+			OnPlayerText(playerid, "#Ognisko ugaszone, over.");
+		}
+	}
+
+	return 1;
 }
+
+forward OnPlayerNearFire(playerid, fireid);
+forward OnFireAdd(fireid);
+forward OnFireDelete(fireid);

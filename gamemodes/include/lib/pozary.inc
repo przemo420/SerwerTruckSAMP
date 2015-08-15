@@ -85,46 +85,18 @@ new const Float:RandomFires[][] =
 };
 
 stock FireSystem_Init(){
-	SetTimer("FireUpdate", FIRE_TIMER, true);
 	return 1;
 }
 
-forward RandomFire();
-public RandomFire()
+forward RandomFire(Float:pos);
+public RandomFire(Float:pos)
 {
 	if(random(100) <= FireProbability[GetWeather()])
 	{
         new r = random(sizeof(RandomFires));
-        AddFire(RandomFires[r][0], RandomFires[r][1], RandomFires[r][2]+3.0, 80+random(10));
+        AddFire(RandomFires[r][0], RandomFires[r][1], RandomFires[r][2]+pos, 80+random(10));
     }
     return 1;
-}
-
-forward FireUpdate();
-public FireUpdate(){
-	for(new playerid; playerid < GetMaxPlayers(); playerid++){
-		new id = GetClosestFire(playerid);
-		if(id == -1) continue;
-		if(GetPlayerWeapon(playerid) == 42 || (GetVehicleModel(GetPlayerVehicleID(playerid)) == 407 && GetPlayerVehicleSeat(playerid) == 0)){
-			new newkeys,l,u;
-			GetPlayerKeys(playerid, newkeys, l, u);
-			if(HOLDING(KEY_FIRE)){	
-				if(IsPlayerLookingAtPoint(playerid, Fire[id][fX], Fire[id][fY], Fire[id][fZ])){
-					if(Fire[id][Health] != 0){
-						Fire[id][Health]-=1;
-						format(_firestr, sizeof(_firestr),TXT_TEXT);
-						Update3DTextLabelText(Fire[id][info], 0xFFFFFFFFF, _firestr);
-						CallRemoteFunction("OnPlayerPutOutFire", "ddd", playerid, id, false);
-					}
-					else {
-						DeleteFire(id);
-						CallRemoteFunction("OnPlayerPutOutFire", "ddd", playerid, id, true);
-					}
-				}
-			}
-		}
-	}
-	return 1;
 }
 
 stock AddFire(Float:X, Float:Y, Float:Z, wielkosc){
@@ -160,7 +132,7 @@ stock DeleteFire(id){
 
 stock GetClosestFire(playerid){
 	for(new i; i < MAX_FIRE; i++){
-		if(Fire[i][use] == true && IsPlayerInRangeOfPoint(playerid, 1, Fire[i][fX],  Fire[i][fY],  Fire[i][fZ])){
+		if(Fire[i][use] == true && IsPlayerInRangeOfPoint(playerid, 10.0, Fire[i][fX],  Fire[i][fY],  Fire[i][fZ])){
 			CallRemoteFunction("OnPlayerNearFire", "dd",playerid, i);
 			return i;
 		}
@@ -174,21 +146,4 @@ stock GetFreeFireID(){
 		}
 	}
 	return -1;
-}
-
-stock IsPlayerLookingAtPoint(playerid,Float:X,Float:Y,Float:Z,Float:Distance=30.0,RadiosToPoint=30)
-{
-new Float:CX,Float:CY,Float:CZ,Float:FX,Float:FY,Float:FZ;
-new Float:PX,Float:PY,Float:PZ,Float:D;
-if(IsPlayerInRangeOfPoint(playerid,Distance,X ,Y ,Z))
-{
-GetPlayerCameraPos(playerid,CX,CY,CZ);
-GetPlayerCameraFrontVector(playerid, FX, FY, FZ);
-PX = FX*D+CX;
-PY = FY*D+CY;
-PZ = FZ*D+CZ;
-D = floatsqroot(((PX - X) * (PX - X)) + ((PY - Y) * (PY - Y)) + ((PZ - Z) * (PZ - Z)));
-return 1;
-}
-return 0; 
 }
