@@ -69,7 +69,7 @@ stock CreateStrip(playerid, Float:x, Float:y, Float:z, Float:Angle)
 		if(ssInfo[i][sCreated] == 0)
 		{
 			new string[50];
-			format(string, sizeof(string), "{FFFFFF}UID: %d\nUtworzy³: %s", obiektyBTID, PlayerName(playerid));
+			format(string, sizeof(string), "{FFFFFF}UID: %d\nUtworzy³: %s", i, PlayerName(playerid));
 
 			count = i;
 			ssInfo[i][sCreated] = 1;

@@ -1,7 +1,7 @@
 #define MAX_PROJECTS 20
 
 new obiektyBT[MAX_PROJECTS][MAX_BTOBJ];
-new obiektyBTOstatniID;
+new Text3D:obiektyBTNapis[MAX_PROJECTS][MAX_BTOBJ];
 
 enum eProjectBT {
 	bool:created,
@@ -24,7 +24,7 @@ CMD:projekt(playerid, params[])
 	{
 		for(new i; i < MAX_PROJECTS; i++)
 			if(projektyBT[i][created])
-				format(string, sizeof(string), "%s%d\t%s\t%s\n", string, i, projektyBT[i][ProjectBTOwner], projektyBT[i][ProjectBTOwner]);
+				format(string, sizeof(string), "%s%d\t%s\t%s\n", string, i, projektyBT[i][ProjectBTOwner], projektyBT[i][ProjectBTName]);
 
 		if(isnull(string))
 			Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "Projekty > Lista", "Brak aktywnych projektów.", "Cofnij", #);
@@ -56,7 +56,7 @@ CMD:projekt(playerid, params[])
 
 		for(new i; i < MAX_PROJECTS; i++)
 			if(projektyBT[i][created])
-				format(string, sizeof(string), "%s%d\t%s\t%s\n", string, i, projektyBT[i][ProjectBTOwner], projektyBT[i][ProjectBTOwner]);
+				format(string, sizeof(string), "%s%d\t%s\t%s\n", string, i, projektyBT[i][ProjectBTOwner], projektyBT[i][ProjectBTName]);
 
 		if(isnull(string))
 			Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "Projekty > Usuñ", "Brak aktywnych projektów.", "Cofnij", #);
@@ -70,13 +70,12 @@ CMD:projekt(playerid, params[])
 
 		for(new i; i < MAX_PROJECTS; i++)
 			if(projektyBT[i][created])
-				format(string, sizeof(string), "%s%d\t%s\t%s\n", string, i, projektyBT[i][ProjectBTOwner], projektyBT[i][ProjectBTOwner]);
+				format(string, sizeof(string), "%s%d\t%s\t%s\n", string, i, projektyBT[i][ProjectBTOwner], projektyBT[i][ProjectBTName]);
 
 		if(isnull(string))
 			Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "Projekty > Akceptuj", "Brak aktywnych projektów.", "Cofnij", #);
 		else
 			Dialog_Show(playerid, DIALOG_PROJEKT_AKCEPTUJ, DIALOG_STYLE_TABLIST_HEADERS, "Projekty > Akceptuj", "ID\tStworzy³\tNazwa\n%s", "Akceptuj", "Cofnij", string);
-
 	}
 	else
 		Msg(playerid, COLOR_ERROR, "Wpisz: /projekt [lista/stworz/usun/akceptuj]");
@@ -86,18 +85,44 @@ CMD:projekt(playerid, params[])
 
 CMD:obiekt(playerid, params[])
 {
-	new opcja[10];
+	new opcja[10], opcja2, projektid = GetPVarInt(playerid, "projektBT"), string[1024];
 
 	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "s[10]", opcja))
+	if(!projektyBT[projektid][created] || projektid == 0)
+			return ShowInfo(playerid, "Najpierw aktywuj swój projekt.");
+
+	if(sscanf(params, "s[10]D(0)", opcja, opcja2))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /obiekt [lista/stworz/usun/polozenie]");
 
-	if(strcmp(opcja, "lista", true) == 0) {}
-	else if(strcmp(opcja, "stworz", true) == 0) {}
-	else if(strcmp(opcja, "usun", true) == 0) {}
-	else if(strcmp(opcja, "polozenie", true) == 0) {}
+	if(strcmp(opcja, "lista", true) == 0)
+	{
+		for(new i; i < MAX_BTOBJ; i++)
+			if(IsValidDynamicObject(obiektyBT[projektid][i]))
+				format(string, sizeof(string), "%s%d\t%d\n", string, i, Streamer_GetIntData(STREAMER_TYPE_OBJECT, obiektyBT[projektid][i], E_STREAMER_MODEL_ID));
+
+		if(isnull(string))
+			Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "Obiekty > Lista", "Brak stworzonych obiektów w tym projekcie.", "Cofnij", #);
+		else
+			Dialog_Show(playerid, DIALOG_PROJEKT_AKCEPTUJ, DIALOG_STYLE_TABLIST_HEADERS, "Obiekty > Lista", "ID\tModelID\n%s", "Akceptuj", "Cofnij", string);
+	}
+	else if(strcmp(opcja, "stworz", true) == 0) 
+	{
+		new szString[674];
+		strcat(szString, "Model\tNazwa\n");
+		strcat(szString, "2960\tBelka\n944\tSkrzynie\n3287\tBeczka\n1684\tBudka\n3567\tNaczepa\n11292\tBudka2\n1352\tSwiatla\n8873\tJupiter\n16599\tWodol\n");
+		strcat(szString, "3502\tRura\n3675\tRura2\n12930\tRury\n1685\tKostka\n3572\tKontener\n2699\tKontener2\n1358\tŒmietnik\n1372\tŒmietnik2\n18248\tKoparka\n");
+		strcat(szString, "3526\tLampka\n3385\tLampka2\n979\tStrza³ka lewo\n978\tStrza³ka prawo\n973\tBarierka\n3091\tBlokada2981\tBlokada\n1237\tPacholek\n");
+		strcat(szString, "1238\tPacholek2\n3504\tToiToi\n1322\tZnak\n3380\tZnak2\n3379\tZnak3\n2780\tDym\n974\tBramka\n16302\t¯wir\n10984\tGruz\n16317\tPiach\n");
+		strcat(szString, "3578\tDockbar\n934\tGenerator\n1426\tRusztowanie\n1428\tDrabina\n1437\tDrabina2\n3867\tRusztowania\n1226\tLatarnia");
+
+		Dialog_Show(playerid, DIALOG_OBIEKT_STWORZ, DIALOG_STYLE_TABLIST_HEADERS, "Wybierz obiekt", szString, "Wybierz", "Anuluj");
+	}
+	else if(strcmp(opcja, "usun", true) == 0)
+		Msg(playerid, COLOR_ERROR, "Niedostepne.");
+	else if(strcmp(opcja, "polozenie", true) == 0)
+		Msg(playerid, COLOR_ERROR, "Niedostepne.");
 	else
 		Msg(playerid, COLOR_ERROR, "Wpisz: /obiekt [lista/stworz/usun/polozenie]");
 
@@ -151,22 +176,6 @@ CMD:napis(playerid, params[])
 	return 1;
 }
 
-CMD:stworzobiekt(playerid, params[])
-{
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	new szString[674];
-	strcat(szString, "Model\tNazwa\n");
-	strcat(szString, "2960\tBelka\n944\tSkrzynie\n3287\tBeczka\n1684\tBudka\n3567\tNaczepa\n11292\tBudka2\n1352\tSwiatla\n8873\tJupiter\n16599\tWodol");
-	strcat(szString, "3502\tRura\n3675\tRura2\n12930\tRury\n1685\tKostka\n3572\tKontener\n2699\tKontener2\n1358\tŒmietnik\n1372\tŒmietnik2\n18248\tKoparka\n");
-	strcat(szString, "3526\tLampka\n3385\tLampka2\n979\tStrza³ka lewo\n978\tStrza³ka prawo\n973\tBarierka\n3091\tBlokada2981\tBlokada\n1237\tPacholek\n");
-	strcat(szString, "1238\tPacholek2\n3504\tToiToi\n1322\tZnak\n3380\tZnak2\n3379\tZnak3\n2780\tDym\n974\tBramka\n16302\t¯wir\n10984\tGruz\n16317\tPiach\n");
-	strcat(szString, "3578\tDockbar\n934\tGenerator\n1426\tRusztowanie\n1428\tDrabina\n1437\tDrabina2\n3867\tRusztowania\n1226\tLatarnia");
-
-	return Dialog_Show(playerid, DIALOG_OBIEKT_STWORZ, DIALOG_STYLE_TABLIST_HEADERS, "Wybierz obiekt", szString, "Wybierz", "Anuluj");
-}
-
 CMD:kamera(playerid, params[])
 {
 	if(GetPVarType(playerid, "FlyMode"))
@@ -212,7 +221,7 @@ Dialog:DIALOG_PROJEKT_STWORZ(playerid, response, listitem, inputtext[])
 		return 1;
 	}
 
-	if(strlen(inputtext) <= 5)
+	if(strlen(inputtext) <= 4)
 		return cmd_projekt(playerid, "stworz");
 
 	format(projektyBT[projektid][ProjectBTOwner], 31, "%s", PlayerName(playerid));
@@ -231,11 +240,21 @@ Dialog:DIALOG_PROJEKT_USUN(playerid, response, listitem, inputtext[])
 	new projektid;
 	sscanf(inputtext, "d{s[60]}", projektid);
 
-	//projektyBT[projektid][ProjectBTOwner]="\0";
-	//projektyBT[projektid][ProjectBTName]="\0";
-	//projektyBT[projektid][created]=false;
+	projektyBT[projektid][ProjectBTOwner][0] = EOS;
+	projektyBT[projektid][ProjectBTName][0] = EOS;
+	projektyBT[projektid][created]=false;
 
-	// pêtla na usuwanie obiektów
+	for(new i; i < MAX_BTOBJ; i++)
+		if(IsValidDynamicObject(obiektyBT[projektid][i]))
+		{
+			DestroyDynamicObject(obiektyBT[projektid][i]);
+			DestroyDynamic3DTextLabel(obiektyBTNapis[projektid][i]);
+
+			obiektyBT[projektid][i]=INVALID_OBJECT_ID;
+			obiektyBT[projektid][i]=INVALID_3DTEXT_ID;
+		}
+
+	Msg(playerid, COLOR_INFO3, "Usun¹³eœ projekt.");	
 	return 1;
 }
 
@@ -244,6 +263,31 @@ Dialog:DIALOG_PROJEKT_AKCEPTUJ(playerid, response, listitem, inputtext[])
 	if(!response)
 		return 1;
 		
+	new projektid, modelid, Float:Pos[6], string[200];
+	sscanf(inputtext, "d{s[60]}", projektid);
+
+	projektyBT[projektid][ProjectBTOwner][0] = EOS;
+	projektyBT[projektid][ProjectBTName][0] = EOS;
+	projektyBT[projektid][created]=false;
+
+	for(new i; i < MAX_BTOBJ; i++)
+		if(IsValidDynamicObject(obiektyBT[projektid][i]))
+		{
+			modelid = Streamer_GetIntData(STREAMER_TYPE_OBJECT, obiektyBT[projektid][i], E_STREAMER_MODEL_ID);
+			GetDynamicObjectPos(obiektyBT[projektid][i], Pos[0], Pos[1], Pos[2]);
+			GetDynamicObjectRot(obiektyBT[projektid][i], Pos[3], Pos[4], Pos[5]);
+
+			format(string, sizeof(string), "INSERT INTO `st_bt_obiekty` VALUES ('', %d, %f, %f, %f, %f, %f, %f);", modelid, Pos[0], Pos[1], Pos[2], Pos[3], Pos[4], Pos[5]);
+			mysql_query(string);
+
+			DestroyDynamicObject(obiektyBT[projektid][i]);
+			DestroyDynamic3DTextLabel(obiektyBTNapis[projektid][i]);
+
+			obiektyBT[projektid][i]=INVALID_OBJECT_ID;
+			obiektyBT[projektid][i]=INVALID_3DTEXT_ID;
+		}
+
+	Msg(playerid, COLOR_INFO3, "Zaakceptowa³eœ projekt, trwa zapisywanie obiektów do bazy.");
 	return 1;
 }
 
@@ -254,52 +298,29 @@ Dialog:DIALOG_OBIEKT_STWORZ(playerid, response, listitem, inputtext[])
 
 	new projektid = GetPVarInt(playerid, "projektBT");
 
-	if(!projektyBT[projektid][created] || projektid == 0)
-		return ShowInfo(playerid, "Najpierw aktywuj swój projekt.");
-
-	new modelid, Float:Pos;
+	new modelid, Float:Pos[3], string[50];
 	sscanf(inputtext, "d{s[20]}", modelid);
 
-	GetPlayerFacingAngle(playerid, Pos);
-	PostawObiekt(playerid, modelid, 0, 0, 0, 0.0, 0.0, Pos, 5.0);
-
-	return 1;
-}
-
-GetFreeObiektyBTID()
-{
-	new obiektid = INVALID_BTOBJ_ID, counter = 0;
-	while(obiektid == INVALID_BTOBJ_ID)
-	{
-	    counter++;
-	    if(IsObiektBT[counter] == false)
-		 	obiektid = counter;
-	}
-	return obiektid;
-}
-
-forward PostawObiekt(playerid, obiektid, Float:PosX, Float:PosY, Float:PosZ, Float:rotX, Float:rotY, Float:rotZ, Float:jump);
-public PostawObiekt(playerid, obiektid, Float:PosX, Float:PosY, Float:PosZ, Float:rotX, Float:rotY, Float:rotZ, Float:jump)
-{
-	new Float:Pos[3];
 	GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
-	SetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]+jump);
 
-	new obietid = GetFreeObiektyBTID();
-	obiektyBTID = obietid;
+	Msg(playerid, COLOR_INFO2, "Przed pêtl¹.");
+	for(new counter; counter < MAX_BTOBJ; counter++)
+	{
+	    if(obiektyBT[projektid][counter]==0)
+		{
+			format(string, sizeof string, "{FFFFFF}UID: %d\nProjekt: %s", counter, projektyBT[projektid][ProjectBTName]);
 
-	if(obiektyBTID >= 5000)
-		return SendClientMessage(playerid, LIGHTRED, "Limit obiektów zosta³ osi¹gniêty.");
+			obiektyBT[projektid][counter] = CreateDynamicObject(modelid, Pos[0], Pos[1], Pos[2], 0, 0, 0);
+			obiektyBTNapis[projektid][counter] = CreateDynamic3DTextLabel(string, ZIELONY6, Pos[0], Pos[1], Pos[2], 10.0);
 
-	//obiektyBT[obiektyBTID] = CreateDynamicObject(obiektid, Pos[0]+PosX,Pos[1]+PosY,Pos[2]+PosZ, rotX, rotY, rotZ);
-	new string[76];
-	format(string, sizeof string, "{FFFFFF}UID: %d\nUtworzy³: %s", obiektyBTID, PlayerName(playerid));
-	//obiektyBT3D[obiektyBTID] = CreateDynamic3DTextLabel(string, ZIELONY6, Pos[0]+PosX,Pos[1]+PosY,Pos[2]+PosZ, 5.0);
-	format(string, sizeof string, "{004080}Utworzy³eœ obiekt {FFFFFF}(%d) {004080}o uid {FFFFFF}%d.", obiektid, obiektyBTID);
-	SendClientMessage(playerid, 0x0, string);
-	//IsObiektBT[obiektyBTID] = true;
-	//strmid(obiektBTNAME[obiektyBTID],PlayerName(playerid),0,20);
-	//strmid(obiektBTNAME2[obiektyBTID],PlayerName(playerid),0,20);
+			SetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]+5.0);
+
+			format(string, sizeof(string), "Stworzy³eœ obiekt (ID: %d, projektid: %d, obiektid: %d)", counter, projektid, obiektyBT[projektid][counter]);
+			Msg(playerid, COLOR_INFO2, "Stworzy³eœ obiekt.");
+			break;
+		}
+	}
+	Msg(playerid, COLOR_INFO2, "Zakoñczono pêtlê.");
 	return 1;
 }
 

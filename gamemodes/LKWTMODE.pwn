@@ -1146,15 +1146,6 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	return 1;
 }
 
-public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY, Float:fZ)
-{
-    new szString[144];
-    format(szString, sizeof(szString), "Weapon %i fired. hittype: %i   hitid: %i   pos: %f, %f, %f", weaponid, hittype, hitid, fX, fY, fZ);
-    SendClientMessage(playerid, -1, szString);
- 
-    return 1;
-}
-
 public OnRconLoginAttempt(ip[], password[], success)
 {
 	if(success)
@@ -1968,12 +1959,12 @@ return 1;
 
 public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz)
 {
-	new Float:oldX, Float:oldY, Float:oldZ,
-		Float:oldRotX, Float:oldRotY, Float:oldRotZ;
-	GetDynamicObjectPos(objectid, oldX, oldY, oldZ);
-	GetDynamicObjectRot(objectid, oldRotX, oldRotY, oldRotZ);
+	//new Float:oldX, Float:oldY, Float:oldZ,
+		//Float:oldRotX, Float:oldRotY, Float:oldRotZ;
+	//GetDynamicObjectPos(objectid, oldX, oldY, oldZ);
+	//GetDynamicObjectRot(objectid, oldRotX, oldRotY, oldRotZ);
 
-	if(response == EDIT_RESPONSE_FINAL)
+	/*if(response == EDIT_RESPONSE_FINAL)
 	{
 		if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] == TEAM_TYPE_BUILD)
 		{
@@ -1985,8 +1976,8 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
 		 	DestroyDynamic3DTextLabel(obiektyBT3D[id]);
 
 			new string[76];
-			format(string, sizeof string, "{FFFFFF}UID: %d\nUtworzy³: %s\nEdytowa³: %s", id, obiektBTNAME[id], PlayerName(playerid));
-		 	obiektyBT3D[id] = CreateDynamic3DTextLabel(string, ZIELONY6, x, y, z, 5.0);
+			//format(string, sizeof string, "{FFFFFF}UID: %d\nUtworzy³: %s\nEdytowa³: %s", id, obiektBTNAME[id], PlayerName(playerid));
+		 	//obiektyBT3D[id] = CreateDynamic3DTextLabel(string, ZIELONY6, x, y, z, 5.0);
 		 	
 		 	strmid(obiektBTNAME2[id],PlayerName(playerid),0,20);
 		 	SendClientMessage(playerid, 0x0, "{004080}Zakoñczono edycjê obiektu.");
@@ -1998,14 +1989,14 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
 	{
 		SetDynamicObjectPos(objectid, oldX, oldY, oldZ);
 		SetDynamicObjectRot(objectid, oldRotX, oldRotY, oldRotZ);
-	}
+	}*/
 
 	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
 	{
 		format(szTemp, sizeof(szTemp), "%s_OnPlayerEditDynObject", szHookInclude[nrInc]);
 
 		if(funcidx(szTemp) != -1)
-			CallLocalFunction(szTemp, "dddffffff", playerid, objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz);
+			CallLocalFunction(szTemp, "dddffffff", playerid, objectid, response, x, y, z, rx, ry, rz);
 	}
 
 	return 1;
@@ -2018,7 +2009,7 @@ public OnPlayerEditObject(playerid, playerobject, objectid, response, Float:fX, 
 		format(szTemp, sizeof(szTemp), "%s_OnPlayerEditObject", szHookInclude[nrInc]);
 
 		if(funcidx(szTemp) != -1)
-			CallLocalFunction(szTemp, "ddddffffff", playerid, playerobject, objectid, response, Float:fX, Float:fY, Float:fZ, Float:fRotX, Float:fRotY, Float:fRotZ);
+			CallLocalFunction(szTemp, "ddddffffff", playerid, playerobject, objectid, response, fX, fY, fZ, fRotX, fRotY, fRotZ);
 	}
 
 	return 1;
