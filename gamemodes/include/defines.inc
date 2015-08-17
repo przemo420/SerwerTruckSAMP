@@ -144,7 +144,8 @@ new const szHookInclude[][] = {
 	"Logo", // logo.inc
 	"Photo", // fotoradary.inc
 	"Fire", // pozary.inc
-	"GPS" // gps.inc
+	"GPS", // gps.inc
+	"BT" // organizacje/buildtrans.inc
 };
 
 /*

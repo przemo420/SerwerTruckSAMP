@@ -18,10 +18,10 @@
 
 #define MAX_BASES_OBJECTS	100
 #define MAX_SPAWN_POINTS 	25
-#define MAX_BASES			5
-#define MAX_WARES			8
+#define MAX_BASES			30
+#define MAX_WARES			150
 #define MAX_CARGOS			500
-#define MAX_LOADINGS		23
+#define MAX_LOADINGS		40
 
 #define WARE_TYPE_TRUCK		0
 #define WARE_TYPE_VAN		1
@@ -122,7 +122,7 @@ new waresInfo[MAX_WARES][eWares],
 
 public Loadings_OnGameModeInit()
 {
-	LoadingsInit();
+	//LoadingsInit();
 	LoadObjects();
 }
 

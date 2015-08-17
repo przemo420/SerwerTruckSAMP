@@ -204,7 +204,6 @@ public OnGameModeInit()
 	new CzasLadowania=GetTickCount();
 	print("----------");
 	print("- Trwa ladowanie bazy danych...");
-   	//LadujDomy();
     LadujStacje();
 	LadujBary();
 	LadujSzybkieBary();
@@ -284,7 +283,7 @@ public OnGameModeExit()
 			CallLocalFunction(szTemp, "");
 	}
 
-	mysql_close();
+	//mysql_close();
 
    	return 1;
 }
@@ -1959,37 +1958,16 @@ return 1;
 
 public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz)
 {
-	//new Float:oldX, Float:oldY, Float:oldZ,
-		//Float:oldRotX, Float:oldRotY, Float:oldRotZ;
-	//GetDynamicObjectPos(objectid, oldX, oldY, oldZ);
-	//GetDynamicObjectRot(objectid, oldRotX, oldRotY, oldRotZ);
-
-	/*if(response == EDIT_RESPONSE_FINAL)
-	{
-		if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] == TEAM_TYPE_BUILD)
-		{
-			new id = GetPVarInt(playerid, "OBIEKTCHANGEBTID");
-			
-			SetObjectPos(objectid, x, y, z);
-		 	SetObjectRot(objectid, rx, ry, rz);
-		 	
-		 	DestroyDynamic3DTextLabel(obiektyBT3D[id]);
-
-			new string[76];
-			//format(string, sizeof string, "{FFFFFF}UID: %d\nUtworzy³: %s\nEdytowa³: %s", id, obiektBTNAME[id], PlayerName(playerid));
-		 	//obiektyBT3D[id] = CreateDynamic3DTextLabel(string, ZIELONY6, x, y, z, 5.0);
-		 	
-		 	strmid(obiektBTNAME2[id],PlayerName(playerid),0,20);
-		 	SendClientMessage(playerid, 0x0, "{004080}Zakoñczono edycjê obiektu.");
-		 	DeletePVar(playerid, "OBIEKTCHANGEBTID");
-		}
-	}
+	new Float:oldX, Float:oldY, Float:oldZ,
+		Float:oldRotX, Float:oldRotY, Float:oldRotZ;
+	GetDynamicObjectPos(objectid, oldX, oldY, oldZ);
+	GetDynamicObjectRot(objectid, oldRotX, oldRotY, oldRotZ);
 
 	if(response == EDIT_RESPONSE_CANCEL)
 	{
 		SetDynamicObjectPos(objectid, oldX, oldY, oldZ);
 		SetDynamicObjectRot(objectid, oldRotX, oldRotY, oldRotZ);
-	}*/
+	}
 
 	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
 	{
