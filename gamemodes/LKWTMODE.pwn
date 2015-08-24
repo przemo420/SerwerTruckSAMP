@@ -1489,10 +1489,10 @@ GetBar(playerid)
 forward Selectspawn(playerid);
 public Selectspawn(playerid)
 {
-	if(PlayerInfo[playerid][pFirma] == 0)
-		Dialog_Show(playerid, DIALOG_ID_SPAWN_SELECT, DIALOG_STYLE_LIST, " ", "Los Santos\nLas Venturas\nRed County\nSan Fierro", "Wybierz", "");
+	if(!GetPVarInt(playerid, "Worked") || PlayerInfo[playerid][pFirma] == 0)
+		Dialog_Show(playerid, DIALOG_ID_SPAWN_SELECT, DIALOG_STYLE_LIST, " ", "Los Santos\nLas Venturas\nRed County\nSan Fierro", "Wybierz", "Wyjdü");
 	else
-		Dialog_Show(playerid, DIALOG_ID_SPAWN_SELECT, DIALOG_STYLE_LIST, " ", "Los Santos\nLas Venturas\nRed County\nSan Fierro\n{FF0000}Baza firmowa", "Wybierz", "");
+		Dialog_Show(playerid, DIALOG_ID_SPAWN_SELECT, DIALOG_STYLE_LIST, " ", "Los Santos\nLas Venturas\nRed County\nSan Fierro\n{FF0000}Baza firmowa", "Wybierz", "Wyjdü");
 
 	return 1;
 }
@@ -3439,7 +3439,7 @@ CMD:wyplata(playerid, params[])
 	new string[176];
 
 	if(PlayerInfo[playerid][pFirma] == 0)
-		return SendClientMessage(playerid, LIGHTRED, "Nie pracujesz w ?adnej organizacji.");
+		return SendClientMessage(playerid, LIGHTRED, "Nie pracujesz w øadnej organizacji.");
 
 	if(Firmy[PlayerInfo[playerid][pFirma]][tChef] != PlayerInfo[playerid][pID])
 		return SendClientMessage(playerid, LIGHTRED, "Nie jesteú szefem organizacji.");

@@ -1807,6 +1807,7 @@ CMD:dodajzaladunek(playerid, params[])
 	loadInfo[load][lMapIconForAll] = CreateDynamicMapIcon(loadInfo[load][lX], loadInfo[load][lY], loadInfo[load][lZ], 51, 0, _, _, GetMaxPlayers()+1, 6000.0);
 	Streamer_SetIntData(STREAMER_TYPE_MAP_ICON, loadInfo[load][lMapIconForAll], E_STREAMER_STYLE, MAPICON_GLOBAL);
 	ID_DOKOW=load;
+	systemInfo[0] += 1;
 	Msg(playerid, COLOR_INFO, "Pomyœlnie utworzono za³adunek.");
 	return 1;
 }

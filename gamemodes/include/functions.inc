@@ -66,6 +66,27 @@ GetDistancePlayerToPlayer(playerid, twoplayerid)
 	return floatround(dis);
 }
 
+IsWorked(playerid, fraction)
+{
+	if(GetPVarInt(playerid, "Worked") && Firmy[PlayerInfo[playerid][pFirma]][tTyp] == fraction)
+		return true;
+	return false;
+}
+
+IsFractionBoss(playerid)
+{
+	if(Firmy[PlayerInfo[playerid][pFirma]][tChef] != PlayerInfo[playerid][pID])
+		return false;
+	return true;
+}
+
+IsFractionViceBoss(playerid)
+{
+	if(Firmy[PlayerInfo[playerid][pFirma]][tVcChef] != PlayerInfo[playerid][pID])
+		return false;
+	return true;
+}
+
 IsNumeric(const str[])
 {
 	for (new i = 0, j = strlen(str); i < j; i++)
