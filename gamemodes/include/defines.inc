@@ -117,8 +117,8 @@ enum {
 
 new const szCommands[][] = {
 	"/pomoc\n/pauza\n/time\n/toll\n/animacja\n/autorzy\n/telefon\n/pojazd\n/spawn\n/pasy\n/stats\n/firma\n/viatoll\n/lastpos\n/v\n/tankuj\n/praca\n/dyzur\n/adr\n/pogodynka\n/reczny\n/konwoj\n/zaproszenia\n/radio\n/bankomat\n/tablica\n/spisfirm\n/zdolnosci\n/poziomy", // globalne
-	"/foto\n/mandat /aresztuj\n/wywal\n/wyrzuÄ‡\n/praca\n/dyzur\n/skuj\n/rozkuj\n/kontrola\n/alkomat\n/open\n/close\n/kolczatka\n/usunkolczatke\n/usunkolczatki\n/stop\n/unareszt\n/kartoteka",
-	"/ulecz\n/wypadki\n/wywal\n/wyrzuÄ‡\n/praca\n/dyzur\n/o[1 - 8]\n/c[1 - 8]\n/open\n/close", // pogotowie
+	"/foto\n/mandat /aresztuj\n/wywal\n/wyrzuc\n/praca\n/dyzur\n/skuj\n/rozkuj\n/kontrola\n/alkomat\n/open\n/close\n/kolczatka\n/usunkolczatke\n/usunkolczatki\n/stop\n/unareszt\n/kartoteka",
+	"/ulecz\n/wypadki\n/wywal\n/wyrzuc\n/praca\n/dyzur\n/o [1 - 8]\n/c [1 - 8]\n/open\n/close", // pogotowie
 	"/open\n/close\n/vehcolor\n/zatankuj\n/praca\n/dyzur\n/open\n/close\n/setplate\n/przeglad",  // pomoc drogowa
 	"/open\n/close\n/zaladuj\n/rozladuj", // cargo
 	"/open\n/close\n/zaladuj\n/rozladuj", // petrol
@@ -149,7 +149,7 @@ new const szHookInclude[][] = {
 };
 
 /*
-	DOSTÄ˜PNE FUNKCJE:
+	DOSTÊPNE FUNKCJE:
 		_OnGameModeInit()
 		_OnGameModeExit()
 		_OnPlayerConnect(playerid)
@@ -195,8 +195,8 @@ enum rInfo
 new TimeGlobal[][rInfo] =
 {
 	{"poranek", 6},
-	{"dzieÅ„", 12},
-	{"wieczÃ³r", 22},
+	{"dzieñ", 12},
+	{"wieczór", 22},
 	{"noc", 1}
 };
 

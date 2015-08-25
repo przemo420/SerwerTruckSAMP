@@ -590,14 +590,14 @@ CMD:god(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /god [id gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: {b}/god [id gracza]{/b}");
 
 	SetPlayerHealth(forplayerid, 9999999);
-	format(string, sizeof string, "{CC0000}>> {C0C0C0}Da³eœ nieœmiertelnoœæ graczowi %s (ID: %d).", PlayerName(forplayerid), forplayerid);
-	SendClientMessage(playerid, 0x0, string);
-	format(string, sizeof string, "{CC0000}>> {C0C0C0}Administrator %s (ID: %d) zrobi³ ciê {FFFFFF}nieœmiertelnym.", PlayerName(playerid), playerid);
+	format(string, sizeof string, "Da³eœ nieœmiertelnoœæ graczowi {b}%s{/b} (ID: %d).", PlayerName(forplayerid), forplayerid);
+	Msg(playerid, COLOR_INFO, string);
+	format(string, sizeof string, "Administrator {b}%s{b} (ID: %d) da³ Ci nieœmiertelnoœæ.", PlayerName(playerid), playerid);
 	
-	return SendClientMessage(forplayerid, 0x0, string);
+	return Msg(playerid, COLOR_INFO, string);
 }
 
 CMD:repair(playerid, params[])
@@ -605,27 +605,27 @@ CMD:repair(playerid, params[])
 	new forplayerid, string[128];
 
 	if(!PlayerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nie masz uprawnieñ.");
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /repair [id gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /repair [id gracza]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Ten gracz nie jest obecny na serwerze.");
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
 	if(!IsPlayerInAnyVehicle(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz ten nie znajduje siê w pojeŸdzie.");
+		return Msg(playerid, COLOR_ERROR, "Gracz ten nie znajduje siê w pojeŸdzie.");
 
 	RepairVehicle(GetPlayerVehicleID(forplayerid));
 	
 	if(IsTrailerAttachedToVehicle(GetPlayerVehicleID(forplayerid)))
 		RepairVehicle(GetVehicleTrailer(GetPlayerVehicleID(forplayerid)));
 
-	format(string, sizeof string, "{CC0000}>> {C0C0C0}Naprawi³eœ pojazd graczowi %s (ID: %d).", PlayerName(forplayerid), forplayerid);
-	SendClientMessage(playerid, 0x0, string);
-	format(string, sizeof string, "{CC0000}>> {C0C0C0}Administrator %s (ID: %d) naprawi³ ci pojazd.", PlayerName(playerid), playerid);
+	format(string, sizeof string, "Naprawi³eœ pojazd graczowi {b}%s{/b} (ID: %d).", PlayerName(forplayerid), forplayerid);
+	Msg(playerid, COLOR_INFO, string);
+	format(string, sizeof string, "Administrator {b}%s{/b} (ID: %d) naprawi³ ci pojazd.", PlayerName(playerid), playerid);
 
-	return SendClientMessage(forplayerid, 0x0, string);
+	return Msg(forplayerid, COLOR_INFO, string);
 }
 
 CMD:tpto(playerid, params[])
@@ -656,7 +656,7 @@ CMD:tp(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", forplayerid, wheplayerid))
-		return Msg(playerid, COLOR_ERROR, " Wpisz {b}/tp [id gracza] [id gracza]{/b}");
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/tp [id gracza] [id gracza]{/b}");
 
 	new Float:x, Float:y, Float:z;
 	new vehicleid = GetPlayerVehicleID(forplayerid);
@@ -751,8 +751,8 @@ CMD:setloc(playerid, params[])
 	savpos[savedpos][2] = Z;
 	savpos[savedpos][3] = A;
 	savpos[savedpos][4] = I;
-	format(string, sizeof string, "{CC0000}>> {004080}Ustawi³eœ lokalizacje o id: %d, interiorze: %d", savedpos, I);
-	SendClientMessage(playerid,0x0, string);
+	format(string, sizeof string, "Ustawi³eœ lokalizacje o id: {b}%d{/b}, interiorze: {b}%d{/b}", savedpos, I);
+	Msg(playerid, COLOR_INFO, string);
 	return 1;
 }
 
@@ -761,16 +761,16 @@ CMD:tploc(playerid, params[])
 	new locid, string[128];
 
 	if(sscanf(params, "d", locid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /tploc [id]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /tploc [id]");
 
 	if(!PlayerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(!locid) 
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /tploc [id]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /tploc [id]");
 
 	if(locid>savedpos) 
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /tploc [id]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /tploc [id]");
 
 	if(IsPlayerInAnyVehicle(playerid))
 	{
@@ -788,8 +788,8 @@ CMD:tploc(playerid, params[])
 		SetPlayerInterior(playerid, floatround(savpos[locid][4]));
 	}
 
-	format(string, sizeof string, "{CC0000}>> {004080}Teleportowa³eœ siê do lokalizacji o id: %d", locid);
-	SendClientMessage(playerid,0x0, string);
+	format(string, sizeof string, "Teleportowa³eœ siê do lokalizacji o id: %d", locid);
+	Msg(playerid, COLOR_INFO, string);
 	return 1;
 }
 
@@ -801,22 +801,22 @@ CMD:setscore(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", forplayerid, score))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /setscore [id gracza] [score]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /setscore [id gracza] [score]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest na serwerze.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest na serwerze.");
 
 	if(score < 0)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nie mo¿esz ustawiæ mniej ni¿ 0.");
+		return Msg(playerid, COLOR_ERROR, "Nie mo¿esz ustawiæ mniej ni¿ 0.");
 
 	ResetScore(forplayerid);
 	GiveScore(forplayerid, score);
 
 	new string[126];
-	format(string, sizeof(string), "{CC0000}>> {004080}Administrator %s (ID: %d) zmieni³ Ci punkty score na %d.", PlayerName(playerid), playerid, score);
-	SendClientMessage(forplayerid, 0x0, string);
-	format(string, sizeof(string), "{CC0000}>> {004080}Ustawi³eœ graczowi %s (ID: %d) punkty score na %d.", PlayerName(forplayerid), forplayerid, score);
-	SendClientMessage(playerid, 0x0, string);
+	format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) zmieni³ Ci punkty score na {b}%d{/b}.", PlayerName(playerid), playerid, score);
+	Msg(forplayerid, COLOR_INFO, string);
+	format(string, sizeof(string), "Ustawi³eœ graczowi {b}%s{/b} (ID: {b}%d{/b}) punkty score na {b}%d{/b}.", PlayerName(forplayerid), forplayerid, score);
+	Msg(playerid, COLOR_INFO, string);
 
 	return 1;
 }
@@ -829,22 +829,22 @@ CMD:setcash(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", forplayerid, kasa))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /setcash [id gracza] [kasa]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /setcash [id gracza] [kasa]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest na serwerze.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest na serwerze.");
 
 	if(kasa < 0)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nie mo¿esz ustawiæ mniej ni¿ 0.");
+		return Msg(playerid, COLOR_ERROR, "Nie mo¿esz ustawiæ mniej ni¿ 0.");
 
 	ResetMoney(forplayerid);
 	GiveMoney(forplayerid, kasa);
 
 	new string[126];
-	format(string, sizeof(string), "{CC0000}>> {004080}Administrator %s (ID: %d) ustawi³ ci kasê na %d$.", PlayerName(playerid), playerid, kasa);
-	SendClientMessage(forplayerid, 0x0, string);
-	format(string, sizeof(string), "{CC0000}>> {004080}Ustawi³eœ graczowi %s (ID: %d) kasê na %d$.", PlayerName(forplayerid), forplayerid, kasa);
-	SendClientMessage(playerid, 0x0, string);
+	format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) ustawi³ ci kasê na {b}%d${/b}.", PlayerName(playerid), playerid, kasa);
+	Msg(forplayerid, COLOR_INFO, string);
+	format(string, sizeof(string), "Ustawi³eœ graczowi {b}%s{/b} (ID: {b}%d{/b}) kasê na {b}%d${/b}.", PlayerName(forplayerid), forplayerid, kasa);
+	Msg(playerid, COLOR_INFO, string);
 
 	return 1;
 }
@@ -865,10 +865,10 @@ CMD:refuelveh(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dD(0)", forplayerid, all))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /refuelveh [id gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /refuelveh [id gracza]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest pod³¹czony.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
 
 	if(all)
 	{
@@ -881,8 +881,8 @@ CMD:refuelveh(playerid, params[])
 					vehInfo[DBVehID[vehicle]][vFuel] = MaxFuel(GetVehicleModel(vehicle));
 			}
 
-		format(string, sizeof(string), "{CC0000}>> {004080}Administrator %s (ID: %d) zatankowa³ wszystkie pojazdy.", PlayerName(playerid), playerid);
-		SendClientMessageToAll(0x0, string);
+		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) zatankowa³ wszystkie pojazdy.", PlayerName(playerid), playerid);
+		MsgToAll(COLOR_INFO, string);
 	}
 	else
 	{
@@ -893,11 +893,11 @@ CMD:refuelveh(playerid, params[])
 		else
 			vehInfo[DBVehID[vehicleid]][vFuel] = MaxFuel(GetVehicleModel(vehicleid));
 
-		format(string, sizeof(string), "{CC0000}>> {004080}Administrator %s (ID: %d) zatankowa³ Ci pojazd.", PlayerName(playerid), playerid);
-		SendClientMessage(forplayerid, 0x0, string);
+		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) zatankowa³ Ci pojazd.", PlayerName(playerid), playerid);
+		Msg(forplayerid, COLOR_INFO, string);
 
-		format(string, sizeof(string), "{CC0000}>> {004080}Zatankowa³eœ pojazd graczowi %s (ID: %d).", PlayerName(forplayerid), forplayerid);
-		SendClientMessage(playerid, 0x0, string);
+		format(string, sizeof(string), "Zatankowa³eœ pojazd graczowi {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(forplayerid), forplayerid);
+		Msg(playerid, COLOR_INFO, string);
 	}
 	return 1;
 }
@@ -911,19 +911,19 @@ CMD:givegunall(playerid, params[])
 
 CMD:givegun(playerid, params[])
 {
-	new forplayerid, weapon, all, string[90];
+	new forplayerid, weapon, all, string[128];
 
 	if(!PlayerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "ddD(0)", forplayerid, weapon, all))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /givegun [id gracza] [id broni]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /givegun [id gracza] [id broni]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest pod³¹czony.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
 
 	if(weapon < 0 || weapon > 46)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} B³êdne ID broni (1-46).");
+		return Msg(playerid, COLOR_ERROR, "B³êdne ID broni ({b}1-46{/b}).");
 
 	if(all && forplayerid == playerid)
 	{
@@ -931,18 +931,18 @@ CMD:givegun(playerid, params[])
 			if(IsPlayerConnected(player))
 				GivePlayerWeapon(player, weapon, 9999999);
 
-		format(string, sizeof(string), "{CC0000}>> {004080}Administrator %s (ID: %d) da³ wszystkim broñ (%s).", PlayerName(playerid), playerid, GetWeaponNameEx(weapon));
-		SendClientMessageToAll(0x0, string);
+		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) da³ wszystkim broñ (%s).", PlayerName(playerid), playerid, GetWeaponNameEx(weapon));
+		MsgToAll(COLOR_INFO, string);
 	}
 	else
 	{
 		GivePlayerWeapon(forplayerid, weapon, 9999999);
 
-		format(string, sizeof(string), "{CC0000}>> {004080}Administrator %s (ID: %d) da³ Ci broñ (%s).", PlayerName(playerid), playerid, GetWeaponNameEx(weapon));
-		SendClientMessage(forplayerid, 0x0, string);
+		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) da³ Ci broñ ({b}%s{/b}).", PlayerName(playerid), playerid, GetWeaponNameEx(weapon));
+		Msg(forplayerid, COLOR_INFO, string);
 
-		format(string, sizeof(string), "{CC0000}>> {004080}Da³eœ %s graczowi %s (ID: %d).", GetWeaponNameEx(weapon), PlayerName(forplayerid), forplayerid);
-		SendClientMessage(playerid, 0x0, string);
+		format(string, sizeof(string), "Da³eœ %s graczowi %s (ID: {b}%d{/b}).", GetWeaponNameEx(weapon), PlayerName(forplayerid), forplayerid);
+		Msg(playerid, COLOR_INFO, string);
 	}
 	return 1;
 }
@@ -962,10 +962,10 @@ CMD:disarm(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "ddD(0)", forplayerid, all))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /disarm [id gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /disarm [id gracza]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest pod³¹czony.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
 
 	if(all)
 	{
@@ -973,18 +973,18 @@ CMD:disarm(playerid, params[])
 			if(IsPlayerConnected(player))
 				ResetPlayerWeapons(player);
 
-		format(string, sizeof(string), "{CC0000}>> {004080}Administrator %s (ID: %d) zabra³ wszystkim bronie.", PlayerName(playerid), playerid);
-		SendClientMessageToAll(0x0, string);
+		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) zabra³ wszystkim bronie.", PlayerName(playerid), playerid);
+		MsgToAll(COLOR_INFO, string);
 	}
 	else
 	{
 		ResetPlayerWeapons(forplayerid);
 
-		format(string, sizeof(string), "{CC0000}>> {004080}Administrator %s (ID: %d) zresetowa³ ci bronie.", PlayerName(playerid), playerid);
-		SendClientMessage(forplayerid, 0x0, string);
+		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) zresetowa³ ci bronie.", PlayerName(playerid), playerid);
+		Msg(forplayerid, COLOR_INFO, string);
 
-		format(string, sizeof(string), "{CC0000}>> {004080}Zresetowa³eœ bronie graczowi %s (ID: %d).", PlayerName(forplayerid), forplayerid);
-		SendClientMessage(playerid, 0x0, string);
+		format(string, sizeof(string), "Zresetowa³eœ bronie graczowi {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(forplayerid), forplayerid);
+		Msg(playerid, COLOR_INFO, string);
 	}
 	return 1;
 }
@@ -1004,10 +1004,10 @@ CMD:food(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dD(0)", forplayerid, all))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /food [id gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /food [id gracza]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest pod³¹czony.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
 
 	if(all)
 	{
@@ -1018,8 +1018,8 @@ CMD:food(playerid, params[])
 				//SetPlayerProgressBarValue(player, Glod[player], 100.0);
 				//UpdatePlayerProgressBar(player, Glod[player]);
 			}
-		format(string, sizeof(string), "{CC0000}>> {004080}Administrator %s (ID: %d) zmniejszy³ wszystkim g³ód.", PlayerName(playerid), playerid);
-		SendClientMessageToAll(0x0, string);
+		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) zmniejszy³ wszystkim g³ód.", PlayerName(playerid), playerid);
+		MsgToAll(COLOR_INFO, string);
 	}
 	else
 	{
@@ -1027,38 +1027,38 @@ CMD:food(playerid, params[])
 		//SetPlayerProgressBarValue(forplayerid, Glod[forplayerid], 100.0);
 		//UpdatePlayerProgressBar(forplayerid, Glod[forplayerid]);
 
-		format(string, sizeof(string), "{CC0000}>> {004080}Administrator %s (ID: %d) zmniejszy³ Ci g³ód.", PlayerName(playerid), playerid);
-		SendClientMessage(forplayerid, 0x0, string);
+		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) zmniejszy³ Ci g³ód.", PlayerName(playerid), playerid);
+		Msg(forplayerid, COLOR_INFO, string);
 
-		format(string, sizeof(string), "{CC0000}>> {004080}Zmniejszy³eœ g³ód graczowi %s (ID: %d).", PlayerName(forplayerid), forplayerid);
-		SendClientMessage(playerid, 0x0, string);
+		format(string, sizeof(string), "Zmniejszy³eœ g³ód graczowi {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(forplayerid), forplayerid);
+		Msg(playerid, COLOR_INFO, string);
 	}
 	return 1;
 }
 
 CMD:remove(playerid, params[])
 {
-	new forplayerid, string[60];
+	new forplayerid, string[100];
 
 	if(!PlayerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", forplayerid)) 
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /remove [id gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /remove [id gracza]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest pod³¹czony.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
 
 	if(!IsPlayerInAnyVehicle(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest w pojeŸdzie.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest w pojeŸdzie.");
 
 	RemovePlayerFromVehicle(forplayerid);
 
-	format(string, sizeof(string), "{CC0000}>> {004080}Administrator %s (ID: %d) wyrzuci³ ciê z pojazdu.", PlayerName(playerid), playerid);
-	SendClientMessage(forplayerid, 0x0, string);
+	format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) wyrzuci³ ciê z pojazdu.", PlayerName(playerid), playerid);
+	Msg(forplayerid, COLOR_INFO, string);
 
-	format(string, sizeof(string), "{CC0000}>> {004080}Wyrzuci³eœ z pojazdu %s (ID: %d).", PlayerName(forplayerid), forplayerid);
-	SendClientMessage(playerid, 0x0, string);
+	format(string, sizeof(string), "Wyrzuci³eœ z pojazdu {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(forplayerid), forplayerid);
+	Msg(playerid, COLOR_INFO, string);
 	
 	return 1;
 }
@@ -1128,10 +1128,10 @@ CMD:destroyveh(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dD(0)", vehicleID, all))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /destroyveh [id pojazdu]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /destroyveh [id pojazdu]");
 
 	if(!AdminsVehs[vehicleID] && !all)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Dany pojazd nie istnieje.");
+		return Msg(playerid, COLOR_ERROR, "Dany pojazd nie istnieje.");
 
 	if(all)
 	{
@@ -1144,7 +1144,7 @@ CMD:destroyveh(playerid, params[])
 		}
 
 		SpawnedAdminVehicles = 0;
-		SendClientMessage(playerid, 0x0, "{CC0000}>> {004080}Zniszczy³eœ wsystkie pojazdy adminów.");
+		SendClientMessage(playerid, 0x0, "Zniszczy³eœ wsystkie pojazdy adminów.");
 	}
 	else
 	{
@@ -1152,8 +1152,8 @@ CMD:destroyveh(playerid, params[])
 		AdminsVehs[vehicleID] = INVALID_VEHICLE_ID;
 		SpawnedAdminVehicles--;
 
-		format(string, sizeof(string), "{CC0000}>> {004080}Zniszczy³eœ pojazd o ID: %d", vehicleID);
-		SendClientMessage(playerid, 0x0, string);
+		format(string, sizeof(string), "Zniszczy³eœ pojazd o ID: %d", vehicleID);
+		Msg(playerid, COLOR_INFO, string);
 	}
 
 	return 1;
@@ -1161,32 +1161,32 @@ CMD:destroyveh(playerid, params[])
 
 CMD:put(playerid, params[])
 {
-	new vehiclePlayerID, secondPlayerID, seat, string[120];
+	new vehiclePlayerID, secondPlayerID, seat, string[128];
 
 	if(!PlayerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "ddd", secondPlayerID, vehiclePlayerID, seat))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /put [id gracza] [id gracza] [miejsce>1]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /put [id gracza] [id gracza] [miejsce>1]");
 
 	if(!IsPlayerConnected(vehiclePlayerID) || !IsPlayerConnected(secondPlayerID))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest na serwerze.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest na serwerze.");
 
 	if(seat < 1)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nieprawid³owe miejsce.");
+		return Msg(playerid, COLOR_ERROR, "Nieprawid³owe miejsce.");
 
 	if(!IsPlayerInAnyVehicle(vehiclePlayerID))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest w pojeŸdzie.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest w pojeŸdzie.");
 
 	RemovePlayerFromVehicle(secondPlayerID);
 	PutPlayerInVehicle(secondPlayerID, GetPlayerVehicleID(vehiclePlayerID), seat);
 
-	format(string, sizeof(string), "{CC0000}>> {004080}Administrator %s (ID: %d) wrzuci³ ciê do innego pojazdu.", PlayerName(playerid), playerid);
+	format(string, sizeof(string), "Administrator {b}%s{/b} (ID: %d) wrzuci³ ciê do innego pojazdu.", PlayerName(playerid), playerid);
 	SendClientMessage(secondPlayerID, LIGHTRED, string);
-	format(string, sizeof(string), "{CC0000}>> {004080}Wrzuci³eœ %s (ID: %d) do innego pojazdu.", PlayerName(secondPlayerID), secondPlayerID);
-	SendClientMessage(playerid, LIGHTRED, string);
-	format(string, sizeof(string), "{CC0000}>> {004080}Administrator %s (ID: %d) wrzuci³ %s (ID: %d) do Twojego pojazdu.", PlayerName(playerid), playerid, PlayerName(secondPlayerID), secondPlayerID);
-	SendClientMessage(playerid, LIGHTRED, string);
+	format(string, sizeof(string), "Wrzuci³eœ {b}%s{/b} (ID: %d) do innego pojazdu.", PlayerName(secondPlayerID), secondPlayerID);
+	Msg(playerid, COLOR_ERROR, string);
+	format(string, sizeof(string), "Administrator {b}%s{/b} (ID: %d) wrzuci³ {b}%s{/b} (ID: %d) do Twojego pojazdu.", PlayerName(playerid), playerid, PlayerName(secondPlayerID), secondPlayerID);
+	Msg(playerid, COLOR_ERROR, string);
 
 	return 1;
 }
@@ -1197,24 +1197,24 @@ CMD:restart(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ ({b}specjalne{/b}).");
 
 	new string[176];
-	format(string, sizeof string, "{CC0000}>> {C0C0C0}Administrator {FFFFFF}%s{C0C0C0} (ID: %d) zrestartowa³ serwer.", PlayerName(playerid), playerid);
-	SendClientMessageToAll(0x0, string);
+	format(string, sizeof string, "Administrator {b}%s{/b} (ID: %d) zrestartowa³ serwer.", PlayerName(playerid), playerid);
+	MsgToAll(COLOR_INFO, string);
 	SendRconCommand("gmx");
 	return 1;
 }
 
 CMD:cd(playerid, params[]) 
 {
-	new string[80], czas;
+	new string[96], czas;
 
 	if(!PlayerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
     if(sscanf(params, "dD(0)", czas, OdliczanieFreeze))
-    	return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /cd [czas] [freeze]");
+    	return Msg(playerid, COLOR_ERROR, "Wpisz: /cd [czas] [freeze]");
 
     if(czas > 100)
-    	return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Limit na 100 sekund.");
+    	return Msg(playerid, COLOR_ERROR, "Limit na 100 sekund.");
 
 	if(OdliczanieWystartowalo == false)
 	{
@@ -1222,8 +1222,8 @@ CMD:cd(playerid, params[])
     	OdliczanieTimer = SetTimer("CountDown", 1000, 1);
     	OdliczanieWystartowalo = true;
             
-        format(string, sizeof(string), "{CC0000}>>{FFFFFF} Administrator %s (ID: %d) wystartowa³ odliczanie!", PlayerName(playerid), playerid);
-        SendClientMessageToAll(LIGHTBLUE, string);
+        format(string, sizeof(string), "Administrator {b}%s{/b} (ID: %d) wystartowa³ odliczanie!", PlayerName(playerid), playerid);
+        MsgToAll(COLOR_INFO2, string);
 
         if(OdliczanieFreeze)
         	Loop(player, MAX_PLAYERS)
@@ -1231,7 +1231,7 @@ CMD:cd(playerid, params[])
         			TogglePlayerControllable(player, 0);
     }
 	else
-         SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Ju¿ odlicza.");
+         Msg(playerid, COLOR_ERROR, "Ju¿ odlicza.");
 
     return 1;
 }  
@@ -1241,16 +1241,16 @@ CMD:freezeall(playerid, params[])
 
 CMD:freeze(playerid, params[])
 {
-	new forplayerid, all, string[60];
+	new forplayerid, all, string[96];
 
 	if(!PlayerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dD(0)", forplayerid, all))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /freeze [id gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /freeze [id gracza]");
 
 	if(!IsPlayerConnected(forplayerid) && !all)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest online.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest online.");
 
 	if(all)
 	{
@@ -1258,17 +1258,17 @@ CMD:freeze(playerid, params[])
 			if(IsPlayerConnected(player))
 				TogglePlayerControllable(player, 0);
 
-		format(string, sizeof(string), "{CC0000}>> {008800}Administrator %s (ID: %d) zamrozi³ wszystkich graczy.", PlayerName(playerid), playerid);
-		SendClientMessageToAll(0x0, string);
+		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: %d) zamrozi³ wszystkich graczy.", PlayerName(playerid), playerid);
+		MsgToAll(COLOR_INFO, string);
 	}
 	else
 	{
 		TogglePlayerControllable(forplayerid, 0);
 
-		format(string, sizeof(string), "{CC0000}>> {008800}Administrator %s (ID: %d) zamrozi³ Ciê.", PlayerName(playerid), playerid);
-		SendClientMessage(forplayerid, 0x0, string);
-		format(string, sizeof(string), "{CC0000}>> {008800}Zamrozi³eœ %s (ID: %d).", PlayerName(forplayerid), forplayerid);
-		SendClientMessage(playerid, 0x0, string);
+		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: %d) zamrozi³ Ciê.", PlayerName(playerid), playerid);
+		Msg(forplayerid, COLOR_INFO, string);
+		format(string, sizeof(string), "Zamrozi³eœ {b}%s{/b} (ID: %d).", PlayerName(forplayerid), forplayerid);
+		Msg(playerid, COLOR_INFO, string);
 	}
 
 	return 1;
@@ -1279,16 +1279,16 @@ CMD:unfreezeall(playerid, params[])
 
 CMD:unfreeze(playerid, params[])
 {
-	new forplayerid, all, string[60];
+	new forplayerid, all, string[96];
 
 	if(!PlayerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dD(0)", forplayerid, all))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /unfreeze [id gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /unfreeze [id gracza]");
 
 	if(!IsPlayerConnected(forplayerid) && !all)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest online.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest online.");
 
 	if(all)
 	{
@@ -1296,17 +1296,17 @@ CMD:unfreeze(playerid, params[])
 			if(IsPlayerConnected(player))
 				TogglePlayerControllable(player, 1);
 
-		format(string, sizeof(string), "{CC0000}>> {008800}Administrator %s (ID: %d) odmrozi³ wszystkich graczy.", PlayerName(playerid), playerid);
-		SendClientMessageToAll(0x0, string);
+		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: %d) odmrozi³ wszystkich graczy.", PlayerName(playerid), playerid);
+		MsgToAll(COLOR_INFO, string);
 	}
 	else
 	{
 		TogglePlayerControllable(forplayerid, 1);
 
-		format(string, sizeof(string), "{CC0000}>> {008800}Administrator %s (ID: %d) odmrozi³ Ciê.", PlayerName(playerid), playerid);
-		SendClientMessage(forplayerid, 0x0, string);
-		format(string, sizeof(string), "{CC0000}>> {008800}Odmrozi³eœ %s (ID: %d).", PlayerName(forplayerid), forplayerid);
-		SendClientMessage(playerid, 0x0, string);
+		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: %d) odmrozi³ Ciê.", PlayerName(playerid), playerid);
+		Msg(forplayerid, COLOR_INFO, string);
+		format(string, sizeof(string), "Odmrozi³eœ {b}%s{/b} (ID: %d).", PlayerName(forplayerid), forplayerid);
+		Msg(playerid, COLOR_INFO, string);
 	}
 
 	return 1;
@@ -1321,16 +1321,16 @@ CMD:killp(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /killp [id gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /killp [id gracza]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Ten gracz nie jest obecny na serwerze.");
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
 	SetPlayerHealth(forplayerid, 0);
-	format(string, sizeof string, "{CC0000}>> {C0C0C0}Zabi³eœ gracza %s (ID: %d).", PlayerName(forplayerid), forplayerid);
-	SendClientMessage(playerid, 0x0, string);
-	format(string, sizeof string, "{CC0000}>> {C0C0C0}Administrator %s (ID: %d) zabi³ ciê.", PlayerName(playerid), playerid);
-	SendClientMessage(forplayerid, 0x0, string);
+	format(string, sizeof string, "Zabi³eœ gracza {b}%s{/b} (ID: %d).", PlayerName(forplayerid), forplayerid);
+	Msg(playerid, COLOR_INFO, string);
+	format(string, sizeof string, "Administrator {b}%s{/b} (ID: %d) zabi³ ciê.", PlayerName(playerid), playerid);
+	Msg(forplayerid, COLOR_INFO, string);
 	return 1;
 }
 
@@ -1392,14 +1392,14 @@ CMD:dodajadmin(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", forplayerid, poziom))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /dodajadmin [id] [poziom]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /dodajadmin [id] [poziom]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest na serwerze.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest na serwerze.");
 
 	PlayerInfo[forplayerid][pAdmin] = poziom;
-	format(string, sizeof string, "{CC0000}>> {008000}Gracz {FFFFFF}%s {008000}zostaæ dodany do grupy administratorów.", PlayerName(forplayerid));
-	SendClientMessage(playerid,0x0,string);
+	format(string, sizeof string, "Gracz {b}%s{/b} zosta³ dodany do grupy administratorów.", PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
 
 	return 1;
 }
@@ -1412,14 +1412,14 @@ CMD:usunadmin(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /usunadmin [id]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /usunadmin [id]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest na serwerze.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest na serwerze.");
 
 	PlayerInfo[playerid][pAdmin] = 0;
-	format(string, sizeof string, "{CC0000}>> {008000}Gracz {FFFFFF}%s{008000} zosta³ usuniêty z grupy administratorów.", PlayerName(forplayerid));
-	SendClientMessage(playerid,0x0,string);
+	format(string, sizeof string, "Gracz {b}%s{/b} zosta³ usuniêty z grupy administratorów.", PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
 	
 	return 1;
 }
@@ -1432,18 +1432,18 @@ CMD:setname(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "ds[20]", forplayerid, nick))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /setname [id gracza] [nick]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /setname [id gracza] [nick]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest pod³¹czony.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
 
 	format(string, sizeof string, "UPDATE `Accounts` SET `Name` = '%s' WHERE `Name` = '%s'", nick, PlayerName(forplayerid));
 	mysql_query(string);
 
-	format(string, sizeof string, "{CC0000}>> {008000}Administrator {FFFFFF}%s{008000} (ID: %d) zmieni³ ci nick na %s.", PlayerName(playerid), playerid, nick);
-	SendClientMessage(forplayerid,0x0,string);
-	format(string, sizeof string, "{CC0000}>> {008000}Zmieni³eœ graczowi nick z {FFFFFF}%s{008000} (ID: %d) na %s.", PlayerName(forplayerid), playerid, nick);
-	SendClientMessage(forplayerid,0x0,string);
+	format(string, sizeof string, "Administrator {b}%s{/b} (ID: %d) zmieni³ ci nick na %s.", PlayerName(playerid), playerid, nick);
+	Msg(forplayerid, COLOR_INFO, string);
+	format(string, sizeof string, "Zmieni³eœ graczowi nick z {b}%s{/b} (ID: %d) na %s.", PlayerName(forplayerid), playerid, nick);
+	Msg(forplayerid, COLOR_INFO, string);
 
 	SetPlayerName(forplayerid, nick);
 	return 1;
@@ -1472,7 +1472,7 @@ CMD:respawniko(playerid, params[])
 		if(Uzywany[nr] == false)
 			SetVehicleToRespawn(nr);
 
-	SendClientMessageToAll(0x0, "{CC0000}>>{FFFFFF} Wszystkie pojazdy powróci³y na miejsce spawnu.");
+	SendClientMessageToAll(0x0, "Wszystkie pojazdy powróci³y na miejsce spawnu.");
 	return 1;
 }
 
@@ -1493,8 +1493,8 @@ CMD:dodajstacje(playerid, params[])
 	
 	StacjeMapIcon[ID_STACJA] = CreateDynamicMapIcon(Stacje[ID_STACJA][sPosX], Stacje[ID_STACJA][sPosY], Stacje[ID_STACJA][sPosZ], 55, 0, _, _, _, 300.0);
 
-	format(string, sizeof string, "{CC0000}>>{FFFFFF} {008000}Stacja o uid: {FFFFFF}%d {008000}zosta³a pomyœlnie utworzona.", ID_STACJA);
-	SendClientMessage(playerid,0x0,string);
+	format(string, sizeof string, "Stacja o ID {b}%d{/b} zosta³a pomyœlnie utworzona.", ID_STACJA);
+	Msg(playerid, COLOR_INFO, string);
 	ID_STACJA++;
 	return 1;
 }
@@ -1508,10 +1508,10 @@ CMD:usunstacje(playerid, params[])
 
 	new stacjaid = GetStacja(playerid);
 	if(stacjaid == 0)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nie znajdujesz siê przy stacji.");
+		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê przy stacji.");
 
-	format(string, sizeof string, "{CC0000}>>{FFFFFF} {008000}Stacja o uid: {FFFFFF}%d {008000}zosta³a pomyœlnie usuniêta.", stacjaid);
-	SendClientMessage(playerid,0x0,string);
+	format(string, sizeof string, "Stacja o ID {b}%d{/b} zosta³a pomyœlnie usuniêta.", stacjaid);
+	Msg(playerid, COLOR_INFO, string);
 
 	DestroyDynamic3DTextLabel(StacjeText3D[stacjaid]);
 	DestroyDynamicMapIcon(StacjeMapIcon[stacjaid]);
@@ -1535,7 +1535,7 @@ CMD:pogoda(playerid, params[])
 
 	SetWeather(weatherid);
 
-	format(string, sizeof string, "Pogoda zosta³ zmieniona przez {b}%s{/b} na pogodê ID: {b}%d{/b}.", PlayerName(playerid), weatherid);
+	format(string, sizeof string, "Pogoda zosta³a zmieniona przez {b}%s{/b} na pogodê ID: {b}%d{/b}.", PlayerName(playerid), weatherid);
 	MsgToAll(COLOR_INFO2, string);
 	return 1;
 }
@@ -1548,13 +1548,13 @@ CMD:ustawlidera(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", forplayerid, firmaid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /ustawlidera [id gracza] [id firmy]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /ustawlidera [id gracza] [id firmy]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Gracz nie jest pod³¹czony.");
+		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
 
 	if(Firmy[firmaid][tID] == 0)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} B³êdne ID firmy.");
+		return Msg(playerid, COLOR_ERROR, "B³êdne ID firmy.");
 
 	Firmy[firmaid][tChef] = PlayerInfo[forplayerid][pID];
 	PlayerInfo[forplayerid][pFirma] = firmaid;
@@ -1562,11 +1562,11 @@ CMD:ustawlidera(playerid, params[])
 	format(string, sizeof(string), "UPDATE `Firmy` SET `Szef` = '%d' WHERE `id` = '%d'", PlayerInfo[forplayerid][pID], firmaid);
 	mysql_query(string);
 
-	format(string, sizeof(string), "Administrator %s zarz¹dzi³ Ciê szefem firmy %s.", PlayerName(playerid), Firmy[firmaid][tName]);
-	ShowInfo(forplayerid, string);
+	format(string, sizeof(string), "Administrator {b}%s{/b} zarz¹dzi³ Ciê szefem firmy {b}%s{/b}.", PlayerName(playerid), Firmy[firmaid][tName]);
+	Msg(forplayerid, COLOR_INFO, string);
 	
-	format(string, sizeof(string), "%s sta³ siê szefem firmy %s.", PlayerName(forplayerid), Firmy[firmaid][tName]);
-	ShowInfo(playerid, string);
+	format(string, sizeof(string), "{b}%s{/b} sta³ siê szefem firmy {b}%s{/b}.", PlayerName(forplayerid), Firmy[firmaid][tName]);
+	Msg(playerid, COLOR_INFO, string);
 	
 	return 1;
 }
@@ -1579,21 +1579,21 @@ CMD:dodajpojazd(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dD(0)", firmaid, naczepa))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /dodajpojazd [id firmy]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /dodajpojazd [id firmy]");
 
 	if(!IsPlayerInAnyVehicle(playerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Musisz byæ w pojeŸdzie.");
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ w pojeŸdzie.");
 
 	if(naczepa)
 	{
 		if(IsTrailerAttachedToVehicle(vehicleid))
 			vehicleid = GetVehicleTrailer(vehicleid);
 		else
-			return  SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Nie masz pod³¹czonej naczepy.");
+			return  Msg(playerid, COLOR_ERROR, "Nie masz pod³¹czonej naczepy.");
 	}
 
 	if(!Spawned[vehicleid])
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Stwórz pojazd poprzez /createveh");
+		return Msg(playerid, COLOR_ERROR, "Stwórz pojazd poprzez /createveh");
 
 	GetVehiclePos(vehicleid, Pos[0], Pos[1], Pos[2]);
 	GetVehicleZAngle(vehicleid, Pos[3]);
@@ -1646,19 +1646,18 @@ CMD:dodajpracownika(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", forplayerid, firmaid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /dodajpracownika [graczid] [firmaid]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /dodajpracownika [graczid] [firmaid]");
 
 	if(firmaid > 7 || firmaid < 0)
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} ID firmy musi byæ w przedziale 0-7.");
+		return Msg(playerid, COLOR_ERROR, "ID firmy musi byæ w przedziale 0-7.");
 
 	PlayerInfo[forplayerid][pFirma] = firmaid;
 
-	format(string, sizeof(string), "Administrator %s przydzieli³ Ciê do firmy %s.", PlayerName(playerid), Firmy[firmaid][tName]);
-	ShowInfo(forplayerid, string);
+	format(string, sizeof(string), "Administrator {b}%s{/b} przydzieli³ Ciê do firmy {b}%s{/b}.", PlayerName(playerid), Firmy[firmaid][tName]);
+	Msg(forplayerid, COLOR_INFO, string);
 	
-	format(string, sizeof(string), "Przydzieli³eœ %s do firmy %s.", PlayerName(forplayerid), Firmy[firmaid][tName]);
-	ShowInfo(playerid, string);
-
+	format(string, sizeof(string), "Przydzieli³eœ {b}%s{/b} do firmy {b}%s{/b}.", PlayerName(forplayerid), Firmy[firmaid][tName]);
+	Msg(playerid, COLOR_INFO, string);
 	return 1;
 }
 
@@ -1670,15 +1669,14 @@ CMD:usunpracownika(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wpisz: /usunpracownika [graczid]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /usunpracownika [graczid]");
 		
 	PlayerInfo[forplayerid][pFirma] = 0;
-	format(string, sizeof(string), "Administrator %s wyrzuci³ Ciê z firmy.", PlayerName(playerid));
-	ShowInfo(forplayerid, string);
+	format(string, sizeof(string), "Administrator {b}%s{/b} wyrzuci³ Ciê z firmy.", PlayerName(playerid));
+	Msg(forplayerid, COLOR_INFO, string);
 	
-	format(string, sizeof(string), "Wyrzuci³eœ %s z firmy.", PlayerName(forplayerid));
-	ShowInfo(playerid, string);
-
+	format(string, sizeof(string), "Wyrzuci³eœ {b}%s{/b} z firmy.", PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
 	return 1;
 }
 

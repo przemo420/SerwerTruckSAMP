@@ -532,19 +532,19 @@ MaxWeight(vehicletype)
 {
 	switch(vehicletype)
 	{
-  		case 403: return 24000;
-        case 514: return 24000;
-        case 515: return 24000;
-        case 455: return 13000;
-        case 578: return 13000;
-        case 459: return 6000;
-        case 440: return 6000;
-		case 482: return 6000;
-		case 498: return 6000;
-		case 435: return 24000;
-		case 450: return 24000;
-		case 584: return 24000;
-		case 591: return 24000;
+  		case 403: return 24;
+        case 514: return 24;
+        case 515: return 24;
+        case 455: return 13;
+        case 578: return 13;
+        case 459: return 8;
+        case 440: return 8;
+		case 482: return 8;
+		case 498: return 8;
+		case 435: return 24;
+		case 450: return 24;
+		case 584: return 24;
+		case 591: return 24;
 	}
 	return 0;
 }
@@ -1280,7 +1280,7 @@ stock GetPlayerLevelName(level)
 	new name[32];
 	switch(level)
 	{
-		case 0: {name="Unranked haha"; }
+		case 0: {name="Unranked haha :siara:"; }
 		case 1 .. 4: {name = "Nowicjusz";}
 		case 5 .. 9: {name = "Entuzjasta";}
 		case 10 .. 14: {name = "Utalentowany pracownik";}
@@ -1292,4 +1292,25 @@ stock GetPlayerLevelName(level)
 		default: {name = "Legenda";}
 	}
 	return name;
+}
+
+stock GetPlayerLevel(exp)
+{
+    static levels[] = {
+        (-1), 0, 10, 20,
+		35, 45, 60, 80,
+		120, 150, 195, 240,
+		287, 355, 410, 476,
+		524, 588, 680, 735,
+		845, 940, 1120, 1300,
+		1510, 1588, 1630, 1672,
+		1742, 2000, 2450, 2725,
+		3010, 3550, 3900, 4450
+    };
+    new level = 0;
+    for (new i = 1;
+        i < sizeof(levels) && exp > levels[i];
+        i++, level++
+    ) {}
+    return level;
 }

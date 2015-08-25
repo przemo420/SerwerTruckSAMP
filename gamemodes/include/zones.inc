@@ -404,3 +404,16 @@ stock GetPointZone(Float:xxx, Float:yyy)
         }
         return zzone;
 }
+
+stock SearchZone(const playerid, const name[])
+{
+        for(new i = 0; i < 365; i++)
+        {
+                if(strfind(name, Zones[i][zone_name]) != -1)
+                {
+                        SetPlayerMapIcon(playerid, 72, Zones[ic][zone_minx], Zones[ic][zone_miny], Zones[ic][zone_minz], 0, 0, MAPICON_GLOBAL);
+                        return true;
+                }
+        }
+        return false;
+}

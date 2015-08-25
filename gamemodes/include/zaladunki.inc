@@ -912,7 +912,8 @@ CMD:zaladuj(playerid)
 			if (vloadInfo[IsVehicleTruck(GetVehicleModel(vehicleid)) ? GetVehicleTrailer(vehicleid) : vehicleid][vLoaded] == true) return Msg(playerid, COLOR_ERROR, "Twój pojazd jest ju¿ za³adowany.");
 			if (i != cargoInfo[cargo][cZID]) return Msg(playerid, COLOR_ERROR, "Jesteœ w z³ym punkcie za³adunku.");
 			if (!IsValidOffert(cargo)) return Msg(playerid, COLOR_ERROR, "Wygl¹da na to, ¿e twój towar nie jest ju¿ dostêpny. Je¿eli uwaa¿asz, ¿e to b³¹d - zg³oœ to.");
-			if (IsVehicleVan(GetVehicleModel(vehicleid)) && cargoInfo[cargo][cWeight] > 8) return Msg(playerid, COLOR_ERROR, "W pojeŸdzie dostawczym mo¿na maksymalnie za³adowaæ 8t.");
+			if (IsVehicleVan(GetVehicleModel(vehicleid)) && (cargoInfo[cargo][cWeight] > MaxWeight(GetVehicleModel(vehicleid)))) return Msg(playerid, COLOR_ERROR, "Ten pojazd nie obs³uguje takiej ³adownoœci.");
+			if (IsVehicleTruck(GetVehicleModel(vehicleid)) && (cargoInfo[cargo][cWeight] > MaxWeight(GetVehicleModel(GetVehicleTrailer(vehicleid))))) return Msg(playerid, COLOR_ERROR, "Ten pojazd nie obs³uguje takiej ³adownoœci.");
 
 			pBar[playerid] = CreatePlayerProgressBar(playerid, 220.00, 435.00, 190.50, 5.50, 1653987839, 0.0);
 			ShowPlayerProgressBar(playerid, pBar[playerid]);

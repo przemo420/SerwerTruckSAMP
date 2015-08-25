@@ -5,23 +5,23 @@ CMD:viatoll(playerid, params[])
 {
 	new viashopid = GetViaShop(playerid);
 	if(viashopid == INVALID_VIASHOP_ID)
-		return ShowInfo(playerid, "Nie znajdujesz siê przy sklepie ViaToll.");
+		return ShowInfo(playerid, "Nie znajdujesz siÃª przy sklepie ViaToll.");
 
-	Dialog_Show(playerid, DIALOG_ID_VIATOLL, DIALOG_STYLE_LIST, "Sklep ViaToll", "Kup 1 impuls [$25]\nKup 5 impulsów [$125]\nKup 10 impulsów [$250]\nKup 20 impulsów [$500]\nKup 50 impulsów [$1250]", "Ok", "Anuluj");
+	Dialog_Show(playerid, DIALOG_ID_VIATOLL, DIALOG_STYLE_LIST, "Sklep ViaToll", "Kup 1 impuls [$25]\nKup 5 impulsÃ³w [$125]\nKup 10 impulsÃ³w [$250]\nKup 20 impulsÃ³w [$500]\nKup 50 impulsÃ³w [$1250]", "Ok", "Anuluj");
 	return 1;
 }
 
 CMD:dodajviatoll(playerid, params[])
 {
 	if(!PlayerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieÃ±.");
 
 	new string[128];
 
 	new postawionyID = GetViaShop(playerid);
 	if(postawionyID > INVALID_VIASHOP_ID)
 	{
-		format(string, sizeof string, "Sklep viatoll zosta³ ju¿ utworzony, uid: %d.", postawionyID);
+		format(string, sizeof string, "Sklep viatoll zostaÂ³ juÂ¿ utworzony, uid: %d.", postawionyID);
 		SendClientMessage(playerid,LIGHTRED,string);
 		return 1;
 	}
@@ -36,7 +36,7 @@ CMD:dodajviatoll(playerid, params[])
 	viashop3D[ID_VIATOLL] = CreateDynamic3DTextLabel(string, ZIELONY3, Pos[0], Pos[1], Pos[2]+0.5, 30.0);
 	viashopIKON[ID_VIATOLL] = CreateDynamicMapIcon(Pos[0], Pos[1], Pos[2], 56, LIGHTRED);
 
-	format(string, sizeof string, "{008000}Sklep viatoll o uid: {FFFFFF}%d {008000}zosta³pomyœlnie utworzony.", ID_VIATOLL);
+	format(string, sizeof string, "{008000}Sklep viatoll o uid: {FFFFFF}%d {008000}zostaÂ³pomyÅ“lnie utworzony.", ID_VIATOLL);
 	SendClientMessage(playerid,0x0,string);
 
 	ViaToll[ID_VIATOLL][vtID] = mysql_insert_id();
@@ -52,15 +52,15 @@ CMD:dodajviatoll(playerid, params[])
 CMD:usunviatoll(playerid, params[])
 {
 	if(!PlayerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieÃ±.");
 
 	new string[132];
 
 	new viashopid = GetViaShop(playerid);
 	if(viashopid == INVALID_VIASHOP_ID)
-		return SendClientMessage(playerid, LIGHTRED, "Nie znajdujesz siê przy sklepie viatoll.");
+		return SendClientMessage(playerid, LIGHTRED, "Nie znajdujesz siÃª przy sklepie viatoll.");
 
-	format(string, sizeof string, "{008000}Sklep viatoll o uid: {FFFFFF}%d {008000}zosta³ pomy?lnie utworzony.", viashopid);
+	format(string, sizeof string, "{008000}Sklep viatoll o uid: {FFFFFF}%d {008000}zostaÂ³ pomy?lnie utworzony.", viashopid);
 	SendClientMessage(playerid,0x0,string);
 
 	DestroyDynamic3DTextLabel(viashop3D[viashopid]);
@@ -191,7 +191,7 @@ Dialog:DIALOG_ID_VIATOLL(playerid, response, listitem, inputtext[])
 	new firmaid = PlayerInfo[playerid][pFirma];
 
 	if( (firmaid == 0 && GetMoney(playerid) < koszt) || (Firmy[firmaid][tID] && Firmy[firmaid][tBank] < koszt) )
-		return ShowInfo(playerid, "Nie masz tyle pieniêdzy.");
+		return ShowInfo(playerid, "Nie masz tyle pieniÃªdzy.");
 
 	if(Firmy[firmaid][tID])
 		Firmy[firmaid][tBank] -= koszt;
@@ -199,7 +199,7 @@ Dialog:DIALOG_ID_VIATOLL(playerid, response, listitem, inputtext[])
 		GiveMoney(playerid, -koszt);
 		
 	GiveViaMoney(playerid, impulsow);
-	format(str, sizeof(str), "Kupi³eœ %d impuls/ów za $%d.", impulsow, koszt);
+	format(str, sizeof(str), "KupiÂ³eÅ“ %d impuls/Ã³w za $%d.", impulsow, koszt);
 	ShowInfo(playerid, str);
 	return 1;
 }
