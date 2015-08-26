@@ -2,7 +2,7 @@ CMD:przeglad(playerid, params[])
 {
 	new targetid, vehicleid, string[100];
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POMOC)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POMOC)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -49,7 +49,7 @@ public Pomoc_OnPlayerEnterJob(playerid)
 forward Pomoc_OnPlayerKey(playerid, newkeys, oldkeys);
 public Pomoc_OnPlayerKey(playerid, newkeys, oldkeys)
 {
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POMOC)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POMOC)
 		return 0;
 
 	if(newkeys & KEY_FIRE &&(GetPlayerWeapon(playerid) == 41 && !IsPlayerInAnyVehicle(playerid)))
@@ -167,7 +167,7 @@ public RepairTimer(playerid,vehicleid)
 
 CMD:setplate(playerid, params[])
 {
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POMOC)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POMOC)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -214,7 +214,7 @@ public SetPos(vehicleid, Float:x, Float:y, Float:z)
 
 CMD:napraw(playerid, params[])
 {
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POMOC)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POMOC)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -228,7 +228,7 @@ CMD:napraw(playerid, params[])
 
 CMD:zatankuj(playerid)
 {
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POMOC)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POMOC)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -240,7 +240,7 @@ CMD:zatankuj(playerid)
 	new vehicleid = GetPlayerVehicleID(playerid), string[80];
 
 	if(Spawned[vehicleid])
-		vehOtherInfo[vehicleid][vFuel] = MaxFuel(GetVehicleModel(vehicleid));
+		vehInfo_Temp[vehicleid][vFuel] = MaxFuel(GetVehicleModel(vehicleid));
 	else
 		vehInfo[DBVehID[vehicleid]][vFuel] = MaxFuel(GetVehicleModel(vehicleid));
 

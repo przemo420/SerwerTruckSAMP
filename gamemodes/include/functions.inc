@@ -68,21 +68,21 @@ GetDistancePlayerToPlayer(playerid, twoplayerid)
 
 IsWorked(playerid, fraction)
 {
-	if(GetPVarInt(playerid, "Worked") && Firmy[PlayerInfo[playerid][pFirma]][tTyp] == fraction)
+	if(GetPVarInt(playerid, "Worked") && firmInfo[playerInfo[playerid][pFirm]][tType] == fraction)
 		return true;
 	return false;
 }
 
 IsFractionBoss(playerid)
 {
-	if(Firmy[PlayerInfo[playerid][pFirma]][tChef] != PlayerInfo[playerid][pID])
+	if(firmInfo[playerInfo[playerid][pFirm]][tChef] != playerInfo[playerid][pID])
 		return false;
 	return true;
 }
 
 IsFractionViceBoss(playerid)
 {
-	if(Firmy[PlayerInfo[playerid][pFirma]][tVcChef] != PlayerInfo[playerid][pID])
+	if(firmInfo[playerInfo[playerid][pFirm]][tVcChef] != playerInfo[playerid][pID])
 		return false;
 	return true;
 }
@@ -254,7 +254,7 @@ stock MsgTo(colorid, text[], teamtypeid)
 {
 	for(new i; i <= GetPlayerPoolSize(); i++)
 		if(IsPlayerConnected(i))
-			if(Firmy[PlayerInfo[i][pFirma]][tTyp] == teamtypeid)
+			if(firmInfo[playerInfo[i][pFirm]][tType] == teamtypeid)
 				Msg(i, colorid, text);
 
 	return 1;
@@ -1122,8 +1122,8 @@ GetStacja(playerid)
 
 	for(new i; i<MAX_STACJE; i++)
 	{
-	    if(Stacje[i][sID])
-			if(IsPlayerInRangeOfPoint(playerid, 10.0, Stacje[i][sPosX], Stacje[i][sPosY], Stacje[i][sPosZ]))
+	    if(stationInfo[i][sID])
+			if(IsPlayerInRangeOfPoint(playerid, 10.0, stationInfo[i][sPosX], stationInfo[i][sPosY], stationInfo[i][sPosZ]))
 			{
 			    stacjaid = i;
 			    break;

@@ -11,51 +11,51 @@ LadujOrganizacje()
 	{
 		mysql_fetch_field("id", string);
 		id = strval(string);
-		Firmy[id][tID] = id;
+		firmInfo[id][tID] = id;
 
-		mysql_fetch_field("Nazwa", Firmy[id][tName]);
+		mysql_fetch_field("Nazwa", firmInfo[id][tName]);
 		
 		mysql_fetch_field("Szef", string);
-		Firmy[id][tChef] = strval(string);
+		firmInfo[id][tChef] = strval(string);
 
 		mysql_fetch_field("VcSzef", string);
-		Firmy[id][tVcChef] = strval(string);
+		firmInfo[id][tVcChef] = strval(string);
 
 		mysql_fetch_field("Ksiegowy", string);
-		Firmy[id][tKsiegowy] = strval(string);
+		firmInfo[id][tAccountant] = strval(string);
 
 		mysql_fetch_field("Typ", string);
-		Firmy[id][tTyp] = strval(string);
+		firmInfo[id][tType] = strval(string);
 
 		mysql_fetch_field("Bank", string);
-		Firmy[id][tBank] = strval(string);
+		firmInfo[id][tBank] = strval(string);
 
 		mysql_fetch_field("SpawnX", string);
-		Firmy[id][tSpawnX] = floatstr(string);
+		firmInfo[id][tSpawnX] = floatstr(string);
 
 		mysql_fetch_field("SpawnY", string);
-		Firmy[id][tSpawnY] = floatstr(string);
+		firmInfo[id][tSpawnY] = floatstr(string);
 
 		mysql_fetch_field("SpawnZ", string);
-		Firmy[id][tSpawnZ] = floatstr(string);
+		firmInfo[id][tSpawnZ] = floatstr(string);
 
 		mysql_fetch_field("Skin1", string);
-		Firmy[id][tSkin1] = strval(string);
+		firmInfo[id][tSkin1] = strval(string);
 
 		mysql_fetch_field("Skin2", string);
-		Firmy[id][tSkin2] = strval(string);
+		firmInfo[id][tSkin2] = strval(string);
 
 		mysql_fetch_field("Skin3", string);
-		Firmy[id][tSkin3] = strval(string);
+		firmInfo[id][tSkin3] = strval(string);
 
 		mysql_fetch_field("Skin4", string);
-		Firmy[id][tSkin4] = strval(string);
+		firmInfo[id][tSkin4] = strval(string);
 
 		mysql_fetch_field("Skin5", string);
-		Firmy[id][tSkin5] = strval(string);
+		firmInfo[id][tSkin5] = strval(string);
 
 		mysql_fetch_field("Kolor", string);
-		Firmy[id][tKolor] = strval(string);
+		firmInfo[id][tColor] = strval(string);
 
 		ile++;
 	} 
@@ -64,7 +64,7 @@ LadujOrganizacje()
 	mysql_free_result();
 
 	for(new i=1; i<=ile; i++)
-		LadujPojazd(Firmy[i][tID], OWNER_TYPE_TEAM);
+		LadujPojazd(firmInfo[i][tID], OWNER_TYPE_TEAM);
 		
 	return 1;
 }

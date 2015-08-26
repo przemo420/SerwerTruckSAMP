@@ -4,11 +4,11 @@ stock StripUpdate(playerid)
 	{
 		for(new i = 0; i < MAX_SPIKESTRIPS; i++)
 		{
-			if(IsPlayerInRangeOfPoint(playerid, 3.0, ssInfo[i][sX], ssInfo[i][sY], ssInfo[i][sZ]))
+			if(IsPlayerInRangeOfPoint(playerid, 3.0, spikeInfo[i][sX], spikeInfo[i][sY], spikeInfo[i][sZ]))
 			{
-				if(ssInfo[i][sCreated] == 1)
+				if(spikeInfo[i][sCreated] == 1)
 				{
-					ClosestTireToStrip(GetPlayerVehicleID(playerid), ssInfo[i][sX], ssInfo[i][sY], ssInfo[i][sZ]);
+					ClosestTireToStrip(GetPlayerVehicleID(playerid), spikeInfo[i][sX], spikeInfo[i][sY], spikeInfo[i][sZ]);
 					break;
 				}
 			}
@@ -66,18 +66,18 @@ stock CreateStrip(playerid, Float:x, Float:y, Float:z, Float:Angle)
 	new count = -1;
 	for(new i = 0; i < MAX_SPIKESTRIPS; i++)
 	{
-		if(ssInfo[i][sCreated] == 0)
+		if(spikeInfo[i][sCreated] == 0)
 		{
 			new string[50];
 			format(string, sizeof(string), "{FFFFFF}UID: %d\nUtworzy³: %s", i, PlayerName(playerid));
 
 			count = i;
-			ssInfo[i][sCreated] = 1;
-			ssInfo[i][sX] = x;
-			ssInfo[i][sY] = y;
-			ssInfo[i][sZ] = z-0.7;
-			ssInfo[i][sObject] = CreateDynamicObject(2899, x, y, z-0.9, 0.0, 0.0, Angle-90);
-			ssInfo[i][sText] = CreateDynamic3DTextLabel(string, ZIELONY6, x, y, z, 5.0);
+			spikeInfo[i][sCreated] = 1;
+			spikeInfo[i][sX] = x;
+			spikeInfo[i][sY] = y;
+			spikeInfo[i][sZ] = z-0.7;
+			spikeInfo[i][sObject] = CreateDynamicObject(2899, x, y, z-0.9, 0.0, 0.0, Angle-90);
+			spikeInfo[i][sText] = CreateDynamic3DTextLabel(string, ZIELONY6, x, y, z, 5.0);
 
 			return 1;
 		}
@@ -89,14 +89,14 @@ stock DeleteAllStrip()
 {
 	for(new i = 0; i < MAX_SPIKESTRIPS; i++)
 	{
-		if(ssInfo[i][sCreated] == 1)
+		if(spikeInfo[i][sCreated] == 1)
 		{
-			ssInfo[i][sCreated] = 0;
-			ssInfo[i][sX] = 0.0;
-			ssInfo[i][sY] = 0.0;
-			ssInfo[i][sZ] = 0.0;
-			DestroyDynamicObject(ssInfo[i][sObject]);
-			DestroyDynamic3DTextLabel(ssInfo[i][sText]);
+			spikeInfo[i][sCreated] = 0;
+			spikeInfo[i][sX] = 0.0;
+			spikeInfo[i][sY] = 0.0;
+			spikeInfo[i][sZ] = 0.0;
+			DestroyDynamicObject(spikeInfo[i][sObject]);
+			DestroyDynamic3DTextLabel(spikeInfo[i][sText]);
 		}
 	}
 	return 1;
@@ -104,7 +104,7 @@ stock DeleteAllStrip()
 
 CMD:kolczatka(playerid)
 {
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -125,7 +125,7 @@ CMD:kolczatka(playerid)
 
 CMD:usunkolczatke(playerid, params[])
 {
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -139,15 +139,15 @@ CMD:usunkolczatke(playerid, params[])
 	if(i < 0 || i > MAX_SPIKESTRIPS)
 		return Msg(playerid, COLOR_ERROR, "B³êdne ID kolczatki.");
 
-	if(ssInfo[i][sCreated] == 0)
+	if(spikeInfo[i][sCreated] == 0)
 		return Msg(playerid, COLOR_ERROR, "Kolczatka o danym ID nie istnieje.");
 
-	ssInfo[i][sCreated] = 0;
-	ssInfo[i][sX] = 0.0;
-	ssInfo[i][sY] = 0.0;
-	ssInfo[i][sZ] = 0.0;
-	DestroyDynamicObject(ssInfo[i][sObject]);
-	DestroyDynamic3DTextLabel(ssInfo[i][sText]);
+	spikeInfo[i][sCreated] = 0;
+	spikeInfo[i][sX] = 0.0;
+	spikeInfo[i][sY] = 0.0;
+	spikeInfo[i][sZ] = 0.0;
+	DestroyDynamicObject(spikeInfo[i][sObject]);
+	DestroyDynamic3DTextLabel(spikeInfo[i][sText]);
 
 	Msg(playerid, COLOR_INFO, "Pomyœlnie usuniêto kolczatkê.");	
 
@@ -156,13 +156,13 @@ CMD:usunkolczatke(playerid, params[])
 
 CMD:usunkolczatki(playerid)
 {
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
 
 	if(!GetPVarInt(playerid, "Worked"))
 		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
 
-	if(ssInfo[0][sCreated] == 0)
+	if(spikeInfo[0][sCreated] == 0)
 		return Msg(playerid, COLOR_ERROR, "Brak kolczatek do usuniêcia.");
 	else
 		DeleteAllStrip();

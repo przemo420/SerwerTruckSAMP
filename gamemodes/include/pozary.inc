@@ -33,7 +33,7 @@ CMD:nadyzurze(playerid, cmdtext[])
 {
 	new string[50];
 	for(new i; i<=7; i++)
-		format(string, sizeof(string), "%s%s (%d)\n", string, Firmy[i][tName], NaDyzurze[i]);
+		format(string, sizeof(string), "%s%s (%d)\n", string, firmInfo[i][tName], NaDyzurze[i]);
 
 	return ShowInfo(playerid, string);
 }

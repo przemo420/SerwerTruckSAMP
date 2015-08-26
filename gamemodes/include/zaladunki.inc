@@ -425,7 +425,7 @@ stock GetOfferts(playerid, type)
 		if(!IsValidOffert(i) || cargoInfo[i][cReserved] == true || cargoInfo[i][cDeleted] == true || (gettime() - cargoInfo[i][cTimeEnd]) > 0)
 			continue;
 
-		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
+		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || playerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
 			continue;
 
 		if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cargoInfo[i][cDistance])
@@ -510,7 +510,7 @@ Dialog:DIALOG_OFFER(playerid, response, listitem, inputtext[])
 		if(!IsValidOffert(i) || (gettime() - cargoInfo[i][cTimeEnd]) > 0 || waresInfo[cargoInfo[i][cType]][wType] != type || cargoInfo[i][cReserved] == true || i < minCargo || cargoInfo[i][cDeleted] == true)
 			continue;
 
-		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
+		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || playerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
 			continue;
 
 		if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cargoInfo[i][cDistance])
@@ -642,7 +642,7 @@ Dialog:DIALOG_OFFER_SUM(playerid, response, listitem, inputtext[])
 				if(!IsValidOffert(i) || i >= GetPVarInt(playerid, "cargo") || cargoInfo[i][cReserved] == true || waresInfo[cargoInfo[i][cType]][wType] != type)
 					continue;
 
-				if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
+				if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || playerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
 					continue;
 
 				if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cargoInfo[i][cDistance])
@@ -668,7 +668,7 @@ Dialog:DIALOG_OFFER_SUM(playerid, response, listitem, inputtext[])
 	DeletePVar(playerid, "selectedType");
 	DeletePVar(playerid, "lastCargo");
 	Msg(playerid, COLOR_INFO, "Towar zosta³ pomyœlnie zarezerwowany. Teraz mo¿esz udaæ siê na za³adunek.");
-	if(!PlayerInfo[playerid][pFirma] && !GetVehicleTrailer(GetPlayerVehicleID(playerid)) && (GetWareVehicle(cargoInfo[id][cType]) == WARE_TYPE_TRUCK || GetWareVehicle(cargoInfo[id][cType]) == WARE_TYPE_MULTIPLE) && IsVehicleTruck(GetVehicleModel(GetPlayerVehicleID(playerid))))
+	if(!playerInfo[playerid][pFirm] && !GetVehicleTrailer(GetPlayerVehicleID(playerid)) && (GetWareVehicle(cargoInfo[id][cType]) == WARE_TYPE_TRUCK || GetWareVehicle(cargoInfo[id][cType]) == WARE_TYPE_MULTIPLE) && IsVehicleTruck(GetVehicleModel(GetPlayerVehicleID(playerid))))
 		Dialog_Show(playerid, DIALOG_TRAILER, DIALOG_STYLE_MSGBOX, " ", "Czy chcia³yœ wypo¿yczyæ naczepê?\nJest to konieczne, je¿eli nie posiadasz w³asnej naczepy a chcesz przewieŸæ towar tylko dla ciê¿arówek.", "Tak", "Nie");
 	else
 	{
@@ -686,7 +686,7 @@ stock GetMaxOffert(playerid, type, maxid)
 		if(!IsValidOffert(i) || cargoInfo[i][cReserved] == true || cargoInfo[i][cDeleted] == true)
 			continue;
 
-		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
+		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || playerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
 			continue;
 
 		if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cargoInfo[i][cDistance])
@@ -709,7 +709,7 @@ stock GetMinOffert(playerid, type, minid)
 		if(!IsValidOffert(i) || cargoInfo[i][cReserved] == true || cargoInfo[i][cDeleted] == true)
 			continue;
 
-		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
+		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || playerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
 			continue;
 
 		if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cargoInfo[i][cDistance])

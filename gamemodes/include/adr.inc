@@ -39,7 +39,7 @@ new ADRQuestions[][][] = {
 CMD:adr(playerid)
 {
 	new class = 0, levelReq, szBuffer[256], szForm[5];
-	switch(PlayerInfo[playerid][pADR])
+	switch(playerInfo[playerid][pADR])
 	{
 		case 0: class = 1;
 		case 1: class = 2;
@@ -66,9 +66,9 @@ Dialog:DIALOG_ADR(playerid, response, listitem, inputtext[])
 {
 	if(response)
 	{
-		new questNumb = PlayerInfo[playerid][pADR] * 5;
+		new questNumb = playerInfo[playerid][pADR] * 5;
 
-		GiveMoney(playerid, -ADR_Cost[PlayerInfo[playerid][pADR]]);
+		GiveMoney(playerid, -ADR_Cost[playerInfo[playerid][pADR]]);
 		Dialog_Show(playerid, DIALOG_ADR2, DIALOG_STYLE_INPUT, " ", ADRQuestions[questNumb][2], "Dalej", #);
 		SetPVarInt(playerid, "ADR_Step", 0);
 		SetPVarInt(playerid, "ADR_Balance", 0);
@@ -79,7 +79,7 @@ Dialog:DIALOG_ADR(playerid, response, listitem, inputtext[])
 
 Dialog:DIALOG_ADR2(playerid, response, listitem, inputtext[])
 {
-	new step = GetPVarInt(playerid, "ADR_Step"), questNumb = (PlayerInfo[playerid][pADR] * 5) + step;
+	new step = GetPVarInt(playerid, "ADR_Step"), questNumb = (playerInfo[playerid][pADR] * 5) + step;
 	if(response)
 	{
 		new answer, balance;
@@ -102,20 +102,20 @@ Dialog:DIALOG_ADR2(playerid, response, listitem, inputtext[])
 
 			SetPVarInt(playerid, "ADR_Balance", balance);
 			
-			if(ADR_QuestNumb[PlayerInfo[playerid][pADR]] == step + 1)
+			if(ADR_QuestNumb[playerInfo[playerid][pADR]] == step + 1)
 			{
 				new szBuffer[128], szForm[5];
-				szForm = (PlayerInfo[playerid][pADR]+1 == 1) ? ("szej") : ((PlayerInfo[playerid][pADR]+1 == 2) ? ("giej") : ("ciej"));
-				if(GetPVarInt(playerid, "ADR_Balance") >= (ADR_QuestNumb[PlayerInfo[playerid][pADR]]-1))
+				szForm = (playerInfo[playerid][pADR]+1 == 1) ? ("szej") : ((playerInfo[playerid][pADR]+1 == 2) ? ("giej") : ("ciej"));
+				if(GetPVarInt(playerid, "ADR_Balance") >= (ADR_QuestNumb[playerInfo[playerid][pADR]]-1))
 				{
-					PlayerInfo[playerid][pADR] += 1;
-					format(szBuffer, sizeof szBuffer, "Gracz {b}%s{/b} zdoby³ licencjê ADR {b}%d{/b}-{b}%s{/b} klasy!", PlayerName(playerid), PlayerInfo[playerid][pADR], szForm);
+					playerInfo[playerid][pADR] += 1;
+					format(szBuffer, sizeof szBuffer, "Gracz {b}%s{/b} zdoby³ licencjê ADR {b}%d{/b}-{b}%s{/b} klasy!", PlayerName(playerid), playerInfo[playerid][pADR], szForm);
 					MsgToAll(COLOR_INFO2, szBuffer);
-					format(szBuffer, sizeof szBuffer, "{488CDB}Gratulacje!{FFFFFF}\n \nUda³o Ci siê zaliczyæ testy na licencje ADR klasy {488CDB}%d-%s.", PlayerInfo[playerid][pADR], szForm);
+					format(szBuffer, sizeof szBuffer, "{488CDB}Gratulacje!{FFFFFF}\n \nUda³o Ci siê zaliczyæ testy na licencje ADR klasy {488CDB}%d-%s.", playerInfo[playerid][pADR], szForm);
 				}
 				else
 				{
-					format(szBuffer, sizeof szBuffer, "{488CDB}Niestety...{FFFFFF}\n \nNie uda³o Ci siê zaliczyæ testów na licencje ADR klasy {488CDB}%d-%s.\n", PlayerInfo[playerid][pADR]+1, szForm);
+					format(szBuffer, sizeof szBuffer, "{488CDB}Niestety...{FFFFFF}\n \nNie uda³o Ci siê zaliczyæ testów na licencje ADR klasy {488CDB}%d-%s.\n", playerInfo[playerid][pADR]+1, szForm);
 				}
 				DeletePVar(playerid, "ADR_Step");
 				DeletePVar(playerid, "ADR_Balance");

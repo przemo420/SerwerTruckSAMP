@@ -14,6 +14,7 @@ native IsValidVehicle(vehicle);
 #define MAX_BTOBJ 			2000
 #define MAX_BTOBJTD 		2000
 #define MAX_LOADING_POINTS	200
+#define MAX_RADIOS			100
 
 // ---------------------------
 
@@ -50,6 +51,7 @@ enum noclipenum
 	lastmove,
 	Float:accelmul
 }
+
 new noclipdata[MAX_PLAYERS][noclipenum];
 
 // ---------------------------
@@ -63,10 +65,6 @@ enum {
 	TEAM_TYPE_SMLOG,
 	TEAM_TYPE_BUILD
 }
-
-// ---------------------------
-
-//native IsValidVehicle(vehicle);
 
 // ---------------------------
 
@@ -174,6 +172,171 @@ new const szHookInclude[][] = {
 */
 // ---------------------------
 
+enum E_PLAYER 
+{
+	pID,
+	pMoney,
+	pScore,
+	pAdmin,
+	pBankomat,
+	pFirm,
+	pSkin,
+	pTacho,
+	pPhoto,
+	pToll,
+	pGTime,
+	pWorkTime,
+	pBuildmaster,
+	pADR,
+	pPursued,
+	bool:pInvited[8],
+	pChained,
+	pChainedTimer
+}
+
+enum E_STATION
+{
+	sID,
+	Float:sPosX,
+	Float:sPosY,
+	Float:sPosZ,
+	sGasAmount,
+	sPetroleumAmount,
+	sPetrolAmount,
+	Float:sGasPrice,
+	Float:sPetroleumPrice,
+	Float:sPetrolPrice
+}
+
+enum E_TEAM 
+{
+	tID,
+	tName[32],
+	tChef,
+	tVcChef,
+	tAccountant,
+	tType,
+	tBank,
+	Float:tSpawnX,
+	Float:tSpawnY,
+	Float:tSpawnZ,
+	tSkin1,
+	tSkin2,
+	tSkin3,
+	tSkin4,
+	tSkin5,
+	tColor
+}
+
+enum E_GPS
+{
+	bool:gLoadings,
+	bool:gStations,
+	bool:gRestaurants,
+	bool:gViatoll
+}
+
+enum E_VIATOLL 
+{
+	vtID,
+	Float:vtPosX,
+	Float:vtPosY,
+	Float:vtPosZ
+}
+
+enum E_STRIPE
+{
+	sCreated,
+	Float:sX,
+	Float:sY,
+	Float:sZ,
+	sObject,
+	Text3D:sText
+}
+
+enum E_VEHICLE
+{
+	vID,
+	vModel,
+	vOwnerID,
+	vOwnerType,
+	Float:vPosX,
+	Float:vPosY,
+	Float:vPosZ,
+	Float:vPosA,
+	Float:vHealth,
+	Float:vFuel,
+	vFuelType,
+	Float:vPrzebieg,
+	vColor1,
+	vColor2,
+	vLocked,
+	vPanels,
+	vDoors,
+	vLights,
+	vTires,
+	vOwnerVC,
+	vPlate[32],
+	vPrzeglad[32],
+	vSAMPID
+};
+
+enum E_TEMP_VEHICLE 
+{
+	Float:vFuel,
+	vFuelType,
+	Float:vPrzebieg,
+	vCargoID,
+	vCargoWeight,
+	vCargoLoadTime,
+	vCargoLoadTimer,
+	vCargoLoadPoint,
+	vCargoUnLoadTime,
+	Color1,
+	Color2
+}
+
+enum E_RADIO
+{
+	sID,
+	sName[32],
+	sURL[176]
+};
+
+enum E_DAY
+{
+	rName[32],
+	rHour
+};
+
+enum E_REPORT
+{
+	repFrac,
+	repId,
+	repNick[32],
+	repLoc[48],
+	repTime
+}
+
+new radioInfo[MAX_RADIOS][E_RADIO],
+	spikeInfo[MAX_SPIKESTRIPS][E_STRIPE],
+	gpsInfo[MAX_PLAYERS][E_GPS],
+	viaInfo[MAX_VIASHOP][E_VIATOLL],
+	firmInfo[MAX_FIRM][E_TEAM],
+	playerInfo[MAX_PLAYERS][E_PLAYER],
+	stationInfo[MAX_STACJE][E_STATION],
+	vehInfo_Temp[MAX_VEHICLES][E_TEMP_VEHICLE],
+	vehInfo[MAX_VEHICLES_DB][E_VEHICLE],
+	TimeGlobal[][E_DAY] =
+	{
+		{"poranek", 6},
+		{"dzieñ", 12},
+		{"wieczór", 22},
+		{"noc", 1}
+	};
+
+// ---------------------------
+
 new Odliczanie;
 new bool:OdliczanieWystartowalo;
 new OdliczanieTimer; 
@@ -186,26 +349,10 @@ new const Float:gSpawnvehicleplayer[][3] = {
 	{-2136.7207,-126.3667,36.5191}
 };
 
-enum rInfo
-{
-	rName[32],
-	rHour
-};
-
-new TimeGlobal[][rInfo] =
-{
-	{"poranek", 6},
-	{"dzieñ", 12},
-	{"wieczór", 22},
-	{"noc", 1}
-};
-
 new SECURITYON = 1;
 
 new kierunki[MAX_VEHICLES][4],
     bool:traffic[MAX_VEHICLES];
-
-#define INVALID_TOWAR_ID 0
 
 #define PRESSED(%0) \
 	(((newkeys & (%0)) == (%0)) && ((oldkeys & (%0)) != (%0)))
@@ -286,16 +433,6 @@ new const DoswiadczeniePoziomy[] =
 	4450
 };
 
-#define MAX_RADIO 100
-
-enum sInfo
-{
-	sID,
-	sName[32],
-	sURL[176]
-};
-new RadioStations[MAX_RADIO][sInfo];
-
 enum {
 	FUEL_TYPE_GAS=0,
 	FUEL_TYPE_BENZ,
@@ -307,33 +444,7 @@ enum {
 	OWNER_TYPE_TEAM,
 	OWNER_TYPE_SPAWNED
 }
-enum vInfo
-{
-	vID,
-	vModel,
-	vOwnerID,
-	vOwnerType,
-	Float:vPosX,
-	Float:vPosY,
-	Float:vPosZ,
-	Float:vPosA,
-	Float:vHealth,
-	Float:vFuel,
-	vFuelType,
-	Float:vPrzebieg,
-	vColor1,
-	vColor2,
-	vLocked,
-	vPanels,
-	vDoors,
-	vLights,
-	vTires,
-	vOwnerVC,
-	vPlate[32],
-	vPrzeglad[32],
-	vSAMPID
-};
-new vehInfo[MAX_VEHICLES_DB][vInfo];
+
 new Float:vPos[MAX_VEHICLES][6];
 new DBVehID[MAX_VEHICLES_DB];
 new HighVehicleID=INVALID_VEHICLE_ID;
@@ -355,104 +466,20 @@ new timer[MAX_PLAYERS],
 
 new UsersConnected;
 
-enum vOtherInfo {
-	Float:vFuel,
-	vFuelType,
-	Float:vPrzebieg,
-	vCargoID,
-	vCargoWeight,
-	vCargoLoadTime,
-	vCargoLoadTimer,
-	vCargoLoadPoint,
-	vCargoUnLoadTime,
-	Color1,
-	Color2
-}
-new vehOtherInfo[MAX_VEHICLES][vOtherInfo];
 new bool:Spawned[MAX_VEHICLES];
 
-enum Player {
-	pID,
-	pMoney,
-	pScore,
-	pAdmin,
-	pBankomat,
-	pFirma,
-	pSkin,
-	pTacho,
-	pFoto,
-	pToll,
-	pGTime,
-	pWorkTime,
-	pBuildmaster,
-	pADR,
-	pScigany,
-	bool:pInvited[8],
-	chained,
-	chainedTimer
-}
-new PlayerInfo[MAX_PLAYERS][Player];
-
-enum Stations {
-	sID,
-	Float:sPosX,
-	Float:sPosY,
-	Float:sPosZ,
-	ZbiornikGaz,
-	ZbiornikRopa,
-	ZbiornikBenzyna,
-	Float:CenaGaz,
-	Float:CenaRopa,
-	Float:CenaBenzyna
-}
-new Stacje[MAX_STACJE][Stations];
 new Text3D:StacjeText3D[MAX_STACJE];
 new StacjeMapIcon[MAX_STACJE];
 new StacjeMapIconForAll[MAX_STACJE];
 new ID_STACJA=1;
 
-enum Teams {
-	tID,
-	tName[32],
-	tChef,
-	tVcChef,
-	tKsiegowy,
-	tTyp,
-	tBank,
-	Float:tSpawnX,
-	Float:tSpawnY,
-	Float:tSpawnZ,
-	tSkin1,
-	tSkin2,
-	tSkin3,
-	tSkin4,
-	tSkin5,
-	tKolor
-}
-new Firmy[MAX_FIRM][Teams];
 new NaDyzurze[MAX_FIRM];
 
 new colors[][] = {
-	"niewidoczny", "biaÅ‚y", "pomaraÅ„czowy", "czerwony", "rÃ³Å¼owy",
-	"Å¼Ã³Å‚ty", "brÄ…zowy", "zielony", "jasnoniebieski", "niebieski"
+	"niewidoczny", "bia³y", "pomarañczowy", "czerwony", "ró¿owy",
+	"¿ó³ty", "br¹zowy", "zielony", "jasnoniebieski", "niebieski"
 };
 
-enum GPSs
-{
-	bool:GPSDoki,
-	bool:GPSStacje,
-	bool:GPSBary,
-	bool:GPSViatoll
-}
-new GPSGracz[MAX_PLAYERS][GPSs];
-
-enum eViaToll {
-	vtID,
-	Float:vtPosX,
-	Float:vtPosY,
-	Float:vtPosZ
-}
-new ViaToll[MAX_VIASHOP][eViaToll];
 new Text3D:viashop3D[MAX_VIASHOP];
 new viashop3DForAll[MAX_VIASHOP];
 new viashopIKON[MAX_VIASHOP];
@@ -463,18 +490,6 @@ enum {
 	LOG_TYPE_COMMANDS,
 	LOG_TYPE_PLAYER
 }
-
-enum sxInfo
-{
-	sCreated,
-	Float:sX,
-	Float:sY,
-	Float:sZ,
-	sObject,
-	Text3D:sText
-}
-
-new ssInfo[MAX_SPIKESTRIPS][sxInfo];
 
 new VehicleNames[212][] = {
 {"Landstalker"},{"Bravura"},{"Buffalo"},{"Linerunner"},{"Perrenial"},{"Sentinel"},{"Dumper"},

@@ -181,7 +181,7 @@ CMD:vote(playerid, params[])
 	}
 	else if(!strcmp(text, "start", true))
 	{
-		if(!PlayerInfo[playerid][pAdmin])
+		if(!playerInfo[playerid][pAdmin])
 			return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 		if(voteInfo[vote])
 			return Msg(playerid, COLOR_ERROR, "G³osowanie ju¿ istnieje.");
@@ -190,7 +190,7 @@ CMD:vote(playerid, params[])
 	}
 	else if(!strcmp(text, "stop", true))
 	{
-		if(!PlayerInfo[playerid][pAdmin])
+		if(!playerInfo[playerid][pAdmin])
 			return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 		if(!voteInfo[vote])
 			return Msg(playerid, COLOR_ERROR, "Aktualnie nie ma ¿adnego g³osowania.");

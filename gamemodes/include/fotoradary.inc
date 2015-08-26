@@ -14,7 +14,7 @@ enum ePhoto
 	Float:phRange 	// zasiêg dzia³ania fotoradaru 
 }
 
-new bool:pPhoto[MAX_PLAYERS],
+new bool:pPhotoed[MAX_PLAYERS],
 	phInfo[MAX_PHOTORADARS][ePhoto];
 
 forward Photo_OnGameModeInit();
@@ -52,7 +52,7 @@ public PhotoradarUpdate()
 {
 	for(new i = 0; i < MAX_PLAYERS; i++)
 	{
-		if(!IsPlayerConnected(i) || pPhoto[i] || GetPlayerState(i) != PLAYER_STATE_DRIVER)
+		if(!IsPlayerConnected(i) || pPhotoed[i] || GetPlayerState(i) != PLAYER_STATE_DRIVER)
 			continue;
 
 		if(IsWorked(i, TEAM_TYPE_POLICE) || IsWorked(i, TEAM_TYPE_MEDIC))
@@ -66,7 +66,7 @@ public PhotoradarUpdate()
 		if(photoradar < 0)
 			continue;
 
-		pPhoto[i] = true;
+		pPhotoed[i] = true;
 		SetTimerEx("UnlockPhotoradar", 2*1000, false, "d", i);
 		GetVehicleSpeed(vehicleid, speed); speed -= phInfo[photoradar][phMaxSpeed];
 		if(speed < 10.0)
@@ -90,7 +90,7 @@ public PhotoradarUpdate()
 
 public UnlockPhotoradar(playerid)
 {
-	pPhoto[playerid] = false;
+	pPhotoed[playerid] = false;
 	return 1;
 }
 

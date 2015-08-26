@@ -117,7 +117,7 @@ CMD:specon(playerid, params[])
 {
 	new forplayerid;
 
-	if(!PlayerInfo[playerid][pAdmin])
+	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "ddd", forplayerid))
@@ -158,7 +158,7 @@ CMD:specon(playerid, params[])
 
 CMD:specoff(playerid, params[])
 {
-	if(!PlayerInfo[playerid][pAdmin])
+	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(GetPVarType(playerid, "Przeglada") == PLAYER_VARTYPE_NONE)
