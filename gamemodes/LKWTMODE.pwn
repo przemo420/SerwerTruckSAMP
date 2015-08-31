@@ -1255,6 +1255,7 @@ public OnPlayerCommandReceived(playerid, cmdtext[])
 		if(strcmp(cmdtext, "/spawn") == 0)
 			return Msg(playerid, COLOR_ERROR, "W areszcie nie mo¿esz u¿yæ tej komendy.");
 
+
 	return 1;
 }
 
@@ -1280,6 +1281,14 @@ public OnPlayerCommandPerformed(playerid, cmdtext[], success)
 		return 1;
 	}
 	
+	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
+	{
+		format(szTemp, sizeof(szTemp), "%s_OnPlayerCommand", szHookInclude[nrInc]);
+
+		if(funcidx(szTemp) != -1)
+			CallLocalFunction(szTemp, "dsd", playerid, cmdtext, success);
+	}
+
 	return 1;
 }
 
