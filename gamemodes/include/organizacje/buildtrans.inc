@@ -14,6 +14,53 @@ enum eProjectBT {
 }
 new projektyBT[MAX_PROJECTS][eProjectBT];
 
+new const BTObiects[][][] =
+{
+	{2960, "Belka"},
+	{944, "Skrzynie"},
+	{3287, "Beczka"},
+	{1684, "Budka"},
+	{3567, "Naczepa"},
+	{11292, "Budka2"},
+	{1352, "Swiatla"},
+	{8873, "Jupiter"},
+	{16599, "Wodol"},
+	{3502, "Rura"},
+	{3675, "Rura2"},
+	{12930, "Rury"},
+	{1685, "Kostka"},
+	{3572, "Kontener"},
+	{2699, "Kontener2"},
+	{1358, "Œmietnik"},
+	{1372, "Œmietnik2"},
+	{18248, "Koparka"},
+	{3526, "Lampka"},
+	{3385, "Lampka2"},
+	{979, "Strza³ka1"},
+	{978, "Strza³ka"},
+	{973, "Barierka"},
+	{3091, "Blokada"},
+	{2981, "Blokada2"},
+	{1237, "Pacholek"},
+	{1238, "Pacholek2"},
+	{3504, "ToiToi"},
+	{1322, "Znak"},
+	{3380, "Znak2"},
+	{3379, "Znak3"},
+	{2780, "Dym"},
+	{974, "Bramka"},
+	{16302, "¯wir"},
+	{10984, "Gruz"},
+	{16317, "Piach"},
+	{3578, "Dockbar"},
+	{934, "Generator"},
+	{1426, "Rusztowanie"},
+	{1428, "Drabina"},
+	{1437, "Drabina2"},
+	{3867, "Rusztowania"},
+	{1226, "Latarnia"}
+};
+
 CMD:projekt(playerid, params[])
 {
 	new opcja[10], firmaid = playerInfo[playerid][pFirm], string[1024];
@@ -55,8 +102,13 @@ CMD:projekt(playerid, params[])
 	}
 	else if(strcmp(opcja, "usun", true) == 0) 
 	{
+<<<<<<< HEAD
+		if(Firmy[firmaid][tChef] != PlayerInfo[playerid][pID] && Firmy[firmaid][tVcChef] != PlayerInfo[playerid][pID])
+			return ShowInfo(playerid, "Nie masz uprawnieñ.");
+=======
 		//if(firmInfo[firmaid][tChef] != playerInfo[playerid][pID] && firmInfo[firmaid][tVcChef] != playerInfo[playerid][pID])
 			//return ShowInfo(playerid, "Nie masz uprawnieñ.");
+>>>>>>> 48d62af091645afbeeec577f1066ea02a723c01b
 
 		for(new i; i < MAX_PROJECTS; i++)
 			if(projektyBT[i][created])
@@ -69,8 +121,13 @@ CMD:projekt(playerid, params[])
 	}
 	else if(strcmp(opcja, "akceptuj", true) == 0) 
 	{
+<<<<<<< HEAD
+		if(Firmy[firmaid][tChef] != PlayerInfo[playerid][pID] && Firmy[firmaid][tVcChef] != PlayerInfo[playerid][pID])
+			return ShowInfo(playerid, "Nie masz uprawnieñ.");
+=======
 		//if(firmInfo[firmaid][tChef] != playerInfo[playerid][pID] && firmInfo[firmaid][tVcChef] != playerInfo[playerid][pID])
 			//return ShowInfo(playerid, "Nie masz uprawnieñ.");
+>>>>>>> 48d62af091645afbeeec577f1066ea02a723c01b
 
 		for(new i; i < MAX_PROJECTS; i++)
 			if(projektyBT[i][created])
@@ -85,6 +142,18 @@ CMD:projekt(playerid, params[])
 		Msg(playerid, COLOR_ERROR, "Wpisz: /projekt [lista/stworz/usun/akceptuj]");
 
 	return 1;
+}
+
+CMD:changepos(playerid, params[])
+{
+	format(params, 30, "polozenie %s", params);
+	return cmd_obiekt(playerid, params);
+}
+
+CMD:delone(playerid, params[])
+{
+	format(params, 30, "usun %s", params);
+	return cmd_obiekt(playerid, params);
 }
 
 CMD:obiekt(playerid, params[])
@@ -114,18 +183,16 @@ CMD:obiekt(playerid, params[])
 	else if(strcmp(opcja, "stworz", true) == 0) 
 	{
 		strcat(string, "Model\tNazwa\n");
-		strcat(string, "2960\tBelka\n944\tSkrzynie\n3287\tBeczka\n1684\tBudka\n3567\tNaczepa\n11292\tBudka2\n1352\tSwiatla\n8873\tJupiter\n16599\tWodol\n");
-		strcat(string, "3502\tRura\n3675\tRura2\n12930\tRury\n1685\tKostka\n3572\tKontener\n2699\tKontener2\n1358\tŒmietnik\n1372\tŒmietnik2\n18248\tKoparka\n");
-		strcat(string, "3526\tLampka\n3385\tLampka2\n979\tStrza³ka lewo\n978\tStrza³ka prawo\n973\tBarierka\n3091\tBlokada2981\tBlokada\n1237\tPacholek\n");
-		strcat(string, "1238\tPacholek2\n3504\tToiToi\n1322\tZnak\n3380\tZnak2\n3379\tZnak3\n2780\tDym\n974\tBramka\n16302\t¯wir\n10984\tGruz\n16317\tPiach\n");
-		strcat(string, "3578\tDockbar\n934\tGenerator\n1426\tRusztowanie\n1428\tDrabina\n1437\tDrabina2\n3867\tRusztowania\n1226\tLatarnia");
+		
+		for (new index = 0; index < sizeof(BTObiects); index++)
+		    format(string, sizeof(string), "%d\t%s\n", BTObiects[index][0], BTObiects[index][1]);
 
 		Dialog_Show(playerid, DIALOG_OBIEKT_STWORZ, DIALOG_STYLE_TABLIST_HEADERS, "Obiekt > Stwórz", string, "Wybierz", "Anuluj");
 	}
 	else if(strcmp(opcja, "usun", true) == 0)
 	{
 		if(!IsValidDynamicObject(obiektyBT[projektid][opcja2]) || opcja2 == 5656)
-			return Msg(playerid, COLOR_ERROR, "Wpisz: /obiekt usun [id]");
+			return Msg(playerid, COLOR_ERROR, "Wpisz: /obiekt usun [id] lub /delone [id]");
 
 		DestroyDynamicObject(obiektyBT[projektid][opcja2]);
 		DestroyDynamic3DTextLabel(obiektyBTNapis[projektid][opcja2]);
@@ -139,7 +206,7 @@ CMD:obiekt(playerid, params[])
 	else if(strcmp(opcja, "polozenie", true) == 0)
 	{
 		if(!IsValidDynamicObject(obiektyBT[projektid][opcja2]) || opcja2 == 5656)
-			return Msg(playerid, COLOR_ERROR, "Wpisz: /obiekt polozenie [id]");
+			return Msg(playerid, COLOR_ERROR, "Wpisz: /obiekt polozenie [id] lub /changepos [id]");
 
 		SetPVarInt(playerid, "BTobjID", opcja2);
 		EditDynamicObject(playerid, obiektyBT[projektid][opcja2]);
@@ -464,4 +531,22 @@ public BT_OnGameModeInit()
 	mysql_free_result();
 	print("[BT OBIEKTY] Wczytano obiekty BT.");
 	return 1;
+}
+
+forward BT_OnPlayerCommand(playerid, cmdtext[], success);
+public BT_OnPlayerCommand(playerid, cmdtext[], success)
+{
+	new projektid = GetPVarInt(playerid, "projektBT");
+
+	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD || !projektyBT[projektid][created] || projektid == 0)
+		return 0;
+
+	do
+	{
+        if(!strcmp(cmdtext, BTObiects[i][1], false))
+        	return CallLocalFunction("DIALOG_OBIEKT_STWORZ", "ddds", playerid, true, 0, "obiektid\tobiektname\n"); #error do dokonczenia
+
+		i++;
+	}
+	while (i < sizeof(BTObiects));
 }

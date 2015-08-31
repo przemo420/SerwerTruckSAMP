@@ -155,9 +155,12 @@ new const szHookInclude[][] = {
 		_OnPlayerClickTextdraw(playerid, clickedid)
 		_OneSecTimer()
 		_OneSecPlayerTimer(playerid)
+		_OneMinuteTimer()
+		_OneMinPlayerTimer(playerid)
 		_OnTrailerUpdate(playerid, vehicleid)
 		_OnPlayerEditObject(playerid, playerobject, objectid, response, Float:fX, Float:fY, Float:fZ, Float:fRotX, Float:fRotY, Float:fRotZ)
 		_OnPlayerEditDynObject(playerid, objectid, response, Float:x, Float:y, Float:z, Float:rx, Float:ry, Float:rz)
+		_OnPlayerCommand(playerid, cmdtext[], success)
 */
 // ---------------------------
 
