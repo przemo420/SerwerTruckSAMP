@@ -102,13 +102,13 @@ CMD:projekt(playerid, params[])
 	}
 	else if(strcmp(opcja, "usun", true) == 0) 
 	{
-<<<<<<< HEAD
-		if(Firmy[firmaid][tChef] != PlayerInfo[playerid][pID] && Firmy[firmaid][tVcChef] != PlayerInfo[playerid][pID])
+
+		if(firmInfo[firmaid][tChef] != playerInfo[playerid][pID] && firmInfo[firmaid][tVcChef] != playerInfo[playerid][pID])
 			return ShowInfo(playerid, "Nie masz uprawnieñ.");
-=======
+
 		//if(firmInfo[firmaid][tChef] != playerInfo[playerid][pID] && firmInfo[firmaid][tVcChef] != playerInfo[playerid][pID])
 			//return ShowInfo(playerid, "Nie masz uprawnieñ.");
->>>>>>> 48d62af091645afbeeec577f1066ea02a723c01b
+
 
 		for(new i; i < MAX_PROJECTS; i++)
 			if(projektyBT[i][created])
@@ -121,13 +121,13 @@ CMD:projekt(playerid, params[])
 	}
 	else if(strcmp(opcja, "akceptuj", true) == 0) 
 	{
-<<<<<<< HEAD
-		if(Firmy[firmaid][tChef] != PlayerInfo[playerid][pID] && Firmy[firmaid][tVcChef] != PlayerInfo[playerid][pID])
+
+		if(firmInfo[firmaid][tChef] != playerInfo[playerid][pID] && firmInfo[firmaid][tVcChef] != playerInfo[playerid][pID])
 			return ShowInfo(playerid, "Nie masz uprawnieñ.");
-=======
+
 		//if(firmInfo[firmaid][tChef] != playerInfo[playerid][pID] && firmInfo[firmaid][tVcChef] != playerInfo[playerid][pID])
 			//return ShowInfo(playerid, "Nie masz uprawnieñ.");
->>>>>>> 48d62af091645afbeeec577f1066ea02a723c01b
+
 
 		for(new i; i < MAX_PROJECTS; i++)
 			if(projektyBT[i][created])
@@ -536,17 +536,17 @@ public BT_OnGameModeInit()
 forward BT_OnPlayerCommand(playerid, cmdtext[], success);
 public BT_OnPlayerCommand(playerid, cmdtext[], success)
 {
-	new projektid = GetPVarInt(playerid, "projektBT");
+	new projektid = GetPVarInt(playerid, "projektBT"), i;
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD || !projektyBT[projektid][created] || projektid == 0)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_BUILD || !projektyBT[projektid][created] || projektid == 0)
 		return 0;
 
 	do
 	{
         if(!strcmp(cmdtext, BTObiects[i][1], false))
-        	return CallLocalFunction("DIALOG_OBIEKT_STWORZ", "ddds", playerid, true, 0, "obiektid\tobiektname\n"); #error do dokonczenia
-
+        	return CallLocalFunction("DIALOG_OBIEKT_STWORZ", "ddds", playerid, true, 0, "obiektid\tobiektname\n");
 		i++;
 	}
 	while (i < sizeof(BTObiects));
+	return 1;
 }
