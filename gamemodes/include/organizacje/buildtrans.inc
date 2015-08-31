@@ -63,9 +63,9 @@ new const BTObiects[][][] =
 
 CMD:projekt(playerid, params[])
 {
-	new opcja[10], firmaid = PlayerInfo[playerid][pFirma], string[1024];
+	new opcja[10], firmaid = playerInfo[playerid][pFirm], string[1024];
 
-	if(Firmy[firmaid][tTyp] != TEAM_TYPE_BUILD)
+	if(firmInfo[firmaid][tType] != TEAM_TYPE_BUILD)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "s[10]", opcja))
@@ -102,8 +102,13 @@ CMD:projekt(playerid, params[])
 	}
 	else if(strcmp(opcja, "usun", true) == 0) 
 	{
+<<<<<<< HEAD
 		if(Firmy[firmaid][tChef] != PlayerInfo[playerid][pID] && Firmy[firmaid][tVcChef] != PlayerInfo[playerid][pID])
 			return ShowInfo(playerid, "Nie masz uprawnieñ.");
+=======
+		//if(firmInfo[firmaid][tChef] != playerInfo[playerid][pID] && firmInfo[firmaid][tVcChef] != playerInfo[playerid][pID])
+			//return ShowInfo(playerid, "Nie masz uprawnieñ.");
+>>>>>>> 48d62af091645afbeeec577f1066ea02a723c01b
 
 		for(new i; i < MAX_PROJECTS; i++)
 			if(projektyBT[i][created])
@@ -116,8 +121,13 @@ CMD:projekt(playerid, params[])
 	}
 	else if(strcmp(opcja, "akceptuj", true) == 0) 
 	{
+<<<<<<< HEAD
 		if(Firmy[firmaid][tChef] != PlayerInfo[playerid][pID] && Firmy[firmaid][tVcChef] != PlayerInfo[playerid][pID])
 			return ShowInfo(playerid, "Nie masz uprawnieñ.");
+=======
+		//if(firmInfo[firmaid][tChef] != playerInfo[playerid][pID] && firmInfo[firmaid][tVcChef] != playerInfo[playerid][pID])
+			//return ShowInfo(playerid, "Nie masz uprawnieñ.");
+>>>>>>> 48d62af091645afbeeec577f1066ea02a723c01b
 
 		for(new i; i < MAX_PROJECTS; i++)
 			if(projektyBT[i][created])
@@ -150,7 +160,7 @@ CMD:obiekt(playerid, params[])
 {
 	new opcja[10], opcja2, projektid = GetPVarInt(playerid, "projektBT"), string[1024];
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_BUILD)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(!projektyBT[projektid][created] || projektid == 0)
@@ -209,9 +219,9 @@ CMD:obiekt(playerid, params[])
 
 CMD:napis(playerid, params[])
 {
-	new string[1024], opcja[10], opcja2, firmaid = PlayerInfo[playerid][pFirma];
+	new string[1024], opcja[10], opcja2, firmaid = playerInfo[playerid][pFirm];
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_BUILD)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "s[10]D(0)", opcja, opcja2))
@@ -242,7 +252,7 @@ CMD:napis(playerid, params[])
 		if(opcja2 >= MAX_BTOBJTD || BTNapis[opcja2][btnNapis] == Text3D:INVALID_REMONTBT3D_ID)
 			return Msg(playerid, COLOR_ERROR, "Nieprawid³owe ID.");
 
-		if(strcmp(BTNapis[opcja2][btnStworzyl], PlayerName(playerid), true) == -1 && Firmy[firmaid][tChef] != PlayerInfo[playerid][pID] && Firmy[firmaid][tVcChef] != PlayerInfo[playerid][pID])
+		if(strcmp(BTNapis[opcja2][btnStworzyl], PlayerName(playerid), true) == -1 && firmInfo[firmaid][tChef] != playerInfo[playerid][pID] && firmInfo[firmaid][tVcChef] != playerInfo[playerid][pID])
 			return Msg(playerid, COLOR_ERROR, "Nie mo¿esz zniszczyæ tego napisu - nie Ty go stworzy³eœ.");
 		
 		SetPVarInt(playerid, "bt_napis_usun", opcja2);
@@ -259,7 +269,7 @@ CMD:kamera(playerid, params[])
 	if(GetPVarType(playerid, "FlyMode"))
 		return CancelFlyMode(playerid);
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_BUILD)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_BUILD)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	new Float:tp[3];
@@ -473,7 +483,7 @@ public BT_OnPlayerEditDynObject(playerid, objectid, response, Float:x, Float:y, 
 {
 	if(response == EDIT_RESPONSE_FINAL)
 	{
-		if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] == TEAM_TYPE_BUILD)
+		if(firmInfo[playerInfo[playerid][pFirm]][tType] == TEAM_TYPE_BUILD)
 		{
 			new id = GetPVarInt(playerid, "BTobjID"), projektid = GetPVarInt(playerid, "projektBT"), text[60];
 

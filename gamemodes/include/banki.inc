@@ -51,10 +51,10 @@ CMD:bankomat(playerid, params[])
 	Loop(i, sizeof Banky)
 		if(GetDistanceFromMeToPoint(playerid, Banky[i][PostionX], Banky[i][PostionY], Banky[i][PostionZ]) <= 20)
 		{
-			if(PlayerInfo[playerid][pBankomat] == (-1))
+			if(playerInfo[playerid][pBankomat] == (-1))
 				return Dialog_Show(playerid, DIALOG_BANK_ZALOZ, DIALOG_STYLE_MSGBOX, "Bankomat > Za³ó¿", "{FFB90F}Nie posiadasz konta bankowego, czy chcesz je za³o¿yæ za kwotê{FFFFFF}5000$?", "Tak", "Nie");
 
-			Dialog_Show(playerid, DIALOG_BANK, DIALOG_STYLE_LIST, "Bankomat", "{FFFFFF}Serwer-Truck SAMP - bankomaty.\n\n{FFB90F}- wp³aæ pieni¹dze na konto\n{FFB90F}- wyp³aæ pieni¹dze z konta\n\n{FFB90F}Stan konta: {FFFFFF}%d$\n\n{FFFFFF}www.serwertruck.eu", "Wybierz", "WyjdŸ", PlayerInfo[playerid][pBankomat]);
+			Dialog_Show(playerid, DIALOG_BANK, DIALOG_STYLE_LIST, "Bankomat", "{FFFFFF}Serwer-Truck SAMP - bankomaty.\n\n{FFB90F}- wp³aæ pieni¹dze na konto\n{FFB90F}- wyp³aæ pieni¹dze z konta\n\n{FFB90F}Stan konta: {FFFFFF}%d$\n\n{FFFFFF}www.serwertruck.eu", "Wybierz", "WyjdŸ", playerInfo[playerid][pBankomat]);
 			find=true;
 			break;
 		}
@@ -74,7 +74,7 @@ Dialog:DIALOG_BANK_ZALOZ(playerid, response, listitem, inputtext[])
 		return ShowInfo(playerid, "Nie masz wystarczaj¹co pieniêdzy.");
 
 	GiveMoney(playerid, -5000);
-	PlayerInfo[playerid][pBankomat] = 0;
+	playerInfo[playerid][pBankomat] = 0;
 
 	return ShowInfo(playerid, "Za³o¿y³eœ konto bankowe.\nZ Twojego portfela zosta³o zabrane $5000.");
 }
@@ -112,7 +112,7 @@ Dialog:DIALOG_BANK_WPLAC(playerid, response, listitem, inputtext[])
 		pPieniadze = GetMoney(playerid);
 
 	GiveMoney(playerid, -pPieniadze);
-	PlayerInfo[playerid][pBankomat] += pPieniadze;
+	playerInfo[playerid][pBankomat] += pPieniadze;
 
 	return Dialog_Show(playerid, DIALOG_BANK_WYPLAC, DIALOG_STYLE_INPUT, "Bankomat > Wp³aæ", "Wp³aci³eœ {FFB90F}$%d {FFFFFF}na konto bankowe.", "Dalej", "WyjdŸ", pPieniadze);
 }
@@ -127,11 +127,11 @@ Dialog:DIALOG_BANK_WYPLAC(playerid, response, listitem, inputtext[])
 	if(pPieniadze <= 0)
 		return ShowInfo(playerid, "Zbyt ma³a kwota.");
 
-	if(pPieniadze > PlayerInfo[playerid][pBankomat])
-		pPieniadze = PlayerInfo[playerid][pBankomat];
+	if(pPieniadze > playerInfo[playerid][pBankomat])
+		pPieniadze = playerInfo[playerid][pBankomat];
 
 	GiveMoney(playerid, pPieniadze);
-	PlayerInfo[playerid][pBankomat] -= pPieniadze;
+	playerInfo[playerid][pBankomat] -= pPieniadze;
 
 	return Dialog_Show(playerid, DIALOG_BANK_WYPLAC, DIALOG_STYLE_INPUT, "Bankomat > Wyp³aæ", "Wyp³aci³eœ {FFB90F}$%d {FFFFFF}z konta bankowego.", "Dalej", "WyjdŸ", pPieniadze);
 }

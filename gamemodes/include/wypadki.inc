@@ -12,7 +12,7 @@ public Wypadek()
 		new LiczbaMedykow = 0;
 
 		Loop(playerid, MAX_PLAYERS)
-			if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] == TEAM_TYPE_MEDIC)
+			if(firmInfo[playerInfo[playerid][pFirm]][tType] == TEAM_TYPE_MEDIC)
 				if(GetPVarInt(playerid, "Worked") && !GetPVarInt(playerid, "AFK"))
 					LiczbaMedykow++;
 
@@ -110,7 +110,7 @@ public MedicInfo(playerid)
 
 	Loop(i, MAX_PLAYERS)
 	{
-		if(Firmy[PlayerInfo[i][pFirma]][tTyp] == TEAM_TYPE_MEDIC && !GetPVarInt(i, "AFK"))
+		if(firmInfo[playerInfo[i][pFirm]][tType] == TEAM_TYPE_MEDIC && !GetPVarInt(i, "AFK"))
 		{
 			format(string, sizeof string, "Gracz {b}%s{/b} (ID: {b}%d{/b}) spowodowa³ wypadek! Zosta³ oznaczony na minimapce.", PlayerName(playerid), playerid);
 			Msg(i, COLOR_ERROR, string);
@@ -128,7 +128,7 @@ CMD:crashveh(playerid, params[])
 {
 	new string[128];
 
-	if(!PlayerInfo[playerid][pAdmin])
+	if(!playerInfo[playerid][pAdmin])
 		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
 
 	if(CRASHON == 1)

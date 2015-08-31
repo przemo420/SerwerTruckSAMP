@@ -14,64 +14,64 @@ public GPS_Function(playerid, listitem)
 	{
 		case 1: // Stacje
 		{
-			if(GPSGracz[playerid][GPSStacje] || GPSGracz[playerid][GPSDoki] || GPSGracz[playerid][GPSBary] || GPSGracz[playerid][GPSViatoll])
+			if(gpsInfo[playerid][gStations] || gpsInfo[playerid][gLoadings] || gpsInfo[playerid][gRestaurants] || gpsInfo[playerid][gViatoll])
 				return ShowInfo(playerid, "Ju¿ masz w³¹czonego GPSa, najpierw go wy³¹cz.");
 
 			for(new i; i <= ID_STACJA; i++)
 				if(IsValidDynamicMapIcon(StacjeMapIconForAll[i]))
 					Streamer_AppendArrayData(STREAMER_TYPE_MAP_ICON, StacjeMapIconForAll[i], E_STREAMER_PLAYER_ID, playerid);
 
-			GPSGracz[playerid][GPSStacje]=true;
+			gpsInfo[playerid][gStations]=true;
 		}
 		case 2: // Bary
 		{
-			if(GPSGracz[playerid][GPSStacje] || GPSGracz[playerid][GPSDoki] || GPSGracz[playerid][GPSBary] || GPSGracz[playerid][GPSViatoll])
+			if(gpsInfo[playerid][gStations] || gpsInfo[playerid][gLoadings] || gpsInfo[playerid][gRestaurants] || gpsInfo[playerid][gViatoll])
 				return ShowInfo(playerid, "Ju¿ masz w³¹czonego GPSa, najpierw go wy³¹cz.");
 
 			ShowInfo(playerid, "Funkcja chwilowo wy³¹czona.");
 		}
 		case 3: // ViaToll
 		{
-			if(GPSGracz[playerid][GPSStacje] || GPSGracz[playerid][GPSDoki] || GPSGracz[playerid][GPSBary] || GPSGracz[playerid][GPSViatoll])
+			if(gpsInfo[playerid][gStations] || gpsInfo[playerid][gLoadings] || gpsInfo[playerid][gRestaurants] || gpsInfo[playerid][gViatoll])
 				return ShowInfo(playerid, "Ju¿ masz w³¹czonego GPSa, najpierw go wy³¹cz.");
 
 			for(new i; i <= ID_STACJA; i++)
 				if(IsValidDynamicMapIcon(viashop3DForAll[i]))
 					Streamer_AppendArrayData(STREAMER_TYPE_MAP_ICON, viashop3DForAll[i], E_STREAMER_PLAYER_ID, playerid);
 
-			GPSGracz[playerid][GPSViatoll]=true;
+			gpsInfo[playerid][gViatoll]=true;
 		}
 		case 4: // wy³¹cz
 		{
-			if(GPSGracz[playerid][GPSDoki])
+			if(gpsInfo[playerid][gLoadings])
 			{
 				for(new i; i <= ID_DOKOW; i++)
 					if(IsValidDynamicMapIcon(loadInfo[i][lMapIconForAll]))
 						Streamer_RemoveArrayData(STREAMER_TYPE_MAP_ICON, loadInfo[i][lMapIconForAll], E_STREAMER_PLAYER_ID, playerid);
 
-				GPSGracz[playerid][GPSDoki]=false;
+				gpsInfo[playerid][gLoadings]=false;
 			}
-			else if(GPSGracz[playerid][GPSStacje])
+			else if(gpsInfo[playerid][gStations])
 			{
 				for(new i; i <= ID_STACJA; i++)
 					if(IsValidDynamicMapIcon(StacjeMapIconForAll[i]))
 						Streamer_RemoveArrayData(STREAMER_TYPE_MAP_ICON, StacjeMapIconForAll[i], E_STREAMER_PLAYER_ID, playerid);
 
-				GPSGracz[playerid][GPSStacje]=false;
+				gpsInfo[playerid][gStations]=false;
 			}
-			else if(GPSGracz[playerid][GPSViatoll])
+			else if(gpsInfo[playerid][gViatoll])
 			{
 				for(new i; i <= ID_STACJA; i++)
 					if(IsValidDynamicMapIcon(viashop3DForAll[i]))
 						Streamer_RemoveArrayData(STREAMER_TYPE_MAP_ICON, viashop3DForAll[i], E_STREAMER_PLAYER_ID, playerid);
 
-				GPSGracz[playerid][GPSStacje]=false;
+				gpsInfo[playerid][gStations]=false;
 			}
 		}
 
 		case 10..16:
 		{
-			if(GPSGracz[playerid][GPSStacje] || GPSGracz[playerid][GPSDoki] || GPSGracz[playerid][GPSBary] || GPSGracz[playerid][GPSViatoll])
+			if(gpsInfo[playerid][gStations] || gpsInfo[playerid][gLoadings] || gpsInfo[playerid][gRestaurants] || gpsInfo[playerid][gViatoll])
 				return ShowInfo(playerid, "Ju¿ masz w³¹czonego GPSa, najpierw go wy³¹cz.");
 
 			for(new i; i <= ID_DOKOW; i++)
@@ -79,7 +79,7 @@ public GPS_Function(playerid, listitem)
 					if(IsValidDynamicMapIcon(loadInfo[i][lMapIconForAll]))
 						Streamer_AppendArrayData(STREAMER_TYPE_MAP_ICON, loadInfo[i][lMapIconForAll], E_STREAMER_PLAYER_ID, playerid);
 
-			GPSGracz[playerid][GPSDoki]=true;
+			gpsInfo[playerid][gLoadings]=true;
 		}
 	}
 

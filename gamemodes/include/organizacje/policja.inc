@@ -16,7 +16,7 @@ CMD:alkomat(playerid, params[])
 {
 	new targetid;
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -44,7 +44,7 @@ CMD:mandat(playerid, params[])
 	new forplayerid, monej, pojnts, powod[76];
 	new string[256];
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -79,7 +79,7 @@ CMD:aresztuj(playerid, params[])
 {
 	new forplayerid, czas, string[200];
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -106,14 +106,14 @@ CMD:aresztuj(playerid, params[])
 	SetPlayerPos(forplayerid, 219.3761,109.7970,999.0156);
 	SetPlayerHealth(forplayerid, 9999999);
 	TogglePlayerControllable(forplayerid, 0);
-	PlayerInfo[forplayerid][chained] = false;
+	playerInfo[forplayerid][pChained] = false;
 
-	if(PlayerInfo[forplayerid][pScigany])
+	if(playerInfo[forplayerid][pPursued])
 	{
-		format(string, sizeof(string), "UPDATE `st_scigani` SET `aresztowanyprzez` = %d WHERE `id` = %d", PlayerInfo[playerid][pID], PlayerInfo[forplayerid][pScigany]);
+		format(string, sizeof(string), "UPDATE `st_scigani` SET `aresztowanyprzez` = %d WHERE `id` = %d", playerInfo[playerid][pID], playerInfo[forplayerid][pPursued]);
 		mysql_query(string);
 
-		PlayerInfo[forplayerid][pScigany]=0;
+		playerInfo[forplayerid][pPursued]=0;
 	}
 
 	return 1;
@@ -123,7 +123,7 @@ CMD:unareszt(playerid, params[])
 {
 	new forplayerid, string[200];
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
 		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", forplayerid))
@@ -170,7 +170,7 @@ CMD:wywal(playerid, params[])
 	if(!GetPVarInt(playerid, "Worked"))
 		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] == TEAM_TYPE_MEDIC || Firmy[PlayerInfo[playerid][pFirma]][tTyp] == TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] == TEAM_TYPE_MEDIC || firmInfo[playerInfo[playerid][pFirm]][tType] == TEAM_TYPE_POLICE)
 	{
 		RemovePlayerFromVehicle(forplayerid);
 		format(string, sizeof string, "Zosta³eœ wyrzucony z pojazdu przez gracza {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(playerid), playerid);
@@ -192,7 +192,7 @@ CMD:kontrola(playerid, params[])
 		towarname[40],
 		przeglad[32];
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
 		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -225,7 +225,7 @@ CMD:kontrola(playerid, params[])
 	else
 		strcat(przeglad, vehInfo[DBVehID[GetPlayerVehicleID(playerid)]][vPrzeglad]);
 
-	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\t%s\nTowar:\t%s\nWaga:\t%dkg\nPasy:\t%s\nZaleg³e mandaty:\t$%d", PlayerName(targetid), przeglad, towarname, cargoInfo[vloadInfo[vehicleid][vCargo]][cWeight], (GetPVarInt(playerid, "PASY") > 0) ? ("zapiête") : ("rozpiête"), phAccount[targetid]);
+	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\t%s\nTowar:\t%s\nWaga:\t%dkg\nPasy:\t%s\nZaleg³e mandaty:\t$%d", PlayerName(targetid), przeglad, towarname, cargoInfo[vloadInfo[vehicleid][vCargo]][cWeight], (GetPVarInt(playerid, "PASY") > 0) ? ("zapiête") : ("rozpiête"), GetFotoPolice(targetid));
 	Dialog_Show(playerid, DIALOG_CONTROL, DIALOG_STYLE_TABLIST, "Kontrola", string, "WyjdŸ", #);
 	return 1;
 }
@@ -234,7 +234,7 @@ CMD:skuj(playerid, params[])
 {
 	new target, szString[84];
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -249,14 +249,14 @@ CMD:skuj(playerid, params[])
 	if(GetDistancePlayerToPlayer(playerid, target) > 3.0)
 		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od tego gracza.");
 
-	if(IsPlayerConnected(PlayerInfo[target][chained]))
+	if(IsPlayerConnected(playerInfo[target][pChained]))
 	{
 		format(szString, sizeof szString, "Gracz {b}%s{/b} jest ju¿ skuty!", PlayerName(target));
 		Msg(playerid, COLOR_ERROR, szString);
 	}
 	else
 	{
-		PlayerInfo[target][chained] = playerid;
+		playerInfo[target][pChained] = playerid;
 		SetPlayerSpecialAction(target, SPECIAL_ACTION_CUFFED);
 
 		format(szString, sizeof szString, "Sku³eœ gracza {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(target), target);
@@ -265,7 +265,7 @@ CMD:skuj(playerid, params[])
 		format(szString, sizeof szString, "Zosta³eœ skuty przez policjanta {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(playerid), playerid);
 		Msg(target, COLOR_INFO3, szString);
 
-		PlayerInfo[target][chainedTimer] = SetTimerEx("SkutyTeleport", 500, true, "dd", target, playerid);
+		playerInfo[target][pChainedTimer] = SetTimerEx("SkutyTeleport", 500, true, "dd", target, playerid);
 	}
 	return 1;
 }
@@ -274,7 +274,7 @@ CMD:rozkuj(playerid, params[])
 {
 	new target, szString[84];
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -289,7 +289,7 @@ CMD:rozkuj(playerid, params[])
 	if(GetDistancePlayerToPlayer(playerid, target) > 3.0)
 		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od tego gracza.");
 
-	if(!IsPlayerConnected(PlayerInfo[target][chained]))
+	if(!IsPlayerConnected(playerInfo[target][pChained]))
 	{
 		format(szString, sizeof szString, "Gracz {b}%s{/b} nie jest skuty!", PlayerName(target));
 		Msg(playerid, COLOR_ERROR, szString);
@@ -297,9 +297,9 @@ CMD:rozkuj(playerid, params[])
 	else
 	{
 		SetPlayerSpecialAction(target, SPECIAL_ACTION_NONE);
-		KillTimer(PlayerInfo[target][chainedTimer]);
+		KillTimer(playerInfo[target][pChainedTimer]);
 
-		PlayerInfo[target][chained] = (-1);
+		playerInfo[target][pChained] = (-1);
 
 		format(szString, sizeof szString, "Rozku³eœ gracza {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(target), target);
 		Msg(playerid, COLOR_INFO3, szString);
@@ -312,7 +312,7 @@ CMD:rozkuj(playerid, params[])
 
 CMD:stop(playerid, params[])
 {
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -320,7 +320,7 @@ CMD:stop(playerid, params[])
 
 	new string[100], Float:Pos[3];
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
 		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
 
 	format(string, sizeof string, "Otrzyma³eœ alert od policjanta {FFFFFF}%s.", PlayerName(playerid));
@@ -346,7 +346,7 @@ CMD:kartoteka(playerid, params[])
 {
 	new forplayerid, vehicleid = GetPlayerVehicleID(playerid), vehuid = DBVehID[vehicleid];
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -355,7 +355,7 @@ CMD:kartoteka(playerid, params[])
 	if(!IsPlayerInAnyVehicle(playerid))
 		return Msg(playerid, COLOR_ERROR, "Musisz byæ w pojeŸdzie.");
 
-	if(Spawned[vehicleid] || vehInfo[vehuid][vOwnerType] != OWNER_TYPE_TEAM || Firmy[vehInfo[vehuid][vOwnerID]][tTyp] != TEAM_TYPE_POLICE)
+	if(Spawned[vehicleid] || vehInfo[vehuid][vOwnerType] != OWNER_TYPE_TEAM || firmInfo[vehInfo[vehuid][vOwnerID]][tType] != TEAM_TYPE_POLICE)
 		return Msg(playerid, COLOR_ERROR, "Musisz byæ w pojeŸdzie s³u¿bowym.");
 
 	if(sscanf(params, "d", forplayerid))
@@ -369,7 +369,7 @@ CMD:kartoteka(playerid, params[])
 
 	new wiadomosc[600], zapytanie[70];
 	
-	format(wiadomosc, sizeof(wiadomosc), "SELECT `policjant`, `text`, `time` FROM `st_kartoteka` WHERE `ownerid` = '%d' ORDER BY `time` DESC LIMIT 0,20", PlayerInfo[forplayerid][pID]);
+	format(wiadomosc, sizeof(wiadomosc), "SELECT `policjant`, `text`, `time` FROM `st_kartoteka` WHERE `ownerid` = '%d' ORDER BY `time` DESC LIMIT 0,20", playerInfo[forplayerid][pID]);
 	mysql_query(wiadomosc);
 	mysql_store_result();
 
@@ -405,7 +405,7 @@ CMD:kartoteka(playerid, params[])
 
 CMD:scigani(playerid, cmdtext[])
 {
-	if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_POLICE)
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(!GetPVarInt(playerid, "Worked"))
@@ -461,7 +461,7 @@ public Policja_OnPlayerKey(playerid, newkeys, oldkeys)
 	{
 		new vehicleid = GetPlayerVehicleID(playerid);
 
-		if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] == TEAM_TYPE_POLICE)
+		if(firmInfo[playerInfo[playerid][pFirm]][tType] == TEAM_TYPE_POLICE)
 		{
 			if(GetVehicleModel(GetPlayerVehicleID(playerid)) == 411)
 			{
@@ -496,7 +496,7 @@ public Policja_OnPlayerKey(playerid, newkeys, oldkeys)
 	{
 		new vehicleid = GetPlayerVehicleID(playerid);
 
-		if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] == TEAM_TYPE_POLICE)
+		if(firmInfo[playerInfo[playerid][pFirm]][tType] == TEAM_TYPE_POLICE)
 		{
 			if(GetVehicleModel(GetPlayerVehicleID(playerid)) == 411 || GetVehicleModel(GetPlayerVehicleID(playerid)) == 426 || GetVehicleModel(GetPlayerVehicleID(playerid)) == 507)
 			{
@@ -518,7 +518,7 @@ public SkutyTeleport(playerid, policjantid)
 	if(!IsPlayerConnected(policjantid))
 	{
 		SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
-		return KillTimer(PlayerInfo[playerid][chainedTimer]);
+		return KillTimer(playerInfo[playerid][pChainedTimer]);
 	}
 
 	new Float:Pos[3];
@@ -606,7 +606,7 @@ Dialog:DIALOG_ID_KARTOTEKA_DODAJ(playerid, response, listitem, inputtext[])
 	delstr(wiadomosc, "\t");
 	delstr(wiadomosc, "\n");
 
-	format(tekst, sizeof(tekst), "INSERT INTO `st_kartoteka` (`ownerid`, `policjant`, `text`) VALUES ('%d', '%s', '%s')", PlayerInfo[GetPVarInt(playerid, "Kartoteka_Dodaj")][pID], Name, wiadomosc);
+	format(tekst, sizeof(tekst), "INSERT INTO `st_kartoteka` (`ownerid`, `policjant`, `text`) VALUES ('%d', '%s', '%s')", playerInfo[GetPVarInt(playerid, "Kartoteka_Dodaj")][pID], Name, wiadomosc);
 	mysql_query(tekst);
 
 	format(wiadomosc, sizeof(wiadomosc), "%d", GetPVarInt(playerid, "Kartoteka_Dodaj"));
@@ -634,10 +634,10 @@ Dialog:DIALOG_SCIGANI_DODAJ(playerid, response, listitem, inputtext[])
 	if(!IsPlayerConnected(playerid))
 		return Dialog_Show(playerid, DIALOG_SCIGANI_DODAJ, DIALOG_STYLE_INPUT, "Œcigani > Dodaj gracza", "Gracz jest offline.\nWpisz id i powód:", "Dodaj", "Zamknij");
 
-	format(string, sizeof(string), "INSERT INTO `st_scigani` VALUES ('', '%d', '%d', '%s', CURRENT_TIMESTAMP(), 0)", PlayerInfo[forplayerid][pID], PlayerInfo[playerid][pID], powod);
+	format(string, sizeof(string), "INSERT INTO `st_scigani` VALUES ('', '%d', '%d', '%s', CURRENT_TIMESTAMP(), 0)", playerInfo[forplayerid][pID], playerInfo[playerid][pID], powod);
 	mysql_query(string);
 
-	PlayerInfo[forplayerid][pScigany] = mysql_insert_id();
+	playerInfo[forplayerid][pPursued] = mysql_insert_id();
 	format(string, sizeof(string), "Policjant {b}%s{/b} doda³ Ciê do listy œciganych! Powód: {b}%s{/b}", PlayerName(playerid), powod);
 	Msg(forplayerid, COLOR_INFO2, string);
 

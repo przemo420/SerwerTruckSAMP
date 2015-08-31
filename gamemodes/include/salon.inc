@@ -70,9 +70,9 @@ CMD:salon(playerid)
 	else if(IsPlayerInRangeOfPoint(playerid, 4.0, -1649.904, 1209.725, 7.250)) // salon pojazdów ciê¿arowych
 	{
 		if(GetPVarInt(playerid, "SALOON_Block")) return Msg(playerid, COLOR_ERROR, "Teraz nie mo¿esz tego zrobiæ.");
-		if(Firmy[PlayerInfo[playerid][pFirma]][tChef] == PlayerInfo[playerid][pID] || Firmy[PlayerInfo[playerid][pFirma]][tVcChef] == PlayerInfo[playerid][pID])
+		if(firmInfo[playerInfo[playerid][pFirm]][tChef] == playerInfo[playerid][pID] || firmInfo[playerInfo[playerid][pFirm]][tVcChef] == playerInfo[playerid][pID])
 			return Msg(playerid, COLOR_ERROR, "Nie jesteœ szefem ¿adnej firmy.");
-		new firmaid = PlayerInfo[playerid][pFirma];
+		new firmaid = playerInfo[playerid][pFirm];
 		if(firmaid < 4)
 			return Msg(playerid, COLOR_ERROR, "Twoja frakcja nie musi kupowaæ pojazdów.");
 		Dialog_Show(playerid, DIALOG_SALOON_COMPANY, DIALOG_STYLE_LIST, "Salon samochodów ciê¿arowych", "Samochody dostawcze\nCiê¿arówki\nNaczepy", "Wybierz", "WyjdŸ");
@@ -230,7 +230,7 @@ Dialog:DIALOG_SALOON_COMPANY3(playerid, response, listitem, inputtext[])
 
 stock BuyCompanyVehicle(playerid)
 {
-	new firmaid = PlayerInfo[playerid][pFirma], szString[320], id = GetPVarInt(playerid, "SALOON_Vehicle"), cash = Firmy[firmaid][tBank];
+	new firmaid = playerInfo[playerid][pFirm], szString[320], id = GetPVarInt(playerid, "SALOON_Vehicle"), cash = firmInfo[firmaid][tBank];
 	format(szString, sizeof szString, "%d\tLinneruner\t$300000\n", id);
 	if(cash < saloonVehicles[id][S_PRICE])
 	{
@@ -238,7 +238,7 @@ stock BuyCompanyVehicle(playerid)
 		return DIALOG_SALOON_COMPANY2(playerid, true, 0, szString);
 	}
 
-	cash -= saloonVehicles[id][S_PRICE]; Firmy[firmaid][tBank] = cash;
+	cash -= saloonVehicles[id][S_PRICE]; firmInfo[firmaid][tBank] = cash;
 	DeletePVar(playerid, "SALOON_Type");
 	DeletePVar(playerid, "SALOON_Vehicle");
 	Msg(playerid, COLOR_INFO, "Pomyœlnie zakupiono pojazd firmowy.");

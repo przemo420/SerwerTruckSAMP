@@ -14,32 +14,32 @@ native WP_Hash(buffer[], len, const str[]);
 #define IsPlayerLogged(%1) GetPVarInt(%1, "PlayerLogged")
 #define PlayerLogged(%1) SetPVarInt(%1, "PlayerLogged", 1)
 
-#define GiveMoney(%1,%2) PlayerInfo[%1][pMoney]+=%2,GivePlayerMoney(%1,%2)
+#define GiveMoney(%1,%2) playerInfo[%1][pMoney]+=%2,GivePlayerMoney(%1,%2)
 #define ResetMoney(%1) SetPVarInt(%1,"Money",0),ResetPlayerMoney(%1)
-#define GetMoney(%1) PlayerInfo[%1][pMoney]
+#define GetMoney(%1) playerInfo[%1][pMoney]
 
-#define GiveScore(%1,%2) PlayerInfo[%1][pScore]+=%2,SetPlayerScore(%1,PlayerInfo[%1][pScore]), SprawdzPoziom(%1)
-#define ResetScore(%1) PlayerInfo[%1][pScore]=0,SetPlayerScore(%1, 0), SprawdzPoziom(%1)
-#define GetScore(%1) PlayerInfo[%1][pScore]
+#define GiveScore(%1,%2) playerInfo[%1][pScore]+=%2,SetPlayerScore(%1,playerInfo[%1][pScore]), SprawdzPoziom(%1)
+#define ResetScore(%1) playerInfo[%1][pScore]=0,SetPlayerScore(%1, 0), SprawdzPoziom(%1)
+#define GetScore(%1) playerInfo[%1][pScore]
 
-#define GiveWork(%1,%2) PlayerInfo[%1][pWorkTime]+=%2
-#define GetWork(%1) PlayerInfo[%1][pWorkTime]
-#define ResetWork(%1) PlayerInfo[%1][pWorkTime]=0
+#define GiveWork(%1,%2) playerInfo[%1][pWorkTime]+=%2
+#define GetWork(%1) playerInfo[%1][pWorkTime]
+#define ResetWork(%1) playerInfo[%1][pWorkTime]=0
 
 #define GetPlayerChannelCB(%1) GetPVarInt(%1, "CBchannel")
 #define SetPlayerChannelCB(%1,%2) SetPVarInt(%1, "CBchannel", %2)
 
-#define GiveDTime(%1,%2) PlayerInfo[%1][pTacho]+=%2
-#define GetDTime(%1) PlayerInfo[%1][pTacho]
-#define SetDTime(%1,%2) PlayerInfo[%1][pTacho]=%2
+#define GiveDTime(%1,%2) playerInfo[%1][pTacho]+=%2
+#define GetDTime(%1) playerInfo[%1][pTacho]
+#define SetDTime(%1,%2) playerInfo[%1][pTacho]=%2
 
-#define GiveViaMoney(%1,%2) PlayerInfo[%1][pToll]+=%2
-#define SetViaMoney(%1,%2) PlayerInfo[%1][pToll]=%2
-#define GetViaMoney(%1) PlayerInfo[%1][pToll]
+#define GiveViaMoney(%1,%2) playerInfo[%1][pToll]+=%2
+#define SetViaMoney(%1,%2) playerInfo[%1][pToll]=%2
+#define GetViaMoney(%1) playerInfo[%1][pToll]
 
-#define GiveFotoPolice(%1,%2) PlayerInfo[%1][pFoto]+=%2
-#define GetFotoPolice(%1) PlayerInfo[%1][pFoto]
-#define SetFotoPolice(%1,%2) PlayerInfo[%1][pFoto]=%2
+#define GiveFotoPolice(%1,%2) playerInfo[%1][pPhoto]+=%2
+#define GetFotoPolice(%1) playerInfo[%1][pPhoto]
+#define SetFotoPolice(%1,%2) playerInfo[%1][pPhoto]=%2
 
 main()
 {
@@ -81,7 +81,9 @@ main()
 #include "include/logo.inc"
 #include "include/salon.inc"
 #include "include/pozary.inc"
+
 // -----
+
 #include "include/organizacje/policja.inc"
 #include "include/organizacje/pomocdrogowa.inc"
 #include "include/organizacje/petroltank.inc"
@@ -96,6 +98,8 @@ public OnGameModeInit()
 	djStyled(true);
 	djSetInt("config.json", "full_permission/GeDox", 1);
 
+	format(gmInfo[adminPass], 32, "haslo_administratora");
+
 	AddPlayerClass(1, -1379.386352, 1488.210449, 21.156248,87.8978, 0, 0, 0, 0, 0, 0);//1
 
 	SetGameModeText("SerwerTruck.eu 0.3 (c)");
@@ -105,6 +109,13 @@ public OnGameModeInit()
 	EnableStuntBonusForAll(false);
 	ManualVehicleEngineAndLights();
 	EnableVehicleFriendlyFire();
+
+	for(new c = 0; c < MAX_PLAYERS*2; c++)
+	{
+		callInfo[0][callAssigned][c] = -1;
+		callInfo[1][callAssigned][c] = -1;
+		callInfo[2][callAssigned][c] = -1;
+	}
 
 	/*CheckSet(CHEAT_JETPACK);
 	CheckSet(CHEAT_WEAPON);
@@ -119,8 +130,8 @@ public OnGameModeInit()
 	CheckSet(CHEAT_SPEED);
 	CheckSet(CHEAT_CARJACKHACK);*/
 
-	MySQLConnection = mysql_init(djInt("config.json", "mysql/logtype"), 1);
-	mysql_connect(dj("config.json", "mysql/host"), dj("config.json", "mysql/user"), dj("config.json", "mysql/pass"), dj("config.json", "mysql/database"), MySQLConnection, 1);
+	MySQLConnection = mysql_init(LOG_ONLY_ERRORS, 1);
+	mysql_connect("mysql-ols1.ServerProject.pl", "db_12517", "yttMDAhyBOvs", "db_12517", MySQLConnection, 1);
 
 	if(mysql_ping(MySQLConnection))
 	{
@@ -209,7 +220,7 @@ public OnGameModeInit()
 	LadujSzybkieBary();
     LadujOrganizacje();
     print("- Ladowanie z bazy danych zakonczone.");
-    printf("- Zajelo: %dms", floatround(GetTickCount()-CzasLadowania));
+    printf("- Zajelo: %d ms", floatround(GetTickCount()-CzasLadowania));
     print("----------");
 
 	CreateDynamic3DTextLabel("Salon pojazdów osobowych\nw San Fierro.\nWpisz /salon aby zobaczyæ menu", -1, -1969.291, 296.353, 35.171, 50.0, INVALID_PLAYER_ID, INVALID_VEHICLE_ID, 1);
@@ -244,7 +255,8 @@ public OnGameModeInit()
 	
 	CreateMainTextDraws(true);
 	CreateSpeedometer(true);
-	CreateCargoTextdraws(true);
+
+	InitConnect();
 
 	SetTimer("Refresh", 1000, true);
 	SetTimer("Jobtime", 2*60000, true);
@@ -272,7 +284,7 @@ public OnGameModeExit()
     CreateSpeedometer(false);
 
 	for(new x; x<MAX_PLAYERS; x++)
-		if(noclipdata[x][cameramode] == CAMERA_MODE_FLY) 
+		if(camInfo[x][cCameramode] == CAMERA_MODE_FLY) 
 			CancelFlyMode(x);
 
 	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
@@ -283,6 +295,10 @@ public OnGameModeExit()
 			CallLocalFunction(szTemp, "");
 	}
 
+	for(new i = 0; i < GetVehiclePoolSize(); i++)
+		if(!IsValidVehicle(i) && !Spawned[i])
+			SaveVehicle(i);
+
 	//mysql_close();
 
    	return 1;
@@ -290,31 +306,25 @@ public OnGameModeExit()
 
 public OnPlayerConnect(playerid)
 {
-	UsersConnected++;
+	gmInfo[gmUsersConnected]++;
 	new string[500], ip[16];
 	GetPlayerIp(playerid, ip, sizeof(ip));
 
-	ResetVariablesInEnum(PlayerInfo[playerid], Player);
-	PlayerInfo[playerid][chained]=(-1);
+	ResetVariablesInEnum(playerInfo[playerid], E_PLAYER);
+	playerInfo[playerid][pChained]=(-1);
 
 	for(new a=0; a<GetMaxPlayers(); a++)
 		if(IsPlayerConnected(a))
 		{
-			if(PlayerInfo[a][pAdmin])
-				format(string, sizeof(string), "{6BD700}Gracz {FFFFFF}%s {6BD700}[ ID:{FFFFFF} %d{6BD700} ] [ IP:{FFFFFF} %s{6BD700} ]{6BD700} do³¹czy³ do serwera.", PlayerName(playerid), playerid, ip);
+			if(playerInfo[a][pAdmin])
+				format(string, sizeof(string), "Gracz {b}%s{/b} [ID:{b} %d{/b}] [IP:{b} %s{/b}] do³¹czy³ do serwera.", PlayerName(playerid), playerid, ip);
 			else
-				format(string, sizeof(string), "{6BD700}Gracz {FFFFFF}%s {6BD700}[ ID:{FFFFFF} %d{6BD700} ] {6BD700}do³¹czy³ do serwera.", PlayerName(playerid), playerid);
+				format(string, sizeof(string), "Gracz {b}%s{/b} [ID:{b} %d{/b}] do³¹czy³ do serwera.", PlayerName(playerid), playerid);
 		
-			SendClientMessage(a, 0x0, string);
+			Msg(a, COLOR_INFO2, string);
 		}
 
-	Msg(playerid, COLOR_INFO3, "Wpisz {b}/faq{/b}, by zobaczyæ pomoc.");
-	Msg(playerid, COLOR_INFO3, "Wpisz {b}/cmds{/b}, by zobaczyæ komendy.");
 	SetPVarString(playerid,"pAJPI", ip);
-
-	TextDrawShowForPlayer(playerid, MainTextDraws[SerwerName]);
-	//TextDrawShowForPlayer(playerid, MainTextDraws[Time]);
-	TextDrawShowForPlayer(playerid, MainTextDraws[Date]);
 
 	SetPVarInt(playerid, "JOIN", 1);
 	SetPVarInt(playerid, "IleGral", GetTickCount());
@@ -372,24 +382,12 @@ public OnPlayerConnect(playerid)
 	{
 		mysql_free_result();
 
-		mysql_real_escape_string(PlayerName(playerid), string);
-		format(string, sizeof(string), "SELECT 1 FROM Accounts WHERE `Name`='%s' LIMIT 1;", string);
-		mysql_query(string);
-		mysql_store_result();
-
-		if(mysql_num_rows() && mysql_fetch_int()>=1) 
-		{
-			format(string, sizeof(string), "{FFFFFF}Serwer-Truck SAMP - Logowanie konta.\n\n{a9c4e4}WprowadŸ has³o do konta, aby zacz¹æ rozgrywkê.\n\n{FF4040}Pamiêtaj, ¿e jest to WERSJA TESTOWA.\n{FFFFFF}SerwerTruck.eu");
-			Dialog_Show(playerid, DIALOG_ID_LOGIN, DIALOG_STYLE_PASSWORD, "Panel > Logowanie", string, "Zaloguj", "Zamknij");
-		} else {
-			format(string, sizeof(string), "{FFFFFF}Serwer-Truck SAMP - Rejestracja konta.\n\n{a9c4e4}Witaj na naszym serwerze.\n{a9c4e4}Je¿eli chcesz zacz¹æ rozgrywkê - zarejestruj konto.\n");
-			format(string, sizeof(string), "%s\n\n{FF4040}Pamiêtaj, ¿e jest to WERSJA TESTOWA.\n{FFFFFF}www.serwertruck.eu", string, PlayerName(playerid));
-
-			Dialog_Show(playerid, DIALOG_ID_REGISTER, DIALOG_STYLE_PASSWORD, "Panel > Rejestracja", string, "Rejestruj", "Zamknij");
-		}
+		CinematicCameraIntro(playerid);
+		SelectTextDraw(playerid, 0xA82A23FF);
+		ShowPlayerConnect(playerid, true);
+		ShowConnect(playerid, true);
 
 		TogglePlayerSpectating(playerid, true);
-		mysql_free_result();
 	}
 
 	// Salon
@@ -398,12 +396,12 @@ public OnPlayerConnect(playerid)
 
 	//PlayerObjects(playerid);
 
-	noclipdata[playerid][cameramode] 	= CAMERA_MODE_NONE;
-	noclipdata[playerid][lrold]	   	 	= 0;
-	noclipdata[playerid][udold]   		= 0;
-	noclipdata[playerid][mode]   		= 0;
-	noclipdata[playerid][lastmove]   	= 0;
-	noclipdata[playerid][accelmul]   	= 0.0;
+	camInfo[playerid][cCameramode] 	= CAMERA_MODE_NONE;
+	camInfo[playerid][cLrold]	   	 	= 0;
+	camInfo[playerid][cUdold]   		= 0;
+	camInfo[playerid][cMode]   		= 0;
+	camInfo[playerid][cLastmove]   	= 0;
+	camInfo[playerid][cAccelmul]   	= 0.0;
 
 	CreateTextDrawForPlayer(playerid);
 
@@ -468,15 +466,18 @@ public OnPlayerConnect(playerid)
 
 public OnPlayerDisconnect(playerid, reason)
 {
-	UsersConnected--;
+	gmInfo[gmUsersConnected]--;
 
-	new string[256], powod[30];
+	new string[256], powod[30], ip[16];
 	new h, m, s;
 	ConvertMS(GetTickCount()-GetPVarInt(playerid, "IleGral"), h, m, s);
 	podgladADMIN[playerid] = false;
+	GetPlayerIp(playerid, ip, sizeof(ip));
 
-	if(PlayerInfo[playerid][chained])
-		KillTimer(PlayerInfo[playerid][chainedTimer]);
+	if(playerInfo[playerid][pChained])
+		KillTimer(playerInfo[playerid][pChainedTimer]);
+	if(!IsPlayerLogged(playerid))
+		StopCinematicCameraIntro(playerid);
 
 	switch(reason)
 	{
@@ -490,9 +491,8 @@ public OnPlayerDisconnect(playerid, reason)
 			format(powod, sizeof powod, "Wyrzucony");
 	}
 
-	new str[100];	
-	format(str, sizeof(str), "OnPlayerDisconnect (playerUID=%d | reason=%s | timeonline: %dh %dm %ds)", PlayerInfo[playerid][pID], powod, h, m, s);
-	ToLog(PlayerInfo[playerid][pID], LOG_TYPE_PLAYER, str);
+	format(string, sizeof(string), "OnPlayerDisconnect (playerUID=%d | reason=%s | timeonline: %dh %dm %ds)", playerInfo[playerid][pID], powod, h, m, s);
+	ToLog(playerInfo[playerid][pID], LOG_TYPE_PLAYER, string);
 
 	if(IsPlayerConnected(GetPVarInt(playerid, "jestPrzegladany")))
 	{
@@ -501,12 +501,37 @@ public OnPlayerDisconnect(playerid, reason)
 		SpectactorTextDraw(playerid, false);
 	}
 
-	TextDrawHideForPlayer(playerid, MainTextDraws[SerwerName]);
+	if(GetPVarInt(playerid, "Worked") && firmInfo[playerInfo[playerid][pFirm]][tType] > 0 && firmInfo[playerInfo[playerid][pFirm]][tType] < 4)
+	{
+		for(new d = 0; d < MAX_PLAYERS*2; d++)
+		{
+			if(!callInfo[firmInfo[playerInfo[playerid][pFirm]][tType]-1][callUsed][d])
+				continue;
+
+			if(playerid == callInfo[firmInfo[playerInfo[playerid][pFirm]][tType]-1][callAssigned][d])
+				callInfo[firmInfo[playerInfo[playerid][pFirm]][tType]-1][callAssigned][d] = -1;
+		}
+		RemovePlayerMapIcon(playerid, 73);
+		DeletePVar(playerid, "RESERVED");
+		NaDyzurze[firmInfo[playerInfo[playerid][pFirm]][tType]]--;
+	}
+
 	//TextDrawHideForPlayer(playerid, MainTextDraws[Time]);
 	TextDrawHideForPlayer(playerid, MainTextDraws[Date]);
 
-	format(string, sizeof string, "{6BD700}Gracz {FFFFFF}%s {6BD700}[ ID:{FFFFFF} %d{6BD700} ] {6BD700}opuœci³ serwer, gra³ %02d:%02d:%02d. ( {FFFFFF}%s {6BD700})", PlayerName(playerid), playerid, h, m, s, powod);
-	SendClientMessageToAll(0x0, string);
+	ShowPlayerConnect(playerid, false);
+	ShowConnect(playerid, false);
+
+	for(new a=0; a<GetMaxPlayers(); a++)
+		if(IsPlayerConnected(a))
+		{
+			if(playerInfo[a][pAdmin])
+				format(string, sizeof(string), "Gracz {b}%s{/b} [ID:{b} %d{/b}] [IP:{b} %s{/b}] opuœci³ serwer, gra³ {b}%02d:%02d:%02d{/b}. ({b}%s{/b}).", PlayerName(playerid), playerid, ip, h, m, s, powod);
+			else
+				format(string, sizeof(string), "Gracz {b}%s{/b} [ID:{b} %d{/b}] opuœci³ serwer, gra³ {b}%02d:%02d:%02d{/b}. ({b}%s{/b}).", PlayerName(playerid), playerid, h, m, s, powod);
+		
+			Msg(a, COLOR_INFO2, string);
+		}
 
 	DestroyVehicle(GetPVarInt(playerid, "pojazd"));
 	DestroyVehicle(GetPVarInt(playerid, "naczepa"));
@@ -569,7 +594,7 @@ public OnPlayerSpawn(playerid)
 		return 1;
 	}
 	
-	if(PlayerInfo[playerid][pSkin] == 0)
+	if(playerInfo[playerid][pSkin] == 0)
 	{
 		for(new i = 0; i <= 8; i++) 
 			TextDrawShowForPlayer(playerid, MainTextDraws[TruckerSkins][i]);
@@ -601,10 +626,10 @@ public OnPlayerSpawn(playerid)
 
 	if(GetPVarInt(playerid, "Working"))
 	{
-		if(PlayerInfo[playerid][pFirma] == 0)
+		if(playerInfo[playerid][pFirm] == 0)
 			return 1;
 
-		new firmaid = PlayerInfo[playerid][pFirma];
+		new firmaid = playerInfo[playerid][pFirm];
 
 		for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
 		{
@@ -614,7 +639,7 @@ public OnPlayerSpawn(playerid)
 				CallLocalFunction(szTemp, "dd", playerid, firmaid);
 		}
 
-		switch(Firmy[firmaid][tTyp])
+		switch(firmInfo[firmaid][tType])
 		{
 			case TEAM_TYPE_POLICE: CallLocalFunction("Policja_OnPlayerEnterJob", "d", playerid);
 
@@ -644,8 +669,8 @@ public OnPlayerSpawn(playerid)
 			}
 		}
 
-		SetPlayerColor(playerid, Firmy[firmaid][tKolor]);
-		SetPlayerPos(playerid, Firmy[PlayerInfo[playerid][pFirma]][tSpawnX], Firmy[PlayerInfo[playerid][pFirma]][tSpawnY], Firmy[PlayerInfo[playerid][pFirma]][tSpawnZ]);
+		SetPlayerColor(playerid, firmInfo[firmaid][tColor]);
+		SetPlayerPos(playerid, firmInfo[playerInfo[playerid][pFirm]][tSpawnX], firmInfo[playerInfo[playerid][pFirm]][tSpawnY], firmInfo[playerInfo[playerid][pFirm]][tSpawnZ]);
 
 		return 1;
 	}
@@ -688,25 +713,25 @@ public OnPlayerSpawn(playerid)
 public OnPlayerDeath(playerid, killerid, reason)
 {
 	new string[80];
-	format(string, sizeof(string), "OnPlayerDeath (dead) (killerUID=%d | reason=%d)", (killerid == INVALID_PLAYER_ID) ? (-1) : PlayerInfo[killerid][pID], reason);
-	ToLog(PlayerInfo[playerid][pID], LOG_TYPE_PLAYER, string);
+	format(string, sizeof(string), "OnPlayerDeath (dead) (killerUID=%d | reason=%d)", (killerid == INVALID_PLAYER_ID) ? (-1) : playerInfo[killerid][pID], reason);
+	ToLog(playerInfo[playerid][pID], LOG_TYPE_PLAYER, string);
 
 	if(killerid != INVALID_PLAYER_ID)
 	{
-		format(string, sizeof(string), "OnPlayerDeath (killer) (playerUID=%d | reason=%d)", PlayerInfo[playerid][pID], reason);
-		ToLog(PlayerInfo[killerid][pID], LOG_TYPE_PLAYER, string);
+		format(string, sizeof(string), "OnPlayerDeath (killer) (playerUID=%d | reason=%d)", playerInfo[playerid][pID], reason);
+		ToLog(playerInfo[killerid][pID], LOG_TYPE_PLAYER, string);
 	}
 
 	if(GetPVarInt(playerid, "pojazd"))
 	{
-		SendClientMessage(playerid,0x0080FFFF,"Stworzony pojazd zosta³ usuniêty.");
+		Msg(playerid, COLOR_INFO, "Stworzony pojazd zosta³ usuniêty.");
 		DestroyVehicle(GetPVarInt(playerid, "pojazd"));
 		DeletePVar(playerid, "pojazd");
 	}
 
 	if(GetPVarInt(playerid, "naczepa"))
 	{
-		SendClientMessage(playerid,0x0080FFFF,"Stworzona naczepa zosta³a usuniêta.");
+		Msg(playerid, COLOR_INFO, "Stworzona naczepa zosta³a usuniêta.");
 		DestroyVehicle(GetPVarInt(playerid, "naczepa"));
 		DeletePVar(playerid, "naczepa");
 	}
@@ -733,17 +758,12 @@ public OnVehicleSpawn(vehicleid)
 		if(funcidx(szTemp) != -1)
 			CallLocalFunction(szTemp, "d", vehicleid);
 	}
-
-	vehOtherInfo[vehicleid][vCargoID]=0;
-	vehOtherInfo[vehicleid][vCargoWeight]=0;
-	vehOtherInfo[vehicleid][vCargoLoadTime]=0;
-	vehOtherInfo[vehicleid][vCargoUnLoadTime]=0;
-	
 	return 1;
 }
 
 public OnVehicleDeath(vehicleid, killerid)
 {
+	ResetVariablesInEnum(vloadInfo[vehicleid], eLoadVehicle);
     if(traffic[vehicleid])
 	{
 	    DestroyObject(kierunki[vehicleid][0]);
@@ -772,9 +792,6 @@ public OnVehicleDeath(vehicleid, killerid)
 		if(funcidx(szTemp) != -1)
 			CallLocalFunction(szTemp, "dd", vehicleid, killerid);
 	}
-
-	KillTimer(vehOtherInfo[vehicleid][vCargoLoadTimer]);
-
 	return 1;
 }
 
@@ -785,36 +802,36 @@ public OnPlayerText(playerid, text[])
 
 	if(!IsPlayerLogged(playerid))
 	{
-		SendClientMessage(playerid,0x0, "{CC0000}>> {FF3E3E}Zaloguj siê, aby pisaæ na czacie.");
+		Msg(playerid, COLOR_ERROR, "{b}Zaloguj siê{/b}, aby pisaæ na czacie.");
 		return 0;
 	}
 
 	if(GetPVarInt(playerid, "Mute"))
 	{
-		SendClientMessage(playerid, 0x0, "{CC0000}>> {FF3E3E}Nie mo¿esz pisaæ na czacie, jesteœ¶ uciszony.");
+		Msg(playerid, COLOR_ERROR, "Nie mo¿esz pisaæ na czacie, {b}jesteœ uciszony{/b}.");
 		return 0;
 	}
 
-	if(!strcmp(text, "@", true, 1) && PlayerInfo[playerid][pAdmin])
+	if(!strcmp(text, "@", true, 1) && playerInfo[playerid][pAdmin])
 	{
 		text[1] = toupper(text[1]);
 		format(string, sizeof string, "{D90000}@AdminChat >> %s(id:%d): %s", PlayerName(playerid), playerid, text[1]);
 		SendClientMessageToAdmins(0x0,string);
 
-		ToLog(PlayerInfo[playerid][pID], LOG_TYPE_CHAT, "admin", text[1]);
+		ToLog(playerInfo[playerid][pID], LOG_TYPE_CHAT, "admin", text[1]);
 		return 0;
 	}
 
-	if(!strcmp(text, "#", true, 1) && PlayerInfo[playerid][pFirma])
+	if(!strcmp(text, "#", true, 1) && playerInfo[playerid][pFirm])
 	{
 		text[1] = toupper(text[1]);
-		format(string, sizeof string, "{FF9900}#%s >> %s(id:%d): %s", Firmy[PlayerInfo[playerid][pFirma]][tName], PlayerName(playerid), playerid, text[1]);
+		format(string, sizeof string, "{FF9900}#%s >> %s(id:%d): %s", firmInfo[playerInfo[playerid][pFirm]][tName], PlayerName(playerid), playerid, text[1]);
 				
 		Loop(playeri, MAX_PLAYERS)
-			if(PlayerInfo[playerid][pFirma] == PlayerInfo[playeri][pFirma])
+			if(playerInfo[playerid][pFirm] == playerInfo[playeri][pFirm])
 				SendClientMessage(playeri, 0x0, string);
 
-		ToLog(PlayerInfo[playerid][pID], LOG_TYPE_CHAT, "team", text[1]);
+		ToLog(playerInfo[playerid][pID], LOG_TYPE_CHAT, "team", text[1]);
 		return 0;
 	}
 
@@ -827,10 +844,17 @@ public OnPlayerText(playerid, text[])
 				return 0;
 	}
 
+	if((gettime() - GetPVarInt(playerid, "pLastMessageTime")) < 3)
+	{
+		Msg(playerid, COLOR_ERROR, "Zwolnij z pisaniem. Musisz odczekaæ chwile przed wys³aniem nastêpnej wiadomoœci.");
+		return 0;
+	}
+	SetPVarInt(playerid, "pLastMessageTime", gettime());
+
 	format(string, sizeof(string), "{%06x}%s{4D4D4D} [%d]{FFFFFF}: %s", GetPlayerColor(playerid) >>> 8, PlayerName(playerid), playerid, ColouredText(text));
 	SendClientMessageToAll(GetPlayerColor(playerid), string);
 
-	ToLog(PlayerInfo[playerid][pID], LOG_TYPE_CHAT, "global", text);
+	ToLog(playerInfo[playerid][pID], LOG_TYPE_CHAT, "global", text);
 
 	return 0;
 }
@@ -845,7 +869,7 @@ public OnVehicleDamageStatusUpdate(vehicleid, playerid)
 	{
 		new str[200];
 		format(str, sizeof(str), "OnVehicleDamageStatusUpdate (vehileUID=%d | vehicleid=%d | HP=%f | panels=%d | doors=%d | lights=%d | tires=%d)", Spawned[vehicleid] ? (-1) : vehInfo[DBVehID[vehicleid]][vID], vehicleid, vehHP, panels, doors, lights, tires);
-		ToLog(PlayerInfo[playerid][pID], LOG_TYPE_PLAYER, str);
+		ToLog(playerInfo[playerid][pID], LOG_TYPE_PLAYER, str);
 	}
 
 	if(!Spawned[vehicleid])
@@ -875,7 +899,7 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 	if(GetPVarInt(playerid, "PASY"))
 	{
 		DeletePVar(playerid, "PASY");
-		SendClientMessage(playerid, 0x0, "{008000}Pasy zosta³y {FFFFFF}odpiête.");
+		Msg(playerid, COLOR_INFO, "Pasy zosta³y {b}odpiête{/b}.");
 	}
 
 	if(GetPVarInt(playerid, "Tempomat"))
@@ -894,7 +918,7 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 
 	new string[80];
 	format(string, sizeof(string), "OnPlayerExitVehicle (vehicleUID=%d | vehicleid=%d)", Spawned[vehicleid] ? (-1) : vehInfo[DBVehID[vehicleid]][vID], vehicleid);
-	ToLog(PlayerInfo[playerid][pID], LOG_TYPE_PLAYER, string);
+	ToLog(playerInfo[playerid][pID], LOG_TYPE_PLAYER, string);
 
 	return 1;
 }
@@ -903,7 +927,7 @@ public OnPlayerTakeDamage(playerid, issuerid, Float: amount, weaponid, bodypart)
 {
     if(issuerid != INVALID_PLAYER_ID && weaponid >= 22 && weaponid <= 34) // If not self-inflicted
     {
-        ShowInfo(playerid, "Zosta³eœ postrzelony!");
+        Msg(playerid, COLOR_ERROR, "Zosta³es postrzelony!");
 
 		LoopingAnim(playerid, "CRACK", "crckdeth2", 1.0, 1, 1, 1, 1, 0);
     }
@@ -926,7 +950,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
 	if(newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER)
 	{
 		format(string, sizeof(string), "OnPlayerStateChange (vehicleUID: %d | vehicleid: %d | state: %d | pozycja: %d)", Spawned[GetPlayerVehicleID(playerid)] ? (-1) : vehInfo[DBVehID[GetPlayerVehicleID(playerid)]][vID], GetPlayerVehicleID(playerid), newstate);
-		ToLog(PlayerInfo[playerid][pID], LOG_TYPE_PLAYER, string);
+		ToLog(playerInfo[playerid][pID], LOG_TYPE_PLAYER, string);
 	}
 
 	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
@@ -945,14 +969,14 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
 
     	if(!Spawned[vehicleid])
     	{
-    		if( (vehInfo[vehicleUID][vOwnerType] == OWNER_TYPE_PLAYER && vehInfo[vehicleUID][vOwnerID] != PlayerInfo[playerid][pID]) || 
-    			(vehInfo[vehicleUID][vOwnerType] == OWNER_TYPE_TEAM && vehInfo[vehicleUID][vOwnerID] != PlayerInfo[playerid][pFirma]) )
+    		if( (vehInfo[vehicleUID][vOwnerType] == OWNER_TYPE_PLAYER && vehInfo[vehicleUID][vOwnerID] != playerInfo[playerid][pID]) || 
+    			(vehInfo[vehicleUID][vOwnerType] == OWNER_TYPE_TEAM && vehInfo[vehicleUID][vOwnerID] != playerInfo[playerid][pFirm]) )
     		{
     			new Float:Pos[3];
     			GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
     			SetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]+2.0);
 
-    			ShowInfo(playerid, "Nie mo¿esz wejœæ do tego pojazdu!");
+    			Msg(playerid, COLOR_ERROR, "Nie mo¿esz wejœæ do tego pojazdu.");
     			return 1;
     		}
     	}
@@ -1036,7 +1060,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				if(GetPVarInt(playerid, "tacho_pauza"))
 				{
 					DeletePVar(playerid, "tacho_pauza");
-					Msg(playerid, COLOR_INFO, "Krêcenie pauzy {b}wy³¹czone{/b}.");
+					Msg(playerid, COLOR_INFO, "Krêcenie zosta³o pauzy {b}wy³¹czone{/b}.");
 				}
 	        }
 			else
@@ -1076,7 +1100,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	{
 		KillTimer(timer7[playerid]);
 		DeletePVar(playerid, "Tempomat");
-		SendClientMessage(playerid, 0x0, "{C8FF91}Tempomat zosta³ {FFFFFF}wy³¹czony.");
+		Msg(playerid, COLOR_INFO, "Tempomat zosta³ {b}wy³¹czony{/b}.");
 	}
 	else if((newkeys & KEY_SUBMISSION) && (newkeys & KEY_FIRE))
 	{
@@ -1097,7 +1121,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 					SetPVarFloat(playerid, "tHealth", health);
 					SetPVarInt(playerid, "Tempomat", 1);
 					timer7[playerid] = SetTimerEx("Tempomat", 250, false, "ddf", vehicleid, playerid, speed);
-					SendClientMessage(playerid, 0x0, "{C8FF91}Tempomat zosta³ {FFFFFF}w³¹czony.");
+					Msg(playerid, COLOR_INFO, "Tempomat zosta³ {b}w³¹czony{/b}.");
 				}
 			}
 		}
@@ -1122,26 +1146,15 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				{
 					Found=1;
 					AttachTrailerToVehicle(vid,GetPlayerVehicleID(playerid));
-					SendClientMessage(playerid, 0x0, "{C0C0C0}Pojazd zosta³ podczepiony.");
+					Msg(playerid, COLOR_INFO, "Pojazd zosta³ podczepiony.");
 					break;
 				}
 			}
 
 			if(!Found) 
-				return SendClientMessage(playerid, LIGHTRED, "W pobli¿u nie ma ¿adnego pojazdu.");
+				return Msg(playerid, COLOR_ERROR, "W pobli¿u nie ma ¿adnego pojazdu.");
 		}
 	}
-	
-	//if((newkeys & KEY_CTRL_BACK) && GetPlayerState(playerid) == PLAYER_STATE_DRIVER && (IsPlayerInTruck(playerid) || IsPlayerInBus(playerid)))
-	//{
-		//new vehicleid = GetPlayerVehicleID(playerid);
-
-		//if( vehOtherInfo[vehicleid][vCargoID] == 0 )
-			//cmd_zaladuj(playerid, "");
-		//else
-			//cmd_rozladuj(playerid, "");
-	//}
-
 	return 1;
 }
 
@@ -1164,7 +1177,7 @@ public OnRconLoginAttempt(ip[], password[], success)
 					timer[i] = SetTimerEx("Kickplayer", 500, 0, "d", i);
 				}
 
-				ToLog(PlayerInfo[i][pID], LOG_TYPE_PLAYER, "OnRconLoginAttempt");
+				ToLog(playerInfo[i][pID], LOG_TYPE_PLAYER, "OnRconLoginAttempt");
 
 				break;
 			}
@@ -1176,37 +1189,37 @@ public OnRconLoginAttempt(ip[], password[], success)
 
 public OnPlayerUpdate(playerid)
 {
-	if(noclipdata[playerid][cameramode] == CAMERA_MODE_FLY)
+	if(camInfo[playerid][cCameramode] == CAMERA_MODE_FLY)
 	{
 		new keys,ud,lr;
 		GetPlayerKeys(playerid,keys,ud,lr);
 
-		if(noclipdata[playerid][mode] && (GetTickCount() - noclipdata[playerid][lastmove] > 100))
+		if(camInfo[playerid][cMode] && (GetTickCount() - camInfo[playerid][cLastmove] > 100))
 		{
 		    // If the last move was > 100ms ago, process moving the object the players camera is attached to
 		    MoveCamera(playerid);
 		}
 
 		// Is the players current key state different than their last keystate?
-		if(noclipdata[playerid][udold] != ud || noclipdata[playerid][lrold] != lr)
+		if(camInfo[playerid][cUdold] != ud || camInfo[playerid][cLrold] != lr)
 		{
-			if((noclipdata[playerid][udold] != 0 || noclipdata[playerid][lrold] != 0) && ud == 0 && lr == 0)
+			if((camInfo[playerid][cUdold] != 0 || camInfo[playerid][cLrold] != 0) && ud == 0 && lr == 0)
 			{   // All keys have been released, stop the object the camera is attached to and reset the acceleration multiplier
-				StopPlayerObject(playerid, noclipdata[playerid][flyobject]);
-				noclipdata[playerid][mode]      = 0;
-				noclipdata[playerid][accelmul]  = 0.0;
+				StopPlayerObject(playerid, camInfo[playerid][cFlyobject]);
+				camInfo[playerid][cMode]      = 0;
+				camInfo[playerid][cAccelmul]  = 0.0;
 			}
 			else
 			{   // Indicates a new key has been pressed
 
 			    // Get the direction the player wants to move as indicated by the keys
-				noclipdata[playerid][mode] = GetMoveDirectionFromKeys(ud, lr);
+				camInfo[playerid][cMode] = GetMoveDirectionFromKeys(ud, lr);
 
 				// Process moving the object the players camera is attached to
 				MoveCamera(playerid);
 			}
 		}
-		noclipdata[playerid][udold] = ud; noclipdata[playerid][lrold] = lr; // Store current keys pressed for comparison next update
+		camInfo[playerid][cUdold] = ud; camInfo[playerid][cLrold] = lr; // Store current keys pressed for comparison next update
 		return 0;
 	}
 	return 1;
@@ -1216,7 +1229,7 @@ forward CountDown();
 public CountDown()
 {
 	new string[6];
-    switch(Odliczanie)
+    switch(gmInfo[gmCountdown])
     {
     	case 5: { GameTextForAll("~b~-~r~ 5 ~b~-", 1100, 3); }
         case 4: { GameTextForAll("~b~-~r~ 4 ~b~-", 1100, 3); }
@@ -1226,32 +1239,32 @@ public CountDown()
         case 0:
         {
         	GameTextForAll("~b~ -~g~Start! ~b~-", 2000, 3);
-        	KillTimer(OdliczanieTimer);
-        	OdliczanieWystartowalo = false;
+        	KillTimer(gmInfo[gmCountdownTimer]);
+        	gmInfo[gmCountdownStarted] = false;
 
-        	if(OdliczanieFreeze)
+        	if(gmInfo[gmCountdownFreeze])
 	        	Loop(player, MAX_PLAYERS)
 	        		if(IsPlayerConnected(player))
 	        			TogglePlayerControllable(player, 1);
         }
         default:
         {
-        	format(string, sizeof(string), "%d", Odliczanie);
+        	format(string, sizeof(string), "%d", gmInfo[gmCountdown]);
         	GameTextForAll(string, 1100, 3);
         }
     }
-    Odliczanie--;
+    gmInfo[gmCountdown]--;
 } 
 
 public OnPlayerCommandReceived(playerid, cmdtext[])
 {
 	if(!IsPlayerLogged(playerid))
 	{
-		SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Zaloguj siê, aby u¿ywaæ komend.");
+		Msg(playerid, COLOR_ERROR, "Zaloguj siê, aby u¿ywaæ komend.");
 		return 0;
 	}
 
-	if(GetPVarInt(playerid, "Areszt") && !PlayerInfo[playerid][pAdmin])
+	if(GetPVarInt(playerid, "Areszt") && !playerInfo[playerid][pAdmin])
 		if(strcmp(cmdtext, "/spawn") == 0)
 			return Msg(playerid, COLOR_ERROR, "W areszcie nie mo¿esz u¿yæ tej komendy.");
 
@@ -1264,20 +1277,20 @@ public OnPlayerCommandPerformed(playerid, cmdtext[], success)
 	new string[76];
 
 	format(string, sizeof(string), "[SUCCESS: %d] %s", success, cmdtext);
-	ToLog(PlayerInfo[playerid][pID], LOG_TYPE_COMMANDS, string);
+	ToLog(playerInfo[playerid][pID], LOG_TYPE_COMMANDS, string);
 
 	Loop(i, GetMaxPlayers())
 	{
 		if(IsPlayerConnected(i) && podgladADMIN[i] == 1 && i != playerid)
 		{
-			format(string, sizeof string, "{CC0000}>> @EYE {FFFFFF}%s [%d]: %s", PlayerName(playerid), playerid, cmdtext);
-			SendClientMessage(i, 0x0, string);
+			format(string, sizeof string, "@EYE {b}%s{/b} [%d]: {b}%s{/b}", PlayerName(playerid), playerid, cmdtext);
+			Msg(i, COLOR_ERROR, string);
 		}
 	}
 
 	if(!success)
 	{
-		SendClientMessage(playerid, LIGHTRED, "{CC0000}>>{FFFFFF} Wprowadzono niepoprawn¹ komendê.");
+		Msg(playerid, COLOR_ERROR, "Wprowadzono niepoprawn¹ komendê.");
 		return 1;
 	}
 	
@@ -1289,6 +1302,68 @@ public OnPlayerCommandPerformed(playerid, cmdtext[], success)
 			CallLocalFunction(szTemp, "dsd", playerid, cmdtext, success);
 	}
 
+	return 1;
+}
+
+public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
+{
+	if(!IsPlayerLogged(playerid))
+	{
+		if(playertextid == connectVarBox[playerid][0]) // Logowanie
+		{
+			CancelSelectTextDraw(playerid);
+			if(!IsAccountExists(PlayerName(playerid)))
+			{
+				Msg(playerid, COLOR_ERROR, "Nie odnaleziono konta z Twoim nickiem, zarejestruj siê.");
+				SelectTextDraw(playerid, 0xA82A23FF);
+				return 1;
+			}
+
+			new string[256];
+			format(string, sizeof(string), "{FFFFFF}Serwer-Truck SAMP - Logowanie konta.\n\n{a9c4e4}WprowadŸ has³o do konta, aby zacz¹æ rozgrywkê.\n\n{FF4040}Pamiêtaj, ¿e jest to WERSJA TESTOWA.\n{FFFFFF}SerwerTruck.eu");
+			Dialog_Show(playerid, DIALOG_ID_LOGIN, DIALOG_STYLE_PASSWORD, "Panel > Logowanie", string, "Zaloguj", "Wstecz");
+		}
+		else if(playertextid == connectVarBox[playerid][1]) // Rejestracja
+		{
+			CancelSelectTextDraw(playerid);
+			if(IsAccountExists(PlayerName(playerid)))
+			{
+				Msg(playerid, COLOR_ERROR, "Konto o tej nazwie jest ju¿ zarejestrowane, zaloguj siê.");
+				SelectTextDraw(playerid, 0xA82A23FF);
+				return 1;
+			}
+
+			new string[256];
+			format(string, sizeof(string), "{FFFFFF}Serwer-Truck SAMP - Rejestracja konta.\n\n{a9c4e4}Witaj na naszym serwerze.\n{a9c4e4}Je¿eli chcesz zacz¹æ rozgrywkê - zarejestruj konto.\n");
+			format(string, sizeof(string), "%s\n\n{FF4040}Pamiêtaj, ¿e jest to WERSJA TESTOWA.\n{FFFFFF}www.serwertruck.eu", string, PlayerName(playerid));
+
+			Dialog_Show(playerid, DIALOG_ID_REGISTER, DIALOG_STYLE_PASSWORD, "Panel > Rejestracja", string, "Rejestruj", "Wstecz");
+			Msg(playerid, COLOR_INFO3, "Wpisz {b}/faq{/b}, by zobaczyæ pomoc.");
+			Msg(playerid, COLOR_INFO3, "Wpisz {b}/cmds{/b}, by zobaczyæ komendy.");
+		}
+		else if(playertextid == connectVarBox[playerid][2]) // Changelog
+		{
+			CancelSelectTextDraw(playerid);
+			SelectTextDraw(playerid, 0xA82A23FF);
+		}
+		else if(playertextid == connectVarBox[playerid][3]) // Pomoc
+		{
+			CancelSelectTextDraw(playerid);
+			Dialog_Show(playerid, DIALOG_FAQ, DIALOG_STYLE_LIST, "FAQ - Spis", "Podstawowe informacje\nSpis firm\nPoziomy kierowcy\nSpecjalne zdolnoœci\nOgraniczenia\nKomendy\nAutorzy", "Wybierz", "WyjdŸ");
+		}
+		else if(playertextid == connectVarBox[playerid][4]) // Autorzy
+		{
+			CancelSelectTextDraw(playerid);
+			Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", "Programiœci:\n- Maciek.\n- GeDox\n- Kozak59\n\nBeta-Testerzy:\n- [ST]Kill_Repeat\n- [ST][DJ]Bass\n- Reiban.\n\nTworzenie obiektów:\n- [ST][DJ]Bass\n- TDi\n- Laud.\n- Muscu\n- Marcin[WGM]\n- PolskiJankes\n- Kierowca\n- Kozak59\n- Devil\n- Mati\n - TRAKER", "Zamknij", #);
+		}
+		else if(playertextid == connectVarBox[playerid][5]) // Wyjœcie
+		{
+			CancelSelectTextDraw(playerid);
+			Kickplayer(playerid);
+		}
+		else
+			Kickplayer(playerid);
+	}
 	return 1;
 }
 
@@ -1316,7 +1391,7 @@ public OnPlayerClickTextDraw(playerid, Text:clickedid)
 		for(new i = 0; i <= 8; i++) 
 			TextDrawHideForPlayer(playerid, MainTextDraws[TruckerSkins][i]);
 
-		PlayerInfo[playerid][pSkin]=skinid;
+		playerInfo[playerid][pSkin]=skinid;
 		CancelSelectTextDraw(playerid);
 		SetTimerEx("ReqSpawnPlayer", 100, false, "d", playerid);
 	}
@@ -1364,7 +1439,7 @@ public SendClientMessageToAdmins(color, const message[])
 {
 	for(new a=0; a<MAX_PLAYERS; a++)
 		if(IsPlayerConnected(a))
-			if(PlayerInfo[a][pAdmin])
+			if(playerInfo[a][pAdmin])
 				SendClientMessage(a, color, message);
 
 	return 1;
@@ -1387,8 +1462,24 @@ public OneSecTimer()
 	for(new i, maxPlayerID=GetPlayerPoolSize(); i <= maxPlayerID; i++)
 		if(IsPlayerConnected(i))
 		{
-	    	new vehicleid = GetPlayerVehicleID(i), Float:speed, Float:health, firmaid = PlayerInfo[i][pFirma];
-    		new engine,lights,alarm,doors,bonnet,boot,objective;
+			new Float:pos[3];
+			GetPlayerPos(i, pos[0], pos[1], pos[2]);
+			if(floatround(pos[0] * pos[1] * pos[2]) != playerInfo[i][pLastPos])
+				SetPVarInt(i, "isAFK", 0), playerInfo[i][pLastPos] = floatround(pos[0] * pos[1] * pos[2]);
+
+	    	new 
+	    		vehicleid = GetPlayerVehicleID(i), 
+	    		Float:speed, 
+	    		Float:health, 
+	    		firmaid = playerInfo[i][pFirm],
+				engine, 
+				lights, 
+				alarm, 
+				doors, 
+				bonnet, 
+				boot, 
+				objective;
+
 			GetVehicleParamsEx(vehicleid,engine,lights,alarm,doors,bonnet,boot,objective);
 			GetVehicleSpeed(vehicleid, speed);
 			GetPlayerHealth(i, health);
@@ -1411,14 +1502,14 @@ public OneSecTimer()
 
 			string[0] = EOS;
 		    if(firmaid != 0 && GetPVarInt(i, "Working"))
-			    format(string, sizeof(string), "{%06x}%s\n", GetPlayerColor(i) >>> 8, Firmy[firmaid][tName]);
+			    format(string, sizeof(string), "{%06x}%s\n", GetPlayerColor(i) >>> 8, firmInfo[firmaid][tName]);
 					
-			format(string, sizeof(string), "%s{57AE00}%s {FFFFFF}[ {57AE00}ID: %d {FFFFFF}]\n{57AE00}HP: %0.1f\n", string, PlayerName(i), i, health);
+			format(string, sizeof(string), "%s{57AE00}%s {FFFFFF}[{57AE00}ID: %d {FFFFFF}]\n{57AE00}HP: %0.1f\n", string, PlayerName(i), i, health);
 
-			if(GetPVarInt(i, "AFK"))
+			if(GetPVarInt(i, "AFK") || GetPVarInt(i, "isAFK"))
 				strcat(string, "AFK\n");
 
-			if(PlayerInfo[i][pScigany])
+			if(playerInfo[i][pPursued])
 				strcat(string, "{F81414}! POSZUKIWANY !{FFFFFF}\n");
 
 			Update3DTextLabelText(Trucking[i], ZIELONY, string);
@@ -1498,10 +1589,10 @@ GetBar(playerid)
 forward Selectspawn(playerid);
 public Selectspawn(playerid)
 {
-	if(PlayerInfo[playerid][pFirma] == 0)
-		Dialog_Show(playerid, DIALOG_ID_SPAWN_SELECT, DIALOG_STYLE_LIST, " ", "Los Santos\nLas Venturas\nRed County\nSan Fierro", "Wybierz", "");
+	if(!GetPVarInt(playerid, "Worked") || playerInfo[playerid][pFirm] == 0)
+		Dialog_Show(playerid, DIALOG_ID_SPAWN_SELECT, DIALOG_STYLE_LIST, " ", "Los Santos\nLas Venturas\nRed County\nSan Fierro", "Wybierz", "WyjdŸ");
 	else
-		Dialog_Show(playerid, DIALOG_ID_SPAWN_SELECT, DIALOG_STYLE_LIST, " ", "Los Santos\nLas Venturas\nRed County\nSan Fierro\n{FF0000}Baza firmowa", "Wybierz", "");
+		Dialog_Show(playerid, DIALOG_ID_SPAWN_SELECT, DIALOG_STYLE_LIST, " ", "Los Santos\nLas Venturas\nRed County\nSan Fierro\n{FF0000}Baza firmowa", "Wybierz", "WyjdŸ");
 
 	return 1;
 }
@@ -1517,7 +1608,7 @@ public Refresh()
 
 		if(SECURITYON == 1)
 		{
-			if(!PlayerInfo[playerid][pAdmin] && IsPlayerLogged(playerid) && GetPVarInt(playerid, "InGame"))
+			if(!playerInfo[playerid][pAdmin] && IsPlayerLogged(playerid) && GetPVarInt(playerid, "InGame"))
 			{
 				if(floatround(speed) > 270)
 				{
@@ -1532,7 +1623,7 @@ public Refresh()
 					timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "d", playerid);
 				}
 					
-				if(PlayerInfo[playerid][pFirma] == 0)
+				if(playerInfo[playerid][pFirm] == 0)
 				{
 					switch(GetPlayerWeapon(playerid))
 					{
@@ -1556,11 +1647,11 @@ public Refresh()
 	{
 		new Float:fuel, fueltype, engine,lights,alarm,doors,bonnet,boot,objective,Float:speed;
 		
-		if(!IsValidVehicle(vehicleid))
+		if(!IsValidVehicle(vehicleid) || IsVehicleTrailer(vehicleid))
 			continue;
 
-		fuel = (Spawned[vehicleid] ? vehOtherInfo[vehicleid][vFuel] : vehInfo[DBVehID[vehicleid]][vFuel]);
-		fueltype = (Spawned[vehicleid] ? vehOtherInfo[vehicleid][vFuelType] : vehInfo[DBVehID[vehicleid]][vFuelType]);
+		fuel = (Spawned[vehicleid] ? vehInfo_Temp[vehicleid][vFuel] : vehInfo[DBVehID[vehicleid]][vFuel]);
+		fueltype = (Spawned[vehicleid] ? vehInfo_Temp[vehicleid][vFuelType] : vehInfo[DBVehID[vehicleid]][vFuelType]);
 
 		GetVehicleSpeed(vehicleid, speed);
 		GetVehicleParamsEx(vehicleid,engine,lights,alarm,doors,bonnet,boot,objective);
@@ -1569,12 +1660,12 @@ public Refresh()
 		{
 			new Float:VX, Float:VY, Float:VZ;
 			GetVehicleVelocity(vehicleid, VX, VY, VZ);
-			SetVehicleVelocity(vehicleid, VX * 0.7, VY * 0.7, VZ);
+			SetVehicleVelocity(vehicleid, VX * 0.8, VY * 0.8, VZ);
 		}
 
 		if(engine)
 		{
-			fuel -= (fueltype == FUEL_TYPE_GAS) ? (floatmul(speed, 0.0004)) : (floatmul(speed, 0.0008));
+			fuel -= (fueltype == FUEL_TYPE_GAS) ? (floatmul(speed, 0.00004)) : (floatmul(speed, 0.00008));
 
 			if(fuel <= 0)
 			{
@@ -1583,7 +1674,7 @@ public Refresh()
 			}
 
 			if(Spawned[vehicleid])
-				vehOtherInfo[vehicleid][vFuel] = fuel;
+				vehInfo_Temp[vehicleid][vFuel] = fuel;
 			else
 				vehInfo[DBVehID[vehicleid]][vFuel] = fuel;
 		}
@@ -1591,6 +1682,17 @@ public Refresh()
 
 	Wypadek();
 	return 1;
+}
+
+stock IsVehicleTrailer(vehicleid)
+{
+	new model = GetVehicleModel(vehicleid);
+	if(model < 400)
+		return 0;
+
+	if(model == 450 || model == 591 || model == 435 || model == 584)
+		return true;
+	return false;
 }
 
 forward Kickplayer(playerid);
@@ -1613,9 +1715,9 @@ stock SavePlayer(playerid, saveTime=0)
 		gettime(h, mi, s);
 
 		format(string, sizeof(string), "UPDATE `Accounts` SET `Money`='%d',`Score`='%d',`Firma`='%d',`Skin`='%d',`Tacho`='%d',`Foto`='%d',`Toll`='%d',`Gtime`='%d',`Hour`='%02d',`Minute`='%02d',\
-				`Day`='%02d',`Mounth`='%02d',`Year`='%d',`Worktime`='%d',`Admin`='%d',`Adr`='%d'", PlayerInfo[playerid][pMoney], PlayerInfo[playerid][pScore],
-				PlayerInfo[playerid][pFirma],PlayerInfo[playerid][pSkin],PlayerInfo[playerid][pTacho],PlayerInfo[playerid][pFoto],PlayerInfo[playerid][pToll],PlayerInfo[playerid][pGTime],
-				h,mi,d,mo,y,PlayerInfo[playerid][pWorkTime], PlayerInfo[playerid][pAdmin], PlayerInfo[playerid][pADR]);
+				`Day`='%02d',`Mounth`='%02d',`Year`='%d',`Worktime`='%d',`Admin`='%d',`Adr`='%d'", playerInfo[playerid][pMoney], playerInfo[playerid][pScore],
+				playerInfo[playerid][pFirm],playerInfo[playerid][pSkin],playerInfo[playerid][pTacho],playerInfo[playerid][pPhoto],playerInfo[playerid][pToll],playerInfo[playerid][pGTime],
+				h,mi,d,mo,y,playerInfo[playerid][pWorkTime], playerInfo[playerid][pAdminAllowed], playerInfo[playerid][pADR]);
 		
 		if(saveTime)
 		{
@@ -1658,8 +1760,8 @@ public Jobtime()
 {
 	Loop(playerid, MAX_PLAYERS)
 		if(IsPlayerConnected(playerid))
-			if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] >= TEAM_TYPE_POLICE && Firmy[PlayerInfo[playerid][pFirma]][tTyp] <= TEAM_TYPE_POMOC)
-			    if(GetPVarInt(playerid, "Worked") && !GetPVarInt(playerid, "AFK"))
+			if(firmInfo[playerInfo[playerid][pFirm]][tType] >= TEAM_TYPE_POLICE && firmInfo[playerInfo[playerid][pFirm]][tType] <= TEAM_TYPE_POMOC)
+			    if(GetPVarInt(playerid, "Worked") && !GetPVarInt(playerid, "AFK") && !GetPVarInt(playerid, "isAFK"))
 			   		GiveWork(playerid, 2);
 
 	return 1;
@@ -1684,21 +1786,21 @@ public Update()
  			StripUpdate(playerid);
 
  			if(Spawned[vehicleid])
- 				vehOtherInfo[vehicleid][vPrzebieg] += floatsqroot(floatpower(floatsub(vPos[vehicleid][3], vPos[vehicleid][0]), 2) + floatpower(floatsub(vPos[vehicleid][4], vPos[vehicleid][1]), 2)+floatpower(floatsub(vPos[vehicleid][5], vPos[vehicleid][2]), 2));
+ 				vehInfo_Temp[vehicleid][vPrzebieg] += floatsqroot(floatpower(floatsub(vPos[vehicleid][3], vPos[vehicleid][0]), 2) + floatpower(floatsub(vPos[vehicleid][4], vPos[vehicleid][1]), 2)+floatpower(floatsub(vPos[vehicleid][5], vPos[vehicleid][2]), 2));
  			else
 				vehInfo[DBVehID[vehicleid]][vPrzebieg] += floatsqroot(floatpower(floatsub(vPos[vehicleid][3], vPos[vehicleid][0]), 2) + floatpower(floatsub(vPos[vehicleid][4], vPos[vehicleid][1]), 2)+floatpower(floatsub(vPos[vehicleid][5], vPos[vehicleid][2]), 2));
 
  			if(IsTrailerAttachedToVehicle(vehicleid))
  			{
  				if(Spawned[trailerid])
- 					vehOtherInfo[trailerid][vPrzebieg] += floatsqroot(floatpower(floatsub(vPos[trailerid][3], vPos[trailerid][0]), 2) + floatpower(floatsub(vPos[trailerid][4], vPos[trailerid][1]), 2)+floatpower(floatsub(vPos[vehicleid][5], vPos[vehicleid][2]), 2));
+ 					vehInfo_Temp[trailerid][vPrzebieg] += floatsqroot(floatpower(floatsub(vPos[trailerid][3], vPos[trailerid][0]), 2) + floatpower(floatsub(vPos[trailerid][4], vPos[trailerid][1]), 2)+floatpower(floatsub(vPos[vehicleid][5], vPos[vehicleid][2]), 2));
  				else
 					vehInfo[DBVehID[trailerid]][vPrzebieg] += floatsqroot(floatpower(floatsub(vPos[trailerid][3], vPos[trailerid][0]), 2) + floatpower(floatsub(vPos[trailerid][4], vPos[trailerid][1]), 2)+floatpower(floatsub(vPos[vehicleid][5], vPos[vehicleid][2]), 2));
 			}
 
 				GetVehiclePos(GetPlayerVehicleID(playerid),vPos[GetPlayerVehicleID(playerid)][0],vPos[GetPlayerVehicleID(playerid)][1],vPos[GetPlayerVehicleID(playerid)][2]);
 
-			if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] == TEAM_TYPE_POLICE && GetPVarInt(playerid, "RadarOnline"))
+			if(firmInfo[playerInfo[playerid][pFirm]][tType] == TEAM_TYPE_POLICE && GetPVarInt(playerid, "RadarOnline"))
 			{
 				/*new string[40];
 				
@@ -1827,17 +1929,39 @@ return 1;
 forward SaveALL();
 public SaveALL()
 {
-	new string[128];
+	new 
+		string[128],
+		t[3];
+
+	gettime(t[0], t[1], t[2]);
+	SetWorldTime(t[0]);
 
 	Loop(playerid, MAX_PLAYERS)
+	{
+		if(IsPlayerConnected(playerid))
+			SetPlayerTime(playerid, t[0], t[1]);
+
 		if(IsPlayerLogged(playerid))
+		{
 			SavePlayer(playerid);
+			if(!GetPVarInt(playerid, "isAFK"))
+			{
+				new curPos, Float:pos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				curPos = floatround(pos[0] * pos[1] * pos[2]);
+
+				if(playerInfo[playerid][pLastPos] == curPos)
+					SetPVarInt(playerid, "isAFK", 1),
+					playerInfo[playerid][pLastPos] = curPos;
+			}
+		}
+	}
 
 	Loop(firmaid, 8)
 	{
-		if(Firmy[firmaid][tTyp])
+		if(firmInfo[firmaid][tType])
 		{
-			format(string, sizeof(string), "UPDATE `Firmy` SET `Bank`=%d WHERE `id`='%d'", Firmy[firmaid][tBank], firmaid);
+			format(string, sizeof(string), "UPDATE `Firmy` SET `Bank`=%d WHERE `id`='%d'", firmInfo[firmaid][tBank], firmaid);
 			mysql_query(string);
 		}
 	}
@@ -1877,10 +2001,10 @@ public Update2()
 				format(string, sizeof(string), "%0.0f%%~n~%s", HP/10, trailerHP2);
 				PlayerTextDrawSetString(playerid, Speedometer[VehicleHP][playerid], string);
 
-				format(string, sizeof(string), "Paliwo:~n~%0.1f/%d L", (Spawned[vehicleid] ? vehOtherInfo[vehicleid][vFuel] : vehInfo[DBVehID[vehicleid]][vFuel]), MaxFuel(GetVehicleModel(vehicleid)));
+				format(string, sizeof(string), "Paliwo:~n~%0.1f/%d L", (Spawned[vehicleid] ? vehInfo_Temp[vehicleid][vFuel] : vehInfo[DBVehID[vehicleid]][vFuel]), MaxFuel(GetVehicleModel(vehicleid)));
 				PlayerTextDrawSetString(playerid, Speedometer[VehicleFuel][playerid], string);
 
-				format(string, sizeof(string), "Przebieg:~n~%0.1fkm", (Spawned[vehicleid] ? vehOtherInfo[vehicleid][vPrzebieg] : vehInfo[DBVehID[vehicleid]][vPrzebieg])/1000);
+				format(string, sizeof(string), "Przebieg:~n~%0.1fkm", (Spawned[vehicleid] ? vehInfo_Temp[vehicleid][vPrzebieg] : vehInfo[DBVehID[vehicleid]][vPrzebieg])/1000);
 				PlayerTextDrawSetString(playerid, Speedometer[VehicleMileage][playerid], string);
 			}
 		}
@@ -1892,14 +2016,14 @@ public OnTrailerUpdate(playerid, vehicleid)
 {
     if(!Spawned[vehicleid])
 	{
-		if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] == TEAM_TYPE_POMOC) 
+		if(firmInfo[playerInfo[playerid][pFirm]][tType] == TEAM_TYPE_POMOC) 
 			return 1;
 
-		if( (vehInfo[DBVehID[vehicleid]][vOwnerType] == OWNER_TYPE_PLAYER && vehInfo[DBVehID[vehicleid]][vOwnerID] != PlayerInfo[playerid][pID]) ||
-				(vehInfo[DBVehID[vehicleid]][vOwnerType] == OWNER_TYPE_TEAM && vehInfo[DBVehID[vehicleid]][vOwnerID] != PlayerInfo[playerid][pFirma]))
+		if( (vehInfo[DBVehID[vehicleid]][vOwnerType] == OWNER_TYPE_PLAYER && vehInfo[DBVehID[vehicleid]][vOwnerID] != playerInfo[playerid][pID]) ||
+				(vehInfo[DBVehID[vehicleid]][vOwnerType] == OWNER_TYPE_TEAM && vehInfo[DBVehID[vehicleid]][vOwnerID] != playerInfo[playerid][pFirm]))
 		{
 			DetachTrailerFromVehicle(GetPlayerVehicleID(playerid));
-			ShowInfo(playerid, "Nie mo¿esz podczepiæ tej naczepy.");
+			Msg(playerid, COLOR_ERROR, "Nie mo¿esz podczepiæ tej naczepy.");
 
 			new Float:x, Float:y, Float:z, Float:a;
 			GetVehiclePos(GetPlayerVehicleID(playerid), x, y, z);
@@ -1920,48 +2044,41 @@ public OnTrailerUpdate(playerid, vehicleid)
     return 1;
 }
 
-/*forward Glodupdate();
-public Glodupdate()
+forward HungerUpdate();
+public HungerUpdate()
 {
 	Loop(playerid, MAX_PLAYERS)
 	{
-		if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] == TEAM_TYPE_POLICE || Firmy[PlayerInfo[playerid][pFirma]][tTyp] == TEAM_TYPE_MEDIC || Firmy[PlayerInfo[playerid][pFirma]][tTyp] == TEAM_TYPE_POMOC) 
-			return 1;
-
-		new procent = GetPVarInt(playerid, "JEDZENIEPROCENTY");
-
 		if(IsPlayerLogged(playerid))
 		{
-			if(procent == 5)
+			if(playerInfo[playerid][pHunger] == 5.0)
 			{
 				new Float:health;
 				GetPlayerHealth(playerid, health);
 
 				SetPlayerHealth(playerid, health-10);
-				SetPVarInt(playerid, "JEDZENIEPROCENTY", 5);
 				
-				SetPlayerProgressBarValue(playerid, Glod[playerid], 5.0);
-				UpdatePlayerProgressBar(playerid, Glod[playerid]);
+				SetPlayerProgressBarValue(playerid, hudInfo[tdHungerProgress][playerid], 5.0);
+				UpdatePlayerProgressBar(playerid, hudInfo[tdHungerProgress][playerid]);
 			}
 			else
 			{
-				SetPVarInt(playerid, "JEDZENIEPROCENTY", procent-5);
-				
-				SetPlayerProgressBarValue(playerid, Glod[playerid], float(procent-5));
-				sUpdatePlayerProgressBar(playerid, Glod[playerid]);
+				playerInfo[playerid][pHunger] -= random(8);
+				SetPlayerProgressBarValue(playerid, hudInfo[tdHungerProgress][playerid], playerInfo[playerid][pHunger]);
+				UpdatePlayerProgressBar(playerid, hudInfo[tdHungerProgress][playerid]);
 			}
 		}
 	}
 	return 1;
-}*/
+}
 
 forward HideFlesh(playerid);
 public HideFlesh(playerid)
 {
-TextDrawHideForPlayer(playerid, FleshText);
-SetPVarInt(playerid, "PhotoPoint", 0);
-KillTimer(timer5[playerid]);
-return 1;
+	TextDrawHideForPlayer(playerid, FleshText);
+	SetPVarInt(playerid, "PhotoPoint", 0);
+	KillTimer(timer5[playerid]);
+	return 1;
 }
 
 
@@ -2005,61 +2122,59 @@ public OnPlayerEditObject(playerid, playerobject, objectid, response, Float:fX, 
 forward Tempomat(vehicleid, playerid, Float:speed);
 public Tempomat(vehicleid, playerid, Float:speed)
 {
-if(GetPVarInt(playerid, "Tempomat"))
-{
-new Float:health;
-GetVehicleHealth(vehicleid, health);
-new Float:speed2;
-GetVehicleSpeed(vehicleid, speed2);
-new engine,lights,alarm,doors,bonnet,boot,objective;
-GetVehicleParamsEx(vehicleid,engine,lights,alarm,doors,bonnet,boot,objective);
-
-if(!engine)
-{
-KillTimer(timer7[playerid]);
-DeletePVar(playerid, "Tempomat");
-SendClientMessage(playerid, 0x0, "{C8FF91}Tempomat zosta³{FFFFFF}wy³¹czony.");
-}
-
-if(health == GetPVarFloat(playerid, "tHealth") && (speed2+15) > speed)
-{
-timer7[playerid] = SetTimerEx("Tempomat", 250, false, "ddf", vehicleid, playerid, speed);
-SetVehicleSpeed(vehicleid, speed);
-}
-else
-{
-KillTimer(timer7[playerid]);
-DeletePVar(playerid, "Tempomat");
-SendClientMessage(playerid, 0x0, "{C8FF91}Tempomat zosta³{FFFFFF}wy³¹czony.");
-}
-}
-return 1;
+	if(GetPVarInt(playerid, "Tempomat"))
+	{
+		new Float:health;
+		GetVehicleHealth(vehicleid, health);
+		new Float:speed2;
+		GetVehicleSpeed(vehicleid, speed2);
+		new engine,lights,alarm,doors,bonnet,boot,objective;
+		GetVehicleParamsEx(vehicleid,engine,lights,alarm,doors,bonnet,boot,objective);
+		if(!engine)
+		{
+			KillTimer(timer7[playerid]);
+			DeletePVar(playerid, "Tempomat");
+			Msg(playerid, COLOR_INFO, "{C8FF91}Tempomat zosta³{FFFFFF}wy³¹czony.");
+		}
+		if(health == GetPVarFloat(playerid, "tHealth") && (speed2+15) > speed)
+		{
+			timer7[playerid] = SetTimerEx("Tempomat", 250, false, "ddf", vehicleid, playerid, speed);
+			SetVehicleSpeed(vehicleid, speed);
+		}
+		else
+		{
+			KillTimer(timer7[playerid]);
+			DeletePVar(playerid, "Tempomat");
+			Msg(playerid, COLOR_INFO, "{C8FF91}Tempomat zosta³{FFFFFF}wy³¹czony.");
+		}
+	}
+	return 1;
 }
 
 forward cameragobackplayer(playerid);
 public cameragobackplayer(playerid)
 {
-TogglePlayerControllable(playerid, 1);
-SetCameraBehindPlayer(playerid);
-KillTimer(timer8[playerid]);
-SetPlayerPos(playerid, -1629.4374,1287.6179,7.0391);
-return 1;
+	TogglePlayerControllable(playerid, 1);
+	SetCameraBehindPlayer(playerid);
+	KillTimer(timer8[playerid]);
+	SetPlayerPos(playerid, -1629.4374,1287.6179,7.0391);
+	return 1;
 }
 
 forward cameragobackplayer2(playerid);
 public cameragobackplayer2(playerid)
 {
-TogglePlayerControllable(playerid, 1);
-SetCameraBehindPlayer(playerid);
-KillTimer(timer10[playerid]);
-SetPlayerPos(playerid, -1934.4926,272.3068,41.0469);
-return 1;
+	TogglePlayerControllable(playerid, 1);
+	SetCameraBehindPlayer(playerid);
+	KillTimer(timer10[playerid]);
+	SetPlayerPos(playerid, -1934.4926,272.3068,41.0469);
+	return 1;
 }
 
 forward Otworzbrame(playerid);
 public Otworzbrame(playerid)
 {
-	switch(Firmy[PlayerInfo[playerid][pFirma]][tTyp])
+	switch(firmInfo[playerInfo[playerid][pFirm]][tType])
 	{
 		case TEAM_TYPE_POLICE:
 		{
@@ -2105,7 +2220,7 @@ public Otworzbrame(playerid)
 forward Zamknijbrame(playerid);
 public Zamknijbrame(playerid)
 {
-	switch(Firmy[PlayerInfo[playerid][pFirma]][tTyp])
+	switch(firmInfo[playerInfo[playerid][pFirm]][tType])
 	{
 		case TEAM_TYPE_POLICE:
 		{
@@ -2151,17 +2266,17 @@ CMD:ban(playerid, params[])
 {
 	new forplayerid, Powod[76], string[256];
 
-	if(!PlayerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "Nie posiadasz uprawnieñ");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 
 	if(sscanf(params, "ds[76]", forplayerid, Powod))
-		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /ban [id gracza] [powód]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /ban [id gracza] [powód]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest obecny na serwerze.");
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
-	format(string, sizeof string, "{C0C0C0}Gracz %s zosta³ {FFFFFF}zbanowany {C0C0C0}przez {FFFFFF}%s {C0C0C0}z powodu {FFFFFF}%s.", PlayerName(forplayerid), PlayerName(playerid), Powod);
-	SendClientMessageToAll(0x0, string);
+	format(string, sizeof string, "Gracz {b}%s{/b} zosta³ {b}zbanowany{/b} przez {b}%s{/b} z powodu {b}%s{/b}.", PlayerName(forplayerid), PlayerName(playerid), Powod);
+	MsgToAll(COLOR_ERROR, string);
 
 	new Y, Mo, D, H, Mi, S, ip[16];
 	getdate(Y, Mo, D);
@@ -2179,14 +2294,14 @@ CMD:unban(playerid, params[])
 {
 	new IP[76], string[128];
 
-	if(!PlayerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "Nie posiadasz uprawnieñ");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 
 	if(sscanf(params, "s[76]", IP))
-		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /unban [ip gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /unban [ip gracza]");
 
-	format(string, sizeof string, "{FF3E3E}Konto {FFFFFF}%s {FF3E3E}zosta³ odbanowane.", IP);
-	SendClientMessage(playerid, 0x0, string);
+	format(string, sizeof string, "Konto {b}%s{/b} zosta³o odbanowane.", IP);
+	Msg(playerid, COLOR_INFO, string);
 	format(string, sizeof string, "DELETE FROM `Bans` WHERE `IP`= '%s'", IP);
 	mysql_query(string);
 
@@ -2197,14 +2312,14 @@ CMD:banip(playerid, params[])
 {
 	new IP[50], Powod[50], string[128];
 
-	if(!PlayerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "Nie posiadasz uprawnieñ");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 
 	if(sscanf(params, "s[50]s[50]", IP, Powod))
-		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /banip [ip gracza] [pow?]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /banip [ip gracza] [powód]");
 
-	format(string, sizeof string, "{FF3E3E}Konto {FFFFFF}%s {FF3E3E}zosta³o zbanowane.", IP);
-	SendClientMessage(playerid, 0x0, string);
+	format(string, sizeof string, "Konto {b}%s{/b} zosta³o zbanowane.", IP);
+	Msg(playerid, COLOR_INFO, string);
 
 	new Y, Mo, D, H, Mi, S;
 	getdate(Y, Mo, D);
@@ -2217,32 +2332,33 @@ CMD:banip(playerid, params[])
 
 CMD:kick(playerid, params[])
 {
-new forplayerid, Powod[76], string[256];
+	new forplayerid, Powod[76], string[256];
 
-if(sscanf(params, "ds[76]", forplayerid, Powod))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /kick [id gracza] [pow?]");
+	if(sscanf(params, "ds[76]", forplayerid, Powod))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /kick [id gracza] [pow?]");
 
-if(!IsPlayerConnected(forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest obecny na serwerze.");
+	if(!IsPlayerConnected(forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
-if(PlayerInfo[playerid][pAdmin])
-{
-format(string, sizeof string, "{C0C0C0}Gracz %s zosta³ {FFFFFF}wyrzucony {C0C0C0}przez {FFFFFF}%s {C0C0C0}z powodu {FFFFFF}%s.", PlayerName(forplayerid), PlayerName(playerid), Powod);
-SendClientMessageToAll(0x0, string);
-timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "d", forplayerid);
-} else SendClientMessage(playerid, LIGHTRED, "Nie posiadasz uprawnieñ");
-return 1;
+	if(playerInfo[playerid][pAdmin])
+	{
+		format(string, sizeof string, "Gracz {b}%s{/b} zosta³ wyrzucony przez {b}%s{/b} z powodu {b}%s{/b}.", PlayerName(forplayerid), PlayerName(playerid), Powod);
+		MsgToAll(COLOR_ERROR, string);
+		timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "d", forplayerid);
+	} 
+	else Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
+	return 1;
 }
 
 CMD:removebuilding(playerid, params[])
 {
 	new id, X[10], Y[10], Z[10], R[20], string[256];
 
-	if(!PlayerInfo[playerid][pBuildmaster])
-		return SendClientMessage(playerid, LIGHTRED, "Nie posiadasz uprawnieñ (BuildMaster).");
+	if(!playerInfo[playerid][pBuildmaster])
+		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ (BuildMaster).");
 
 	if(sscanf(params, "ds[10]s[10]s[10]s[20]", id, X, Y, Z, R))
-		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /removebuilding [id] [x] [y] [z] [komentarz]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /removebuilding [id] [x] [y] [z] [komentarz]");
 	
 	format(string, sizeof string, "INSERT INTO `st_usuniete_obiekty` VALUES('%d', '%s', '%s', '%s', '%s')", id, X, Y, Z, R);
 	mysql_query(string);
@@ -2262,11 +2378,11 @@ CMD:restorebuilding(playerid, params[])
 {
 	new R[20], string[128];
 
-	if(!PlayerInfo[playerid][pBuildmaster])
-		return SendClientMessage(playerid, LIGHTRED, "Nie posiadasz uprawnieñ (BuildMaster).");
+	if(!playerInfo[playerid][pBuildmaster])
+		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ (BuildMaster).");
 
 	if(sscanf(params, "s[20]", R))
-		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /restorebuilding [komentarz]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /restorebuilding [komentarz]");
 
 	format(string, sizeof string, "DELETE FROM `st_usuniete_obiekty` WHERE `Comment`= '%s'", R);
 	mysql_query(string);
@@ -2276,270 +2392,273 @@ CMD:restorebuilding(playerid, params[])
 
 CMD:warn(playerid, params[])
 {
-new forplayerid, Powod[20], string[256];
+	new forplayerid, Powod[20], string[200];
 
-if(sscanf(params, "ds[20]", forplayerid, Powod))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /warn [id gracza] [pow?]");
+	if(sscanf(params, "ds[20]", forplayerid, Powod))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /warn [id gracza] [powód]");
 
-if(!IsPlayerConnected(forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest obecny na serwerze.");
+	if(!IsPlayerConnected(forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
-if(PlayerInfo[playerid][pAdmin])
-{
-SetPVarInt(forplayerid, "Warn", GetPVarInt(forplayerid, "Warn")+1);
-format(string, sizeof string, "{C0C0C0}Gracz %s zosta³{FFFFFF}ostrze¿ony [%d/3] {C0C0C0}przez %s z powodu {FFFFFF}%s.", PlayerName(forplayerid), GetPVarInt(forplayerid, "Warn"), PlayerName(playerid), Powod);
-SendClientMessageToAll(0x0, string);
-} else SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(playerInfo[playerid][pAdmin])
+	{
+		SetPVarInt(forplayerid, "Warn", GetPVarInt(forplayerid, "Warn")+1);
+		format(string, sizeof string, "Gracz {b}%s{/b} zosta³ ostrze¿ony [{b}%d/3{/b}] przez {b}%s{/b} z powodu {b}%s{/b}.", PlayerName(forplayerid), GetPVarInt(forplayerid, "Warn"), PlayerName(playerid), Powod);
+		MsgToAll(COLOR_ERROR, string);
+	} 
+	else Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(GetPVarInt(forplayerid, "Warn") == 3)
-{
-CheatKick(forplayerid, "trzy ostrze¿enia");
-timer[forplayerid] = SetTimerEx("Kickplayer", 500, 0, "d", forplayerid);
-}
-return 1;
+	if(GetPVarInt(forplayerid, "Warn") == 3)
+	{
+		CheatKick(forplayerid, "trzy ostrze¿enia");
+		timer[forplayerid] = SetTimerEx("Kickplayer", 500, 0, "d", forplayerid);
+	}
+	return 1;
 }
 
 CMD:unwarn(playerid, params[])
 {
-new forplayerid, string[176];
+	new forplayerid, string[176];
 
-if(sscanf(params, "d", forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /unwarn [id gracza]");
+	if(sscanf(params, "d", forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /unwarn [id gracza]");
 
-if(!IsPlayerConnected(forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest obecny na serwerze.");
+	if(!IsPlayerConnected(forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
-if(GetPVarInt(forplayerid, "Warn") == 0)
-return SendClientMessage(playerid, LIGHTRED, "Gracz ten nie posiada ¿adnych ostrze¿e?");
+	if(GetPVarInt(forplayerid, "Warn") == 0)
+		return Msg(playerid, COLOR_ERROR, "Gracz ten nie posiada ¿adnych ostrze¿e?");
 
-if(PlayerInfo[playerid][pAdmin])
-{
-SetPVarInt(forplayerid, "Warn", GetPVarInt(forplayerid, "Warn")-1);
-format(string, sizeof string, "{C0C0C0}Graczowi %s zosta³ {FFFFFF}cofni?e {C0C0C0}ostrze¿enie przez %s.", PlayerName(forplayerid), PlayerName(playerid));
-SendClientMessageToAll(0x0, string);
-}
-else
-{
-SendClientMessage(playerid, 0x0, "{FFFFFF}** {FF3E3E}Nie masz uprawnieñ.do u¿ycia tej komendy.");
-}
-return 1;
+	if(playerInfo[playerid][pAdmin])
+	{
+		SetPVarInt(forplayerid, "Warn", GetPVarInt(forplayerid, "Warn")-1);
+		format(string, sizeof string, "Graczowi {b}%s{/b} zosta³o cofniête ostrze¿enie przez administratora {b}%s{/b}.", PlayerName(forplayerid), PlayerName(playerid));
+		MsgToAll(COLOR_ERROR, string);
+	}
+	else
+	{
+		Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+	}
+	return 1;
 }
 
 CMD:givemoney(playerid, params[])
 {
-new forplayerid, money, string[128];
+	new forplayerid, money, string[128];
 
-if(!PlayerInfo[playerid][pAdmin])
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(sscanf(params, "dd", forplayerid, money))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /givemoney [id gracza] [iloœæ]");
+	if(sscanf(params, "dd", forplayerid, money))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /givemoney [id gracza] [iloœæ]");
 
-GiveMoney(forplayerid, money);
-format(string, sizeof string, "{008000}Przekaza?{FFFFFF}%d$ {008000}graczowi %s.", money, PlayerName(forplayerid));
-SendClientMessage(playerid,0x0,string);
-format(string, sizeof string, "{008000}Otrzyma?{FFFFFF}%d$ {008000}od administratora %s.", money, PlayerName(playerid));
-SendClientMessage(forplayerid,0x0,string);
-return 1;
+	GiveMoney(forplayerid, money);
+	format(string, sizeof string, "Da³eœ {b}%d${/b} graczowi {b}%s{/b}.", money, PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
+	format(string, sizeof string, "Otrzyma³eœ {b}%d${/b} od administratora {b}%s{/b}.", money, PlayerName(playerid));
+	Msg(forplayerid, COLOR_INFO, string);
+	return 1;
 }
 
 CMD:givescore(playerid, params[])
 {
-new forplayerid, money, string[128];
+	new forplayerid, money, string[128];
 
-if(!PlayerInfo[playerid][pAdmin])
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(sscanf(params, "dd", forplayerid, money))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /givescore [id gracza] [iloœæ]");
+	if(sscanf(params, "dd", forplayerid, money))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /givescore [id gracza] [iloœæ]");
 
-GiveScore(forplayerid, money);
-format(string, sizeof string, "{008000}Przekaza?{FFFFFF}%d pkt. {008000}graczowi %s.", money, PlayerName(forplayerid));
-SendClientMessage(playerid,0x0,string);
-format(string, sizeof string, "{008000}Otrzyma?{FFFFFF}%d pkt. {008000}od administratora %s.", money, PlayerName(playerid));
-SendClientMessage(forplayerid,0x0,string);
-return 1;
+	GiveScore(forplayerid, money);
+	format(string, sizeof string, "Przekaza³eœ {b}%d{/b} punktów graczowi {b}%s{/b}.", money, PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
+	format(string, sizeof string, "Otrzyma³eœ {b}%d{/b} punktów od administratora {b}%s{/b}.", money, PlayerName(playerid));
+	Msg(forplayerid, COLOR_INFO, string);
+	return 1;
 }
 
 CMD:resetmoney(playerid, params[])
 {
-new forplayerid, string[128];
+	new forplayerid, string[128];
 
-if(!PlayerInfo[playerid][pAdmin])
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(sscanf(params, "d", forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /resetmoney [id gracza]");
+	if(sscanf(params, "d", forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /resetmoney [id gracza]");
 
-ResetMoney(forplayerid);
-format(string, sizeof string, "{008000}Zresetowa?pieni¹dze graczowi {FFFFFF}%s.", PlayerName(forplayerid));
-SendClientMessage(playerid,0x0,string);
-format(string, sizeof string, "{008000}Twoje pieni¹dze zosta³ zresetowane przez administratora {FFFFFF}%s.", PlayerName(playerid));
-SendClientMessage(forplayerid,0x0,string);
-return 1;
+	ResetMoney(forplayerid);
+	format(string, sizeof string, "Zresetowa³eœ pieni¹dze graczowi {b}%s{/b}.", PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
+	format(string, sizeof string, "Twoje pieni¹dze zosta³y zresetowane przez administratora {b}%s{/b}.", PlayerName(playerid));
+	Msg(forplayerid, COLOR_INFO, string);
+	return 1;
 }
 
 CMD:resetscore(playerid, params[])
 {
-new forplayerid, string[128];
+	new forplayerid, string[128];
 
-if(!PlayerInfo[playerid][pAdmin])
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(sscanf(params, "d", forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /resetscore [id gracza]");
+	if(sscanf(params, "d", forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /resetscore [id gracza]");
 
-ResetScore(forplayerid);
-format(string, sizeof string, "{008000}Zresetowa?punkty graczowi {FFFFFF}%s.", PlayerName(forplayerid));
-SendClientMessage(playerid,0x0,string);
-format(string, sizeof string, "{008000}Twoje punkty zosta³ zresetowane przez administratora {FFFFFF}%s.", PlayerName(playerid));
-SendClientMessage(forplayerid,0x0,string);
-return 1;
+	ResetScore(forplayerid);
+	format(string, sizeof string, "Zresetowa³eœ punkty graczowi {b}%s{/b}.", PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
+	format(string, sizeof string, "Twoje punkty zosta³y zresetowane przez administratora {b}%s{/b}.", PlayerName(playerid));
+	Msg(forplayerid, COLOR_INFO, string);
+	return 1;
 }
 
 CMD:givemoneyall(playerid, params[])
 {
-new money, string[128];
+	new money, string[128];
 
-if(!PlayerInfo[playerid][pAdmin])
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(sscanf(params, "d", money))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /givemoneyall [iloœæ]");
+	if(sscanf(params, "d", money))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /givemoneyall [iloœæ]");
 
-Loop(playeri, MAX_PLAYERS)
-{
-if(IsPlayerLogged(playeri))
-{
-GiveMoney(playeri, money);
-}
-}
-format(string, sizeof string, "{008000}Wszyscy otrzymali %d$ od administratora {FFFFFF}%s.", money, PlayerName(playerid));
-SendClientMessageToAll(0x0,string);
-return 1;
+	Loop(playeri, MAX_PLAYERS)
+	{
+		if(IsPlayerLogged(playeri))
+		{
+			GiveMoney(playeri, money);
+		}
+	}
+
+	format(string, sizeof string, "Wszyscy otrzymali {b}$%d{/b} od administratora {b}%s{/b}.", money, PlayerName(playerid));
+	MsgToAll(COLOR_INFO, string);
+	return 1;
 }
 
 CMD:givescoreall(playerid, params[])
 {
-new score, string[128];
+	new score, string[128];
 
-if(!PlayerInfo[playerid][pAdmin])
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(sscanf(params, "d", score))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /givescoreall [iloœæ]");
+	if(sscanf(params, "d", score))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /givescoreall [iloœæ]");
 
-Loop(playeri, MAX_PLAYERS)
-{
-if(IsPlayerLogged(playeri))
-{
-GiveScore(playeri, score);
-}
-}
-format(string, sizeof string, "{008000}Wszyscy otrzymali %d punkt? od administratora {FFFFFF}%s.", score, PlayerName(playerid));
-SendClientMessageToAll(0x0,string);
-return 1;
+	Loop(playeri, MAX_PLAYERS)
+	{
+		if(IsPlayerLogged(playeri))
+		{
+			GiveScore(playeri, score);
+		}
+	}
+
+	format(string, sizeof string, "Wszyscy otrzymali {b}%d{/b} punkt(ów) od administratora {b}%s{/b}.", score, PlayerName(playerid));
+	MsgToAll(COLOR_INFO, string);
+	return 1;
 }
 
 CMD:s(playerid, params[])
 {
-new string[128];
+	new string[128];
 
-if(isnull(params)) return SendClientMessage(playerid, LIGHTRED, "Wpisz: /s [tekst]");
+	if(isnull(params)) return Msg(playerid, COLOR_ERROR, "Wpisz: /s [tekst]");
 
-Loop(player, MAX_PLAYERS)
-{
-if(GetDistancePlayerToPlayer(playerid, player) < 30)
-{
-format(string, sizeof string, "{42A3D7}%s mówi: {C0C0C0}%s", PlayerName(playerid), params);
-SendClientMessage(player, 0x0, string);
-}
-}
-return 1;
+	Loop(player, MAX_PLAYERS)
+	{
+		if(GetDistancePlayerToPlayer(playerid, player) < 30)
+		{
+			format(string, sizeof string, "%s mówi: %s", PlayerName(playerid), params);
+			SendClientMessage(player, -1, string);
+		}
+	}
+	return 1;
 }
 
 CMD:me(playerid, params[])
 {
-new string[128];
+	new string[128];
 
-if(isnull(params)) return SendClientMessage(playerid, LIGHTRED, "Wpisz: /me [czynnoœæ]");
+	if(isnull(params)) return Msg(playerid, COLOR_ERROR, "Wpisz: /me [czynnoœæ]");
 
-Loop(player, MAX_PLAYERS)
-{
-if(GetDistancePlayerToPlayer(playerid, player) < 30)
-{
-format(string, sizeof string, "** {42A3D7}%s {C0C0C0}%s", PlayerName(playerid), params);
-SendClientMessage(player, 0x0, string);
-}
-}
-return 1;
+	Loop(player, MAX_PLAYERS)
+	{
+		if(GetDistancePlayerToPlayer(playerid, player) < 30)
+		{
+			format(string, sizeof string, "** {b}%s %s{/b}", PlayerName(playerid), params);
+			Msg(player, COLOR_INFO2, string, true, false);
+		}
+	}
+	return 1;
 }
 
 CMD:zw(playerid, params[])
 {
-new string[176];
+	new string[176];
 
-if(GetPVarInt(playerid, "AFK"))
-return SendClientMessage(playerid, 0x0, "{EE5555}Aktualnie posiadasz status {FFFFFF}zaraz wracam.");
+	if(GetPVarInt(playerid, "AFK"))
+		return Msg(playerid, COLOR_INFO, "Aktualnie posiadasz status {b}zaraz wracam{/b}.");
 
-SetPVarInt(playerid, "AFK", 1);
+	SetPVarInt(playerid, "AFK", 1);
 
-if(isnull(params))
-{
-format(string, sizeof(string), "{008080}Gracz %s zmieni³ status na {00FFFF}zaraz wracam.",PlayerName(playerid));
-SendClientMessageToAll(0x0,string);
-}
-else
-{
-format(string, sizeof(string), "{008080}Gracz %s zmieni³ status na {00FFFF}zaraz wracam. {008080}Powód: %s",PlayerName(playerid), params);
-SendClientMessageToAll(0x0,string);
-}
-return 1;
+	if(isnull(params))
+	{
+		format(string, sizeof(string), "Gracz {b}%s{/b} zmieni³ status na {b}zaraz wracam{/b}.",PlayerName(playerid));
+		MsgToAll(COLOR_INFO2, string);
+	}
+	else
+	{
+		format(string, sizeof(string), "Gracz {b}%s{/b} zmieni³ status na {b}zaraz wracam{/b}. Powód: {b}%s{/b}",PlayerName(playerid), params);
+		MsgToAll(COLOR_INFO2, string);
+	}
+	return 1;
 }
 
 CMD:jj(playerid, params[])
 {
-new string[176];
+	new string[176];
 
-if(!GetPVarInt(playerid, "AFK"))
-return SendClientMessage(playerid, 0x0, "{EE5555}Aktualnie posiadasz status {FFFFFF}ju¿ jestem.");
+	if(!GetPVarInt(playerid, "AFK"))
+		return Msg(playerid, COLOR_INFO, "Aktualnie posiadasz status {b}ju¿ jestem{/b}.");
 
-DeletePVar(playerid, "AFK");
+	DeletePVar(playerid, "AFK");
 
-format(string, sizeof(string), "{008080}Gracz %s zmieni³ status na {00FFFF}ju¿ jestem.",PlayerName(playerid));
-SendClientMessageToAll(0x0,string);
-return 1;
+	format(string, sizeof(string), "Gracz {b}%s{/b} zmieni³ status na {b}ju¿ jestem{/b}.",PlayerName(playerid));
+	MsgToAll(COLOR_INFO2, string);
+	return 1;
 }
 
 CMD:wc(playerid, params[])
 {
-new string[176];
+	new string[176];
 
-if(GetPVarInt(playerid, "AFK"))
-return SendClientMessage(playerid, 0x0, "{EE5555}Aktualnie posiadasz status {FFFFFF}zaraz wracam.");
+	if(GetPVarInt(playerid, "AFK"))
+		return Msg(playerid, COLOR_INFO, "Aktualnie posiadasz status {b}zaraz wracam{/b}.");
 
-SetPVarInt(playerid, "AFK", 1);
-format(string, sizeof(string), "{008080}Gracz %s {00FFFF}idzie do toalety.",PlayerName(playerid));
-SendClientMessageToAll(0x0,string);
-return 1;
+	SetPVarInt(playerid, "AFK", 1);
+	format(string, sizeof(string), "Gracz {b}%s{/b} idzie do toalety.", PlayerName(playerid));
+	MsgToAll(COLOR_INFO2, string);
+	return 1;
 }
 
 CMD:siema(playerid, params[])
 {
-new string[176];
+	new string[176];
 
-format(string, sizeof(string), "{008080}Gracz %s {00FFFF}wita siê z wszystkimi.",PlayerName(playerid));
-SendClientMessageToAll(0x0,string);
-return 1;
+	format(string, sizeof(string), "Gracz {b}%s{/b} wita siê z wszystkimi.", PlayerName(playerid));
+	MsgToAll(COLOR_INFO2, string);
+	return 1;
 }
 
 CMD:nara(playerid, params[])
 {
-new string[176];
+	new string[176];
 
-format(string, sizeof(string), "{008080}Gracz %s {00FFFF}¿egna siê z wszystkimi.",PlayerName(playerid));
-SendClientMessageToAll(0x0,string);
-return 1;
+	format(string, sizeof(string), "Gracz {b}%s{/b} ¿egna siê z wszystkimi.", PlayerName(playerid));
+	MsgToAll(COLOR_INFO2, string);
+	return 1;
 }
 
 CMD:pw(playerid, params[])
@@ -2547,30 +2666,31 @@ CMD:pw(playerid, params[])
 
 CMD:pm(playerid, params[])
 {
-new forplayerid,
-Message[76],
-string[176];
+	new 
+		forplayerid,
+		Message[256],
+		string[312];
 
-if(sscanf(params, "ds[76]", forplayerid, Message))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /pm [id] [treœæ]");
+	if(sscanf(params, "ds[76]", forplayerid, Message))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /pm [id] [treœæ]");
 
-if(!IsPlayerConnected(forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest pod??czony.");
+	if(!IsPlayerConnected(forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest pod³¹czony.");
 
-if(playerid == forplayerid)
-return SendClientMessage(playerid, LIGHTRED, "Nie mo¿esz napisaæ do siebie.");
+	if(playerid == forplayerid)
+		return Msg(playerid, COLOR_ERROR, "Nie mo¿esz napisaæ do siebie.");
 
-if(GetPVarInt(forplayerid, "PMOFF"))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz wy³¹czy³ prywatne wiadomoœci.");
+	if(GetPVarInt(forplayerid, "PMOFF"))
+		return Msg(playerid, COLOR_ERROR, "Ten gracz wy³¹czy³ prywatne wiadomoœci.");
 
-format(string,sizeof(string),"PM od %s (%d): %s",PlayerName(playerid),playerid, Message);
-SendClientMessage(forplayerid,0xE88B00FF,string);
-format(string,sizeof(string),"PM do %s (%d): %s",PlayerName(forplayerid),forplayerid, Message);
-SendClientMessage(playerid,0xE3AA00FF,string);
+	format(string, sizeof(string),"PM od {b}%s{/b} (%d): %s",PlayerName(playerid),playerid, Message);
+	Msg(forplayerid, COLOR_INFO, string);
+	format(string, sizeof(string),"PM do {b}%s{/b} (%d): %s",PlayerName(forplayerid),forplayerid, Message);
+	Msg(playerid, COLOR_INFO, string);
 
-ToLog(PlayerInfo[playerid][pID], LOG_TYPE_CHAT, "pm", string);
+	ToLog(playerInfo[playerid][pID], LOG_TYPE_CHAT, "pm", string);
 
-return 1;
+	return 1;
 }
 
 CMD:tog(playerid, params[])
@@ -2610,18 +2730,21 @@ CMD:tog(playerid, params[])
 
 CMD:clear(playerid, params[])
 {
-new string[128];
+	new string[128];
 
-if(PlayerInfo[playerid][pAdmin])
-{
-for(new i = 0 ; i <= 100 ; i++)
-{
-SendClientMessageToAll(0x0," ");
-}
-format(string, sizeof string, "{C8FF91}Czat zosta³ oczyszczony przez {FFFFFF}%s.",PlayerName(playerid));
-SendClientMessageToAll(0x0, string);
-} else SendClientMessage(playerid, LIGHTRED, "Nie posiadasz uprawnieñ");
-return 1;
+	if(playerInfo[playerid][pAdmin])
+	{
+		for(new i = 0 ; i <= 100 ; i++)
+		{
+			SendClientMessageToAll(0x0," ");
+		}
+
+		format(string, sizeof string, "Czat zosta³ oczyszczony przez {b}%s{/b}.",PlayerName(playerid));
+		MsgToAll(COLOR_INFO3, string);
+	} 
+	else 
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+	return 1;
 }
 
 CMD:cb(playerid, params[])
@@ -2629,237 +2752,293 @@ CMD:cb(playerid, params[])
 	new string[176];
 
 	if(isnull(params))	
-		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /cb [tekst]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /cb [tekst]");
 
 	if(!IsPlayerInAnyVehicle(playerid))
-		return SendClientMessage(playerid, LIGHTRED, "Nie znajdujesz siê w pojeŸdzie.");
+		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê w pojeŸdzie.");
 
 	Loop(player, MAX_PLAYERS)
 	{
-		if(IsPlayerInAnyVehicle(player) && GetPlayerChannelCB(player) == GetPlayerChannelCB(playerid) && !PlayerInfo[player][pAdmin])
+		if(IsPlayerInAnyVehicle(player) && GetPlayerChannelCB(player) == GetPlayerChannelCB(playerid) && !playerInfo[player][pAdmin])
 		{
 			format(string, sizeof string, "{408080}[CB: %d]: {FFFFFF}%s", GetPlayerChannelCB(playerid), params);
 			SendClientMessage(player, 0x0, string);
 		}
-		else if(PlayerInfo[player][pAdmin])
+		else if(playerInfo[player][pAdmin])
 		{
 			format(string, sizeof string, "{408080}[CB: %d] (%s, %d): {FFFFFF}%s", GetPlayerChannelCB(playerid), PlayerName(playerid), playerid, params);
 			SendClientMessage(player, 0x0, string);
 		}
 	}
 
-	ToLog(PlayerInfo[playerid][pID], LOG_TYPE_CHAT, "cb", params);
+	ToLog(playerInfo[playerid][pID], LOG_TYPE_CHAT, "cb", params);
 
 	return 1;
 }
 
 CMD:cbkanal(playerid, params[])
 {
-if(isnull(params))
-{
-SendClientMessage(playerid, LIGHTRED, "Wpisz: /cbkanal [kana³]");
-}
-else
-{
-new input = strval(params);
-if(input < 5 || input > 30)
-{
-SendClientMessage(playerid, LIGHTRED, "Wpisz: /cbkanal [5 - 30]");
-}
-else
-{
-SetPlayerChannelCB(playerid, input);
-SendClientMessage(playerid, 0x0, "{408080}Zmieni³eœ kana³ CB Radia.");
-}
-}
-return 1;
+	if(isnull(params))
+	{
+		Msg(playerid, COLOR_ERROR, "Wpisz: /cbkanal [kana³]");
+	}
+	else
+	{
+		new input = strval(params);
+		if(input < 5 || input > 30)
+		{
+			Msg(playerid, COLOR_ERROR, "Wpisz: /cbkanal [5 - 30]");
+		}
+		else
+		{
+			SetPlayerChannelCB(playerid, input);
+			Msg(playerid, COLOR_INFO, "Zmieni³eœ kana³ CB Radia.");
+		}
+	}
+	return 1;
 }
 
 CMD:mute(playerid, params[])
 {
-new forplayerid, czas, Powod[20], string[200];
+	new forplayerid, czas, reason[20], string[256];
 
-if(sscanf(params, "dds[20]", forplayerid, czas, Powod))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /mute [id gracza] [czas] [pow?]");
+	if(sscanf(params, "dds[20]", forplayerid, czas, reason))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /mute [id gracza] [czas] [pow?]");
 
-if(!IsPlayerConnected(forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Gracz ten nie jest obecny na serwerze.");
+	if(!IsPlayerConnected(forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Gracz ten nie jest obecny na serwerze.");
 
-if(GetPVarInt(forplayerid, "Mute"))
-return SendClientMessage(playerid, LIGHTRED, "Gracz ten jest uciszony.");
+	if(GetPVarInt(forplayerid, "Mute"))
+		return Msg(playerid, COLOR_ERROR, "Gracz ten jest uciszony.");
 
-if(PlayerInfo[playerid][pAdmin])
-{
-SetPVarInt(forplayerid, "Mute", 1);
-SetPVarInt(forplayerid, "Mutetime", czas*60);
-SetTimerEx("Unmute", czas*(60), false, "d", forplayerid);
-format(string, sizeof string, "{C0C0C0}Gracz %s zosta³{FFFFFF}wyciszony na %d minut {C0C0C0}przez %s z powodu {FFFFFF}%s.", PlayerName(forplayerid), czas, PlayerName(playerid), Powod);
-SendClientMessageToAll(0x0, string);
-}
-else SendClientMessage(playerid, LIGHTRED, "Nie posiadasz uprawnieñ");
-return 1;
+	if(playerInfo[playerid][pAdmin])
+	{
+		SetPVarInt(forplayerid, "Mute", 1);
+		SetPVarInt(forplayerid, "Mutetime", czas*60);
+		SetTimerEx("Unmute", czas*(60), false, "d", forplayerid);
+		format(string, sizeof string, "Gracz {b}%s{/b} zosta³ wyciszony na %d minut przez {b}%s{/b} z powodu {b}%s{/b}.", PlayerName(forplayerid), czas, PlayerName(playerid), reason);
+		MsgToAll(COLOR_INFO2, string);
+	}
+	else 
+		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
+	return 1;
 }
 
 CMD:unmute(playerid, params[])
 {
-new forplayerid, string[128];
+	new forplayerid, string[158];
 
-if(sscanf(params, "d", forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /unmute [id gracza]");
+	if(sscanf(params, "d", forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /unmute [id gracza]");
 
-if(!IsPlayerConnected(forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Gracz ten nie jest obecny na serwerze.");
+	if(!IsPlayerConnected(forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Gracz ten nie jest obecny na serwerze.");
 
-if(GetPVarInt(forplayerid, "Mute") == 0)
-return SendClientMessage(playerid, LIGHTRED, "Gracz ten nie jest uciszony.");
+	if(GetPVarInt(forplayerid, "Mute") == 0)
+		return Msg(playerid, COLOR_ERROR, "Gracz ten nie jest uciszony.");
 
-if(PlayerInfo[playerid][pAdmin])
-{
-DeletePVar(forplayerid, "Mute");
-DeletePVar(forplayerid, "Mutetime");
-format(string, sizeof string, "{C0C0C0}Gracz %s zosta³{FFFFFF}odciszony {C0C0C0}przez %s.", PlayerName(forplayerid), PlayerName(playerid));
-SendClientMessageToAll(0x0, string);
-}
-else SendClientMessage(playerid, LIGHTRED, "Nie posiadasz uprawnieñ");
-return 1;
+	if(playerInfo[playerid][pAdmin])
+	{
+		DeletePVar(forplayerid, "Mute");
+		DeletePVar(forplayerid, "Mutetime");
+		format(string, sizeof string, "Gracz {b}%s{/b} zosta³ odciszony przez {b}%s{/b}.", PlayerName(forplayerid), PlayerName(playerid));
+		MsgToAll(COLOR_INFO2, string);
+	}
+	else 
+		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
+	return 1;
 }
 
 CMD:ochrona(playerid, params[])
 {
-new string[128];
+	new string[128];
 
-if(!PlayerInfo[playerid][pAdmin])
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(SECURITYON == 1)
-{
-SECURITYON = 0;
-format(string, sizeof string, "{C0C0C0}Ochrona serwera zosta³ {FFFFFF}wy³¹czona {C0C0C0}przez %s.", PlayerName(playerid));
-SendClientMessageToAll(0x0, string);
-}
-else
-{
-format(string, sizeof string, "{C0C0C0}Ochrona serwera zosta³ {FFFFFF}w³¹czona {C0C0C0}przez %s.", PlayerName(playerid));
-SendClientMessageToAll(0x0, string);
-SECURITYON = 1;
-}
-return 1;
+	if(SECURITYON == 1)
+	{
+		SECURITYON = 0;
+		format(string, sizeof string, "Ochrona serwera zosta³a {b}wy³¹czona{/b} przez %s.", PlayerName(playerid));
+		MsgToAll(COLOR_INFO2, string);
+	}
+	else
+	{
+		format(string, sizeof string, "Ochrona serwera zosta³ {b}w³¹czona{/b} przez %s.", PlayerName(playerid));
+		MsgToAll(COLOR_INFO2, string);
+		SECURITYON = 1;
+	}
+	return 1;
 }
 
 CMD:report(playerid, params[])
 {
-new forplayerid, Powod[76], string[128];
+	new forplayerid, reason[76], szString[148];
 
-if(sscanf(params, "ds[76]", forplayerid, Powod))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /report [id gracza] [treœæ]");
+	if(sscanf(params, "ds[76]", forplayerid, reason))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /report [id gracza] [treœæ]");
 
-if(!IsPlayerConnected(forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Gracz ten nie jest obecny na serwerze.");
+	if(!IsPlayerConnected(forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Gracz ten nie jest obecny na serwerze.");
 
-Loop(forplayerid2, MAX_PLAYERS)
-{
-if(IsPlayerConnected(forplayerid2) && PlayerInfo[forplayerid2][pAdmin])
-{
-format(string,sizeof(string),"{F40000}! {004080}%s(%d) {FFFFFF}> {004080}%s(%d)", PlayerName(playerid), playerid, PlayerName(forplayerid), forplayerid);
-SendClientMessage(forplayerid2, 0x0, string);
-format(string,sizeof(string),"{F40000}! {004080}%s.", Powod);
-SendClientMessage(forplayerid2, 0x0, string);
+	if(strlen(reason) > 76 || strlen(reason) < 5)
+		return Msg(playerid, COLOR_ERROR, "Wprowadzi³eœ nieprawid³owy powód.");
+
+	if(playerInfo[forplayerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie mo¿esz zg³osiæ administratora.");
+
+	for(new i = 0; i < MAX_PLAYERS*2; i++)
+	{
+		if(repInfo[i][repUsed])
+			continue;
+
+		repInfo[i][repUsed] = true;
+		repInfo[i][repPReport] = playerid;
+		repInfo[i][repPReported] = forplayerid;
+		strcat(repInfo[i][repReason], reason);
+		format(szString, sizeof szString, "Gracz {b}%s{/b} zg³osi³ gracza {b}%s{/b}. Wpisz /reports, aby zobaczyæ zg³oszenia.", PlayerName(playerid), PlayerName(forplayerid));
+
+		for(new d = 0; d < MAX_PLAYERS; d++)
+		{
+			if(!IsPlayerConnected(d) || !IsPlayerLogged(d))
+				continue;
+
+			if(playerInfo[d][pAdmin] >= 1)
+				Msg(d, COLOR_ERROR, szString);
+		}
+		break;
+	}
+
+	format(szString, sizeof szString, "Zg³osi³eœ gracza {b}%s{/b}.", PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, szString);
+	return 1;
 }
+
+CMD:reports(playerid)
+{
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+	new count;
+	for(new i = 0; i < MAX_PLAYERS*2; i++)
+	{
+		if(!repInfo[i][repUsed])
+			continue;
+		count++;
+	}
+	if(count < 1)
+		return Msg(playerid, COLOR_ERROR, "Brak zg³oszeñ.");
+
+	new szString[512];
+	for(new c = 0; c < MAX_PLAYERS*2; c++)
+	{
+		if(!repInfo[c][repUsed])
+			continue;
+		format(szString, sizeof szString, "{FFFFFF}%d\t%s\t%s\t{FF0000}%s\n", c, PlayerName(repInfo[c][repPReport]), PlayerName(repInfo[c][repPReported]), repInfo[c][repReason]);
+	}
+	strins(szString, "ID\tZg³aszaj¹cy\tZg³aszany\tPowód\n", 0);
+	Dialog_Show(playerid, DIALOG_REPORT, DIALOG_STYLE_TABLIST_HEADERS, "Zg³oszenia", szString, "Usuñ", "WyjdŸ");
+	return 1;
 }
-format(string,sizeof(string),"{004080}Zg³osi³eœ gracza {FFFFFF}%s.", PlayerName(forplayerid));
-SendClientMessage(playerid, 0x0, string);
-return 1;
+
+Dialog:DIALOG_REPORT(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	new id;
+	sscanf(inputtext, "d{s[64]}", id);
+	repInfo[id][repUsed] = false;
+
+	return cmd_reports(playerid);
 }
 
 CMD:przelej(playerid, params[])
 {
-new forplayerid, kwota, string[128];
+	new forplayerid, kwota, string[128];
 
-if(sscanf(params, "dd", forplayerid, kwota))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /przelej [id gracza] [kwota]");
+	if(sscanf(params, "dd", forplayerid, kwota))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /przelej [id gracza] [kwota]");
 
-if(kwota > GetMoney(playerid))
-return SendClientMessage(playerid, LIGHTRED, "Podana kwota jest zbyt wysoka.");
+	if(kwota > GetMoney(playerid))
+		return Msg(playerid, COLOR_ERROR, "Podana kwota jest zbyt wysoka.");
 
-if(!IsPlayerConnected(forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest obecny na serwerze.");
+	if(!IsPlayerConnected(forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
-if(kwota <= 0)
-return SendClientMessage(playerid, LIGHTRED, "Podana kwota jest zbyt niska.");
+	if(kwota <= 0)
+		return Msg(playerid, COLOR_ERROR, "Podana kwota jest zbyt niska.");
 
-GiveMoney(playerid, -kwota);
-GiveMoney(forplayerid, kwota);
-format(string, sizeof string, "{008000}Przekaza?{FFFFFF}%d$ {008000}graczowi %s.", kwota, PlayerName(forplayerid));
-SendClientMessage(playerid,0x0,string);
-format(string, sizeof string, "{008000}Otrzyma?{FFFFFF}%d$ {008000}od gracza %s.", kwota, PlayerName(playerid));
-SendClientMessage(forplayerid,0x0,string);
-return 1;
+	GiveMoney(playerid, -kwota);
+	GiveMoney(forplayerid, kwota);
+	format(string, sizeof string, "Przekaza³eœ {b}$%d{/b} graczowi {b}%s{/b}.", kwota, PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
+	format(string, sizeof string, "Otrzyma³eœ {b}$%d{/b} od gracza {b}%s{/b}.", kwota, PlayerName(playerid));
+	Msg(forplayerid, COLOR_INFO, string);
+	return 1;
 }
 
 CMD:admins(playerid, params[])
 {
-new admin = 0,
-string[50],
-s[550];
+	new admin = 0,
+	string[50];
 
-strcat(s, "{FFFFFF}Serwer-Truck SAMP - Administratorzy serwera.\n");
-strcat(s, " \n");
-Loop(player, MAX_PLAYERS)
-{
-if(IsPlayerConnected(player) && PlayerInfo[player][pAdmin] && !GetPVarInt(player, "HIDEME") && !GetPVarInt(player, "AFK"))
-{
-format(string, sizeof string, "{FFFFFF}- {008000}%s\n", PlayerName(player));
-strcat(s, string);
-admin++;
-}
-else if(IsPlayerConnected(player) && PlayerInfo[player][pAdmin] && !GetPVarInt(player, "HIDEME") && GetPVarInt(player, "AFK"))
-{
-format(string, sizeof string, "{FFFFFF}- {EE5555}%s\n", PlayerName(player));
-strcat(s, string);
-admin++;
-}
-}
-if(admin == 0)
-strcat(s, "{EE5555}Brak administrator? online.\n");
-Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", s, "OK", "");
-return 1;
+	Msg(playerid, COLOR_INFO, "Administratorzy on-line:");
+	Loop(player, MAX_PLAYERS)
+	{
+		if(IsPlayerConnected(player) && playerInfo[player][pAdmin] && !GetPVarInt(player, "HIDEME") && !GetPVarInt(player, "AFK") && !GetPVarInt(player, "isAFK"))
+		{
+			format(string, sizeof string, "- %s %s", PlayerName(player), (playerInfo[player][pAdmin] > 1) ? ("(RCON)") : (""));
+			Msg(playerid, COLOR_INFO, string);
+			admin++;
+		}
+		else if(IsPlayerConnected(player) && playerInfo[player][pAdmin] && !GetPVarInt(player, "HIDEME") && (GetPVarInt(player, "AFK") || GetPVarInt(player, "isAFK") == 1))
+		{
+			format(string, sizeof string, "- {b}%s %s{/b}", PlayerName(player), (playerInfo[player][pAdmin] > 1) ? ("(RCON)") : (""));
+			Msg(playerid, COLOR_INFO, string);
+			admin++;
+		}
+	}
+	if(admin == 0)
+		Msg(playerid, COLOR_INFO, "Brak administratorów online.");
+
+	return 1;
 }
 
 CMD:hideme(playerid, params[])
 {
-if(!PlayerInfo[playerid][pAdmin])
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(GetPVarInt(playerid, "HIDEME"))
-return SendClientMessage(playerid, 0x0, "{EE5555}Aktualnie jesteœ ju¿ {FFFFFF}ukryty.");
+	if(GetPVarInt(playerid, "HIDEME"))
+		return Msg(playerid, COLOR_ERROR, "Aktualnie jesteœ ju¿ {b}ukryty{/b}.");
 
-SetPVarInt(playerid, "HIDEME", 1);
-SendClientMessage(playerid, 0x0, "{0073E6}zosta³ukryty na liœcie administrator?.");
-return 1;
+	SetPVarInt(playerid, "HIDEME", 1);
+	Msg(playerid, COLOR_INFO, "Zosta³ {b}ukryty{/b} na liœcie administratorów.");
+	return 1;
 }
 
 CMD:showme(playerid, params[])
 {
-if(!PlayerInfo[playerid][pAdmin])
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(!GetPVarInt(playerid, "HIDEME"))
-return SendClientMessage(playerid, 0x0, "{EE5555}Aktualnie nie jesteœ {FFFFFF}ukryty.");
+	if(!GetPVarInt(playerid, "HIDEME"))
+		return Msg(playerid, COLOR_ERROR, "Aktualnie nie jesteœ {b}ukryty{/b}.");
 
-DeletePVar(playerid, "HIDEME");
-SendClientMessage(playerid, 0x0, "{0073E6}Jesteœ widoczny na liœcie administrator?.");
-return 1;
+	DeletePVar(playerid, "HIDEME");
+	Msg(playerid, COLOR_INFO, "Jesteœ {b}widoczny{/b} na liœcie administratorów.");
+	return 1;
 }
 
 CMD:dodajbar(playerid, params[])
 {
-	//if(!PlayerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "Chwilowo niedost?ne.");
+	//if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Chwilowo niedostêpne.");
 
 	/*new interior, string[128];
 
 	if(sscanf(params, "d", interior))
-		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /dodajbar [interior]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /dodajbar [interior]");
 
 	new postawionyID = GetBar(playerid);
 	if(postawionyID > INVALID_BARY_ID)
@@ -2871,8 +3050,8 @@ CMD:dodajbar(playerid, params[])
 
 	if(!IsValidBarInterior(interior))
 	{
-		SendClientMessage(playerid, LIGHTRED, "Poda?niepoprawny interior.");
-		SendClientMessage(playerid, LIGHTRED, "Prawid?we ID interior?: 1, 4, 5, 6, 9, 10, 17.");
+		Msg(playerid, COLOR_ERROR, "Poda?niepoprawny interior.");
+		Msg(playerid, COLOR_ERROR, "Prawid?we ID interior?: 1, 4, 5, 6, 9, 10, 17.");
 		return 1;
 	}
 
@@ -2884,7 +3063,7 @@ CMD:dodajbar(playerid, params[])
 
 	new barid = mysql_insert_id();
 	if(barid == -1)
-		return SendClientMessage(playerid, LIGHTRED, "Wys?pi? nieoczekiany b??d.");
+		return Msg(playerid, COLOR_ERROR, "Wys?pi? nieoczekiany b??d.");
 
 	format(string, sizeof string, "{004080}BAR {004080}[VID: {FFFFFF}%d{004080}]\n{FFFFFF}/wejdz", barid);
 	bary3D[barid] = CreateDynamic3DTextLabel(string, ZIELONY4, Pos[0], Pos[1], Pos[2]+0.5, 30.0);
@@ -2897,14 +3076,14 @@ CMD:dodajbar(playerid, params[])
 
 CMD:usunbar(playerid, params[])
 {
-	if(!PlayerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	new string[132];
 
 	new barid = GetBar(playerid);
 	if(barid == INVALID_BARY_ID)
-	return SendClientMessage(playerid, LIGHTRED, "Nie znajdujesz siê przy barze.");
+	return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê przy barze.");
 
 	format(string, sizeof string, "{008000}Bar o uid: {FFFFFF}%d {008000}zosta³ pomyœlnie usuniêty.", barid);
 	SendClientMessage(playerid,0x0,string);
@@ -2921,7 +3100,7 @@ CMD:wejdz(playerid, params[])
 {
 	new barid = GetBar(playerid);
 	if(barid == INVALID_BARY_ID)
-	return SendClientMessage(playerid, LIGHTRED, "Nie znajdujesz siê przy barze.");
+	return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê przy barze.");
 
 	new barinterior = GetBarInterior(barid);
 	new Float:Pos[3];
@@ -2954,52 +3133,55 @@ CMD:wyjdz(playerid, params[])
 
 CMD:odczep(playerid, params[])
 {
-new State = GetPlayerState(playerid);
-new trailerid;
-new odczep;
-if(!IsPlayerInAnyVehicle(playerid))
-return SendClientMessage(playerid, LIGHTRED, "Nie znajdujesz siê w poje?dzie.");
+	new 
+		State = GetPlayerState(playerid),
+		trailerid,
+		odczep;
 
-if(State != PLAYER_STATE_DRIVER)
-return SendClientMessage(playerid, LIGHTRED, "Nie siedzisz za kierownic?.");
+	if(!IsPlayerInAnyVehicle(playerid))
+		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê w pojeŸdzie.");
 
-trailerid = GetPlayerVehicleID(playerid);
-odczep = GetVehicleTrailer(trailerid);
-AttachTrailerToVehicle(trailerid, odczep);
-DetachTrailerFromVehicle(trailerid);
-SendClientMessage(playerid, 0x0, "{008000}Naczepa zosta³a odczepiona.");
-return 1;
+	if(State != PLAYER_STATE_DRIVER)
+		return Msg(playerid, COLOR_ERROR, "Nie siedzisz za kierownic¹.");
+
+	trailerid = GetPlayerVehicleID(playerid);
+	odczep = GetVehicleTrailer(trailerid);
+	AttachTrailerToVehicle(trailerid, odczep);
+	DetachTrailerFromVehicle(trailerid);
+	Msg(playerid, COLOR_INFO, "Naczepa zosta³a odczepiona.");
+	return 1;
 }
 
 CMD:jetpack(playerid, params[])
 {
-new forplayerid, string[128];
+	new forplayerid, string[128];
 
-if(!PlayerInfo[playerid][pAdmin])
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(sscanf(params, "d", forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /jetpack [id gracza]");
+	if(sscanf(params, "d", forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: {b}/jetpack [id gracza]{/b}");
 
-SetPlayerSpecialAction(forplayerid, 2);
-format(string, sizeof string, "{C0C0C0}Da³eœ jetpack graczowi %s.", PlayerName(forplayerid));
-SendClientMessage(playerid, 0x0, string);
-format(string, sizeof string, "{C0C0C0}Otrzyma³eœ {FFFFFF}jetpack {C0C0C0}od administratora %s.", PlayerName(playerid));
-SendClientMessage(forplayerid, 0x0, string);
-return 1;
+	SetPlayerSpecialAction(forplayerid, 2);
+	format(string, sizeof string, "Da³eœ jetpack graczowi %s.", PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
+
+	format(string, sizeof string, "Otrzyma³eœ {b}jetpacka{/b} od administratora {b}%s{/b}.", PlayerName(playerid));
+	Msg(playerid, COLOR_INFO, string);
+	return 1;
 }
 
 CMD:dodajbarmenu(playerid, params[])
 {
-	if(!PlayerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	new string[128];
 
 	new postawionyID = GetBaryIn(playerid);
 	if(postawionyID > INVALID_BARYIN_ID)
 	{
-		format(string, sizeof string, "Bar zosta³ju¿ utworzony, uid: %d.", postawionyID);
+		format(string, sizeof string, "Bar zosta³ ju¿ utworzony, uid: %d.", postawionyID);
 		SendClientMessage(playerid,LIGHTRED,string);
 		return 1;
 	}
@@ -3021,14 +3203,14 @@ CMD:dodajbarmenu(playerid, params[])
 
 CMD:usunbarmenu(playerid, params[])
 {
-	if(!PlayerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	new string[132];
 
 	new baryinid = GetBaryIn(playerid);
 	if(baryinid == INVALID_BARYIN_ID)
-		return SendClientMessage(playerid, LIGHTRED, "Nie znajdujesz siê przy barze.");
+		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê przy barze.");
 
 	format(string, sizeof string, "{008000}Bar o uid: {FFFFFF}%d {008000}zosta³pomyœlnie usuni?y.", baryinid);
 	SendClientMessage(playerid,0x0,string);
@@ -3044,7 +3226,7 @@ CMD:menu(playerid, params[])
 {
 	new baryinid = GetBaryIn(playerid);
 	if(baryinid == INVALID_BARYIN_ID)
-		return SendClientMessage(playerid, LIGHTRED, "Nie znajdujesz siê w barze.");
+		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê w barze.");
 
 	new x[300];
 
@@ -3064,78 +3246,79 @@ CMD:menu(playerid, params[])
 
 CMD:uping(playerid, params[])
 {
-new forplayerid, high, string[128];
+	new forplayerid, high, string[128];
 
-if(!PlayerInfo[playerid][pAdmin])
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(!IsPlayerConnected(forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest obecny na serwerze..");
+	if(!IsPlayerConnected(forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze..");
 
-if(sscanf(params, "dd", forplayerid, high))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /uping [id gracza] [wysokoœæ]");
+	if(sscanf(params, "dd", forplayerid, high))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /uping [id gracza] [wysokoœæ]");
 
-new Float:t[3];
-new vehicleid = GetPlayerVehicleID(forplayerid);
-GetPlayerPos(forplayerid, t[0], t[1], t[2]);
-format(string, sizeof string, "{C0C0C0}Zmieni?pozycj?graczowi {FFFFFF}%s.", PlayerName(forplayerid));
-SendClientMessage(playerid, 0x0, string);
-format(string, sizeof string, "{C0C0C0}Twoja pozycja zosta³ zmieniona przez {FFFFFF}%s.",PlayerName(playerid));
-SendClientMessage(forplayerid, 0x0, string);
+	new Float:t[3];
+	new vehicleid = GetPlayerVehicleID(forplayerid);
+	GetPlayerPos(forplayerid, t[0], t[1], t[2]);
+	format(string, sizeof string, "Zmieni³eœ pozycjê graczowi {b}%s{/b}.", PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
 
-if(IsPlayerInAnyVehicle(forplayerid))
-{
-SetVehiclePos(vehicleid, t[0], t[1], t[2]+high);
-SetPlayerPos(forplayerid, t[0], t[1], t[2]+high);
-PutPlayerInVehicle(forplayerid, vehicleid, 0);
-}
-else
-{
-SetPlayerPos(forplayerid, t[0], t[1], t[2]+high);
-}
-return 1;
+	format(string, sizeof string, "Twoja pozycja zosta³ zmieniona przez {b}%s{/b}.",PlayerName(playerid));
+	Msg(playerid, COLOR_INFO, string);
+
+	if(IsPlayerInAnyVehicle(forplayerid))
+	{
+		SetVehiclePos(vehicleid, t[0], t[1], t[2]+high);
+		SetPlayerPos(forplayerid, t[0], t[1], t[2]+high);
+		PutPlayerInVehicle(forplayerid, vehicleid, 0);
+	}
+	else
+	{
+		SetPlayerPos(forplayerid, t[0], t[1], t[2]+high);
+	}
+	return 1;
 }
 
 CMD:downing(playerid, params[])
 {
-new forplayerid, high, string[128];
+	new forplayerid, high, string[128];
 
-if(!PlayerInfo[playerid][pAdmin])
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-if(!IsPlayerConnected(forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest obecny na serwerze..");
+	if(!IsPlayerConnected(forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze..");
 
-if(sscanf(params, "dd", forplayerid, high))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /downing [id gracza] [wysokoœæ]");
+	if(sscanf(params, "dd", forplayerid, high))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /downing [id gracza] [wysokoœæ]");
 
-new Float:t[3];
-new vehicleid = GetPlayerVehicleID(forplayerid);
-GetPlayerPos(forplayerid, t[0], t[1], t[2]);
-format(string, sizeof string, "{C0C0C0}Zmieni³eœ pozycjê graczowi {FFFFFF}%s.", PlayerName(forplayerid));
-SendClientMessage(playerid, 0x0, string);
-format(string, sizeof string, "{C0C0C0}Twoja pozycja zosta³ zmieniona przez {FFFFFF}%s.",PlayerName(playerid));
-SendClientMessage(forplayerid, 0x0, string);
+	new Float:t[3];
+	new vehicleid = GetPlayerVehicleID(forplayerid);
+	GetPlayerPos(forplayerid, t[0], t[1], t[2]);
+	format(string, sizeof string, "Zmieni³eœ pozycjê graczowi {b}%s{/b}.", PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
+	format(string, sizeof string, "Twoja pozycja zosta³ zmieniona przez {b}%s{/b}.",PlayerName(playerid));
+	Msg(playerid, COLOR_INFO, string);
 
-if(IsPlayerInAnyVehicle(forplayerid))
-{
-SetVehiclePos(vehicleid, t[0], t[1], t[2]-high);
-SetPlayerPos(forplayerid, t[0], t[1], t[2]-high);
-PutPlayerInVehicle(forplayerid, vehicleid, 0);
-}
-else
-{
-SetPlayerPos(forplayerid, t[0], t[1], t[2]-high);
-}
-return 1;
+	if(IsPlayerInAnyVehicle(forplayerid))
+	{
+		SetVehiclePos(vehicleid, t[0], t[1], t[2]-high);
+		SetPlayerPos(forplayerid, t[0], t[1], t[2]-high);
+		PutPlayerInVehicle(forplayerid, vehicleid, 0);
+	}
+	else
+	{
+		SetPlayerPos(forplayerid, t[0], t[1], t[2]-high);
+	}
+	return 1;
 }
 
 forward SprawdzPoziom(playerid);
 public SprawdzPoziom(playerid)
 {
-	new level = GetPVarInt(playerid, "LEVEL");
+	new levelChange;
 	new score = GetScore(playerid);
-	new string[128];
+	new string[156];
 
 	if(score < 0)
 	{
@@ -3143,303 +3326,200 @@ public SprawdzPoziom(playerid)
 		return 1;
 	}
 
-	if(score >= DoswiadczeniePoziomy[level+1] && !GetPVarInt(playerid, "SpadekLVL"))
+	if(GetPVarInt(playerid, "LEVEL") < GetPlayerLevel(score))
 	{
-		level++;
-		SetPVarInt(playerid, "LEVEL", level);
-
 		if(!GetPVarInt(playerid, "JOIN"))
 		{
-			format(string, sizeof string, "{FFFF33}Gratulacje! Gracz{FFFFFF} %s{FFFF33} awansuje na{FFFFFF} %d{FFFF33} poziom!", PlayerName(playerid), level);
-			SendClientMessageToAll(0x0, string);
+			levelChange = GetPlayerLevel(score) - GetPVarInt(playerid, "LEVEL");
+			format(string, sizeof string, "Gratulacje! Gracz {b}%s{/b} awansuje na {b}%d{/b} poziom ({b}%s{/b})!", PlayerName(playerid), GetPlayerLevel(score), GetPlayerLevelName(GetPlayerLevel(score)));
+			MsgToAll(COLOR_INFO2, string);
 
-			format(string, sizeof string, "{FFFF33}Gratulacje{FFFFFF}!\n\nAwansujesz na {008000}%d{FFFFFF} poziom.\nW nagrodzie otrzymujesz {008000}$2500{FFFFFF}.", level);
-			Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", string, "OK", "");
+			format(string, sizeof string, "Gratulacje! Awansujesz na {b}%d{/b} poziom ({b}%s{/b}). W nagrodê otrzymujesz {b}$%d{/b}.", GetPlayerLevel(score), GetPlayerLevelName(GetPlayerLevel(score)), levelChange*2500);
+			Msg(playerid, COLOR_INFO2, string);
 
-			GiveMoney(playerid, 2500);
+			GiveMoney(playerid, levelChange*2500);
+			pPoints[playerid][pAllowedPoints] += (1*levelChange);
 		}
 
+		SetPVarInt(playerid, "LEVEL", GetPlayerLevel(score));
 		SprawdzPoziom(playerid);
 	}
-	else if(score < DoswiadczeniePoziomy[level])
+	else if(GetPVarInt(playerid, "LEVEL") > GetPlayerLevel(score))
 	{
-		level--;
-		SetPVarInt(playerid, "LEVEL", level);
+		levelChange = GetPVarInt(playerid, "LEVEL") - GetPlayerLevel(score);
 
-		format(string, sizeof string, "{FFFF33}Gracz {FFFFFF}%s{FFFF33} spada na{FFFFFF} %d{FFFF33} poziom!", PlayerName(playerid), level);
-		SendClientMessageToAll(0x0, string);
+		format(string, sizeof string, "Gracz {b}%s{/b} spada na {b}%d{/b} poziom ({b}%s{/b})!", PlayerName(playerid), GetPlayerLevel(score), GetPlayerLevelName(GetPlayerLevel(score)));
+		MsgToAll(COLOR_INFO2, string);
 
-		format(string, sizeof string, "{FFFF33}Nie masz wymaganej liczby score.\nSpadasz na {FFFFFF}%d{FFFF33} poziom.", level);
-		Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", string, "OK", "");
+		format(string, sizeof string, "Niestety :(. Spadasz na {b}%d{/b} poziom ({b}%s{/b}).", GetPlayerLevel(score), GetPlayerLevelName(GetPlayerLevel(score)));
+		Msg(playerid, COLOR_INFO2, string);
 
-		GiveMoney(playerid, -2500);
-		SetPVarInt(playerid, "SpadekLVL", 1);
+		GiveMoney(playerid, -2500*levelChange);
+
+		SetPVarInt(playerid, "LEVEL", GetPlayerLevel(score));
 		SprawdzPoziom(playerid);
 	}
-
-	if(GetPVarInt(playerid, "SpadekLVL"))
-		SetPVarInt(playerid, "SpadekLVL", 0);
 
 	format(string,sizeof string,"~b~POZIOM:~w~ %d", GetPVarInt(playerid, "LEVEL"));
 	PlayerTextDrawSetString(playerid, levelTD[0][playerid], string);
 	format(string,sizeof string,"~b~%d/%d", score, DoswiadczeniePoziomy[GetPVarInt(playerid, "LEVEL")+1]);
 	PlayerTextDrawSetString(playerid, levelTD[1][playerid], string);
-
 	return 1;
 }
 
 CMD:ladownosc(playerid, params[])
 {
-new vehicleid = GetPlayerVehicleID(playerid);
-new trailerid = GetVehicleTrailer(vehicleid);
-new string[126];
+	new vehicleid = GetPlayerVehicleID(playerid);
+	new trailerid = GetVehicleTrailer(vehicleid);
+	new string[126];
 
-if(!IsPlayerInAnyVehicle(playerid))
-return SendClientMessage(playerid, LIGHTRED, "Nie znajdujesz siê w pojeŸdzie.");
+	if(!IsPlayerInAnyVehicle(playerid))
+		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê w pojeŸdzie.");
 
-new model = GetVehicleModel(vehicleid);
+	new model = GetVehicleModel(vehicleid);
 
-if(model == 515 || model == 403 || model == 514)
-{
-format(string, sizeof string, ""GCOLOR_YELLOW"Ten pojazd/naczepa mieœci maksymalnie {FFFFFF}%d kg.", MaxWeight(GetVehicleModel(trailerid)));
-SendClientMessage(playerid, LIGHTRED, string);
-}
-else
-{
-format(string, sizeof string, ""GCOLOR_YELLOW"Ten pojazd/naczepa mieœci maksymalnie {FFFFFF}%d kg.", MaxWeight(GetVehicleModel(vehicleid)));
-SendClientMessage(playerid, LIGHTRED, string);
-}
-return 1;
+	if(model == 515 || model == 403 || model == 514)
+	{
+		if(!GetVehicleTrailer(vehicleid))
+			return Msg(playerid, COLOR_ERROR, "Nie posiadasz naczepy.");
+
+		format(string, sizeof string, "Ten pojazd/naczepa mieœci maksymalnie {b}%d{/b} kg.", MaxWeight(GetVehicleModel(trailerid)));
+		Msg(playerid, COLOR_ERROR, string);
+	}
+	else
+	{
+		if(!IsVehicleVan(model))
+			return Msg(playerid, COLOR_ERROR, "Ten pojazd nie nadaje siê do przewo¿enia towarów.");
+		format(string, sizeof string, "Ten pojazd/naczepa mieœci maksymalnie {b}%d{/b} kg.", MaxWeight(GetVehicleModel(vehicleid)));
+		Msg(playerid, COLOR_ERROR, string);
+	}
+	return 1;
 }
 
 CMD:open(playerid, params[])
 {
-if(PlayerInfo[playerid][pFirma] == 0)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(playerInfo[playerid][pFirm] == 0 || !GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-Otworzbrame(playerid);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Brama zosta³a otwarta.");
-return 1;
+	Otworzbrame(playerid);
+	Msg(playerid, COLOR_INFO, "Brama zosta³a otwarta.");
+	return 1;
 }
 
 CMD:close(playerid, params[])
 {
-if(PlayerInfo[playerid][pFirma] == 0)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(playerInfo[playerid][pFirm] == 0 || !GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-Zamknijbrame(playerid);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Brama zosta³a zamkniêta.");
-return 1;
+	Zamknijbrame(playerid);
+	Msg(playerid, COLOR_INFO, "Brama zosta³a zamkniêta.");
+	return 1;
 }
 
-CMD:o1(playerid, params[])
+CMD:o(playerid, params[])
 {
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_MEDIC)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-MoveDynamicObject(brama[4], 1265.2001953125, 761.2998046875, 8.1 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ {FFFFFF}otwarty.");
-return 1;
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
+	new gate = strval(params);
+	if(gate < 1 || gate > 8)
+		return Msg(playerid, COLOR_ERROR, "Poda³eœ z³e ID bramy.");
+
+	static Float:gatePos[][3] = {
+		{4.0, 1265.2001953125, 761.2998046875},
+		{5.0, 1265.0, 746.599609375},
+		{6.0, 1265.0, 731.900390625},
+		{7.0, 1265.0, 717.2001953125},
+		{8.0, 1242.2998046875, 761.099609375},
+		{9.0, 1242.2998046875, 746.5},
+		{10.0, 1242.2998046875, 731.900390625},
+		{11.0, 1242.2998046875, 717.2001953125}
+	};
+
+	MoveDynamicObject(brama[floatround(gatePos[gate-1][0])], gatePos[gate-1][1], gatePos[gate-1][2], 8.1 ,2);
+	Msg(playerid, COLOR_INFO, "Gara¿ zosta³ {b}otwarty{/b}.");
+	return 1;
 }
 
-CMD:c1(playerid, params[])
+CMD:c(playerid, params[])
 {
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_MEDIC)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-MoveDynamicObject(brama[4], 1265.2001953125, 761.2998046875, 11.60000038147 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ {FFFFFF}zamkniêty.");
-return 1;
-}
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
 
-CMD:o2(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	new gate = strval(params);
+	if(gate < 1 || gate > 8)
+		return Msg(playerid, COLOR_ERROR, "Poda³eœ z³e ID bramy.");
 
-MoveDynamicObject(brama[5], 1265.0, 746.599609375, 8.1 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ {FFFFFF}otwarty.");
-return 1;
-}
+	static Float:gatePos[][4] = {
+		{4.0, 1265.2001953125, 761.2998046875, 11.60000038147},
+		{5.0, 1265.0, 746.599609375, 11.60000038147},
+		{6.0, 1265.0, 731.900390625, 11.60000038147},
+		{7.0, 1265.0, 717.2001953125, 11.60000038147},
+		{8.0, 1242.2998046875, 761.099609375, 11.60000038147},
+		{9.0, 1242.2998046875, 746.5, 11.60000038147},
+		{10.0, 1242.2998046875, 731.900390625, 11.60000038147},
+		{11.0, 1242.2998046875, 717.2001953125, 11.60000038147}
+	};
 
-CMD:c2(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
-
-MoveDynamicObject(brama[5], 1265.0, 746.599609375, 11.60000038147 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ {FFFFFF}zamkniêty.");
-return 1;
-}
-
-CMD:o3(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
-
-MoveDynamicObject(brama[6], 1265.0, 731.900390625, 8.1 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ {FFFFFF}otwarty.");
-return 1;
-}
-
-CMD:c3(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
-
-MoveDynamicObject(brama[6], 1265.0, 731.900390625, 11.60000038147 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ {FFFFFF}zamkniêty.");
-return 1;
-}
-
-CMD:o4(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
-
-MoveDynamicObject(brama[7], 1265.0, 717.2001953125, 8.1 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ {FFFFFF}otwarty.");
-return 1;
-}
-
-CMD:c4(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
-
-MoveDynamicObject(brama[7], 1265.0, 717.2001953125, 11.60000038147 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ {FFFFFF}zamkniêty.");
-return 1;
-}
-
-CMD:o5(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
-
-MoveDynamicObject(brama[8], 1242.2998046875, 761.099609375, 8.1 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ {FFFFFF}otwarty.");
-return 1;
-}
-
-CMD:c5(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
-
-MoveDynamicObject(brama[8], 1242.2998046875, 761.099609375, 11.60000038147 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ {FFFFFF}zamkniêty.");
-return 1;
-}
-
-CMD:o6(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
-
-MoveDynamicObject(brama[9], 1242.2998046875, 746.5, 8.1 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ {FFFFFF}otwarty.");
-return 1;
-}
-
-CMD:c6(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
-
-MoveDynamicObject(brama[9], 1242.2998046875, 746.5, 11.60000038147 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ {FFFFFF}zamkniêty.");
-return 1;
-}
-
-CMD:o7(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
-
-MoveDynamicObject(brama[10], 1242.2998046875, 731.900390625, 8.1 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³{FFFFFF}otwarty.");
-return 1;
-}
-
-CMD:c7(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
-
-MoveDynamicObject(brama[10], 1242.2998046875, 731.900390625, 11.60000038147 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ {FFFFFF}zamkniêty.");
-return 1;
-}
-
-CMD:o8(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
-
-MoveDynamicObject(brama[11], 1242.2998046875, 717.2001953125, 8.1 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ {FFFFFF}otwarty.");
-return 1;
-}
-
-CMD:c8(playerid, params[])
-{
-if(Firmy[PlayerInfo[playerid][pFirma]][tTyp] != TEAM_TYPE_MEDIC)
-return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
-
-MoveDynamicObject(brama[11], 1242.2998046875, 717.2001953125, 11.60000038147 ,2);
-SendClientMessage(playerid, 0x0, ""GCOLOR_YELLOW"Gara¿ zosta³ zamkniêty.");
-return 1;
+	MoveDynamicObject(brama[floatround(gatePos[gate-1][0])], gatePos[gate-1][1], gatePos[gate-1][2], gatePos[gate-1][3], 2);
+	Msg(playerid, COLOR_INFO, "Gara¿ zosta³ {b}zamkniêty{/b}.");
+	return 1;
 }
 
 CMD:explode(playerid, params[])
 {
-new forplayerid;
+	new forplayerid;
 
-if(sscanf(params, "d", forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /explode [id gracza]");
+	if(sscanf(params, "d", forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /explode [id gracza]");
 
-if(!IsPlayerConnected(forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest obecny na serwerze.");
+	if(!IsPlayerConnected(forplayerid))
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
-if(!PlayerInfo[playerid][pAdmin])
-return SendClientMessage(playerid, LIGHTRED, "Nie posiadasz uprawnieñ");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 
-new Float:Pos[3];
-GetPlayerPos(forplayerid,Float:Pos[0],Float:Pos[1],Float:Pos[2]);
-CreateExplosion(Float:Pos[0],Float:Pos[1],Float:Pos[2],2,50);
-return 1;
+	new Float:Pos[3];
+	GetPlayerPos(forplayerid,Float:Pos[0],Float:Pos[1],Float:Pos[2]);
+	CreateExplosion(Float:Pos[0], Float:Pos[1], Float:Pos[2], 2, 50);
+	return 1;
 }
 
 CMD:ann(playerid, params[])
 {
-new czas, tekst[20], string[128];
+	new czas, tekst[20], string[128];
 
-if(sscanf(params, "ds[20]", czas, tekst))
-return SendClientMessage(playerid, LIGHTRED, "Wpisz: /ann [czas] [tekst]");
+	if(sscanf(params, "ds[20]", czas, tekst))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /ann [czas] [tekst]");
 
-if(!PlayerInfo[playerid][pAdmin])
-return SendClientMessage(playerid, LIGHTRED, "Nie posiadasz uprawnieñ");
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 
-format(string,sizeof(string),"~w~%s",tekst);
-GameTextForAll(string,(czas*1000),3);
-return 1;
+	format(string,sizeof(string),"~w~%s",tekst);
+	GameTextForAll(string,(czas*1000),3);
+	return 1;
 }
 
 CMD:say(playerid, params[])
 {
 	new tekst[100], string[200];
 
+	if(!playerInfo[playerid][pAdmin])
+		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ.");
+
 	if(sscanf(params, "s[100]", tekst))
-		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /say [tekst]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /say [tekst]");
 
-	if(!PlayerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "Nie posiadasz uprawnieñ.");
+	format(string, sizeof(string), "* Administrator: %s", tekst);
+	MsgToAll(COLOR_INFO2, string, false);
 
-	format(string, sizeof(string), "* Admin: %s", tekst);
-	SendClientMessageToAll(0x2986CEFF, string);
-
-	ToLog(PlayerInfo[playerid][pID], LOG_TYPE_CHAT, "adminglobal", params);
+	ToLog(playerInfo[playerid][pID], LOG_TYPE_CHAT, "adminglobal", params);
 	return 1;
 }
 
@@ -3447,29 +3527,29 @@ CMD:wyplata(playerid, params[])
 {
 	new string[176];
 
-	if(PlayerInfo[playerid][pFirma] == 0)
-		return SendClientMessage(playerid, LIGHTRED, "Nie pracujesz w ?adnej organizacji.");
+	if(playerInfo[playerid][pFirm] == 0)
+		return Msg(playerid, COLOR_ERROR, "Nie pracujesz w ¿adnej organizacji.");
 
-	if(Firmy[PlayerInfo[playerid][pFirma]][tChef] != PlayerInfo[playerid][pID])
-		return SendClientMessage(playerid, LIGHTRED, "Nie jesteœ szefem organizacji.");
+	if(firmInfo[playerInfo[playerid][pFirm]][tChef] != playerInfo[playerid][pID])
+		return Msg(playerid, COLOR_ERROR, "Nie jesteœ szefem organizacji.");
 
 	new forplayerid;
 
 	if(sscanf(params, "d", forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /wyplata [id gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /wyplata [id gracza]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest obecny na serwerze.");
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
-	if(Firmy[PlayerInfo[forplayerid][pFirma]][tID] != Firmy[PlayerInfo[playerid][pFirma]][tID])
-		return SendClientMessage(playerid, LIGHTRED, "Nie mo?esz da?wyp?aty temu graczowi, poniewa? nie pracuje on w Twojej organizacji.");
+	if(firmInfo[playerInfo[forplayerid][pFirm]][tID] != firmInfo[playerInfo[playerid][pFirm]][tID])
+		return Msg(playerid, COLOR_ERROR, "Nie mo¿esz dawaæ wyp³aty temu graczowi, poniewa¿ nie pracuje w twojej organizacji.");
 
 	if(GetPVarInt(forplayerid, "Worked"))
-		return SendClientMessage(playerid, LIGHTRED, "Nie mo?esz da?wyp?aty temu graczowi, poniewa? aktualnie pracuje.");
+		return Msg(playerid, COLOR_ERROR, "Nie mo¿esz dawaæ wyp³aty poniewa¿ aktualnie ten gracz nie pracuje.");
 
 	new Money, Scpor;
 
-	switch(Firmy[PlayerInfo[forplayerid][pFirma]][tTyp])
+	switch(firmInfo[playerInfo[forplayerid][pFirm]][tType])
 	{
 		case TEAM_TYPE_POLICE, TEAM_TYPE_POMOC, TEAM_TYPE_MEDIC:
 		{
@@ -3492,17 +3572,17 @@ CMD:wyplata(playerid, params[])
 	GiveScore(playerid, Scpor);
 	ResetWork(playerid);
 
-	format(string, sizeof string, "{C8FF91}Otrzyma?e? wyp?at?\nKwota: {FFFFFF}$%d.\n{C8FF91}Score: {FFFFFF}%d.\n{C8FF91}Szef: {FFFFFF}%s.", Money, Scpor, PlayerName(playerid));
+	format(string, sizeof string, "{C8FF91}Otrzyma³eœ wyp³atê\nKwota: {FFFFFF}$%d.\n{C8FF91}Score: {FFFFFF}%d.\n{C8FF91}Szef: {FFFFFF}%s.", Money, Scpor, PlayerName(playerid));
 	ShowInfo(forplayerid, string);
 
-	format(string, sizeof string, "{C8FF91}Da?e? wyp?at?\nKwota: {FFFFFF}$%d.\n{C8FF91}Score: {FFFFFF}%d.\n{C8FF91}Gracz: {FFFFFF}%s.", Money, Scpor, PlayerName(forplayerid));
+	format(string, sizeof string, "{C8FF91}Da³eœ wyp³atê\nKwota: {FFFFFF}$%d.\n{C8FF91}Score: {FFFFFF}%d.\n{C8FF91}Gracz: {FFFFFF}%s.", Money, Scpor, PlayerName(forplayerid));
 	ShowInfo(playerid, string);
 
 
 	format(string, sizeof string, "UPDATE `ACOUNT` SET `Worktime` = 0 WHERE `Name` = '%s'", PlayerName(forplayerid));
 	mysql_query(string);
 
-	PlayerInfo[playerid][pWorkTime] = 0;
+	playerInfo[playerid][pWorkTime] = 0;
 
 	return 1;
 }

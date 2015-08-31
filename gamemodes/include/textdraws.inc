@@ -89,12 +89,12 @@ stock SpectactorTextDraw(playerid, create=false)
 	return 1;
 }
 
-enum Main_TD {
-	Text:SerwerName,
+enum Main_TD 
+{
 	Text:Time,
-	Text:Date,
 	Text:TruckerSkins[9]
 }
+
 new MainTextDraws[Main_TD];
 new MainTextDrawTimer;
 
@@ -102,38 +102,14 @@ CreateMainTextDraws(create)
 {
 	if(create)
 	{
-		MainTextDraws[SerwerName] = TextDrawCreate(497.086853, 3.333339, "www.serwertruck.eu");
-		TextDrawLetterSize(MainTextDraws[SerwerName], 0.400000, 1.600000);
-		TextDrawAlignment(MainTextDraws[SerwerName], 1);
-		TextDrawColor(MainTextDraws[SerwerName], -1);
-		TextDrawSetShadow(MainTextDraws[SerwerName], 10);
-		TextDrawSetOutline(MainTextDraws[SerwerName], 1);
-		TextDrawBackgroundColor(MainTextDraws[SerwerName], 255);
-		TextDrawFont(MainTextDraws[SerwerName], 1);
-		TextDrawSetProportional(MainTextDraws[SerwerName], 1);
-		TextDrawSetShadow(MainTextDraws[SerwerName], 10);
-
-		MainTextDraws[Time] = TextDrawCreate(71.769081, 316.167205, "00:00");
-		TextDrawLetterSize(MainTextDraws[Time], 0.257099, 0.958330);
-		TextDrawAlignment(MainTextDraws[Time], 1);
-		TextDrawColor(MainTextDraws[Time], 8388863);
-		TextDrawSetShadow(MainTextDraws[Time], 2);
+		MainTextDraws[Time] = TextDrawCreate(572.000000, 22.000000, "23:59");
+		TextDrawAlignment(MainTextDraws[Time], 2);
+		TextDrawBackgroundColor(MainTextDraws[Time], 65);
+		TextDrawFont(MainTextDraws[Time], 3);
+		TextDrawLetterSize(MainTextDraws[Time], 0.500000, 1.800000);
+		TextDrawColor(MainTextDraws[Time], -1);
 		TextDrawSetOutline(MainTextDraws[Time], 1);
-		TextDrawBackgroundColor(MainTextDraws[Time], 255);
-		TextDrawFont(MainTextDraws[Time], 1);
 		TextDrawSetProportional(MainTextDraws[Time], 1);
-		TextDrawSetShadow(MainTextDraws[Time], 2);
-
-		MainTextDraws[Date] = TextDrawCreate(62.398658, 327.667114, "01.01.2015");
-		TextDrawLetterSize(MainTextDraws[Date], 0.257099, 0.958330);
-		TextDrawAlignment(MainTextDraws[Date], 1);
-		TextDrawColor(MainTextDraws[Date], 8388863);
-		TextDrawSetShadow(MainTextDraws[Date], 2);
-		TextDrawSetOutline(MainTextDraws[Date], 1);
-		TextDrawBackgroundColor(MainTextDraws[Date], 255);
-		TextDrawFont(MainTextDraws[Date], 1);
-		TextDrawSetProportional(MainTextDraws[Date], 1);
-		TextDrawSetShadow(MainTextDraws[Date], 2);
 
 		MainTextDrawTimer = SetTimer("OneSecTimer", 1000, true);
 
@@ -261,11 +237,9 @@ CreateMainTextDraws(create)
 	}
 	else
 	{
-		TextDrawHideForAll(MainTextDraws[SerwerName]);
 		TextDrawHideForAll(MainTextDraws[Time]);
 		TextDrawHideForAll(MainTextDraws[Date]);
 
-		TextDrawDestroy(MainTextDraws[SerwerName]);
 		TextDrawDestroy(MainTextDraws[Time]);
 		TextDrawDestroy(MainTextDraws[Date]);
 
@@ -279,276 +253,285 @@ CreateMainTextDraws(create)
 	}
 }
 
-enum SpeedometerTD
-{
-	Text:Main,
-	Text:EngineInfo,
-	Text:VehicleInfo,
-	Text:CargoInfoTD,
-	Text:Box[2],
-	PlayerText:VehicleEngine[MAX_PLAYERS],
-	PlayerText:VehicleHP[MAX_PLAYERS],
-	PlayerText:VehicleCargo[MAX_PLAYERS],
-	PlayerText:VehicleSpeed[MAX_PLAYERS],
-	Text:ViaTollX,
-	Text:ViaTollPlus,
-	PlayerText:VehicleFuel[MAX_PLAYERS],
-	PlayerText:VehicleMileage[MAX_PLAYERS],
-	bool:ViaTollVisible
+new Text:connectStableBox[8],
+	PlayerText:connectVarBox[MAX_PLAYERS][6];
+
+stock InitConnect()
+{	
+	connectStableBox[0] = TextDrawCreate(0.000000, 0.000000, "______");
+	TextDrawBackgroundColor(connectStableBox[0], 255);
+	TextDrawFont(connectStableBox[0], 1);
+	TextDrawLetterSize(connectStableBox[0], 0.500000, 10.000000);
+	TextDrawColor(connectStableBox[0], -1);
+	TextDrawSetOutline(connectStableBox[0], 0);
+	TextDrawSetProportional(connectStableBox[0], 1);
+	TextDrawSetShadow(connectStableBox[0], 1);
+	TextDrawUseBox(connectStableBox[0], 1);
+	TextDrawBoxColor(connectStableBox[0], 125);
+	TextDrawTextSize(connectStableBox[0], 660.000000, 0.000000);
+
+	connectStableBox[1] = TextDrawCreate(0.000000, 359.000000, "______");
+	TextDrawBackgroundColor(connectStableBox[1], 255);
+	TextDrawFont(connectStableBox[1], 1);
+	TextDrawLetterSize(connectStableBox[1], 0.500000, 10.000000);
+	TextDrawColor(connectStableBox[1], -1);
+	TextDrawSetOutline(connectStableBox[1], 0);
+	TextDrawSetProportional(connectStableBox[1], 1);
+	TextDrawSetShadow(connectStableBox[1], 1);
+	TextDrawUseBox(connectStableBox[1], 1);
+	TextDrawBoxColor(connectStableBox[1], 125);
+	TextDrawTextSize(connectStableBox[1], 660.000000, 0.000000);
+
+	connectStableBox[2] = TextDrawCreate(51.000000, 175.000000, "______");
+	TextDrawBackgroundColor(connectStableBox[2], 255);
+	TextDrawFont(connectStableBox[2], 1);
+	TextDrawLetterSize(connectStableBox[2], 0.500000, 11.200000);
+	TextDrawColor(connectStableBox[2], -1);
+	TextDrawSetOutline(connectStableBox[2], 0);
+	TextDrawSetProportional(connectStableBox[2], 1);
+	TextDrawSetShadow(connectStableBox[2], 1);
+	TextDrawUseBox(connectStableBox[2], 1);
+	TextDrawBoxColor(connectStableBox[2], 125);
+	TextDrawTextSize(connectStableBox[2], 130.000000, -30.000000);
+
+	connectStableBox[3] = TextDrawCreate(278.000000, 36.000000, "serwer truck");
+	TextDrawBackgroundColor(connectStableBox[3], 255);
+	TextDrawFont(connectStableBox[3], 2);
+	TextDrawLetterSize(connectStableBox[3], 0.369998, 1.600000);
+	TextDrawColor(connectStableBox[3], -1);
+	TextDrawSetOutline(connectStableBox[3], 1);
+	TextDrawSetProportional(connectStableBox[3], 1);
+
+	connectStableBox[4] = TextDrawCreate(244.000000, 51.000000, "-");
+	TextDrawBackgroundColor(connectStableBox[4], 255);
+	TextDrawFont(connectStableBox[4], 2);
+	TextDrawLetterSize(connectStableBox[4], 15.000000, 0.599999);
+	TextDrawColor(connectStableBox[4], -10399850);
+	TextDrawSetOutline(connectStableBox[4], 0);
+	TextDrawSetProportional(connectStableBox[4], 1);
+	TextDrawSetShadow(connectStableBox[4], 0);
+
+	connectStableBox[5] = TextDrawCreate(292.000000, 56.000000, "najlepszy polski");
+	TextDrawBackgroundColor(connectStableBox[5], 255);
+	TextDrawFont(connectStableBox[5], 2);
+	TextDrawLetterSize(connectStableBox[5], 0.219999, 0.699999);
+	TextDrawColor(connectStableBox[5], -1);
+	TextDrawSetOutline(connectStableBox[5], 1);
+	TextDrawSetProportional(connectStableBox[5], 1);
+
+	connectStableBox[6] = TextDrawCreate(291.000000, 63.000000, "serwer ~r~truckerski");
+	TextDrawBackgroundColor(connectStableBox[6], 255);
+	TextDrawFont(connectStableBox[6], 2);
+	TextDrawLetterSize(connectStableBox[6], 0.209998, 0.600000);
+	TextDrawColor(connectStableBox[6], -1);
+	TextDrawSetOutline(connectStableBox[6], 1);
+	TextDrawSetProportional(connectStableBox[6], 1);
+
+	connectStableBox[7] = TextDrawCreate(517.000000, 431.000000, "forum: serwertruck.eu~n~ts3: 69.255.255.57");
+	TextDrawBackgroundColor(connectStableBox[7], 255);
+	TextDrawFont(connectStableBox[7], 2);
+	TextDrawLetterSize(connectStableBox[7], 0.219999, 0.699999);
+	TextDrawColor(connectStableBox[7], -1);
+	TextDrawSetOutline(connectStableBox[7], 1);
+	TextDrawSetProportional(connectStableBox[7], 1);
 }
-new Speedometer[SpeedometerTD];
 
-CreateSpeedometer(create)
+stock ShowPlayerConnect(playerid, var = true)
 {
-	if(create)
+
+	if(!var)
+		for(new i = 0; i < 6; i++)
+			PlayerTextDrawHide(playerid, connectVarBox[playerid][i]), PlayerTextDrawDestroy(playerid, connectVarBox[playerid][i]);
+	else
 	{
-		Speedometer[Main] = TextDrawCreate(457.200103, 333.908538, "_");
-		TextDrawLetterSize(Speedometer[Main], 0.874400, 11.747200);
-		TextDrawTextSize(Speedometer[Main], 631.800354, 0.000000);
-		TextDrawAlignment(Speedometer[Main], 1);
-		TextDrawColor(Speedometer[Main], -1);
-		TextDrawUseBox(Speedometer[Main], 1);
-		TextDrawBoxColor(Speedometer[Main], 45);
-		TextDrawSetShadow(Speedometer[Main], 0);
-		TextDrawSetOutline(Speedometer[Main], 0);
-		TextDrawBackgroundColor(Speedometer[Main], -1061109505);
-		TextDrawFont(Speedometer[Main], 1);
-		TextDrawSetProportional(Speedometer[Main], 0);
-		TextDrawSetShadow(Speedometer[Main], 0);
+		connectVarBox[playerid][0] = CreatePlayerTextDraw(playerid, 56.000000, 183.000000, "Logowanie");
+		PlayerTextDrawBackgroundColor(playerid, connectVarBox[playerid][0], 255);
+		PlayerTextDrawFont(playerid, connectVarBox[playerid][0], 2);
+		PlayerTextDrawLetterSize(playerid, connectVarBox[playerid][0], 0.239999, 0.900000);
+		PlayerTextDrawColor(playerid, connectVarBox[playerid][0], -1);
+		PlayerTextDrawSetOutline(playerid, connectVarBox[playerid][0], 1);
+		PlayerTextDrawSetProportional(playerid, connectVarBox[playerid][0], 1);
+		PlayerTextDrawUseBox(playerid, connectVarBox[playerid][0], 1);
+		PlayerTextDrawBoxColor(playerid, connectVarBox[playerid][0], 0);
+		PlayerTextDrawTextSize(playerid, connectVarBox[playerid][0], 116.000000, 10.000000);
+		PlayerTextDrawSetSelectable(playerid, connectVarBox[playerid][0], 1);
 
-		Speedometer[EngineInfo] = TextDrawCreate(460.100067, 415.695587, "Swiatla:~n~Silnik:");
-		TextDrawLetterSize(Speedometer[EngineInfo], 0.304798, 1.241598);
-		TextDrawAlignment(Speedometer[EngineInfo], 1);
-		TextDrawColor(Speedometer[EngineInfo], -1);
-		TextDrawSetShadow(Speedometer[EngineInfo], 0);
-		TextDrawSetOutline(Speedometer[EngineInfo], 1);
-		TextDrawBackgroundColor(Speedometer[EngineInfo], 255);
-		TextDrawFont(Speedometer[EngineInfo], 1);
-		TextDrawSetProportional(Speedometer[EngineInfo], 1);
-		TextDrawSetShadow(Speedometer[EngineInfo], 0);
+		connectVarBox[playerid][1] = CreatePlayerTextDraw(playerid, 56.000000, 194.000000, "~r~Rejestracja");
+		PlayerTextDrawBackgroundColor(playerid, connectVarBox[playerid][1], 255);
+		PlayerTextDrawFont(playerid, connectVarBox[playerid][1], 2);
+		PlayerTextDrawLetterSize(playerid, connectVarBox[playerid][1], 0.239999, 0.900000);
+		PlayerTextDrawColor(playerid, connectVarBox[playerid][1], -1);
+		PlayerTextDrawSetOutline(playerid, connectVarBox[playerid][1], 1);
+		PlayerTextDrawSetProportional(playerid, connectVarBox[playerid][1], 1);
+		PlayerTextDrawUseBox(playerid, connectVarBox[playerid][1], 1);
+		PlayerTextDrawBoxColor(playerid, connectVarBox[playerid][1], 0);
+		PlayerTextDrawTextSize(playerid, connectVarBox[playerid][1], 127.000000, 10.000000);
+		PlayerTextDrawSetSelectable(playerid, connectVarBox[playerid][1], 1);
 
-		Speedometer[CargoInfoTD] = TextDrawCreate(550.193908, 415.695587, "Towar:~n~Waga:");
-		TextDrawLetterSize(Speedometer[CargoInfoTD], 0.304798, 1.241598);
-		TextDrawAlignment(Speedometer[CargoInfoTD], 1);
-		TextDrawColor(Speedometer[CargoInfoTD], -1);
-		TextDrawSetShadow(Speedometer[CargoInfoTD], 0);
-		TextDrawSetOutline(Speedometer[CargoInfoTD], 1);
-		TextDrawBackgroundColor(Speedometer[CargoInfoTD], 255);
-		TextDrawFont(Speedometer[CargoInfoTD], 1);
-		TextDrawSetProportional(Speedometer[CargoInfoTD], 1);
-		TextDrawSetShadow(Speedometer[CargoInfoTD], 0);
+		connectVarBox[playerid][2] = CreatePlayerTextDraw(playerid, 56.000000, 205.000000, "Changelog");
+		PlayerTextDrawBackgroundColor(playerid, connectVarBox[playerid][2], 255);
+		PlayerTextDrawFont(playerid, connectVarBox[playerid][2], 2);
+		PlayerTextDrawLetterSize(playerid, connectVarBox[playerid][2], 0.239999, 0.900000);
+		PlayerTextDrawColor(playerid, connectVarBox[playerid][2], -1);
+		PlayerTextDrawSetOutline(playerid, connectVarBox[playerid][2], 1);
+		PlayerTextDrawSetProportional(playerid, connectVarBox[playerid][2], 1);
+		PlayerTextDrawUseBox(playerid, connectVarBox[playerid][2], 1);
+		PlayerTextDrawBoxColor(playerid, connectVarBox[playerid][2], 0);
+		PlayerTextDrawTextSize(playerid, connectVarBox[playerid][2], 119.000000, 10.000000);
+		PlayerTextDrawSetSelectable(playerid, connectVarBox[playerid][2], 1);
 
-		Speedometer[Box][0] = TextDrawCreate(462.800048, 411.683288, "_");
-		TextDrawLetterSize(Speedometer[Box][0], 0.425599, -0.020266);
-		TextDrawTextSize(Speedometer[Box][0], 625.550048, -1.409999);
-		TextDrawAlignment(Speedometer[Box][0], 1);
-		TextDrawColor(Speedometer[Box][0], -1);
-		TextDrawUseBox(Speedometer[Box][0], 1);
-		TextDrawBoxColor(Speedometer[Box][0], 128);
-		TextDrawSetShadow(Speedometer[Box][0], 0);
-		TextDrawSetOutline(Speedometer[Box][0], 0);
-		TextDrawBackgroundColor(Speedometer[Box][0], 255);
-		TextDrawFont(Speedometer[Box][0], 1);
-		TextDrawSetProportional(Speedometer[Box][0], 1);
-		TextDrawSetShadow(Speedometer[Box][0], 0);
+		connectVarBox[playerid][3] = CreatePlayerTextDraw(playerid, 56.000000, 216.000000, "Pomoc");
+		PlayerTextDrawBackgroundColor(playerid, connectVarBox[playerid][3], 255);
+		PlayerTextDrawFont(playerid, connectVarBox[playerid][3], 2);
+		PlayerTextDrawLetterSize(playerid, connectVarBox[playerid][3], 0.239999, 0.900000);
+		PlayerTextDrawColor(playerid, connectVarBox[playerid][3], -1);
+		PlayerTextDrawSetOutline(playerid, connectVarBox[playerid][3], 1);
+		PlayerTextDrawSetProportional(playerid, connectVarBox[playerid][3], 1);
+		PlayerTextDrawUseBox(playerid, connectVarBox[playerid][3], 1);
+		PlayerTextDrawBoxColor(playerid, connectVarBox[playerid][3], 0);
+		PlayerTextDrawTextSize(playerid, connectVarBox[playerid][3], 93.000000, 10.000000);
+		PlayerTextDrawSetSelectable(playerid, connectVarBox[playerid][3], 1);
 
-		Speedometer[Box][1] = TextDrawCreate(463.600036, 371.780853, "_");
-		TextDrawLetterSize(Speedometer[Box][1], 0.425599, -0.020266);
-		TextDrawTextSize(Speedometer[Box][1], 626.350036, -1.409999);
-		TextDrawAlignment(Speedometer[Box][1], 1);
-		TextDrawColor(Speedometer[Box][1], -1);
-		TextDrawUseBox(Speedometer[Box][1], 1);
-		TextDrawBoxColor(Speedometer[Box][1], 128);
-		TextDrawSetShadow(Speedometer[Box][1], 0);
-		TextDrawSetOutline(Speedometer[Box][1], 0);
-		TextDrawBackgroundColor(Speedometer[Box][1], 255);
-		TextDrawFont(Speedometer[Box][1], 1);
-		TextDrawSetProportional(Speedometer[Box][1], 1);
-		TextDrawSetShadow(Speedometer[Box][1], 0);
+		connectVarBox[playerid][4] = CreatePlayerTextDraw(playerid, 56.000000, 226.000000, "Autorzy");
+		PlayerTextDrawBackgroundColor(playerid, connectVarBox[playerid][4], 255);
+		PlayerTextDrawFont(playerid, connectVarBox[playerid][4], 2);
+		PlayerTextDrawLetterSize(playerid, connectVarBox[playerid][4], 0.239999, 0.900000);
+		PlayerTextDrawColor(playerid, connectVarBox[playerid][4], -1);
+		PlayerTextDrawSetOutline(playerid, connectVarBox[playerid][4], 1);
+		PlayerTextDrawSetProportional(playerid, connectVarBox[playerid][4], 1);
+		PlayerTextDrawUseBox(playerid, connectVarBox[playerid][4], 1);
+		PlayerTextDrawBoxColor(playerid, connectVarBox[playerid][4], 0);
+		PlayerTextDrawTextSize(playerid, connectVarBox[playerid][4], 103.000000, 10.000000);
+		PlayerTextDrawSetSelectable(playerid, connectVarBox[playerid][4], 1);
 
-		Speedometer[VehicleInfo] = TextDrawCreate(490.801727, 379.440002, "Stan pojazdu:~n~Stan towaru:");
-		TextDrawLetterSize(Speedometer[VehicleInfo], 0.304798, 1.241598);
-		TextDrawAlignment(Speedometer[VehicleInfo], 1);
-		TextDrawColor(Speedometer[VehicleInfo], -1);
-		TextDrawSetShadow(Speedometer[VehicleInfo], 0);
-		TextDrawSetOutline(Speedometer[VehicleInfo], 1);
-		TextDrawBackgroundColor(Speedometer[VehicleInfo], 255);
-		TextDrawFont(Speedometer[VehicleInfo], 1);
-		TextDrawSetProportional(Speedometer[VehicleInfo], 1);
-		TextDrawSetShadow(Speedometer[VehicleInfo], 0);
+		connectVarBox[playerid][5] = CreatePlayerTextDraw(playerid, 56.000000, 263.000000, "~r~Wyjscie");
+		PlayerTextDrawBackgroundColor(playerid, connectVarBox[playerid][5], 255);
+		PlayerTextDrawFont(playerid, connectVarBox[playerid][5], 2);
+		PlayerTextDrawLetterSize(playerid, connectVarBox[playerid][5], 0.239999, 0.900000);
+		PlayerTextDrawColor(playerid, connectVarBox[playerid][5], -1);
+		PlayerTextDrawSetOutline(playerid, connectVarBox[playerid][5], 1);
+		PlayerTextDrawSetProportional(playerid, connectVarBox[playerid][5], 1);
+		PlayerTextDrawUseBox(playerid, connectVarBox[playerid][5], 1);
+		PlayerTextDrawBoxColor(playerid, connectVarBox[playerid][5], 0);
+		PlayerTextDrawTextSize(playerid, connectVarBox[playerid][5], 100.000000, 10.000000);
+		PlayerTextDrawSetSelectable(playerid, connectVarBox[playerid][5], 1);
+		
+		for(new i = 0; i < 6; i++)
+			PlayerTextDrawShow(playerid, connectVarBox[playerid][i]);
+	}
+	return 1;
+}
 
-		Speedometer[ViaTollX] = TextDrawCreate(471.599945, 384.133422, "X");
-		TextDrawLetterSize(Speedometer[ViaTollX], 0.400000, 1.600000);
-		TextDrawAlignment(Speedometer[ViaTollX], 1);
-		TextDrawColor(Speedometer[ViaTollX], -16776961);
-		TextDrawSetShadow(Speedometer[ViaTollX], 0);
-		TextDrawSetOutline(Speedometer[ViaTollX], 1);
-		TextDrawBackgroundColor(Speedometer[ViaTollX], 255);
-		TextDrawFont(Speedometer[ViaTollX], 1);
-		TextDrawSetProportional(Speedometer[ViaTollX], 1);
-		TextDrawSetShadow(Speedometer[ViaTollX], 0);
+stock ShowConnect(playerid, var = true)
+{
+	if(!var)
+		for(new i = 0; i < 8; i++)
+			TextDrawHideForPlayer(playerid, connectStableBox[i]);
+	else
+		for(new i = 0; i < 8; i++)
+			TextDrawShowForPlayer(playerid, connectStableBox[i]);
+	return 1;
+}
 
-		Speedometer[ViaTollPlus] = TextDrawCreate(475.999786, 381.946746, "+");
-		TextDrawLetterSize(Speedometer[ViaTollPlus], 0.602400, 1.995731);
-		TextDrawAlignment(Speedometer[ViaTollPlus], 2);
-		TextDrawColor(Speedometer[ViaTollPlus], 16711935);
-		TextDrawSetShadow(Speedometer[ViaTollPlus], 0);
-		TextDrawSetOutline(Speedometer[ViaTollPlus], 1);
-		TextDrawBackgroundColor(Speedometer[ViaTollPlus], 255);
-		TextDrawFont(Speedometer[ViaTollPlus], 1);
-		TextDrawSetProportional(Speedometer[ViaTollPlus], 1);
-		TextDrawSetShadow(Speedometer[ViaTollPlus], 0);
+enum E_TEXTDRAWS
+{
+	Text:tdMainBox,
+	Text:tdMainIcons[2],
+	Bar:tdLevelProgress[MAX_PLAYERS],
+	Bar:tdHungerProgress[MAX_PLAYERS],
+	PlayerText:tdInfoBox[MAX_PLAYERS],
+	PlayerText:tdInfoText[MAX_PLAYERS]
+}
+
+new hudInfo[E_TEXTDRAWS];
+
+stock InitStableHud()
+{
+	hudInfo[tdMainBox] = TextDrawCreate(554.000000, 106.000000, "___");
+	TextDrawAlignment(hudInfo[tdMainBox], 2);
+	TextDrawBackgroundColor(hudInfo[tdMainBox], 255);
+	TextDrawFont(hudInfo[tdMainBox], 1);
+	TextDrawLetterSize(hudInfo[tdMainBox], 0.500000, 2.999999);
+	TextDrawColor(hudInfo[tdMainBox], -1);
+	TextDrawSetOutline(hudInfo[tdMainBox], 0);
+	TextDrawSetProportional(hudInfo[tdMainBox], 1);
+	TextDrawSetShadow(hudInfo[tdMainBox], 1);
+	TextDrawUseBox(hudInfo[tdMainBox], 1);
+	TextDrawBoxColor(hudInfo[tdMainBox], 75);
+	TextDrawTextSize(hudInfo[tdMainBox], 606.000000, -87.000000);
+
+	hudInfo[tdMainIcons][0] = TextDrawCreate(515.000000, 121.000000, "hud:radar_burgershot");
+	TextDrawAlignment(hudInfo[tdMainIcons][0], 2);
+	TextDrawBackgroundColor(hudInfo[tdMainIcons][0], 60);
+	TextDrawFont(hudInfo[tdMainIcons][0], 4);
+	TextDrawLetterSize(hudInfo[tdMainIcons][0], 0.270000, 0.600000);
+	TextDrawColor(hudInfo[tdMainIcons][0], -1);
+	TextDrawSetOutline(hudInfo[tdMainIcons][0], 1);
+	TextDrawSetProportional(hudInfo[tdMainIcons][0], 1);
+	TextDrawUseBox(hudInfo[tdMainIcons][0], 1);
+	TextDrawBoxColor(hudInfo[tdMainIcons][0], 255);
+	TextDrawTextSize(hudInfo[tdMainIcons][0], 12.000000, 9.000000);
+
+	hudInfo[tdMainIcons][1] = TextDrawCreate(526.000000, 109.000000, "][");
+	TextDrawAlignment(hudInfo[tdMainIcons][1], 2);
+	TextDrawBackgroundColor(hudInfo[tdMainIcons][1], 60);
+	TextDrawFont(hudInfo[tdMainIcons][1], 2);
+	TextDrawLetterSize(hudInfo[tdMainIcons][1], 0.349998, 1.100000);
+	TextDrawColor(hudInfo[tdMainIcons][1], -1);
+	TextDrawSetOutline(hudInfo[tdMainIcons][1], 1);
+	TextDrawSetProportional(hudInfo[tdMainIcons][1], 1);
+	return 1;
+}
+
+stock InitHud(playerid)
+{	
+	hudInfo[tdInfoBox][playerid] = TextDrawCreate(619.000000, 5.000000, "___");
+	TextDrawAlignment(hudInfo[tdInfoBox][playerid], 2);
+	TextDrawBackgroundColor(hudInfo[tdInfoBox][playerid], 255);
+	TextDrawFont(hudInfo[tdInfoBox][playerid], 1);
+	TextDrawLetterSize(hudInfo[tdInfoBox][playerid], 0.500000, 1.600000);
+	TextDrawColor(hudInfo[tdInfoBox][playerid], -1);
+	TextDrawSetOutline(hudInfo[tdInfoBox][playerid], 0);
+	TextDrawSetProportional(hudInfo[tdInfoBox][playerid], 1);
+	TextDrawSetShadow(hudInfo[tdInfoBox][playerid], 1);
+	TextDrawUseBox(hudInfo[tdInfoBox][playerid], 1);
+	TextDrawBoxColor(hudInfo[tdInfoBox][playerid], 125);
+	TextDrawTextSize(hudInfo[tdInfoBox][playerid], 606.000000, -39.000000);
+
+	hudInfo[tdInfoText][playerid] = TextDrawCreate(605.000000, 6.000000, "~r~FPS: ~w~400~n~~r~Ping: ~w~500");
+	TextDrawBackgroundColor(hudInfo[tdInfoText][playerid], 60);
+	TextDrawFont(hudInfo[tdInfoText][playerid], 2);
+	TextDrawLetterSize(hudInfo[tdInfoText][playerid], 0.140000, 0.699999);
+	TextDrawColor(hudInfo[tdInfoText][playerid], -1);
+	TextDrawSetOutline(hudInfo[tdInfoText][playerid], 1);
+	TextDrawSetProportional(hudInfo[tdInfoText][playerid], 1);
+
+	hudInfo[tdLevelProgress][playerid] = CreateProgressBar(531.00, 112.00, 58.50, 4.19, 1131010559, 0.0);
+	hudInfo[tdHungerProgress][playerid] = CreateProgressBar(531.00, 124.00, 58.50, 4.19, -642563073, 0.0);
+	
+	ShowPlayerProgressBar(playerid, hudInfo[tdLevelProgress][playerid]);
+	SetPlayerProgressBarMaxValue(playerid, hudInfo[tdLevelProgress][playerid], 100.0);
+
+	ShowPlayerProgressBar(playerid, hudInfo[tdHungerProgress][playerid]);
+	SetPlayerProgressBarValue(playerid, hudInfo[tdHungerProgress][playerid], playerInfo[playerid][pHunger]);
+	SetPlayerProgressBarMaxValue(playerid, hudInfo[tdHungerProgress][playerid], 100.0);
+	return 1;
+}
+
+stock ShowPlayerHud(playerid, var = true)
+{
+	if(!var)
+	{
+
 	}
 	else
 	{
-		TextDrawHideForAll(Speedometer[Main]);
-		TextDrawHideForAll(Speedometer[EngineInfo]);
-		TextDrawHideForAll(Speedometer[VehicleInfo]);
-		TextDrawHideForAll(Speedometer[CargoInfoTD]);
-		TextDrawHideForAll(Speedometer[ViaTollX]);
-		TextDrawHideForAll(Speedometer[ViaTollPlus]);
-		TextDrawHideForAll(Speedometer[Box][0]);
-		TextDrawHideForAll(Speedometer[Box][1]);
-
-		TextDrawDestroy(Speedometer[Main]);
-		TextDrawDestroy(Speedometer[EngineInfo]);
-		TextDrawDestroy(Speedometer[VehicleInfo]);
-		TextDrawDestroy(Speedometer[CargoInfoTD]);
-		TextDrawDestroy(Speedometer[ViaTollX]);
-		TextDrawDestroy(Speedometer[ViaTollPlus]);
-		TextDrawDestroy(Speedometer[Box][0]);
-		TextDrawDestroy(Speedometer[Box][1]);
+		TextDrawShowForPlayer(playerid, hudInfo[tdMainBox]);
+		TextDrawShowForPlayer(playerid, hudInfo[tdMainIcons][0]);
+		TextDrawShowForPlayer(playerid, hudInfo[tdMainIcons][1]);
+		TextDrawShowForPlayer(playerid, hudInfo[tdInfoBox][playerid]);
+		TextDrawShowForPlayer(playerid, hudInfo[tdInfoText][playerid]);
+		InitHud(playerid);
 	}
-}
-
-enum CargoTD
-{
-	Text:CargoTDBox,
-	PlayerText:CargoTDInfo[MAX_PLAYERS]
-}
-new CargoTextDraws[CargoTD];
-
-CreateCargoTextdraws(create)
-{
-	if(create)
-	{
-		CargoTextDraws[CargoTDBox] = TextDrawCreate(233.199935, 6.319984, "_");
-		TextDrawLetterSize(CargoTextDraws[CargoTDBox], 0.408000, 2.697599);
-		TextDrawTextSize(CargoTextDraws[CargoTDBox], 387.800018, 0.000000);
-		TextDrawAlignment(CargoTextDraws[CargoTDBox], 1);
-		TextDrawColor(CargoTextDraws[CargoTDBox], -154);
-		TextDrawUseBox(CargoTextDraws[CargoTDBox], 1);
-		TextDrawBoxColor(CargoTextDraws[CargoTDBox], 85);
-		TextDrawSetShadow(CargoTextDraws[CargoTDBox], 0);
-		TextDrawSetOutline(CargoTextDraws[CargoTDBox], 0);
-		TextDrawBackgroundColor(CargoTextDraws[CargoTDBox], -246);
-		TextDrawFont(CargoTextDraws[CargoTDBox], 1);
-		TextDrawSetProportional(CargoTextDraws[CargoTDBox], 1);
-		TextDrawSetShadow(CargoTextDraws[CargoTDBox], 0);
-	}
-	else
-	{
-		TextDrawHideForAll(CargoTextDraws[CargoTDBox]);
-		TextDrawDestroy(CargoTextDraws[CargoTDBox]);
-	}
-}
-
-new PlayerText:levelTD[2][MAX_PLAYERS];
-
-CreateTextDrawForPlayer(playerid)
-{
-	CargoTextDraws[CargoTDInfo][playerid] = CreatePlayerTextDraw(playerid, 309.100006, 6.473295, "Do wyladunku zostalo:~n~5m 1s");
-	PlayerTextDrawLetterSize(playerid, CargoTextDraws[CargoTDInfo][playerid], 0.293599, 1.323733);
-	PlayerTextDrawAlignment(playerid, CargoTextDraws[CargoTDInfo][playerid], 2);
-	PlayerTextDrawColor(playerid, CargoTextDraws[CargoTDInfo][playerid], -1);
-	PlayerTextDrawSetShadow(playerid, CargoTextDraws[CargoTDInfo][playerid], 0);
-	PlayerTextDrawSetOutline(playerid, CargoTextDraws[CargoTDInfo][playerid], 1);
-	PlayerTextDrawBackgroundColor(playerid, CargoTextDraws[CargoTDInfo][playerid], 255);
-	PlayerTextDrawFont(playerid, CargoTextDraws[CargoTDInfo][playerid], 1);
-	PlayerTextDrawSetProportional(playerid, CargoTextDraws[CargoTDInfo][playerid], 1);
-	PlayerTextDrawSetShadow(playerid, CargoTextDraws[CargoTDInfo][playerid], 0);
-
-	Speedometer[VehicleEngine][playerid] = CreatePlayerTextDraw(playerid, 506.802917, 415.695587, "_");
-	PlayerTextDrawLetterSize(playerid, Speedometer[VehicleEngine][playerid], 0.304798, 1.241598);
-	PlayerTextDrawAlignment(playerid, Speedometer[VehicleEngine][playerid], 1);
-	PlayerTextDrawColor(playerid, Speedometer[VehicleEngine][playerid], -1);
-	PlayerTextDrawSetShadow(playerid, Speedometer[VehicleEngine][playerid], 0);
-	PlayerTextDrawSetOutline(playerid, Speedometer[VehicleEngine][playerid], 1);
-	PlayerTextDrawBackgroundColor(playerid, Speedometer[VehicleEngine][playerid], 255);
-	PlayerTextDrawFont(playerid, Speedometer[VehicleEngine][playerid], 1);
-	PlayerTextDrawSetProportional(playerid, Speedometer[VehicleEngine][playerid], 1);
-	PlayerTextDrawSetShadow(playerid, Speedometer[VehicleEngine][playerid], 0);
-
-	Speedometer[VehicleHP][playerid] = CreatePlayerTextDraw(playerid, 570.088867, 379.493377, "_");
-	PlayerTextDrawLetterSize(playerid, Speedometer[VehicleHP][playerid], 0.304798, 1.241598);
-	PlayerTextDrawAlignment(playerid, Speedometer[VehicleHP][playerid], 1);
-	PlayerTextDrawColor(playerid, Speedometer[VehicleHP][playerid], -1);
-	PlayerTextDrawSetShadow(playerid, Speedometer[VehicleHP][playerid], 0);
-	PlayerTextDrawSetOutline(playerid, Speedometer[VehicleHP][playerid], 1);
-	PlayerTextDrawBackgroundColor(playerid, Speedometer[VehicleHP][playerid], 255);
-	PlayerTextDrawFont(playerid, Speedometer[VehicleHP][playerid], 1);
-	PlayerTextDrawSetProportional(playerid, Speedometer[VehicleHP][playerid], 1);
-	PlayerTextDrawSetShadow(playerid, Speedometer[VehicleHP][playerid], 0);
-
-	Speedometer[VehicleCargo][playerid] = CreatePlayerTextDraw(playerid, 610.079467, 415.695587, "_");
-	PlayerTextDrawLetterSize(playerid, Speedometer[VehicleCargo][playerid], 0.304798, 1.241598);
-	PlayerTextDrawAlignment(playerid, Speedometer[VehicleCargo][playerid], 2);
-	PlayerTextDrawColor(playerid, Speedometer[VehicleCargo][playerid], -1);
-	PlayerTextDrawSetShadow(playerid, Speedometer[VehicleCargo][playerid], 0);
-	PlayerTextDrawSetOutline(playerid, Speedometer[VehicleCargo][playerid], 1);
-	PlayerTextDrawBackgroundColor(playerid, Speedometer[VehicleCargo][playerid], 255);
-	PlayerTextDrawFont(playerid, Speedometer[VehicleCargo][playerid], 1);
-	PlayerTextDrawSetProportional(playerid, Speedometer[VehicleCargo][playerid], 1);
-	PlayerTextDrawSetShadow(playerid, Speedometer[VehicleCargo][playerid], 0);
-
-	Speedometer[VehicleSpeed][playerid] = CreatePlayerTextDraw(playerid, 543.299621, 336.655456, "_");
-	PlayerTextDrawLetterSize(playerid, Speedometer[VehicleSpeed][playerid], 0.418399, 1.375998);
-	PlayerTextDrawAlignment(playerid, Speedometer[VehicleSpeed][playerid], 2);
-	PlayerTextDrawColor(playerid, Speedometer[VehicleSpeed][playerid], -1);
-	PlayerTextDrawSetShadow(playerid, Speedometer[VehicleSpeed][playerid], 0);
-	PlayerTextDrawSetOutline(playerid, Speedometer[VehicleSpeed][playerid], 1);
-	PlayerTextDrawBackgroundColor(playerid, Speedometer[VehicleSpeed][playerid], 255);
-	PlayerTextDrawFont(playerid, Speedometer[VehicleSpeed][playerid], 1);
-	PlayerTextDrawSetProportional(playerid, Speedometer[VehicleSpeed][playerid], 1);
-	PlayerTextDrawSetShadow(playerid, Speedometer[VehicleSpeed][playerid], 0);
-
-	Speedometer[VehicleFuel][playerid] = CreatePlayerTextDraw(playerid, 480.400024, 339.333404, "_");
-	PlayerTextDrawLetterSize(playerid, Speedometer[VehicleFuel][playerid], 0.243199, 0.987730);
-	PlayerTextDrawAlignment(playerid, Speedometer[VehicleFuel][playerid], 2);
-	PlayerTextDrawColor(playerid, Speedometer[VehicleFuel][playerid], -1);
-	PlayerTextDrawSetShadow(playerid, Speedometer[VehicleFuel][playerid], 0);
-	PlayerTextDrawSetOutline(playerid, Speedometer[VehicleFuel][playerid], 1);
-	PlayerTextDrawBackgroundColor(playerid, Speedometer[VehicleFuel][playerid], 255);
-	PlayerTextDrawFont(playerid, Speedometer[VehicleFuel][playerid], 1);
-	PlayerTextDrawSetProportional(playerid, Speedometer[VehicleFuel][playerid], 1);
-	PlayerTextDrawSetShadow(playerid, Speedometer[VehicleFuel][playerid], 0);
-
-	Speedometer[VehicleMileage][playerid] = CreatePlayerTextDraw(playerid, 601.480163, 339.333343, "_");
-	PlayerTextDrawLetterSize(playerid, Speedometer[VehicleMileage][playerid], 0.243199, 0.987730);
-	PlayerTextDrawAlignment(playerid, Speedometer[VehicleMileage][playerid], 2);
-	PlayerTextDrawColor(playerid, Speedometer[VehicleMileage][playerid], -1);
-	PlayerTextDrawSetShadow(playerid, Speedometer[VehicleMileage][playerid], 0);
-	PlayerTextDrawSetOutline(playerid, Speedometer[VehicleMileage][playerid], 1);
-	PlayerTextDrawBackgroundColor(playerid, Speedometer[VehicleMileage][playerid], 255);
-	PlayerTextDrawFont(playerid, Speedometer[VehicleMileage][playerid], 1);
-	PlayerTextDrawSetProportional(playerid, Speedometer[VehicleMileage][playerid], 1);
-	PlayerTextDrawSetShadow(playerid, Speedometer[VehicleMileage][playerid], 0);
-
-	levelTD[0][playerid] = CreatePlayerTextDraw(playerid, 501.000000, 99.000000, "LEVEL: 1");
-	PlayerTextDrawBackgroundColor(playerid, levelTD[0][playerid], 255);
-	PlayerTextDrawFont(playerid, levelTD[0][playerid], 1);
-	PlayerTextDrawLetterSize(playerid, levelTD[0][playerid], 0.270000, 1.000000);
-	PlayerTextDrawColor(playerid, levelTD[0][playerid], -1);
-	PlayerTextDrawSetOutline(playerid, levelTD[0][playerid], 1);
-	PlayerTextDrawSetProportional(playerid, levelTD[0][playerid], 1);
-	PlayerTextDrawSetSelectable(playerid, levelTD[0][playerid], 0);
-
-	levelTD[1][playerid] = CreatePlayerTextDraw(playerid, 574.000000, 99.000000, "10/20");
-	PlayerTextDrawBackgroundColor(playerid, levelTD[1][playerid], 255);
-	PlayerTextDrawFont(playerid, levelTD[1][playerid], 1);
-	PlayerTextDrawLetterSize(playerid, levelTD[1][playerid], 0.270000, 1.000000);
-	PlayerTextDrawColor(playerid, levelTD[1][playerid], -1);
-	PlayerTextDrawSetOutline(playerid, levelTD[1][playerid], 1);
-	PlayerTextDrawSetProportional(playerid, levelTD[1][playerid], 1);
-	PlayerTextDrawSetSelectable(playerid, levelTD[1][playerid], 0);
+	return 1;
 }

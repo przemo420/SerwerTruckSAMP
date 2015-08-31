@@ -14,8 +14,7 @@ enum ePhoto
 	Float:phRange 	// zasiêg dzia³ania fotoradaru 
 }
 
-new bool:pPhoto[MAX_PLAYERS],
-	phAccount[MAX_PLAYERS],
+new bool:pPhotoed[MAX_PLAYERS],
 	phInfo[MAX_PHOTORADARS][ePhoto];
 
 forward Photo_OnGameModeInit();
@@ -53,7 +52,10 @@ public PhotoradarUpdate()
 {
 	for(new i = 0; i < MAX_PLAYERS; i++)
 	{
-		if(!IsPlayerConnected(i) || pPhoto[i] || GetPlayerState(i) != PLAYER_STATE_DRIVER)
+		if(!IsPlayerConnected(i) || pPhotoed[i] || GetPlayerState(i) != PLAYER_STATE_DRIVER)
+			continue;
+
+		if(IsWorked(i, TEAM_TYPE_POLICE) || IsWorked(i, TEAM_TYPE_MEDIC))
 			continue;
 
 		new vehicleid = GetPlayerVehicleID(i), 
@@ -64,7 +66,7 @@ public PhotoradarUpdate()
 		if(photoradar < 0)
 			continue;
 
-		pPhoto[i] = true;
+		pPhotoed[i] = true;
 		SetTimerEx("UnlockPhotoradar", 2*1000, false, "d", i);
 		GetVehicleSpeed(vehicleid, speed); speed -= phInfo[photoradar][phMaxSpeed];
 		if(speed < 10.0)
@@ -81,14 +83,14 @@ public PhotoradarUpdate()
 		format(szString, sizeof szString, "Przekrocz³yeœ dozwolon¹ prêdkoœc o {b}%d{/b} km/h. Zosta³eœ obci¹¿ony grzywn¹ {b}$%d{/b}.", floatround(speed), mandate);
 		Msg(i, COLOR_INFO2, szString);
 		Msg(i, COLOR_INFO2, "Mandat zostanie wypisany podczas kontroli.");
-		phAccount[i] += mandate;
+		GiveFotoPolice(i, mandate);
 	}
 	return 1;
 }
 
 public UnlockPhotoradar(playerid)
 {
-	pPhoto[playerid] = false;
+	pPhotoed[playerid] = false;
 	return 1;
 }
 
@@ -166,10 +168,9 @@ CMD:foto(playerid, params[])
 
 	new option[10], photoid;
 
-	if((Firmy[PlayerInfo[playerid][pFirma]][tChef] != PlayerInfo[playerid][pID]) || (Firmy[PlayerInfo[playerid][pFirma]][tVcChef] != PlayerInfo[playerid][pID]))
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 	if(sscanf(params, "s[10]D(200)", option, photoid))
-		return Msg(playerid, COLOR_ERROR, "Wpisz: /foto [stworz/usun/polozenie/edytuj]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /foto [stworz/usun/polozenie/edytuj/rozlicz]");
+
 	if((GetPlayerVirtualWorld(playerid) != 0) || IsPlayerInAnyVehicle(playerid)) 
 		return Msg(playerid, COLOR_ERROR, "Nie mo¿esz teraz tego zrobiæ.");
 
@@ -181,17 +182,20 @@ CMD:foto(playerid, params[])
 
 	if(strcmp(option, "stworz", true) == 0) 
 	{
+		if(!(IsFractionBoss(playerid) || IsFractionViceBoss(playerid))) return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 		DeletePVar(playerid, "PHOTO_City");
 		Dialog_Show(playerid, DIALOG_PHOTO_CREATE, DIALOG_STYLE_LIST, " ", "Teren zabudowany\nTeren niezabudowany", "Wybierz", "WyjdŸ");
 	}
 	else if(strcmp(option, "usun", true) == 0) 
 	{
+		if(!(IsFractionBoss(playerid) || IsFractionViceBoss(playerid))) return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 		if(!IsValidPhotoradar(photoid)) return Msg(playerid, COLOR_ERROR, "Nie odnaleziono fotoradaru z tym ID.");
 		DestroyPhotoradar(photoid);
 		Msg(playerid, COLOR_INFO, "Pomyœlnie usuniêto fotoradar.");
 	}
 	else if(strcmp(option, "polozenie", true) == 0) 
 	{
+		if(!(IsFractionBoss(playerid) || IsFractionViceBoss(playerid))) return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 		if(!IsValidPhotoradar(photoid)) return Msg(playerid, COLOR_ERROR, "Nie odnaleziono fotoradaru z tym ID.");
 		if(!IsPlayerInRangeOfPoint(playerid, 8.0, phInfo[photoid][phX], phInfo[photoid][phY], phInfo[photoid][phZ])) return Msg(playerid, COLOR_ERROR, "Jesteœ za daleko od fotoradaru który chcesz edytowaæ.");
 		SetPVarInt(playerid, "PHOTO_Object", phInfo[photoid][phObject]);
@@ -200,12 +204,27 @@ CMD:foto(playerid, params[])
 	}
 	else if(strcmp(option, "edytuj", true) == 0) 
 	{
+		if(!(IsFractionBoss(playerid) || IsFractionViceBoss(playerid))) return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 		if(!IsValidPhotoradar(photoid)) return Msg(playerid, COLOR_ERROR, "Nie odnaleziono fotoradaru z tym ID.");
 		Dialog_Show(playerid, DIALOG_PHOTO_EDIT, DIALOG_STYLE_LIST, " ", "Teren zabudowany\nTeren niezabudowany", "Wybierz", "WyjdŸ");
 		SetPVarInt(playerid, "PHOTO_ID", photoid);
 	}
+	else if(strcmp(option, "rozlicz", true) == 0)
+	{
+		if(!IsPlayerConnected(photoid)) return Msg(playerid, COLOR_ERROR, "Gracza o tym ID nie ma online.");
+		if(GetFotoPolice(photoid) == 0) return Msg(playerid, COLOR_ERROR, "Ten gracz nie ma zaleg³ych mandatów.");
+
+		GivePlayerMoney(photoid, -GetFotoPolice(photoid));
+		SetFotoPolice(photoid, 0);
+		new szString[128];
+		format(szString, sizeof szString, "Rozliczy³eœ gracza {b}%s{/b} z zaleg³ych mandatów.", PlayerName(photoid));
+		Msg(playerid, COLOR_INFO, szString);
+
+		format(szString, sizeof szString, "Policjant {b}%s{/b} rozliczy³ twoje zaleg³e mandaty.", PlayerName(playerid));
+		Msg(photoid, COLOR_INFO, szString);
+	}
 	else
-		return Msg(playerid, COLOR_ERROR, "Wpisz: /foto [stworz/usun/polozenie/edytuj]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /foto [stworz/usun/polozenie/edytuj/rozlicz]");
 	return 1;
 }
 
@@ -257,9 +276,9 @@ Dialog:DIALOG_PHOTO_CREATE3(playerid, response, listitem, inputtext[])
 	if(pid < 0)
 		return Msg(playerid, COLOR_ERROR, "Nie uda³o siê stworzyæ fotoradaru.");
 	
-	SetPlayerPos(playerid, pos[0], pos[1], pos[2]+5.0);
 	format(szString, sizeof szString, "Pomyœlnie stworzono fotoradar (ID: {b}%d{/b}).", pid);
 	Msg(playerid, COLOR_INFO, szString);
+	SetPlayerPos(playerid, pos[0], pos[1], pos[2]+7.0);
 	return 1;
 }
 

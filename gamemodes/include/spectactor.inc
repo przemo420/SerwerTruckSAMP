@@ -61,7 +61,7 @@ public Spectactor_OnPlayerKey(playerid, newkeys, oldkeys)
 				else
 					znalazlo = false;
 
-				if(!IsPlayerConnected(playerid) || UsersConnected == 1)
+				if(!IsPlayerConnected(playerid) || gmInfo[gmUsersConnected] == 1)
 					break;
 			}
 		}
@@ -117,7 +117,7 @@ CMD:specon(playerid, params[])
 {
 	new forplayerid;
 
-	if(!PlayerInfo[playerid][pAdmin])
+	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "ddd", forplayerid))
@@ -158,7 +158,7 @@ CMD:specon(playerid, params[])
 
 CMD:specoff(playerid, params[])
 {
-	if(!PlayerInfo[playerid][pAdmin])
+	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(GetPVarType(playerid, "Przeglada") == PLAYER_VARTYPE_NONE)

@@ -8,7 +8,7 @@
 	TODO
 
 	- Konwoje
-	- Roz³adowywanie na stacji
+	- RozÂ³adowywanie na stacji
 	- Stan towaru 
 	_________________________________
 
@@ -21,7 +21,7 @@
 #define MAX_BASES			30
 #define MAX_WARES			150
 #define MAX_CARGOS			500
-#define MAX_LOADINGS		40
+#define MAX_LOADINGS		150
 
 #define WARE_TYPE_TRUCK		0
 #define WARE_TYPE_VAN		1
@@ -37,7 +37,8 @@
 
 new bool:privTrailer[MAX_VEHICLES],
 	PlayerBar:pBar[MAX_PLAYERS],
-	Float:cargoHealth[MAX_VEHICLES];
+	Float:cargoHealth[MAX_VEHICLES],
+	systemInfo[2];
 
 forward Loadings_OnGameModeInit();
 forward Loadings_OnGameModeExit();
@@ -71,14 +72,14 @@ enum eCargo
 	cZID, 			// Zaladunek ID
 	cRID, 			// Rozladunek ID
 	cTimeStart, 	// Godzina zarezerwowania
-	cTime, 			// Czas na dowóz, od godziny za³adowania
-	cTimeEnd,		// Godzina znikniêcia
+	cTime, 			// Czas na dowÃ³z, od godziny zaÂ³adowania
+	cTimeEnd,		// Godzina znikniÃªcia
 	cType, 			// ID Towaru - WID
 	cWeight, 		// Waga towaru
-	Float:cReward, 	// Prawdopodobne wynagrodzenie (bez bonusów)
-	bool:cReserved, // Czy towar jest ju¿ zarezerwowany (aby nie usuwa³o przy odœwie¿aniu)
-	Float:cDistance,// Dystans za³adunek - roz³adunek
-	bool:cDeleted	// Czy oferta jest do usuniêcia
+	Float:cReward, 	// Prawdopodobne wynagrodzenie (bez bonusÃ³w)
+	bool:cReserved, // Czy towar jest juÂ¿ zarezerwowany (aby nie usuwaÂ³o przy odÅ“wieÂ¿aniu)
+	Float:cDistance,// Dystans zaÂ³adunek - rozÂ³adunek
+	bool:cDeleted	// Czy oferta jest do usuniÃªcia
 }
 
 enum eBaza
@@ -92,12 +93,12 @@ enum eBaza
 
 enum eLoad
 {
-	LID,			// ID Za³adunku
+	LID,			// ID ZaÂ³adunku
 	Float:lX,		// Pozycja X
 	Float:lY,		// Pozycja Y
 	Float:lZ,		// Pozycja Z
-	lType,			// Typ za³adunku
-	lBaza,			// ID Bazy z której korzystamy
+	lType,			// Typ zaÂ³adunku
+	lBaza,			// ID Bazy z ktÃ³rej korzystamy
 	lMapIcon,		// ID Map Icona
 	lMapIconForAll,
 	Text3D:lText	// ID Labela
@@ -122,7 +123,7 @@ new waresInfo[MAX_WARES][eWares],
 
 public Loadings_OnGameModeInit()
 {
-	//LoadingsInit();
+	LoadingsInit();
 	LoadObjects();
 }
 
@@ -136,7 +137,7 @@ stock LoadingsInit()
 {
 	new szBuffer[64], nums;
 
-	// Inicjowanie wszystkich dostêpnych towarów
+	// Inicjowanie wszystkich dostÃªpnych towarÃ³w
 
 	mysql_query("SELECT * FROM wares");
 	mysql_store_result();
@@ -146,12 +147,13 @@ stock LoadingsInit()
 	{
 		if(mysql_fetch_row(szBuffer, "|") && i <= MAX_WARES)
 		{
+			systemInfo[1] += 1;
 			sscanf(szBuffer, "p<|>ds[32]fdddd", waresInfo[i][WID], waresInfo[i][wName], waresInfo[i][wRate], waresInfo[i][wLevel], waresInfo[i][wAdr], waresInfo[i][wType], waresInfo[i][wVehicle]);
 		}
 	}
 	mysql_free_result();
 
-	// Inicjownaie wszystkich punktów za³adunkowych
+	// Inicjownaie wszystkich punktÃ³w zaÂ³adunkowych
 
 	mysql_query("SELECT * FROM loads");
 	mysql_store_result();
@@ -161,10 +163,11 @@ stock LoadingsInit()
 	{
 		if(mysql_fetch_row(szBuffer, "|") && c <= MAX_LOADINGS)
 		{
+			systemInfo[0] += 1;
 			sscanf(szBuffer, "p<|>dfffdd", loadInfo[c][LID], loadInfo[c][lX], loadInfo[c][lY], loadInfo[c][lZ], loadInfo[c][lType], loadInfo[c][lBaza]);
 
 			new szString[256];
-			format(szString, sizeof szString, "Za³adunek towarów {b}%s{/b} w {b}%s{/b} (ID: {b}%d{/b})\nAby za³adowaæ towar wpisz {b}/zaladuj{/b}\nAby roz³adowaæ towar wpisz {b}/rozladuj{/b}", GetLoadTypeName(loadInfo[c][lType]), GetPointZone(loadInfo[c][lX], loadInfo[c][lY]), loadInfo[c][LID]);
+			format(szString, sizeof szString, "Zaa³adunek towarów {b}%s{/b} w {b}%s{/b} (ID: {b}%d{/b})\nAby za³adowaæ towar wpisz {b}/zaladuj{/b}\nAby roz³adowaæ towar wpisz {b}/rozladuj{/b}", GetLoadTypeName(loadInfo[c][lType]), GetPointZone(loadInfo[c][lX], loadInfo[c][lY]), loadInfo[c][LID]);
 			loadInfo[c][lText] = CreateDynamic3DTextLabel(clText(COLOR_INFO2, szString), -1, loadInfo[c][lX], loadInfo[c][lY], loadInfo[c][lZ]+1.0, 50.0, INVALID_PLAYER_ID, INVALID_VEHICLE_ID, 1);
 			loadInfo[c][lMapIcon] = CreateDynamicMapIcon(loadInfo[c][lX], loadInfo[c][lY], loadInfo[c][lZ], 51, 0);
 			loadInfo[c][lMapIconForAll] = CreateDynamicMapIcon(loadInfo[c][lX], loadInfo[c][lY], loadInfo[c][lZ], 51, 0, _, _, GetMaxPlayers()+1, 6000.0);
@@ -174,7 +177,7 @@ stock LoadingsInit()
 	}
 	mysql_free_result();
 
-	// Inicjowanie wszystkich baz (wypo¿yczalni naczep)
+	// Inicjowanie wszystkich baz (wypoÂ¿yczalni naczep)
 
 	mysql_query("SELECT * FROM bases");
 	mysql_store_result();
@@ -226,7 +229,7 @@ stock GetLoadTypeName(type)
 		case TYPE_DANGEROUS:
 			strcat(name, "niebezpiecznych");
 		case TYPE_EAT:
-			strcat(name, "spo¿ywczych");
+			strcat(name, "spoÂ¿ywczych");
 		case TYPE_ELECTRONIC:
 			strcat(name, "elektronicznych");
 		case TYPE_CLOTHES:
@@ -238,7 +241,7 @@ stock GetLoadTypeName(type)
 stock CreateCargos()
 {
 	new tick = GetTickCount();
-	for(new i = 0; i < MAX_LOADINGS; i++)
+	for(new i = 0; i < systemInfo[0]; i++)
 	{
 		for(new c = 0; c < 5; c++)
 		{
@@ -340,10 +343,10 @@ stock DrawWare(type)
 {
 	new id;
 
-	id = random(MAX_WARES);
+	id = random(systemInfo[1]);
 	while(type != waresInfo[id][wType] || !IsValidWare(id))
 	{
-		id = random(MAX_WARES);
+		id = random(systemInfo[1]);
 	}
 	return id;
 }
@@ -352,11 +355,11 @@ stock DrawUnloadingPoint(pointload, type)
 {
 	new id, Float:fDistance;
 
-	id = random(MAX_LOADINGS);
+	id = random(systemInfo[0]);
 	fDistance = GetDistance(loadInfo[id][lX], loadInfo[id][lY], loadInfo[id][lZ], loadInfo[pointload][lX], loadInfo[pointload][lY], loadInfo[pointload][lZ]);
 	while(type != loadInfo[id][lType] || fDistance < 500.0 || id == pointload || !IsValidLoad(id))
 	{
-		id = random(MAX_LOADINGS);
+		id = random(systemInfo[0]);
 		fDistance = GetDistance(loadInfo[id][lX], loadInfo[id][lY], loadInfo[id][lZ], loadInfo[pointload][lX], loadInfo[pointload][lY], loadInfo[pointload][lZ]);
 	}
 
@@ -422,7 +425,7 @@ stock GetOfferts(playerid, type)
 		if(!IsValidOffert(i) || cargoInfo[i][cReserved] == true || cargoInfo[i][cDeleted] == true || (gettime() - cargoInfo[i][cTimeEnd]) > 0)
 			continue;
 
-		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
+		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || playerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
 			continue;
 
 		if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cargoInfo[i][cDistance])
@@ -431,6 +434,10 @@ stock GetOfferts(playerid, type)
 		if(waresInfo[cargoInfo[i][cType]][wType] == type)
 			count++;
 	}
+
+	if(count != 0)
+		count -= 1;
+
 	return count;
 }
 
@@ -450,7 +457,7 @@ CMD:oferta(playerid)
 		return Msg(playerid, COLOR_ERROR, "Nie jesteœ kierowc¹.");
 
 	if(GetPVarInt(playerid, "cargoID") > 0)
-		return Msg(playerid, COLOR_ERROR, "Nie ukoñczy³es jeszcze poprzedniego zlecenia.");
+		return Msg(playerid, COLOR_ERROR, "Nie ukoñczy³eœ jeszcze poprzedniego zlecenia.");
 
 	new szString[170];
 	DeletePVar(playerid, "selectedType");
@@ -463,8 +470,8 @@ CMD:oferta(playerid)
 		GetOfferts(playerid, TYPE_DANGEROUS),
 		GetOfferts(playerid, TYPE_ILLEGAL));
 
-	strins(szString, "Kategoria\tIloœæ ofert\n", 0);
-	Dialog_Show(playerid, DIALOG_OFFER, DIALOG_STYLE_TABLIST_HEADERS, " ", szString, "Wybierz", "WyjdŸ");
+	strins(szString, "Kategoria\tIloœæ¦ ofert\n", 0);
+	Dialog_Show(playerid, DIALOG_OFFER, DIALOG_STYLE_TABLIST_HEADERS, " ", szString, "Wybierz", "WyjdŸ¸");
 	return 1;
 }
 
@@ -507,7 +514,7 @@ Dialog:DIALOG_OFFER(playerid, response, listitem, inputtext[])
 		if(!IsValidOffert(i) || (gettime() - cargoInfo[i][cTimeEnd]) > 0 || waresInfo[cargoInfo[i][cType]][wType] != type || cargoInfo[i][cReserved] == true || i < minCargo || cargoInfo[i][cDeleted] == true)
 			continue;
 
-		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
+		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || playerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
 			continue;
 
 		if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cargoInfo[i][cDistance])
@@ -639,7 +646,7 @@ Dialog:DIALOG_OFFER_SUM(playerid, response, listitem, inputtext[])
 				if(!IsValidOffert(i) || i >= GetPVarInt(playerid, "cargo") || cargoInfo[i][cReserved] == true || waresInfo[cargoInfo[i][cType]][wType] != type)
 					continue;
 
-				if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
+				if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || playerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
 					continue;
 
 				if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cargoInfo[i][cDistance])
@@ -664,8 +671,8 @@ Dialog:DIALOG_OFFER_SUM(playerid, response, listitem, inputtext[])
 	cargoInfo[id][cReserved] = true;
 	DeletePVar(playerid, "selectedType");
 	DeletePVar(playerid, "lastCargo");
-	Msg(playerid, COLOR_INFO, "Towar pomyœlnie zosta³ zarezerwowany. Teraz mo¿esz udaæ siê na za³adunek.");
-	if(!PlayerInfo[playerid][pFirma] && !GetVehicleTrailer(GetPlayerVehicleID(playerid)) && (GetWareVehicle(cargoInfo[id][cType]) == WARE_TYPE_TRUCK || GetWareVehicle(cargoInfo[id][cType]) == WARE_TYPE_MULTIPLE) && IsVehicleTruck(GetVehicleModel(GetPlayerVehicleID(playerid))))
+	Msg(playerid, COLOR_INFO, "Towar zosta³ pomyœlnie zarezerwowany. Teraz mo¿esz udaæ siê na za³adunek.");
+	if(!GetPVarInt(playerid, "Worked") && !GetVehicleTrailer(GetPlayerVehicleID(playerid)) && (GetWareVehicle(cargoInfo[id][cType]) == WARE_TYPE_TRUCK || GetWareVehicle(cargoInfo[id][cType]) == WARE_TYPE_MULTIPLE) && IsVehicleTruck(GetVehicleModel(GetPlayerVehicleID(playerid))))
 		Dialog_Show(playerid, DIALOG_TRAILER, DIALOG_STYLE_MSGBOX, " ", "Czy chcia³yœ wypo¿yczyæ naczepê?\nJest to konieczne, je¿eli nie posiadasz w³asnej naczepy a chcesz przewieŸæ towar tylko dla ciê¿arówek.", "Tak", "Nie");
 	else
 	{
@@ -683,7 +690,7 @@ stock GetMaxOffert(playerid, type, maxid)
 		if(!IsValidOffert(i) || cargoInfo[i][cReserved] == true || cargoInfo[i][cDeleted] == true)
 			continue;
 
-		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
+		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || playerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
 			continue;
 
 		if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cargoInfo[i][cDistance])
@@ -706,7 +713,7 @@ stock GetMinOffert(playerid, type, minid)
 		if(!IsValidOffert(i) || cargoInfo[i][cReserved] == true || cargoInfo[i][cDeleted] == true)
 			continue;
 
-		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || PlayerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
+		if(GetPVarInt(playerid, "LEVEL") < waresInfo[cargoInfo[i][cType]][wLevel] || playerInfo[playerid][pADR] < waresInfo[cargoInfo[i][cType]][wAdr])
 			continue;
 
 		if(GetAllowedDistance(GetPlayerSkill(playerid, SKILL_DISTANCE)) < cargoInfo[i][cDistance])
@@ -736,6 +743,7 @@ Dialog:DIALOG_TRAILER(playerid, response, listitem, inputtext[])
 		point = i;
 		SetPVarInt(playerid, "playerTrailer", CreateVehicle(GetTrailer(waresInfo[cargoInfo[id][cType]][wType]), bazaInfo[base][xPoint][i], bazaInfo[base][yPoint][i], bazaInfo[base][zPoint][i], bazaInfo[base][aPoint][i], 0, 0, -1));
 		privTrailer[GetPVarInt(playerid, "playerTrailer")] = true;
+		Spawned[GetPVarInt(playerid, "playerTrailer")] = true;
 		bazaInfo[base][isFreePoint][i] = false;
 		SetPVarInt(playerid, "trailerPoint", i);
 		SetPlayerMapIcon(playerid, 69, bazaInfo[base][xPoint][i], bazaInfo[base][yPoint][i], bazaInfo[base][zPoint][i], 42, 0, MAPICON_GLOBAL);
@@ -889,7 +897,7 @@ stock GetXYInFrontOfVehicle(vehicleid, &Float:x, &Float:y, Float:distance)
 CMD:zaladuj(playerid)
 {
 	new cargo = GetPVarInt(playerid, "cargoID");
-	for(new i = 0; i < MAX_LOADINGS; i++)
+	for(new i = 0; i < systemInfo[0]; i++)
 	{
 		if(!IsValidLoad(i))
 			continue;
@@ -905,11 +913,12 @@ CMD:zaladuj(playerid)
 			if (GetWareVehicle(cargoInfo[cargo][cType]) == WARE_TYPE_TRUCK && !IsVehicleTruck(GetVehicleModel(vehicleid))) return Msg(playerid, COLOR_ERROR, "Posiadasz z³y pojazd do tego typu oferty.");
 			if (GetWareVehicle(cargoInfo[cargo][cType]) == WARE_TYPE_VAN && !IsVehicleVan(GetVehicleModel(vehicleid))) return Msg(playerid, COLOR_ERROR, "Posiadasz z³y pojazd do tego typu oferty.");
 			if (GetWareVehicle(cargoInfo[cargo][cType]) == WARE_TYPE_MULTIPLE && !(IsVehicleTruck(GetVehicleModel(vehicleid)) || IsVehicleVan(GetVehicleModel(vehicleid)))) return Msg(playerid, COLOR_ERROR, "Posiadasz z³y pojazd do tego typu oferty.");
-			if (cargo < 1) return Msg(playerid, COLOR_ERROR, "Nie posiadasz zarezerwowanego towaru, aby jakiœ wybraæ wpisz {b}/oferta{/b}.");
+			if (cargo < 1) return Msg(playerid, COLOR_ERROR, "Nie posiadasz zarezerwowanego towaru, aby jakiœ wybraæ {b}/oferta{/b}.");
 			if (vloadInfo[IsVehicleTruck(GetVehicleModel(vehicleid)) ? GetVehicleTrailer(vehicleid) : vehicleid][vLoaded] == true) return Msg(playerid, COLOR_ERROR, "Twój pojazd jest ju¿ za³adowany.");
 			if (i != cargoInfo[cargo][cZID]) return Msg(playerid, COLOR_ERROR, "Jesteœ w z³ym punkcie za³adunku.");
-			if (!IsValidOffert(cargo)) return Msg(playerid, COLOR_ERROR, "Wygl¹da na to, ¿e twój towar nie jest ju¿ dostêpny. Je¿li uwa¿asz, ¿e to b³¹d - zg³oœ to.");
-			if (IsVehicleVan(GetVehicleModel(vehicleid)) && cargoInfo[cargo][cWeight] > 8) return Msg(playerid, COLOR_ERROR, "W pojeŸdzie dostawczym maksymalnie mo¿na za³adowaæ 8t.");
+			if (!IsValidOffert(cargo)) return Msg(playerid, COLOR_ERROR, "Wygl¹da na to, ¿e twój towar nie jest ju¿ dostêpny. Je¿eli uwaa¿asz, ¿e to b³¹d - zg³oœ to.");
+			if (IsVehicleVan(GetVehicleModel(vehicleid)) && (cargoInfo[cargo][cWeight] > MaxWeight(GetVehicleModel(vehicleid)))) return Msg(playerid, COLOR_ERROR, "Ten pojazd nie obs³uguje takiej ³adownoœci.");
+			if (IsVehicleTruck(GetVehicleModel(vehicleid)) && (cargoInfo[cargo][cWeight] > MaxWeight(GetVehicleModel(GetVehicleTrailer(vehicleid))))) return Msg(playerid, COLOR_ERROR, "Ten pojazd nie obs³uguje takiej ³adownoœci.");
 
 			pBar[playerid] = CreatePlayerProgressBar(playerid, 220.00, 435.00, 190.50, 5.50, 1653987839, 0.0);
 			ShowPlayerProgressBar(playerid, pBar[playerid]);
@@ -930,7 +939,7 @@ CMD:zaladuj(playerid)
 
 CMD:rozladuj(playerid)
 {
-	for(new i = 0; i < MAX_LOADINGS; i++)
+	for(new i = 0; i < systemInfo[0]; i++)
 	{
 		if(!IsValidLoad(i))
 			continue;
@@ -946,8 +955,8 @@ CMD:rozladuj(playerid)
 			if (GetVehicleType(vehicleid) == VEHICLE_TYPE_TRUCK && !GetVehicleTrailer(vehicleid)) return Msg(playerid, COLOR_ERROR, "A gdzie twoja naczepa?");
 			if (strcmp(PlayerNick(playerid), vloadInfo[vehicleid][vOwner])) return Msg(playerid, COLOR_ERROR, "Nie jesteœ w³aœcicielem tego towaru.");
 			if (vloadInfo[IsVehicleTruck(GetVehicleModel(vehicleid)) ? GetVehicleTrailer(vehicleid) : vehicleid][vLoaded] == false) return Msg(playerid, COLOR_ERROR, "Twój pojazd nie jest za³adowany.");
-			if (i != cargoInfo[cargo][cRID]) return Msg(playerid, COLOR_ERROR, "Jesteœ w z³ym punkcie roza³adunku.");
-			if (!IsValidOffert(cargo)) return Msg(playerid, COLOR_ERROR, "Wygl¹da na to, ¿e twój towar nie jest ju¿ dostêpny. Je¿li uwa¿asz, ¿e to b³¹d - zg³oœ to.");
+			if (i != cargoInfo[cargo][cRID]) return Msg(playerid, COLOR_ERROR, "Jesteœ w z³ym punkcie roz³adunku.");
+			if (!IsValidOffert(cargo)) return Msg(playerid, COLOR_ERROR, "Wygl¹da na to, ¿e twój towar nie jest ju¿ dostêpny. Je¿eli uwaa¿asz, ¿e to b³¹d - zg³oœ to.");
 
 			pBar[playerid] = CreatePlayerProgressBar(playerid, 220.00, 435.00, 190.50, 5.50, 1653987839, 0.0);
 			ShowPlayerProgressBar(playerid, pBar[playerid]);
@@ -1041,18 +1050,18 @@ public UnloadCargo(playerid, vehicleid)
 	{
 		/*
 
-			Zlecenie zosta³o wykonane na (bardzo wysokim / wysokim / normalnym / niskim) poziomie.
+			Zlecenie zostaÂ³o wykonane na (bardzo wysokim / wysokim / normalnym / niskim) poziomie.
 			Twoje wynagrodzenie wynosi $%.02f i %d expa.
-			Dystans pomiêdzy za³adunkiem a roz³adunkiem to %.02f km.
-			SpóŸnienie: (tak / nie(ile))
+			Dystans pomiÃªdzy zaÂ³adunkiem a rozÂ³adunkiem to %.02f km.
+			SpÃ³Å¸nienie: (tak / nie(ile))
 			Kara: $%d
 
 			Kara za uszkodzenia = uszkodzenia (%) * (stawka * 2) + (waga * $7.5)
-			100% uszkodzeñ przy stawce $0.30 = 600$ kary * (km / 1000) + (waga * $7.5)
+			100% uszkodzeÃ± przy stawce $0.30 = 600$ kary * (km / 1000) + (waga * $7.5)
 			(24t) Przy trasie 2000km i uszkodzeniach 100% z stawk¹ $0.30 dostaniemy $1380 kary z mo¿liwoœci¹ zarobienia max. $960
 			(24t) Przy trasie 1000km i uszkodzeniach 100% z stawk¹ $0.30 dostaniemy $780 kary z mo¿liwoœci¹ zarobienia max. $660
 
-			Kara za spóŸnienie = 30$ / minuta
+			Kara za spÃ³Å¸nienie = 30$ / minuta
 
 		*/
 		new Float:penatly, 
@@ -1089,7 +1098,7 @@ public UnloadCargo(playerid, vehicleid)
 		strcat(szString, "\n \n");
 		format(szString, sizeof szString, "%sTwoje wynagrodzenie wynosi {b}$%d{/b} (+%d%) oraz {b}%d{/b} expa.", szString, floatround(realReward), bonusSkillReward, score);
 		strcat(szString, "\n");
-		format(szString, sizeof szString, "%sDystans pomiêdzy za³adunkiem a roz³adunkiem to {b}%.02fj{/b}.", szString, cargoInfo[vloadInfo[vehicleid][vCargo]][cDistance]);
+		format(szString, sizeof szString, "%sDystans pomiêdzy zaÂ³adunkiem a rozÂ³adunkiem to {b}%.02fj{/b}.", szString, cargoInfo[vloadInfo[vehicleid][vCargo]][cDistance]);
 		strcat(szString, "\n");
 		format(szString, sizeof szString, "%sBonus za czas: {b}$%d{/b}", szString, bonus);
 		strcat(szString, "\n \n");
@@ -1100,7 +1109,8 @@ public UnloadCargo(playerid, vehicleid)
 		format(szString, sizeof szString, "%sKara: {b}$%.02f{/b} %s", szString, penatly, late > 0 ? szTemp : "");
 		format(szTemp, sizeof szTemp, "(-%d%)", bonusSkillPenatly);
 		format(szString, sizeof szString, "%s %s", szString, penatly > 0 ? szTemp : "");
-		GivePlayerMoney(playerid, floatround(realReward));
+		GiveMoney(playerid, floatround(realReward));
+		GiveScore(playerid, score);
 		Dialog_Show(playerid, DIALOG_OFFER_END, DIALOG_STYLE_MSGBOX, " ", clText(COLOR_INFO2, szString), "Okej", #);
 
 		DestroyPlayerProgressBar(playerid, pBar[playerid]);
@@ -1213,7 +1223,7 @@ Dialog:DIALOG_CANCEL_OFFERT(playerid, response, listitem, inputtext[])
 		DeleteCargo(GetPVarInt(playerid, "cargoID"));
 	else
 		cargoInfo[GetPVarInt(playerid, "cargoID")][cReserved] = false;
-	GivePlayerMoney(playerid, -5000);
+	GiveMoney(playerid, -5000);
 	Msg(playerid, COLOR_INFO, "Zlecenie zosta³o anulowane.");
 	DeletePVar(playerid, "cargoID");
 	RemovePlayerMapIcon(playerid, 69);
@@ -1229,7 +1239,7 @@ CMD:papiery(playerid)
 	if(!GetPVarInt(playerid, "cargoID"))
 		return Msg(playerid, COLOR_ERROR, "Twój schowek na papiery jest pusty! Nie przewozisz ¿adnego towaru.");
 	if(!GetPVarInt(playerid, "cargoIDAllowed"))
-		return Msg(playerid, COLOR_ERROR, "Udaj siê na za³adunek aby odebraæ papiery.");
+		return Msg(playerid, COLOR_ERROR, "Udaj siê na zaÂ³adunek aby odebraÃ¦ papiery.");
 	new	
 		szString[170],
 		id = GetPVarInt(playerid, "cargoID"),
@@ -1261,7 +1271,10 @@ stock GetClosestBase(playerid)
 	{
 		new Float:fTemp = GetDistanceFromMeToPoint(playerid, bazaInfo[i][xPoint][0], bazaInfo[i][yPoint][0], bazaInfo[i][zPoint][0]);
 		if(fTemp < fDistance)
+		{
 			base = i;
+			fDistance = fTemp;
+		}
 	}
 	return base;
 }

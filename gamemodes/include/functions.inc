@@ -1,3 +1,21 @@
+stock IsAccountExists(name[])
+{
+	new string[84];
+	mysql_real_escape_string(name, string);
+	format(string, sizeof(string), "SELECT 1 FROM Accounts WHERE `Name` = '%s' LIMIT 1;", string);
+	mysql_query(string);
+	mysql_store_result();
+
+	if(mysql_num_rows() && mysql_fetch_int()>=1)
+	{
+		mysql_free_result();
+		return true;
+	}
+
+	mysql_free_result();
+	return false;
+}
+
 PlayerName(playerid)
 {
 	new name[MAX_PLAYER_NAME];
@@ -64,6 +82,28 @@ GetDistancePlayerToPlayer(playerid, twoplayerid)
 	GetPlayerPos(twoplayerid, x2, y2, z2);
 	dis = floatsqroot(floatpower(floatabs(floatsub(x2,x1)),2)+floatpower(floatabs(floatsub(y2,y1)),2)+floatpower(floatabs(floatsub(z2,z1)),2));
 	return floatround(dis);
+}
+
+IsWorked(playerid, fraction)
+{
+	if(GetPVarInt(playerid, "Worked") && firmInfo[playerInfo[playerid][pFirm]][tType] == fraction)
+		return true;
+	return false;
+}
+
+IsFractionBoss(playerid)
+{
+	printf("%d vs ", firmInfo[playerInfo[playerid][pFirm]][tChef], playerInfo[playerid][pID]);
+	if(firmInfo[playerInfo[playerid][pFirm]][tChef] != playerInfo[playerid][pID])
+		return false;
+	return true;
+}
+
+IsFractionViceBoss(playerid)
+{
+	if(firmInfo[playerInfo[playerid][pFirm]][tVcChef] != playerInfo[playerid][pID])
+		return false;
+	return true;
 }
 
 IsNumeric(const str[])
@@ -233,7 +273,7 @@ stock MsgTo(colorid, text[], teamtypeid)
 {
 	for(new i; i <= GetPlayerPoolSize(); i++)
 		if(IsPlayerConnected(i))
-			if(Firmy[PlayerInfo[i][pFirma]][tTyp] == teamtypeid)
+			if(firmInfo[playerInfo[i][pFirm]][tType] == teamtypeid)
 				Msg(i, colorid, text);
 
 	return 1;
@@ -511,19 +551,19 @@ MaxWeight(vehicletype)
 {
 	switch(vehicletype)
 	{
-  		case 403: return 24000;
-        case 514: return 24000;
-        case 515: return 24000;
-        case 455: return 13000;
-        case 578: return 13000;
-        case 459: return 6000;
-        case 440: return 6000;
-		case 482: return 6000;
-		case 498: return 6000;
-		case 435: return 24000;
-		case 450: return 24000;
-		case 584: return 24000;
-		case 591: return 24000;
+  		case 403: return 24;
+        case 514: return 24;
+        case 515: return 24;
+        case 455: return 13;
+        case 578: return 13;
+        case 459: return 8;
+        case 440: return 8;
+		case 482: return 8;
+		case 498: return 8;
+		case 435: return 24;
+		case 450: return 24;
+		case 584: return 24;
+		case 591: return 24;
 	}
 	return 0;
 }
@@ -581,18 +621,18 @@ MoveCamera(playerid)
     GetPlayerCameraFrontVector(playerid, FV[0], FV[1], FV[2]);  //  Where the camera is looking at
 
 	// Increases the acceleration multiplier the longer the key is held
-	if(noclipdata[playerid][accelmul] <= 1) noclipdata[playerid][accelmul] += ACCEL_RATE;
+	if(camInfo[playerid][cAccelmul] <= 1) camInfo[playerid][cAccelmul] += ACCEL_RATE;
 
 	// Determine the speed to move the camera based on the acceleration multiplier
-	new Float:speed = MOVE_SPEED * noclipdata[playerid][accelmul];
+	new Float:speed = MOVE_SPEED * camInfo[playerid][cAccelmul];
 
 	// Calculate the cameras next position based on their current position and the direction their camera is facing
 	new Float:X, Float:Y, Float:Z;
-	GetNextCameraPosition(noclipdata[playerid][mode], CP, FV, X, Y, Z);
-	MovePlayerObject(playerid, noclipdata[playerid][flyobject], X, Y, Z, speed);
+	GetNextCameraPosition(camInfo[playerid][cMode], CP, FV, X, Y, Z);
+	MovePlayerObject(playerid, camInfo[playerid][cFlyobject], X, Y, Z, speed);
 
 	// Store the last time the camera was moved as now
-	noclipdata[playerid][lastmove] = GetTickCount();
+	camInfo[playerid][cLastmove] = GetTickCount();
 	return 1;
 }
 
@@ -662,8 +702,8 @@ CancelFlyMode(playerid)
 	CancelEdit(playerid);
 	TogglePlayerSpectating(playerid, false);
 
-	DestroyPlayerObject(playerid, noclipdata[playerid][flyobject]);
-	noclipdata[playerid][cameramode] = CAMERA_MODE_NONE;
+	DestroyPlayerObject(playerid, camInfo[playerid][cFlyobject]);
+	camInfo[playerid][cCameramode] = CAMERA_MODE_NONE;
 	return 1;
 }
 
@@ -672,15 +712,15 @@ FlyMode(playerid)
 	// Create an invisible object for the players camera to be attached to
 	new Float:X, Float:Y, Float:Z;
 	GetPlayerPos(playerid, X, Y, Z);
-	noclipdata[playerid][flyobject] = CreatePlayerObject(playerid, 19300, X, Y, Z, 0.0, 0.0, 0.0);
+	camInfo[playerid][cFlyobject] = CreatePlayerObject(playerid, 19300, X, Y, Z, 0.0, 0.0, 0.0);
 
 	// Place the player in spectating mode so objects will be streamed based on camera location
 	TogglePlayerSpectating(playerid, true);
 	// Attach the players camera to the created object
-	AttachCameraToPlayerObject(playerid, noclipdata[playerid][flyobject]);
+	AttachCameraToPlayerObject(playerid, camInfo[playerid][cFlyobject]);
 
 	SetPVarInt(playerid, "FlyMode", 1);
-	noclipdata[playerid][cameramode] = CAMERA_MODE_FLY;
+	camInfo[playerid][cCameramode] = CAMERA_MODE_FLY;
 	return 1;
 }
 
@@ -1101,8 +1141,8 @@ GetStacja(playerid)
 
 	for(new i; i<MAX_STACJE; i++)
 	{
-	    if(Stacje[i][sID])
-			if(IsPlayerInRangeOfPoint(playerid, 10.0, Stacje[i][sPosX], Stacje[i][sPosY], Stacje[i][sPosZ]))
+	    if(stationInfo[i][sID])
+			if(IsPlayerInRangeOfPoint(playerid, 10.0, stationInfo[i][sPosX], stationInfo[i][sPosY], stationInfo[i][sPosZ]))
 			{
 			    stacjaid = i;
 			    break;
@@ -1259,7 +1299,7 @@ stock GetPlayerLevelName(level)
 	new name[32];
 	switch(level)
 	{
-		case 0: {name="Unranked haha"; }
+		case 0: {name="Unranked haha :siara:"; }
 		case 1 .. 4: {name = "Nowicjusz";}
 		case 5 .. 9: {name = "Entuzjasta";}
 		case 10 .. 14: {name = "Utalentowany pracownik";}
@@ -1271,4 +1311,149 @@ stock GetPlayerLevelName(level)
 		default: {name = "Legenda";}
 	}
 	return name;
+}
+
+stock GetPlayerLevel(exp)
+{
+    static levels[] = {
+        (-1), 0, 10, 20,
+		35, 45, 60, 80,
+		120, 150, 195, 240,
+		287, 355, 410, 476,
+		524, 588, 680, 735,
+		845, 940, 1120, 1300,
+		1510, 1588, 1630, 1672,
+		1742, 2000, 2450, 2725,
+		3010, 3550, 3900, 4450
+    };
+    new level = 1;
+    for (new i = 1;
+        i < sizeof(levels) && exp > levels[i];
+        i++, level++
+    ) {}
+    return level;
+}
+
+forward CinematicCameraIntro(playerid);
+public CinematicCameraIntro(playerid)
+{
+	new Float:pos[3];
+	GetPlayerCameraPos(playerid, pos[0], pos[1], pos[2]);
+	SetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+	switch(GetPVarInt(playerid, "INTRO_Camera"))
+	{
+		case 0:
+		{
+			PlayAudioStreamForPlayer(playerid, "http://samp-si.cba.pl/intro.mp3");
+			SetPVarInt(playerid, "INTRO_Timer", SetTimerEx("CinematicCameraIntro", 10000, true, "d", playerid));
+			SetPlayerCameraPos(playerid, 2056.729492, 1366.452270, 18.977575);
+			InterpolateCameraPos(playerid, 2056.729492, 1366.452270, 18.977575, 2035.068359, 1289.254394, 21.272771, 10000, 1);
+			InterpolateCameraLookAt(playerid, 2055.754150, 1362.625244, 18.342929, 2035.090576, 1285.259277, 21.468381, 10000, 1);
+			SetPVarInt(playerid, "INTRO_Camera", 1);
+
+			GetPlayerCameraPos(playerid, pos[0], pos[1], pos[2]);
+			SetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+		}
+		case 1:
+		{
+			InterpolateCameraPos(playerid, 2035.068359, 1289.254394, 21.272771, 2077.257080, 1038.098388, 20.240299, 10000, 1);
+			InterpolateCameraLookAt(playerid, 2035.090576, 1285.259277, 21.468381, 2075.927490, 1034.337036, 19.950309, 10000, 1);
+			SetPVarInt(playerid, "INTRO_Camera", 2);
+		}
+		case 2:
+		{
+			InterpolateCameraPos(playerid, 2077.257080, 1038.098388, 20.240299, 2048.188720, 867.769714, 22.351507, 10000, 1);
+			InterpolateCameraLookAt(playerid, 2075.927490, 1034.337036, 19.950309, 2044.414184, 866.453613, 22.207073, 10000, 1);
+			SetPVarInt(playerid, "INTRO_Camera", 3);
+		}
+		case 3:
+		{
+			InterpolateCameraPos(playerid, 2048.188720, 867.769714, 22.351507, 1925.192260, 797.370483, 32.895004, 10000, 1);
+			InterpolateCameraLookAt(playerid, 2044.414184, 866.453613, 22.207073, 1923.851806, 800.702026, 31.133199, 10000, 1);
+			SetPVarInt(playerid, "INTRO_Camera", 4);
+		}
+		case 4:
+		{
+			InterpolateCameraPos(playerid, 1925.192260, 797.370483, 32.895004, 1770.523315, 794.527404, 41.473506, 10000, 1);
+			InterpolateCameraLookAt(playerid, 1923.851806, 800.702026, 31.133199, 1770.798950, 798.129089, 39.755455, 10000, 1);
+			SetPVarInt(playerid, "INTRO_Camera", 5);
+		}
+		case 5:
+		{
+			InterpolateCameraPos(playerid, 1770.523315, 794.527404, 41.473506, 1478.610351, 865.570495, 26.681200, 10000, 1);
+			InterpolateCameraLookAt(playerid, 1770.798950, 798.129089, 39.755455, 1474.670532, 864.992919, 26.301284, 10000, 1);	
+			SetPVarInt(playerid, "INTRO_Camera", 6);
+		}
+		case 6:
+		{
+			InterpolateCameraPos(playerid, 1478.610351, 865.570495, 26.681200, 1292.228759, 826.235778, 98.698417, 10000, 1);
+			InterpolateCameraLookAt(playerid, 1474.670532, 864.992919, 26.301284, 1291.644775, 829.190673, 96.066421, 10000, 1);
+			SetPVarInt(playerid, "INTRO_Camera", 7);
+		}
+		case 7:
+		{
+			InterpolateCameraPos(playerid, 1292.228759, 826.235778, 98.698417, 1177.707763, 1083.969848, 42.323417, 10000, 1);
+			InterpolateCameraLookAt(playerid, 1291.644775, 829.190673, 96.066421, 1178.743286, 1087.777465, 41.668220, 10000, 1);
+			SetPVarInt(playerid, "INTRO_Camera", 8);
+		}
+		case 8:
+		{
+			InterpolateCameraPos(playerid, 1177.707763, 1083.969848, 42.323417, 1197.596435, 1442.277709, 34.709915, 10000, 1);
+			InterpolateCameraLookAt(playerid, 1178.743286, 1087.777465, 41.668220, 1198.070068, 1446.212890, 34.171401, 10000, 1);
+			SetPVarInt(playerid, "INTRO_Camera", 9);
+		}
+		case 9:
+		{
+			PlayAudioStreamForPlayer(playerid, "http://samp-si.cba.pl/intro2.mp3");
+			InterpolateCameraPos(playerid, 1197.596435, 1442.277709, 34.709915, 1289.044189, 1763.946655, 31.759807, 10000, 1);
+			InterpolateCameraLookAt(playerid, 1198.070068, 1446.212890, 34.171401, 1286.598144, 1767.101806, 31.511373, 10000, 1);
+			SetPVarInt(playerid, "INTRO_Camera", 10);
+		}
+		case 10:
+		{
+			InterpolateCameraPos(playerid, 1289.044189, 1763.946655, 31.759807, 1228.001831, 2015.420288, 31.873685, 10000, 1);
+			InterpolateCameraLookAt(playerid, 1286.598144, 1767.101806, 31.511373, 1227.496582, 2019.387695, 31.805585, 10000, 1);
+			SetPVarInt(playerid, "INTRO_Camera", 11);
+		}
+		case 11:
+		{
+			InterpolateCameraPos(playerid, 1228.001831, 2015.420288, 31.873685, 1274.613525, 2338.349609, 36.789916, 10000, 1);
+			InterpolateCameraLookAt(playerid, 1227.496582, 2019.387695, 31.805585, 1271.895751, 2341.268798, 36.486080, 10000, 1);
+			SetPVarInt(playerid, "INTRO_Camera", 12);
+		}
+		case 12:
+		{
+			InterpolateCameraPos(playerid, 1274.613525, 2338.349609, 36.789916, 991.867980, 2541.508544, 28.649103, 10000, 1);
+			InterpolateCameraLookAt(playerid, 1271.895751, 2341.268798, 36.486080, 988.520507, 2543.651611, 28.200141, 10000, 1);
+			SetPVarInt(playerid, "INTRO_Camera", 13);
+		}
+		case 13:
+		{
+			InterpolateCameraPos(playerid, 991.867980, 2541.508544, 28.649103, 832.432922, 2659.178955, 26.793762, 10000, 1);
+			InterpolateCameraLookAt(playerid, 988.520507, 2543.651611, 28.200141, 828.471252, 2658.633300, 26.878372, 10000, 1);
+			SetPVarInt(playerid, "INTRO_Camera", 14);
+		}
+		case 14:
+		{
+			InterpolateCameraPos(playerid, 832.432922, 2659.178955, 26.793762, 568.783935, 2506.286865, 51.295921, 10000, 1);
+			InterpolateCameraLookAt(playerid, 828.471252, 2658.633300, 26.878372, 564.806518, 2505.879150, 51.179241, 10000, 1);
+			SetPVarInt(playerid, "INTRO_Camera", 15);
+		}
+		case 15:
+		{
+			StopCinematicCameraIntro(playerid);
+			CinematicCameraIntro(playerid);
+		}
+	}
+	return 1;
+}
+
+stock StopCinematicCameraIntro(playerid)
+{
+	SetCameraBehindPlayer(playerid);
+	KillTimer(GetPVarInt(playerid, "INTRO_Timer"));
+	DeletePVar(playerid, "INTRO_Camera");
+	DeletePVar(playerid, "INTRO_Timer");
+	StopAudioStreamForPlayer(playerid);
+	return 1;
 }
