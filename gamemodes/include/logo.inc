@@ -128,9 +128,17 @@ public UpdateFadeLogoTimer()
 		TextDrawColor(sLogo[0], ConvertToColor(CurrentColor[0], CurrentColor[1], CurrentColor[2], CurrentColor[3]));
 		TextDrawColor(sLogo[1], ConvertToColor(CurrentColor[0], CurrentColor[1], CurrentColor[2], CurrentColor[3]));
 		TextDrawColor(sLogo[2], ConvertToColor(CurrentColor[0], CurrentColor[1], CurrentColor[2], CurrentColor[3]));
-		TextDrawShowForAll(sLogo[0]);
-		TextDrawShowForAll(sLogo[1]);
-		TextDrawShowForAll(sLogo[2]);
+		TextDrawColor(connectStableBox[4], ConvertToColor(CurrentColor[0], CurrentColor[1], CurrentColor[2], CurrentColor[3]));
+
+		for(new i = 0; i < MAX_PLAYERS; i++)
+		{
+			if(IsPlayerConnected(i) && !IsPlayerLogged(i))
+				TextDrawShowForPlayer(i, connectStableBox[4]);
+			if(IsPlayerConnected(i) && IsPlayerLogged(i))
+				TextDrawShowForPlayer(i, sLogo[0]),
+				TextDrawShowForPlayer(i, sLogo[1]),
+				TextDrawShowForPlayer(i, sLogo[2]);
+		}
 	}
 	else if(Hold)
 	{

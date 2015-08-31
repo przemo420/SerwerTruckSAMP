@@ -38,60 +38,61 @@ public Vote_OnGameModeExit()
 
 stock VoteInit()
 {
-	voteInfo[voteTD][0] = TextDrawCreate(10.000000, 250.000000, "___");
+	voteInfo[voteTD][0] = TextDrawCreate(84.000000, 256.000000, "___");
+	TextDrawAlignment(voteInfo[voteTD][0], 2);
 	TextDrawBackgroundColor(voteInfo[voteTD][0], 255);
-	TextDrawFont(voteInfo[voteTD][0], 2);
-	TextDrawLetterSize(voteInfo[voteTD][0], 0.500000, 5.600000);
+	TextDrawFont(voteInfo[voteTD][0], 1);
+	TextDrawLetterSize(voteInfo[voteTD][0], 0.500000, 5.200000);
 	TextDrawColor(voteInfo[voteTD][0], -1);
 	TextDrawSetOutline(voteInfo[voteTD][0], 0);
 	TextDrawSetProportional(voteInfo[voteTD][0], 1);
 	TextDrawSetShadow(voteInfo[voteTD][0], 1);
 	TextDrawUseBox(voteInfo[voteTD][0], 1);
-	TextDrawBoxColor(voteInfo[voteTD][0], 100);
-	TextDrawTextSize(voteInfo[voteTD][0], 140.000000, 7.000000);
+	TextDrawBoxColor(voteInfo[voteTD][0], 125);
+	TextDrawTextSize(voteInfo[voteTD][0], 606.000000, -99.000000);
 
-	voteInfo[voteTD][1] = TextDrawCreate(75.000000, 250.000000, "Glosowanie");
-	TextDrawAlignment(voteInfo[voteTD][1], 2);
-	TextDrawBackgroundColor(voteInfo[voteTD][1], 50);
+	voteInfo[voteTD][1] = TextDrawCreate(45.000000, 257.000000, "~r~Glosowanie");
+	TextDrawBackgroundColor(voteInfo[voteTD][1], 60);
 	TextDrawFont(voteInfo[voteTD][1], 2);
-	TextDrawLetterSize(voteInfo[voteTD][1], 0.280000, 0.799999);
-	TextDrawColor(voteInfo[voteTD][1], -156);
-	TextDrawSetOutline(voteInfo[voteTD][1], 0);
+	TextDrawLetterSize(voteInfo[voteTD][1], 0.289999, 0.800000);
+	TextDrawColor(voteInfo[voteTD][1], -1);
+	TextDrawSetOutline(voteInfo[voteTD][1], 1);
 	TextDrawSetProportional(voteInfo[voteTD][1], 1);
-	TextDrawSetShadow(voteInfo[voteTD][1], 0);
-	TextDrawUseBox(voteInfo[voteTD][1], 1);
-	TextDrawBoxColor(voteInfo[voteTD][1], -5615873);
-	TextDrawTextSize(voteInfo[voteTD][1], 140.000000, 130.000000);
 
-	voteInfo[voteTD][2] = TextDrawCreate(74.000000, 249.000000, "Glosowanie");
+	voteInfo[voteTD][2] = TextDrawCreate(84.000000, 269.000000, "___");
 	TextDrawAlignment(voteInfo[voteTD][2], 2);
-	TextDrawBackgroundColor(voteInfo[voteTD][2], 50);
-	TextDrawFont(voteInfo[voteTD][2], 2);
-	TextDrawLetterSize(voteInfo[voteTD][2], 0.280000, 0.799999);
-	TextDrawColor(voteInfo[voteTD][2], -1537206273);
+	TextDrawBackgroundColor(voteInfo[voteTD][2], 255);
+	TextDrawFont(voteInfo[voteTD][2], 1);
+	TextDrawLetterSize(voteInfo[voteTD][2], 0.500000, -0.299998);
+	TextDrawColor(voteInfo[voteTD][2], -1);
 	TextDrawSetOutline(voteInfo[voteTD][2], 0);
 	TextDrawSetProportional(voteInfo[voteTD][2], 1);
-	TextDrawSetShadow(voteInfo[voteTD][2], 0);
+	TextDrawSetShadow(voteInfo[voteTD][2], 1);
+	TextDrawUseBox(voteInfo[voteTD][2], 1);
+	TextDrawBoxColor(voteInfo[voteTD][2], 125);
+	TextDrawTextSize(voteInfo[voteTD][2], 606.000000, -86.000000);
 
-	voteInfo[voteTD][3] = TextDrawCreate(12.000000, 262.000000, "Testowe ogloszenie xyz kutas kutas xyz lorem ipsum i te sprawy?");
-	TextDrawBackgroundColor(voteInfo[voteTD][3], 50);
+	voteInfo[voteTD][3] = TextDrawCreate(40.000000, 271.000000, "Czy rudy jest fajnym kolorem?");
+	TextDrawBackgroundColor(voteInfo[voteTD][3], 60);
 	TextDrawFont(voteInfo[voteTD][3], 2);
-	TextDrawLetterSize(voteInfo[voteTD][3], 0.260000, 0.699999);
+	TextDrawLetterSize(voteInfo[voteTD][3], 0.270000, 0.600000);
 	TextDrawColor(voteInfo[voteTD][3], -1);
 	TextDrawSetOutline(voteInfo[voteTD][3], 1);
 	TextDrawSetProportional(voteInfo[voteTD][3], 1);
 	TextDrawUseBox(voteInfo[voteTD][3], 1);
 	TextDrawBoxColor(voteInfo[voteTD][3], 0);
-	TextDrawTextSize(voteInfo[voteTD][3], 140.000000, 19.000000);
+	TextDrawTextSize(voteInfo[voteTD][3], 128.000000, 61.000000);
 
-	voteInfo[voteTD][4] = TextDrawCreate(75.000000, 292.000000, "~g~0 - Tak___~r~0 - Nie");
-	TextDrawAlignment(voteInfo[voteTD][4], 2);
-	TextDrawBackgroundColor(voteInfo[voteTD][4], 50);
+	voteInfo[voteTD][4] = TextDrawCreate(42.000000, 296.000000, "~g~0 - tak__~r~0 - nie");
+	TextDrawBackgroundColor(voteInfo[voteTD][4], 60);
 	TextDrawFont(voteInfo[voteTD][4], 2);
-	TextDrawLetterSize(voteInfo[voteTD][4], 0.260000, 0.699999);
+	TextDrawLetterSize(voteInfo[voteTD][4], 0.270000, 0.600000);
 	TextDrawColor(voteInfo[voteTD][4], -1);
 	TextDrawSetOutline(voteInfo[voteTD][4], 1);
 	TextDrawSetProportional(voteInfo[voteTD][4], 1);
+	TextDrawUseBox(voteInfo[voteTD][4], 1);
+	TextDrawBoxColor(voteInfo[voteTD][4], 0);
+	TextDrawTextSize(voteInfo[voteTD][4], 128.000000, 61.000000);
 }
 
 stock VoteExit()
@@ -156,7 +157,7 @@ CMD:vote(playerid, params[])
 {
 	new text[24];
 	if(sscanf(params, "s[24]", text))
-		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/vote [akcja] (tak / nie / start /stop){/b}");
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/vote [tak / nie / start / stop]{/b}");
 	if(!strcmp(text, "tak", true))
 	{
 		if(!voteInfo[vote])
@@ -199,7 +200,7 @@ CMD:vote(playerid, params[])
 		KillTimer(voteInfo[voteTimer]);
 	}
 	else
-		Msg(playerid, COLOR_ERROR, "Nie odnaleziono polecenia.");
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/vote [tak / nie / start / stop]{/b}");
 	return 1;
 }
 

@@ -182,20 +182,20 @@ CMD:foto(playerid, params[])
 
 	if(strcmp(option, "stworz", true) == 0) 
 	{
-		if(!IsFractionBoss(playerid) || !IsFractionViceBoss(playerid)) return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+		if(!(IsFractionBoss(playerid) || IsFractionViceBoss(playerid))) return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 		DeletePVar(playerid, "PHOTO_City");
 		Dialog_Show(playerid, DIALOG_PHOTO_CREATE, DIALOG_STYLE_LIST, " ", "Teren zabudowany\nTeren niezabudowany", "Wybierz", "WyjdŸ");
 	}
 	else if(strcmp(option, "usun", true) == 0) 
 	{
-		if(!IsFractionBoss(playerid) || !IsFractionViceBoss(playerid)) return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+		if(!(IsFractionBoss(playerid) || IsFractionViceBoss(playerid))) return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 		if(!IsValidPhotoradar(photoid)) return Msg(playerid, COLOR_ERROR, "Nie odnaleziono fotoradaru z tym ID.");
 		DestroyPhotoradar(photoid);
 		Msg(playerid, COLOR_INFO, "Pomyœlnie usuniêto fotoradar.");
 	}
 	else if(strcmp(option, "polozenie", true) == 0) 
 	{
-		if(!IsFractionBoss(playerid) || !IsFractionViceBoss(playerid)) return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+		if(!(IsFractionBoss(playerid) || IsFractionViceBoss(playerid))) return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 		if(!IsValidPhotoradar(photoid)) return Msg(playerid, COLOR_ERROR, "Nie odnaleziono fotoradaru z tym ID.");
 		if(!IsPlayerInRangeOfPoint(playerid, 8.0, phInfo[photoid][phX], phInfo[photoid][phY], phInfo[photoid][phZ])) return Msg(playerid, COLOR_ERROR, "Jesteœ za daleko od fotoradaru który chcesz edytowaæ.");
 		SetPVarInt(playerid, "PHOTO_Object", phInfo[photoid][phObject]);
@@ -204,7 +204,7 @@ CMD:foto(playerid, params[])
 	}
 	else if(strcmp(option, "edytuj", true) == 0) 
 	{
-		if(!IsFractionBoss(playerid) || !IsFractionViceBoss(playerid)) return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+		if(!(IsFractionBoss(playerid) || IsFractionViceBoss(playerid))) return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 		if(!IsValidPhotoradar(photoid)) return Msg(playerid, COLOR_ERROR, "Nie odnaleziono fotoradaru z tym ID.");
 		Dialog_Show(playerid, DIALOG_PHOTO_EDIT, DIALOG_STYLE_LIST, " ", "Teren zabudowany\nTeren niezabudowany", "Wybierz", "WyjdŸ");
 		SetPVarInt(playerid, "PHOTO_ID", photoid);
@@ -276,9 +276,9 @@ Dialog:DIALOG_PHOTO_CREATE3(playerid, response, listitem, inputtext[])
 	if(pid < 0)
 		return Msg(playerid, COLOR_ERROR, "Nie uda³o siê stworzyæ fotoradaru.");
 	
-	SetPlayerPos(playerid, pos[0], pos[1], pos[2]+5.0);
 	format(szString, sizeof szString, "Pomyœlnie stworzono fotoradar (ID: {b}%d{/b}).", pid);
 	Msg(playerid, COLOR_INFO, szString);
+	SetPlayerPos(playerid, pos[0], pos[1], pos[2]+7.0);
 	return 1;
 }
 

@@ -68,7 +68,7 @@ Dialog:DIALOG_ID_RADIO_LINK(playerid, response, listitem, inputtext[])
 	GetPVarString(playerid, "DodajRadio_Nazwa", nazwa, sizeof(nazwa));
 	if(isnull(inputtext))
 	{
-		format(string, sizeof(string), "B??ny link radia!\n\nNazwa: %s\n\nPodaj link radia:", nazwa);
+		format(string, sizeof(string), "B³êny link radia!\n\nNazwa: %s\n\nPodaj link radia:", nazwa);
 		return Dialog_Show(playerid, DIALOG_ID_RADIO_LINK, DIALOG_STYLE_INPUT, " ", string, "Dalej", "Zamknij");
 	}
 

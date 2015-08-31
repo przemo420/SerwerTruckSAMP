@@ -41,22 +41,11 @@ native IsValidVehicle(vehicle);
 #define MOVE_BACK_LEFT          7
 #define MOVE_BACK_RIGHT         8
 
-enum noclipenum
-{
-	cameramode,
-	flyobject,
-	mode,
-	lrold,
-	udold,
-	lastmove,
-	Float:accelmul
-}
-
-new noclipdata[MAX_PLAYERS][noclipenum];
-
 // ---------------------------
-enum {
-	TEAM_TYPE_TRUCKER=0,
+
+enum 
+{
+	TEAM_TYPE_TRUCKER = 0,
 	TEAM_TYPE_POLICE,
 	TEAM_TYPE_MEDIC,
 	TEAM_TYPE_POMOC,
@@ -172,12 +161,22 @@ new const szHookInclude[][] = {
 */
 // ---------------------------
 
+enum E_GAMEMODE
+{
+	gmCountdown,
+	gmCountdownFreeze,
+	bool:gmCountdownStarted,
+	gmCountdownTimer,
+	gmUsersConnected,
+	adminPass[32]
+}
+
 enum E_PLAYER 
 {
 	pID,
 	pMoney,
 	pScore,
-	pAdmin,
+	pAdminAllowed,
 	pBankomat,
 	pFirm,
 	pSkin,
@@ -190,8 +189,21 @@ enum E_PLAYER
 	pADR,
 	pPursued,
 	bool:pInvited[8],
+	pAdmin,
 	pChained,
-	pChainedTimer
+	pChainedTimer,
+	pLastPos
+}
+
+enum E_CAMERA
+{
+	cCameramode,
+	cFlyobject,
+	cMode,
+	cLrold,
+	cUdold,
+	cLastmove,
+	Float:cAccelmul
 }
 
 enum E_STATION
@@ -286,12 +298,6 @@ enum E_TEMP_VEHICLE
 	Float:vFuel,
 	vFuelType,
 	Float:vPrzebieg,
-	vCargoID,
-	vCargoWeight,
-	vCargoLoadTime,
-	vCargoLoadTimer,
-	vCargoLoadPoint,
-	vCargoUnLoadTime,
 	Color1,
 	Color2
 }
@@ -303,22 +309,27 @@ enum E_RADIO
 	sURL[176]
 };
 
-enum E_DAY
-{
-	rName[32],
-	rHour
-};
-
 enum E_REPORT
 {
-	repFrac,
-	repId,
-	repNick[32],
-	repLoc[48],
-	repTime
+	bool:repUsed,
+	repPReport,
+	repPReported,
+	repReason[76]
 }
 
-new radioInfo[MAX_RADIOS][E_RADIO],
+enum E_CALL
+{
+	bool:callUsed[MAX_PLAYERS*2],
+	callPCalled[MAX_PLAYERS*2],
+	callAssigned[MAX_PLAYERS*2]
+}
+
+new 
+	callInfo[3][E_CALL],
+	repInfo[3][E_REPORT],
+	gmInfo[E_GAMEMODE],
+	radioInfo[MAX_RADIOS][E_RADIO],
+	camInfo[MAX_PLAYERS][E_CAMERA],
 	spikeInfo[MAX_SPIKESTRIPS][E_STRIPE],
 	gpsInfo[MAX_PLAYERS][E_GPS],
 	viaInfo[MAX_VIASHOP][E_VIATOLL],
@@ -327,20 +338,20 @@ new radioInfo[MAX_RADIOS][E_RADIO],
 	stationInfo[MAX_STACJE][E_STATION],
 	vehInfo_Temp[MAX_VEHICLES][E_TEMP_VEHICLE],
 	vehInfo[MAX_VEHICLES_DB][E_VEHICLE],
-	TimeGlobal[][E_DAY] =
-	{
-		{"poranek", 6},
-		{"dzieñ", 12},
-		{"wieczór", 22},
-		{"noc", 1}
+	cmdCars[][] = {
+		{1, "Linerunner"},
+		{10, "Tanker"},
+		{20, "Roadtrain"},
+		{1, "DFT-30"},
+		{5, "Flatbed"},
+		{5, "Boxville"},
+		{10, "Benson"},
+		{10, "Pony"},
+		{15, "Rumpo"},
+		{15, "Yankee"}
 	};
 
 // ---------------------------
-
-new Odliczanie;
-new bool:OdliczanieWystartowalo;
-new OdliczanieTimer; 
-new OdliczanieFreeze;
 
 new const Float:gSpawnvehicleplayer[][3] = {
 	{1648.4308,-1053.9159,23.8984},
@@ -463,8 +474,6 @@ new timer[MAX_PLAYERS],
 	timer13[MAX_PLAYERS],
 	timer15[MAX_PLAYERS],
 	timer16[MAX_PLAYERS];
-
-new UsersConnected;
 
 new bool:Spawned[MAX_VEHICLES];
 

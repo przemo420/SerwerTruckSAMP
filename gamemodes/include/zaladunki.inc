@@ -434,6 +434,10 @@ stock GetOfferts(playerid, type)
 		if(waresInfo[cargoInfo[i][cType]][wType] == type)
 			count++;
 	}
+
+	if(count != 0)
+		count -= 1;
+
 	return count;
 }
 
@@ -668,7 +672,7 @@ Dialog:DIALOG_OFFER_SUM(playerid, response, listitem, inputtext[])
 	DeletePVar(playerid, "selectedType");
 	DeletePVar(playerid, "lastCargo");
 	Msg(playerid, COLOR_INFO, "Towar zosta³ pomyœlnie zarezerwowany. Teraz mo¿esz udaæ siê na za³adunek.");
-	if(!playerInfo[playerid][pFirm] && !GetVehicleTrailer(GetPlayerVehicleID(playerid)) && (GetWareVehicle(cargoInfo[id][cType]) == WARE_TYPE_TRUCK || GetWareVehicle(cargoInfo[id][cType]) == WARE_TYPE_MULTIPLE) && IsVehicleTruck(GetVehicleModel(GetPlayerVehicleID(playerid))))
+	if(!GetPVarInt(playerid, "Worked") && !GetVehicleTrailer(GetPlayerVehicleID(playerid)) && (GetWareVehicle(cargoInfo[id][cType]) == WARE_TYPE_TRUCK || GetWareVehicle(cargoInfo[id][cType]) == WARE_TYPE_MULTIPLE) && IsVehicleTruck(GetVehicleModel(GetPlayerVehicleID(playerid))))
 		Dialog_Show(playerid, DIALOG_TRAILER, DIALOG_STYLE_MSGBOX, " ", "Czy chcia³yœ wypo¿yczyæ naczepê?\nJest to konieczne, je¿eli nie posiadasz w³asnej naczepy a chcesz przewieŸæ towar tylko dla ciê¿arówek.", "Tak", "Nie");
 	else
 	{
@@ -739,6 +743,7 @@ Dialog:DIALOG_TRAILER(playerid, response, listitem, inputtext[])
 		point = i;
 		SetPVarInt(playerid, "playerTrailer", CreateVehicle(GetTrailer(waresInfo[cargoInfo[id][cType]][wType]), bazaInfo[base][xPoint][i], bazaInfo[base][yPoint][i], bazaInfo[base][zPoint][i], bazaInfo[base][aPoint][i], 0, 0, -1));
 		privTrailer[GetPVarInt(playerid, "playerTrailer")] = true;
+		Spawned[GetPVarInt(playerid, "playerTrailer")] = true;
 		bazaInfo[base][isFreePoint][i] = false;
 		SetPVarInt(playerid, "trailerPoint", i);
 		SetPlayerMapIcon(playerid, 69, bazaInfo[base][xPoint][i], bazaInfo[base][yPoint][i], bazaInfo[base][zPoint][i], 42, 0, MAPICON_GLOBAL);
@@ -1104,7 +1109,8 @@ public UnloadCargo(playerid, vehicleid)
 		format(szString, sizeof szString, "%sKara: {b}$%.02f{/b} %s", szString, penatly, late > 0 ? szTemp : "");
 		format(szTemp, sizeof szTemp, "(-%d%)", bonusSkillPenatly);
 		format(szString, sizeof szString, "%s %s", szString, penatly > 0 ? szTemp : "");
-		GivePlayerMoney(playerid, floatround(realReward));
+		GiveMoney(playerid, floatround(realReward));
+		GiveScore(playerid, score);
 		Dialog_Show(playerid, DIALOG_OFFER_END, DIALOG_STYLE_MSGBOX, " ", clText(COLOR_INFO2, szString), "Okej", #);
 
 		DestroyPlayerProgressBar(playerid, pBar[playerid]);
@@ -1217,7 +1223,7 @@ Dialog:DIALOG_CANCEL_OFFERT(playerid, response, listitem, inputtext[])
 		DeleteCargo(GetPVarInt(playerid, "cargoID"));
 	else
 		cargoInfo[GetPVarInt(playerid, "cargoID")][cReserved] = false;
-	GivePlayerMoney(playerid, -5000);
+	GiveMoney(playerid, -5000);
 	Msg(playerid, COLOR_INFO, "Zlecenie zosta³o anulowane.");
 	DeletePVar(playerid, "cargoID");
 	RemovePlayerMapIcon(playerid, 69);

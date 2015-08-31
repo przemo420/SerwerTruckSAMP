@@ -61,7 +61,7 @@ public Spectactor_OnPlayerKey(playerid, newkeys, oldkeys)
 				else
 					znalazlo = false;
 
-				if(!IsPlayerConnected(playerid) || UsersConnected == 1)
+				if(!IsPlayerConnected(playerid) || gmInfo[gmUsersConnected] == 1)
 					break;
 			}
 		}
