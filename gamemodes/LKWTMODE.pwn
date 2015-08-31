@@ -1449,6 +1449,7 @@ forward OneSecTimer();
 public OneSecTimer()
 {
 	new hour, minute, second/*, year, month, day*/, string[176];
+	static time;
 
 	gettime(hour, minute, second);
 	//getdate(year, month, day);
@@ -1498,6 +1499,14 @@ public OneSecTimer()
 
 				if(funcidx(szTemp) != -1)
 					CallLocalFunction(szTemp, "d", i);
+
+				if( (time % 60) == 0 )
+				{
+					format(szTemp, sizeof(szTemp), "%s_OneMinPlayerTimer", szHookInclude[nrInc]);
+
+					if(funcidx(szTemp) != -1)
+						CallLocalFunction(szTemp, "d", i);
+				}
 			}
 
 			string[0] = EOS;
@@ -1521,7 +1530,17 @@ public OneSecTimer()
 
 		if(funcidx(szTemp) != -1)
 			CallLocalFunction(szTemp, "");
+
+		if( (time % 60) == 0 )
+		{
+			format(szTemp, sizeof(szTemp), "%s_OneMinuteTimer", szHookInclude[nrInc]);
+
+			if(funcidx(szTemp) != -1)
+				CallLocalFunction(szTemp, "");
+		}
 	}
+
+	time++;
 
 	return 1;
 }
