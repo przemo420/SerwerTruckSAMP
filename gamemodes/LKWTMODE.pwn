@@ -254,8 +254,8 @@ public OnGameModeInit()
 		Trucking[i] = Create3DTextLabel(" ", ZIELONY, 0.0, 0.0, 0.0, 30.0, 0, 0);
 	
 	CreateMainTextDraws(true);
-	CreateSpeedometer(true);
-
+	InitStableHud();
+	InitStableTachograph();
 	InitConnect();
 
 	SetTimer("Refresh", 1000, true);
@@ -281,7 +281,6 @@ public OnGameModeExit()
 	djson_GameModeExit();
 
     CreateMainTextDraws(false);
-    CreateSpeedometer(false);
 
 	for(new x; x<MAX_PLAYERS; x++)
 		if(camInfo[x][cCameramode] == CAMERA_MODE_FLY) 
@@ -403,8 +402,6 @@ public OnPlayerConnect(playerid)
 	camInfo[playerid][cLastmove]   	= 0;
 	camInfo[playerid][cAccelmul]   	= 0.0;
 
-	CreateTextDrawForPlayer(playerid);
-
 	RemoveBuildingForPlayer(playerid, 13018, 1638.7344, -67.6719, 37.8203, 0.25);
 	RemoveBuildingForPlayer(playerid, 7682, 1126.9688, 2018.6406, 13.3984, 0.25);
 	RemoveBuildingForPlayer(playerid, 7833, 1064.8359, 1869.7813, 13.9219, 0.25);
@@ -460,6 +457,8 @@ public OnPlayerConnect(playerid)
 		if(funcidx(szTemp) != -1)
 			CallLocalFunction(szTemp, "d", playerid);
 	}
+
+	SetPVarInt(playerid, "ept_fps", 30);
 
 	return 1;
 }
@@ -517,8 +516,9 @@ public OnPlayerDisconnect(playerid, reason)
 	}
 
 	//TextDrawHideForPlayer(playerid, MainTextDraws[Time]);
-	TextDrawHideForPlayer(playerid, MainTextDraws[Date]);
+	TextDrawHideForPlayer(playerid, MainTextDraws[Time]);
 
+	ShowPlayerHud(playerid, false);
 	ShowPlayerConnect(playerid, false);
 	ShowConnect(playerid, false);
 
@@ -679,24 +679,8 @@ public OnPlayerSpawn(playerid)
 	{
 		SetPVarInt(playerid, "InGame", 1);
 		SetPlayerChannelCB(playerid, 19);
-		
-		/*new s[420];
-		strcat(s,"{a9c4e4}Czy posiadasz serwerowy plik txd?\n");
-		strcat(s," \n");
-		strcat(s,"{FFFFFF}Pewnie zastanawiasz siê czy warto go pobra?\n");
-		strcat(s,"{a9c4e4}Plik ten daje ci wi?sze mo?liwo?ci rozgrywki.\n");
-		strcat(s,"{a9c4e4}Pokazuje atuty gamemode, kt?ych w chwili obecnej nie mo?esz zobaczy?\n");
-		strcat(s,"{a9c4e4}Gwarantujemy, ?e z nim nasz serwer b?zie dla ciebie atrakcyjniejszy! :)\n");
-		strcat(s," \n");
-		strcat(s,"{FFFFFF}Link do pliku znajdziesz na naszym forum. Powodzenia :)\n");
-		strcat(s," \n");
-		strcat(s,"{FFFFFF}www.serwertruck.eu\n");
-		Dialog_Show(playerid, DIALOG_TXD, DIALOG_STYLE_MSGBOX, " ", s, "Tak", "Nie");*/
 
 		DeletePVar(playerid, "JOIN");
-
-		PlayerTextDrawShow(playerid, levelTD[0][playerid]);
-		PlayerTextDrawShow(playerid, levelTD[1][playerid]);
 	}
 
 	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
@@ -981,6 +965,11 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
     		}
     	}
 
+    	ShowPlayerSpeedometer(playerid, true);
+    	ShowPlayerTacho(playerid, true);
+    	format(string, sizeof string, "~r~%s", GetVehicleModelName(GetVehicleModel(vehicleid)));
+		PlayerTextDrawSetString(playerid, hudInfo[tdInfoSpeedo][TD_CAR_NAME][playerid], string);
+
 		if(GetPVarType(playerid, "jestPrzegladany") != PLAYER_VARTYPE_NONE)
 			PlayerSpectateVehicle(GetPVarInt(playerid, "jestPrzegladany"), vehicleid);
 
@@ -992,41 +981,12 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
 		 	DestroyObject(kierunki[vehicleid][3]);
 		 	traffic[vehicleid] = false;
 		}
-	
-		TextDrawShowForPlayer(playerid, Speedometer[Main]);
-		TextDrawShowForPlayer(playerid, Speedometer[EngineInfo]);
-		TextDrawShowForPlayer(playerid, Speedometer[Box][0]);
-		TextDrawShowForPlayer(playerid, Speedometer[Box][1]);
-		TextDrawShowForPlayer(playerid, Speedometer[VehicleInfo]);
-
-		PlayerTextDrawShow(playerid, Speedometer[VehicleEngine][playerid]);
-		PlayerTextDrawShow(playerid, Speedometer[VehicleHP][playerid]);
-		PlayerTextDrawShow(playerid, Speedometer[VehicleSpeed][playerid]);
-		PlayerTextDrawShow(playerid, Speedometer[VehicleFuel][playerid]);
-		PlayerTextDrawShow(playerid, Speedometer[VehicleMileage][playerid]);
-		
-		if(GetViaMoney(playerid) <= 0 && (IsPlayerInTruck(playerid) || IsPlayerInBus(playerid)))
-			TextDrawShowForPlayer(playerid, Speedometer[ViaTollX]);
 	}
 
 	if(oldstate == PLAYER_STATE_DRIVER)
 	{
-		TextDrawHideForPlayer(playerid, Speedometer[Main]);
-		TextDrawHideForPlayer(playerid, Speedometer[EngineInfo]);
-		TextDrawHideForPlayer(playerid, Speedometer[CargoInfoTD]);
-		TextDrawHideForPlayer(playerid, Speedometer[Box][0]);
-		TextDrawHideForPlayer(playerid, Speedometer[Box][1]);
-		TextDrawHideForPlayer(playerid, Speedometer[VehicleInfo]);
-
-		PlayerTextDrawHide(playerid, Speedometer[VehicleEngine][playerid]);
-		PlayerTextDrawHide(playerid, Speedometer[VehicleHP][playerid]);
-		PlayerTextDrawHide(playerid, Speedometer[VehicleCargo][playerid]);
-		PlayerTextDrawHide(playerid, Speedometer[VehicleSpeed][playerid]);
-		PlayerTextDrawHide(playerid, Speedometer[VehicleFuel][playerid]);
-		PlayerTextDrawHide(playerid, Speedometer[VehicleMileage][playerid]);
-
-		TextDrawHideForPlayer(playerid, Speedometer[ViaTollX]);
-
+		ShowPlayerSpeedometer(playerid, false);
+		ShowPlayerTacho(playerid, false);
 		if(GetPVarType(playerid, "jestPrzegladany") != PLAYER_VARTYPE_NONE)
 			PlayerSpectatePlayer(GetPVarInt(playerid, "jestPrzegladany"), playerid);
 
@@ -1444,11 +1404,11 @@ public OneSecTimer()
 	gettime(hour, minute, second);
 	//getdate(year, month, day);
  	
-	format(string, sizeof string, "%02d:%02d:%02d", hour, minute, second);
-	TextDrawSetString(MainTextDraws[Date], string);
+	format(string, sizeof string, "%02d:%02d", hour, minute);
+	TextDrawSetString(MainTextDraws[Time], string);
 
 	//format(string, sizeof string, "%02d:%02d:%d", day, month, year);
-	//TextDrawSetString(MainTextDraws[Date], string);
+	//TextDrawSetString(MainTextDraws[Time], string);
 
 	for(new i, maxPlayerID=GetPlayerPoolSize(); i <= maxPlayerID; i++)
 		if(IsPlayerConnected(i))
@@ -1480,8 +1440,19 @@ public OneSecTimer()
   					GiveDTime(i, -3);	
 
 			if(GetPlayerState(i) == PLAYER_STATE_DRIVER && IsPlayerInTruck(i))
+			{
 		    	if(engine && !GetPVarInt(i, "tacho_pauza"))
+		    	{
 		    		GiveDTime(i, 1);
+
+		    		new actualTime[3];
+		    		ConvertSeconds(GetDTime(i), actualTime[0], actualTime[1], actualTime[2]);
+		    		format(string, sizeof string, "%s%02d:%02d:%02d", (actualTime[1] >= 40) ? ("~r~") : (""), actualTime[0], actualTime[1], actualTime[2]);
+		    		PlayerTextDrawSetString(i, hudInfo[tdInfoTacho][i], string);
+		    	}
+			}
+
+
 
 			for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
 			{
@@ -1504,6 +1475,8 @@ public OneSecTimer()
 				strcat(string, "{F81414}! POSZUKIWANY !{FFFFFF}\n");
 
 			Update3DTextLabelText(Trucking[i], ZIELONY, string);
+			format(string, sizeof string, "~r~FPS: ~w~%d~n~~r~Ping: ~w~%d", GetPlayerFPS(i), GetPlayerPing(i));
+			PlayerTextDrawSetString(i, hudInfo[tdInfoText][i], string);
 		}
 
 	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
@@ -1965,38 +1938,38 @@ public Update2()
 {
 	Loop(playerid, MAX_PLAYERS)
 	{
+		if(!IsPlayerLogged(playerid) || !IsPlayerInAnyVehicle(playerid))
+			continue;
+
 		if(IsPlayerConnected(playerid))
 		{
-			new string[120];
-			new vehicleid = GetPlayerVehicleID(playerid);
-			new Float:speed, Float:HP, Float:trailerHP, trailerHP2[10], engine, lights, alarm, doors, bonnet, boot, objective;
+			new 
+				string[120],
+				vehicleid = GetPlayerVehicleID(playerid),
+				Float:speed, 
+				Float:HP, 
+				engine, 
+				lights, 
+				alarm, 
+				doors, 
+				bonnet, 
+				boot, 
+				objective,
+				fuel = floatround((!Spawned[vehicleid]) ? (vehInfo[DBVehID[vehicleid]][vFuel]) : (vehInfo_Temp[vehicleid][vFuel])),
+				mileage = floatround((!Spawned[vehicleid]) ? (vehInfo[DBVehID[vehicleid]][vPrzebieg]) : (vehInfo_Temp[vehicleid][vPrzebieg]));
+
 			GetVehicleSpeed(vehicleid, speed);
 			GetVehicleHealth(vehicleid, HP);
-			GetVehicleHealth(GetVehicleTrailer(vehicleid), trailerHP);
 
 			GetVehicleParamsEx(vehicleid, engine, lights, alarm, doors, bonnet, boot, objective);
 
-			if(GetVehicleTrailer(vehicleid))
-				format(trailerHP2, sizeof(trailerHP2), "%0.0f%%", trailerHP/10);
-			else
-				format(trailerHP2, sizeof(trailerHP2), "~r~Brak");
-
 			if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER)
 			{
-				format(string, sizeof(string), "%d Km/H", floatround(speed));
-				PlayerTextDrawSetString(playerid, Speedometer[VehicleSpeed][playerid], string);
+				format(string, sizeof string, "Stan: %d%%~n~Paliwo: %dl~n~Przebieg: %dkm", ((floatround(HP, floatround_round) - 250) * 100) / 750, fuel, mileage);
+				PlayerTextDrawSetString(playerid, hudInfo[tdInfoSpeedo][TD_CAR_INFO][playerid], string);
 
-				format(string, sizeof(string), "%s~n~%s", (lights == VEHICLE_PARAMS_ON) ? ("~g~ON") : ("~r~OFF"), (engine == VEHICLE_PARAMS_ON) ? ("~g~ON") : ("~r~OFF"));
-				PlayerTextDrawSetString(playerid, Speedometer[VehicleEngine][playerid], string);
-
-				format(string, sizeof(string), "%0.0f%%~n~%s", HP/10, trailerHP2);
-				PlayerTextDrawSetString(playerid, Speedometer[VehicleHP][playerid], string);
-
-				format(string, sizeof(string), "Paliwo:~n~%0.1f/%d L", (Spawned[vehicleid] ? vehInfo_Temp[vehicleid][vFuel] : vehInfo[DBVehID[vehicleid]][vFuel]), MaxFuel(GetVehicleModel(vehicleid)));
-				PlayerTextDrawSetString(playerid, Speedometer[VehicleFuel][playerid], string);
-
-				format(string, sizeof(string), "Przebieg:~n~%0.1fkm", (Spawned[vehicleid] ? vehInfo_Temp[vehicleid][vPrzebieg] : vehInfo[DBVehID[vehicleid]][vPrzebieg])/1000);
-				PlayerTextDrawSetString(playerid, Speedometer[VehicleMileage][playerid], string);
+				format(string, sizeof string, "~r~%d~n~km/h", floatround(speed));
+				PlayerTextDrawSetString(playerid, hudInfo[tdInfoSpeedo][TD_CAR_SPEED][playerid], string);
 			}
 		}
 	}
@@ -2050,13 +2023,11 @@ public HungerUpdate()
 				SetPlayerHealth(playerid, health-10);
 				
 				SetPlayerProgressBarValue(playerid, hudInfo[tdHungerProgress][playerid], 5.0);
-				UpdatePlayerProgressBar(playerid, hudInfo[tdHungerProgress][playerid]);
 			}
 			else
 			{
 				playerInfo[playerid][pHunger] -= random(8);
 				SetPlayerProgressBarValue(playerid, hudInfo[tdHungerProgress][playerid], playerInfo[playerid][pHunger]);
-				UpdatePlayerProgressBar(playerid, hudInfo[tdHungerProgress][playerid]);
 			}
 		}
 	}
@@ -3351,10 +3322,9 @@ public SprawdzPoziom(playerid)
 		SprawdzPoziom(playerid);
 	}
 
-	format(string,sizeof string,"~b~POZIOM:~w~ %d", GetPVarInt(playerid, "LEVEL"));
-	PlayerTextDrawSetString(playerid, levelTD[0][playerid], string);
-	format(string,sizeof string,"~b~%d/%d", score, DoswiadczeniePoziomy[GetPVarInt(playerid, "LEVEL")+1]);
-	PlayerTextDrawSetString(playerid, levelTD[1][playerid], string);
+	new Float:percent = floatmul(floatdiv(GetScore(playerid), DoswiadczeniePoziomy[GetPVarInt(playerid, "LEVEL")+1]), 100.0);
+	SetPlayerProgressBarValue(playerid, hudInfo[tdLevelProgress][playerid], percent);
+
 	return 1;
 }
 

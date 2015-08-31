@@ -177,6 +177,7 @@ enum E_PLAYER
 	pMoney,
 	pScore,
 	pAdminAllowed,
+	Float:pHunger,
 	pBankomat,
 	pFirm,
 	pSkin,

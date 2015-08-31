@@ -238,10 +238,8 @@ CreateMainTextDraws(create)
 	else
 	{
 		TextDrawHideForAll(MainTextDraws[Time]);
-		TextDrawHideForAll(MainTextDraws[Date]);
 
 		TextDrawDestroy(MainTextDraws[Time]);
-		TextDrawDestroy(MainTextDraws[Date]);
 
 		for(new i; i <=8; i++)
 		{
@@ -433,14 +431,28 @@ stock ShowConnect(playerid, var = true)
 	return 1;
 }
 
+enum E_SPEEDO
+{
+	PlayerText:TD_CAR_NAME[MAX_PLAYERS],
+	PlayerText:TD_CAR_INFO[MAX_PLAYERS],
+	PlayerText:TD_CAR_FUEL[MAX_PLAYERS],
+	PlayerText:TD_CAR_BELTS[MAX_PLAYERS],
+	PlayerText:TD_CAR_TOLL[MAX_PLAYERS],
+	PlayerText:TD_CAR_SPEED[MAX_PLAYERS]
+}
+
 enum E_TEXTDRAWS
 {
 	Text:tdMainBox,
 	Text:tdMainIcons[2],
-	Bar:tdLevelProgress[MAX_PLAYERS],
-	Bar:tdHungerProgress[MAX_PLAYERS],
+	PlayerBar:tdLevelProgress[MAX_PLAYERS],
+	PlayerBar:tdHungerProgress[MAX_PLAYERS],
 	PlayerText:tdInfoBox[MAX_PLAYERS],
-	PlayerText:tdInfoText[MAX_PLAYERS]
+	PlayerText:tdInfoText[MAX_PLAYERS],
+	Text:tdMainTacho[3],
+	PlayerText:tdInfoTacho[MAX_PLAYERS],
+	Text:tdMainSpeedo[3],
+	PlayerText:tdInfoSpeedo[E_SPEEDO]
 }
 
 new hudInfo[E_TEXTDRAWS];
@@ -485,29 +497,29 @@ stock InitStableHud()
 
 stock InitHud(playerid)
 {	
-	hudInfo[tdInfoBox][playerid] = TextDrawCreate(619.000000, 5.000000, "___");
-	TextDrawAlignment(hudInfo[tdInfoBox][playerid], 2);
-	TextDrawBackgroundColor(hudInfo[tdInfoBox][playerid], 255);
-	TextDrawFont(hudInfo[tdInfoBox][playerid], 1);
-	TextDrawLetterSize(hudInfo[tdInfoBox][playerid], 0.500000, 1.600000);
-	TextDrawColor(hudInfo[tdInfoBox][playerid], -1);
-	TextDrawSetOutline(hudInfo[tdInfoBox][playerid], 0);
-	TextDrawSetProportional(hudInfo[tdInfoBox][playerid], 1);
-	TextDrawSetShadow(hudInfo[tdInfoBox][playerid], 1);
-	TextDrawUseBox(hudInfo[tdInfoBox][playerid], 1);
-	TextDrawBoxColor(hudInfo[tdInfoBox][playerid], 125);
-	TextDrawTextSize(hudInfo[tdInfoBox][playerid], 606.000000, -39.000000);
+	hudInfo[tdInfoBox][playerid] = CreatePlayerTextDraw(playerid, 619.000000, 5.000000, "___");
+	PlayerTextDrawAlignment(playerid, hudInfo[tdInfoBox][playerid], 2);
+	PlayerTextDrawBackgroundColor(playerid, hudInfo[tdInfoBox][playerid], 255);
+	PlayerTextDrawFont(playerid, hudInfo[tdInfoBox][playerid], 1);
+	PlayerTextDrawLetterSize(playerid, hudInfo[tdInfoBox][playerid], 0.500000, 1.600000);
+	PlayerTextDrawColor(playerid, hudInfo[tdInfoBox][playerid], -1);
+	PlayerTextDrawSetOutline(playerid, hudInfo[tdInfoBox][playerid], 0);
+	PlayerTextDrawSetProportional(playerid, hudInfo[tdInfoBox][playerid], 1);
+	PlayerTextDrawSetShadow(playerid, hudInfo[tdInfoBox][playerid], 1);
+	PlayerTextDrawUseBox(playerid, hudInfo[tdInfoBox][playerid], 1);
+	PlayerTextDrawBoxColor(playerid, hudInfo[tdInfoBox][playerid], 125);
+	PlayerTextDrawTextSize(playerid, hudInfo[tdInfoBox][playerid], 606.000000, -39.000000);
 
-	hudInfo[tdInfoText][playerid] = TextDrawCreate(605.000000, 6.000000, "~r~FPS: ~w~400~n~~r~Ping: ~w~500");
-	TextDrawBackgroundColor(hudInfo[tdInfoText][playerid], 60);
-	TextDrawFont(hudInfo[tdInfoText][playerid], 2);
-	TextDrawLetterSize(hudInfo[tdInfoText][playerid], 0.140000, 0.699999);
-	TextDrawColor(hudInfo[tdInfoText][playerid], -1);
-	TextDrawSetOutline(hudInfo[tdInfoText][playerid], 1);
-	TextDrawSetProportional(hudInfo[tdInfoText][playerid], 1);
+	hudInfo[tdInfoText][playerid] = CreatePlayerTextDraw(playerid, 605.000000, 6.000000, "~r~FPS: ~w~400~n~~r~Ping: ~w~500");
+	PlayerTextDrawBackgroundColor(playerid, hudInfo[tdInfoText][playerid], 60);
+	PlayerTextDrawFont(playerid, hudInfo[tdInfoText][playerid], 2);
+	PlayerTextDrawLetterSize(playerid, hudInfo[tdInfoText][playerid], 0.140000, 0.699999);
+	PlayerTextDrawColor(playerid, hudInfo[tdInfoText][playerid], -1);
+	PlayerTextDrawSetOutline(playerid, hudInfo[tdInfoText][playerid], 1);
+	PlayerTextDrawSetProportional(playerid, hudInfo[tdInfoText][playerid], 1);
 
-	hudInfo[tdLevelProgress][playerid] = CreateProgressBar(531.00, 112.00, 58.50, 4.19, 1131010559, 0.0);
-	hudInfo[tdHungerProgress][playerid] = CreateProgressBar(531.00, 124.00, 58.50, 4.19, -642563073, 0.0);
+	hudInfo[tdLevelProgress][playerid] = CreatePlayerProgressBar(playerid, 531.00, 112.00, 58.50, 4.19, 1131010559, 0.0);
+	hudInfo[tdHungerProgress][playerid] = CreatePlayerProgressBar(playerid, 531.00, 124.00, 58.50, 4.19, -642563073, 0.0);
 	
 	ShowPlayerProgressBar(playerid, hudInfo[tdLevelProgress][playerid]);
 	SetPlayerProgressBarMaxValue(playerid, hudInfo[tdLevelProgress][playerid], 100.0);
@@ -522,16 +534,251 @@ stock ShowPlayerHud(playerid, var = true)
 {
 	if(!var)
 	{
-
+		TextDrawHideForPlayer(playerid, hudInfo[tdMainBox]);
+		TextDrawHideForPlayer(playerid, hudInfo[tdMainIcons][0]);
+		TextDrawHideForPlayer(playerid, hudInfo[tdMainIcons][1]);
+		PlayerTextDrawHide(playerid, hudInfo[tdInfoBox][playerid]);
+		PlayerTextDrawHide(playerid, hudInfo[tdInfoText][playerid]);
+		ExitHud(playerid);
 	}
 	else
 	{
 		TextDrawShowForPlayer(playerid, hudInfo[tdMainBox]);
 		TextDrawShowForPlayer(playerid, hudInfo[tdMainIcons][0]);
 		TextDrawShowForPlayer(playerid, hudInfo[tdMainIcons][1]);
-		TextDrawShowForPlayer(playerid, hudInfo[tdInfoBox][playerid]);
-		TextDrawShowForPlayer(playerid, hudInfo[tdInfoText][playerid]);
 		InitHud(playerid);
+		PlayerTextDrawShow(playerid, hudInfo[tdInfoBox][playerid]);
+		PlayerTextDrawShow(playerid, hudInfo[tdInfoText][playerid]);
 	}
+	return 1;
+}
+
+stock ExitHud(playerid)
+{	
+	PlayerTextDrawDestroy(playerid, hudInfo[tdInfoBox][playerid]);
+	PlayerTextDrawDestroy(playerid, hudInfo[tdInfoText][playerid]);
+	
+	DestroyPlayerProgressBar(playerid, hudInfo[tdLevelProgress][playerid]);
+	DestroyPlayerProgressBar(playerid, hudInfo[tdHungerProgress][playerid]);
+	return 1;
+}
+
+stock InitStableTachograph()
+{
+	hudInfo[tdMainTacho][0] = TextDrawCreate(585.000000, 357.000000, "___");
+	TextDrawAlignment(hudInfo[tdMainTacho][0], 2);
+	TextDrawBackgroundColor(hudInfo[tdMainTacho][0], 255);
+	TextDrawFont(hudInfo[tdMainTacho][0], 1);
+	TextDrawLetterSize(hudInfo[tdMainTacho][0], 0.500000, 2.599999);
+	TextDrawColor(hudInfo[tdMainTacho][0], -1);
+	TextDrawSetOutline(hudInfo[tdMainTacho][0], 0);
+	TextDrawSetProportional(hudInfo[tdMainTacho][0], 1);
+	TextDrawSetShadow(hudInfo[tdMainTacho][0], 1);
+	TextDrawUseBox(hudInfo[tdMainTacho][0], 1);
+	TextDrawBoxColor(hudInfo[tdMainTacho][0], 125);
+	TextDrawTextSize(hudInfo[tdMainTacho][0], 606.000000, -87.000000);
+
+	hudInfo[tdMainTacho][1] = TextDrawCreate(548.000000, 357.000000, "~r~tachograf");
+	TextDrawBackgroundColor(hudInfo[tdMainTacho][1], 60);
+	TextDrawFont(hudInfo[tdMainTacho][1], 2);
+	TextDrawLetterSize(hudInfo[tdMainTacho][1], 0.289999, 0.800000);
+	TextDrawColor(hudInfo[tdMainTacho][1], -1);
+	TextDrawSetOutline(hudInfo[tdMainTacho][1], 1);
+	TextDrawSetProportional(hudInfo[tdMainTacho][1], 1);
+
+	hudInfo[tdMainTacho][2] = TextDrawCreate(586.000000, 368.000000, "___");
+	TextDrawAlignment(hudInfo[tdMainTacho][2], 2);
+	TextDrawBackgroundColor(hudInfo[tdMainTacho][2], 255);
+	TextDrawFont(hudInfo[tdMainTacho][2], 1);
+	TextDrawLetterSize(hudInfo[tdMainTacho][2], 0.500000, -0.299998);
+	TextDrawColor(hudInfo[tdMainTacho][2], -1);
+	TextDrawSetOutline(hudInfo[tdMainTacho][2], 0);
+	TextDrawSetProportional(hudInfo[tdMainTacho][2], 1);
+	TextDrawSetShadow(hudInfo[tdMainTacho][2], 1);
+	TextDrawUseBox(hudInfo[tdMainTacho][2], 1);
+	TextDrawBoxColor(hudInfo[tdMainTacho][2], 125);
+	TextDrawTextSize(hudInfo[tdMainTacho][2], 606.000000, -76.000000);
+	return 1;
+}
+
+stock InitTachograph(playerid)
+{
+	hudInfo[tdInfoTacho][playerid] = CreatePlayerTextDraw(playerid, 585.000000, 371.000000, "00:00:00");
+	PlayerTextDrawAlignment(playerid, hudInfo[tdInfoTacho][playerid], 2);
+	PlayerTextDrawBackgroundColor(playerid, hudInfo[tdInfoTacho][playerid], 60);
+	PlayerTextDrawFont(playerid, hudInfo[tdInfoTacho][playerid], 2);
+	PlayerTextDrawLetterSize(playerid, hudInfo[tdInfoTacho][playerid], 0.270000, 0.600000);
+	PlayerTextDrawColor(playerid, hudInfo[tdInfoTacho][playerid], -1);
+	PlayerTextDrawSetOutline(playerid, hudInfo[tdInfoTacho][playerid], 1);
+	PlayerTextDrawSetProportional(playerid, hudInfo[tdInfoTacho][playerid], 1);
+	return 1;
+}
+
+stock ShowPlayerTacho(playerid, var = true)
+{
+	if(!var)
+	{
+		TextDrawHideForPlayer(playerid, hudInfo[tdMainTacho][0]);
+		TextDrawHideForPlayer(playerid, hudInfo[tdMainTacho][1]);
+		TextDrawHideForPlayer(playerid, hudInfo[tdMainTacho][2]);
+		PlayerTextDrawHide(playerid, hudInfo[tdInfoTacho][playerid]);
+		PlayerTextDrawDestroy(playerid, hudInfo[tdInfoTacho][playerid]);
+	}
+	else
+	{
+		TextDrawShowForPlayer(playerid, hudInfo[tdMainTacho][0]);
+		TextDrawShowForPlayer(playerid, hudInfo[tdMainTacho][1]);
+		TextDrawShowForPlayer(playerid, hudInfo[tdMainTacho][2]);
+		InitTachograph(playerid);
+		PlayerTextDrawShow(playerid, hudInfo[tdInfoTacho][playerid]);
+	}
+	return 1;
+}
+
+stock InitStableSpeedometer()
+{
+	hudInfo[tdMainSpeedo][0] = TextDrawCreate(546.000000, 387.000000, "___");
+	TextDrawAlignment(hudInfo[tdMainSpeedo][0], 2);
+	TextDrawBackgroundColor(hudInfo[tdMainSpeedo][0], 255);
+	TextDrawFont(hudInfo[tdMainSpeedo][0], 1);
+	TextDrawLetterSize(hudInfo[tdMainSpeedo][0], 0.500000, 4.599999);
+	TextDrawColor(hudInfo[tdMainSpeedo][0], -1);
+	TextDrawSetOutline(hudInfo[tdMainSpeedo][0], 0);
+	TextDrawSetProportional(hudInfo[tdMainSpeedo][0], 1);
+	TextDrawSetShadow(hudInfo[tdMainSpeedo][0], 1);
+	TextDrawUseBox(hudInfo[tdMainSpeedo][0], 1);
+	TextDrawBoxColor(hudInfo[tdMainSpeedo][0], 125);
+	TextDrawTextSize(hudInfo[tdMainSpeedo][0], 606.000000, -166.000000);
+
+	hudInfo[tdMainSpeedo][1] = TextDrawCreate(546.000000, 401.000000, "___");
+	TextDrawAlignment(hudInfo[tdMainSpeedo][1], 2);
+	TextDrawBackgroundColor(hudInfo[tdMainSpeedo][1], 255);
+	TextDrawFont(hudInfo[tdMainSpeedo][1], 1);
+	TextDrawLetterSize(hudInfo[tdMainSpeedo][1], 0.500000, -0.299998);
+	TextDrawColor(hudInfo[tdMainSpeedo][1], -1);
+	TextDrawSetOutline(hudInfo[tdMainSpeedo][1], 0);
+	TextDrawSetProportional(hudInfo[tdMainSpeedo][1], 1);
+	TextDrawSetShadow(hudInfo[tdMainSpeedo][1], 1);
+	TextDrawUseBox(hudInfo[tdMainSpeedo][1], 1);
+	TextDrawBoxColor(hudInfo[tdMainSpeedo][1], 125);
+	TextDrawTextSize(hudInfo[tdMainSpeedo][1], 606.000000, -146.000000);
+
+	hudInfo[tdMainSpeedo][2] = TextDrawCreate(546.000000, 424.000000, "___");
+	TextDrawAlignment(hudInfo[tdMainSpeedo][2], 2);
+	TextDrawBackgroundColor(hudInfo[tdMainSpeedo][2], 255);
+	TextDrawFont(hudInfo[tdMainSpeedo][2], 1);
+	TextDrawLetterSize(hudInfo[tdMainSpeedo][2], 0.500000, -0.299998);
+	TextDrawColor(hudInfo[tdMainSpeedo][2], -1);
+	TextDrawSetOutline(hudInfo[tdMainSpeedo][2], 0);
+	TextDrawSetProportional(hudInfo[tdMainSpeedo][2], 1);
+	TextDrawSetShadow(hudInfo[tdMainSpeedo][2], 1);
+	TextDrawUseBox(hudInfo[tdMainSpeedo][2], 1);
+	TextDrawBoxColor(hudInfo[tdMainSpeedo][2], 125);
+	TextDrawTextSize(hudInfo[tdMainSpeedo][2], 606.000000, -146.000000);
+	return 1;
+}
+
+stock InitSpeedometer(playerid)
+{
+	hudInfo[tdInfoSpeedo][TD_CAR_NAME][playerid] = CreatePlayerTextDraw(playerid, 469.000000, 389.000000, "~r~Police Car");
+	PlayerTextDrawBackgroundColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_NAME][playerid], 60);
+	PlayerTextDrawFont(playerid, hudInfo[tdInfoSpeedo][TD_CAR_NAME][playerid], 2);
+	PlayerTextDrawLetterSize(playerid, hudInfo[tdInfoSpeedo][TD_CAR_NAME][playerid], 0.289999, 0.800000);
+	PlayerTextDrawColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_NAME][playerid], -1);
+	PlayerTextDrawSetOutline(playerid, hudInfo[tdInfoSpeedo][TD_CAR_NAME][playerid], 1);
+	PlayerTextDrawSetProportional(playerid, hudInfo[tdInfoSpeedo][TD_CAR_NAME][playerid], 1);
+
+	hudInfo[tdInfoSpeedo][TD_CAR_INFO][playerid] = CreatePlayerTextDraw(playerid, 470.000000, 402.000000, "Stan: 100%~n~Paliwo: 30l~n~Przebieg: 9999km");
+	PlayerTextDrawBackgroundColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_INFO][playerid], 60);
+	PlayerTextDrawFont(playerid, hudInfo[tdInfoSpeedo][TD_CAR_INFO][playerid], 2);
+	PlayerTextDrawLetterSize(playerid, hudInfo[tdInfoSpeedo][TD_CAR_INFO][playerid], 0.270000, 0.600000);
+	PlayerTextDrawColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_INFO][playerid], -1);
+	PlayerTextDrawSetOutline(playerid, hudInfo[tdInfoSpeedo][TD_CAR_INFO][playerid], 1);
+	PlayerTextDrawSetProportional(playerid, hudInfo[tdInfoSpeedo][TD_CAR_INFO][playerid], 1);
+
+	hudInfo[tdInfoSpeedo][TD_CAR_FUEL][playerid] = CreatePlayerTextDraw(playerid, 584.000000, 388.000000, "hud:radar_centre");
+	PlayerTextDrawAlignment(playerid, hudInfo[tdInfoSpeedo][TD_CAR_FUEL][playerid], 2);
+	PlayerTextDrawBackgroundColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_FUEL][playerid], 60);
+	PlayerTextDrawFont(playerid, hudInfo[tdInfoSpeedo][TD_CAR_FUEL][playerid], 4);
+	PlayerTextDrawLetterSize(playerid, hudInfo[tdInfoSpeedo][TD_CAR_FUEL][playerid], 0.270000, 0.600000);
+	PlayerTextDrawColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_FUEL][playerid], -16776961);
+	PlayerTextDrawSetOutline(playerid, hudInfo[tdInfoSpeedo][TD_CAR_FUEL][playerid], 1);
+	PlayerTextDrawSetProportional(playerid, hudInfo[tdInfoSpeedo][TD_CAR_FUEL][playerid], 1);
+	PlayerTextDrawUseBox(playerid, hudInfo[tdInfoSpeedo][TD_CAR_FUEL][playerid], 1);
+	PlayerTextDrawBoxColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_FUEL][playerid], 255);
+	PlayerTextDrawTextSize(playerid, hudInfo[tdInfoSpeedo][TD_CAR_FUEL][playerid], 11.000000, 8.000000);
+
+	hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid] = CreatePlayerTextDraw(playerid, 596.000000, 387.000000, "hud:radar_light");
+	PlayerTextDrawAlignment(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid], 2);
+	PlayerTextDrawBackgroundColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid], 60);
+	PlayerTextDrawFont(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid], 4);
+	PlayerTextDrawLetterSize(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid], 0.270000, 0.600000);
+	PlayerTextDrawColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid], -16776961);
+	PlayerTextDrawSetOutline(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid], 1);
+	PlayerTextDrawSetProportional(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid], 1);
+	PlayerTextDrawUseBox(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid], 1);
+	PlayerTextDrawBoxColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid], 255);
+	PlayerTextDrawTextSize(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid], 12.000000, 11.000000);
+
+	hudInfo[tdInfoSpeedo][TD_CAR_BELTS][playerid] = CreatePlayerTextDraw(playerid, 615.000000, 387.000000, "!");
+	PlayerTextDrawAlignment(playerid, hudInfo[tdInfoSpeedo][TD_CAR_BELTS][playerid], 2);
+	PlayerTextDrawBackgroundColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_BELTS][playerid], 255);
+	PlayerTextDrawFont(playerid, hudInfo[tdInfoSpeedo][TD_CAR_BELTS][playerid], 2);
+	PlayerTextDrawLetterSize(playerid, hudInfo[tdInfoSpeedo][TD_CAR_BELTS][playerid], 0.379999, 1.000000);
+	PlayerTextDrawColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid], -16776961);
+	PlayerTextDrawSetOutline(playerid, hudInfo[tdInfoSpeedo][TD_CAR_BELTS][playerid], 1);
+	PlayerTextDrawSetProportional(playerid, hudInfo[tdInfoSpeedo][TD_CAR_BELTS][playerid], 1);
+
+	hudInfo[tdInfoSpeedo][TD_CAR_SPEED][playerid] = CreatePlayerTextDraw(playerid, 601.000000, 402.000000, "~r~133~n~km/h");
+	PlayerTextDrawAlignment(playerid, hudInfo[tdInfoSpeedo][TD_CAR_SPEED][playerid], 2);
+	PlayerTextDrawBackgroundColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_SPEED][playerid], 60);
+	PlayerTextDrawFont(playerid, hudInfo[tdInfoSpeedo][TD_CAR_SPEED][playerid], 2);
+	PlayerTextDrawLetterSize(playerid, hudInfo[tdInfoSpeedo][TD_CAR_SPEED][playerid], 0.270000, 0.600000);
+	PlayerTextDrawColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_SPEED][playerid], -1);
+	PlayerTextDrawSetOutline(playerid, hudInfo[tdInfoSpeedo][TD_CAR_SPEED][playerid], 1);
+	PlayerTextDrawSetProportional(playerid, hudInfo[tdInfoSpeedo][TD_CAR_SPEED][playerid], 1);
+	return 1;
+}
+
+stock ShowPlayerSpeedometer(playerid, var = true)
+{
+	if(!var)
+	{
+		TextDrawHideForPlayer(playerid, hudInfo[tdMainSpeedo][0]);
+		TextDrawHideForPlayer(playerid, hudInfo[tdMainSpeedo][1]);
+		TextDrawHideForPlayer(playerid, hudInfo[tdMainSpeedo][2]);
+		PlayerTextDrawHide(playerid, hudInfo[tdInfoSpeedo][TD_CAR_NAME][playerid]);
+		PlayerTextDrawHide(playerid, hudInfo[tdInfoSpeedo][TD_CAR_INFO][playerid]);
+		PlayerTextDrawHide(playerid, hudInfo[tdInfoSpeedo][TD_CAR_FUEL][playerid]);
+		PlayerTextDrawHide(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid]);
+		PlayerTextDrawHide(playerid, hudInfo[tdInfoSpeedo][TD_CAR_BELTS][playerid]);
+		PlayerTextDrawHide(playerid, hudInfo[tdInfoSpeedo][TD_CAR_SPEED][playerid]);
+		ExitSpeedometer(playerid);
+	}
+	else
+	{
+		TextDrawShowForPlayer(playerid, hudInfo[tdMainSpeedo][0]);
+		TextDrawShowForPlayer(playerid, hudInfo[tdMainSpeedo][1]);
+		TextDrawShowForPlayer(playerid, hudInfo[tdMainSpeedo][2]);
+		InitSpeedometer(playerid);	
+		PlayerTextDrawShow(playerid, hudInfo[tdInfoSpeedo][TD_CAR_NAME][playerid]);
+		PlayerTextDrawShow(playerid, hudInfo[tdInfoSpeedo][TD_CAR_INFO][playerid]);
+		PlayerTextDrawShow(playerid, hudInfo[tdInfoSpeedo][TD_CAR_FUEL][playerid]);
+		PlayerTextDrawShow(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid]);
+		PlayerTextDrawShow(playerid, hudInfo[tdInfoSpeedo][TD_CAR_BELTS][playerid]);
+		PlayerTextDrawShow(playerid, hudInfo[tdInfoSpeedo][TD_CAR_SPEED][playerid]);
+
+	}
+	return 1;
+}
+
+stock ExitSpeedometer(playerid)
+{
+	PlayerTextDrawDestroy(playerid, hudInfo[tdInfoSpeedo][TD_CAR_NAME][playerid]);
+	PlayerTextDrawDestroy(playerid, hudInfo[tdInfoSpeedo][TD_CAR_INFO][playerid]);
+	PlayerTextDrawDestroy(playerid, hudInfo[tdInfoSpeedo][TD_CAR_FUEL][playerid]);
+	PlayerTextDrawDestroy(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid]);
+	PlayerTextDrawDestroy(playerid, hudInfo[tdInfoSpeedo][TD_CAR_BELTS][playerid]);
+	PlayerTextDrawDestroy(playerid, hudInfo[tdInfoSpeedo][TD_CAR_SPEED][playerid]);
 	return 1;
 }

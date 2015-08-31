@@ -110,7 +110,7 @@ IsNumeric(const str[])
 {
 	for (new i = 0, j = strlen(str); i < j; i++)
    		if (str[i] > '9' || str[i] < '0') 
-       		return 0;
+	   		return 0;
 
 	return 1;
 }
@@ -132,12 +132,12 @@ PlayerVehicleIsTruck(playerid)
 	switch(GetVehicleModel(GetPlayerVehicleID(playerid)))
 	{
 		case 403: return 1;
-        case 514: return 1;
-        case 515: return 1;
-        case 455: return 1;
-        case 578: return 1;
-        case 459: return 1;
-        case 440: return 1;
+		case 514: return 1;
+		case 515: return 1;
+		case 455: return 1;
+		case 578: return 1;
+		case 459: return 1;
+		case 440: return 1;
 		case 482: return 1;
 		case 498: return 1;
 	}
@@ -148,15 +148,15 @@ PlayerVehicleIsTruck(playerid)
 stock GetWeaponNameEx(weaponid)
 {
 	new weapon[32];
-    switch(weaponid)
-    {
-        case 18: strcat(weapon, "Molotov Cocktail", 31);
-        case 44: strcat(weapon, "Night Vision Goggles", 31);
-        case 45:  strcat(weapon, "Thermal Goggles", 31);
-        default: GetWeaponName(weaponid, weapon, 31);
-    }
+	switch(weaponid)
+	{
+		case 18: strcat(weapon, "Molotov Cocktail", 31);
+		case 44: strcat(weapon, "Night Vision Goggles", 31);
+		case 45:  strcat(weapon, "Thermal Goggles", 31);
+		default: GetWeaponName(weaponid, weapon, 31);
+	}
 
-    return weapon;
+	return weapon;
 }
 
 IsPlayerInTruck(playerid)
@@ -552,12 +552,12 @@ MaxWeight(vehicletype)
 	switch(vehicletype)
 	{
   		case 403: return 24;
-        case 514: return 24;
-        case 515: return 24;
-        case 455: return 13;
-        case 578: return 13;
-        case 459: return 8;
-        case 440: return 8;
+		case 514: return 24;
+		case 515: return 24;
+		case 455: return 13;
+		case 578: return 13;
+		case 459: return 8;
+		case 440: return 8;
 		case 482: return 8;
 		case 498: return 8;
 		case 435: return 24;
@@ -583,8 +583,8 @@ GetFreeRemontBTID()
 	new obiektid = INVALID_REMONTBT3D_ID, counter = 0;
 	while(obiektid == INVALID_REMONTBT3D_ID)
 	{
-	    counter++;
-	    if(BTNapis[counter][btnNapis] == Text3D:INVALID_REMONTBT3D_ID)
+		counter++;
+		if(BTNapis[counter][btnNapis] == Text3D:INVALID_REMONTBT3D_ID)
 		 	obiektid = counter;
 	}
 	return obiektid;
@@ -594,17 +594,17 @@ GetMoveDirectionFromKeys(ud, lr)
 {
 	new direction = 0;
 
-    if(lr < 0)
+	if(lr < 0)
 	{
 		if(ud < 0) 		direction = MOVE_FORWARD_LEFT; 	// Up & Left key pressed
 		else if(ud > 0) direction = MOVE_BACK_LEFT; 	// Back & Left key pressed
-		else            direction = MOVE_LEFT;          // Left key pressed
+		else			direction = MOVE_LEFT;		  // Left key pressed
 	}
 	else if(lr > 0) 	// Right pressed
 	{
-		if(ud < 0)      direction = MOVE_FORWARD_RIGHT;  // Up & Right key pressed
-		else if(ud > 0) direction = MOVE_BACK_RIGHT;     // Back & Right key pressed
-		else			direction = MOVE_RIGHT;          // Right key pressed
+		if(ud < 0)	  direction = MOVE_FORWARD_RIGHT;  // Up & Right key pressed
+		else if(ud > 0) direction = MOVE_BACK_RIGHT;	 // Back & Right key pressed
+		else			direction = MOVE_RIGHT;		  // Right key pressed
 	}
 	else if(ud < 0) 	direction = MOVE_FORWARD; 	// Up key pressed
 	else if(ud > 0) 	direction = MOVE_BACK;		// Down key pressed
@@ -617,8 +617,8 @@ GetMoveDirectionFromKeys(ud, lr)
 MoveCamera(playerid)
 {
 	new Float:FV[3], Float:CP[3];
-	GetPlayerCameraPos(playerid, CP[0], CP[1], CP[2]);          // 	Cameras position in space
-    GetPlayerCameraFrontVector(playerid, FV[0], FV[1], FV[2]);  //  Where the camera is looking at
+	GetPlayerCameraPos(playerid, CP[0], CP[1], CP[2]);		  // 	Cameras position in space
+	GetPlayerCameraFrontVector(playerid, FV[0], FV[1], FV[2]);  //  Where the camera is looking at
 
 	// Increases the acceleration multiplier the longer the key is held
 	if(camInfo[playerid][cAccelmul] <= 1) camInfo[playerid][cAccelmul] += ACCEL_RATE;
@@ -640,8 +640,8 @@ MoveCamera(playerid)
 
 GetNextCameraPosition(move_mode, Float:CP[3], Float:FV[3], &Float:X, &Float:Y, &Float:Z)
 {
-    // Calculate the cameras next position based on their current position and the direction their camera is facing
-    #define OFFSET_X (FV[0]*6000.0)
+	// Calculate the cameras next position based on their current position and the direction their camera is facing
+	#define OFFSET_X (FV[0]*6000.0)
 	#define OFFSET_Y (FV[1]*6000.0)
 	#define OFFSET_Z (FV[2]*6000.0)
 	switch(move_mode)
@@ -728,7 +728,7 @@ stock IsValidBarInterior(interiorid)
 {
 	switch(interiorid)
 	{
-	    case 1, 4, 5, 6, 9, 10, 17: return true;
+		case 1, 4, 5, 6, 9, 10, 17: return true;
 	}
 	return false;
 }
@@ -737,48 +737,48 @@ GetPosBarInterior(interior, &Float:X, &Float:Y, &Float:Z)
 {
 	switch(interior)
 	{
-	    case 1:
-	    {
-	        X = -794.806396;
+		case 1:
+		{
+			X = -794.806396;
 			Y = 497.738037;
 			Z = 1376.195312;
-	    }
-	    case 4:
-	    {
-	        X = -27.312299;
+		}
+		case 4:
+		{
+			X = -27.312299;
 			Y = -29.277599;
 			Z = 1003.557250;
-	    }
-	    case 5:
-	    {
-	        X = 372.3370;
+		}
+		case 5:
+		{
+			X = 372.3370;
 			Y = -132.7720;
 			Z = 1001.4922;
-	    }
-	    case 6:
-	    {
-	        X = -26.691598;
+		}
+		case 6:
+		{
+			X = -26.691598;
 			Y = -55.714897;
 			Z = 1003.546875;
-	    }
-	    case 9:
-	    {
-	        X = 365.0424;
+		}
+		case 9:
+		{
+			X = 365.0424;
 			Y = -11.1190;
 			Z = 1001.8516;
-	    }
-	    case 10:
-	    {
-	        X = 6.091179;
+		}
+		case 10:
+		{
+			X = 6.091179;
 			Y = -29.271898;
 			Z = 1003.549438;
-	    }
-	    case 17:
-	    {
-	        X = 377.2009;
+		}
+		case 17:
+		{
+			X = 377.2009;
 			Y = -192.7142;
 			Z = 1000.6401;
-	    }
+		}
 	}
 	return 1;
 }
@@ -790,8 +790,8 @@ GetBarInterior(barid)
 	new DBResult:result;// = db_query(Cargos, query);
 	if(!db_num_rows(result))
 	{
-	    db_free_result(result);
-	    return 0;
+		db_free_result(result);
+		return 0;
 	}
 	new interiorStr[3];
 	db_get_field(result, 0, interiorStr, sizeof interiorStr);
@@ -802,19 +802,19 @@ GetBarInterior(barid)
 
 GetBarPos(barid, &Float:X, &Float:Y, &Float:Z)
 {
-    new query[128];
+	new query[128];
 	format(query, sizeof query, "SELECT PosX, PosY, PosZ FROM `BARY` WHERE `ID` = '%d'", barid);
 	new DBResult:result;// = db_query(Cargos, query);
 	if(!db_num_rows(result))
 	{
-	    db_free_result(result);
-	    return 0;
+		db_free_result(result);
+		return 0;
 	}
 
 	new pos[3][20];
 	db_get_field(result, 0, pos[0], 20);
 	db_get_field(result, 1, pos[1], 20);
-    db_get_field(result, 2, pos[2], 20);
+	db_get_field(result, 2, pos[2], 20);
 	db_free_result(result);
 
 	X = floatstr(pos[0]);
@@ -841,10 +841,10 @@ Float:GetHeadingAngle(Float:targetX, Float:targetY, Float:entityX, Float:entityY
 SetVehicleSpeed(vehicleid, Float:speed)
 {
 	new
-        Float:x,
-        Float:y,
-        Float:z,
-        Float:angle;
+		Float:x,
+		Float:y,
+		Float:z,
+		Float:angle;
 
 	GetVehicleVelocity(vehicleid, x, y, z);
 	if(x == 0.0 && y == 0.0 && z == 0.0)
@@ -856,10 +856,10 @@ SetVehicleSpeed(vehicleid, Float:speed)
 		angle = Float:GetHeadingAngle(x, y, 0.0, 0.0);
 	}
 
-    speed = speed/169;
-    x = speed * floatsin(-angle, degrees);
-    y = speed * floatcos(-angle, degrees);
-    SetVehicleVelocity(vehicleid, x, y, z);
+	speed = speed/169;
+	x = speed * floatsin(-angle, degrees);
+	y = speed * floatcos(-angle, degrees);
+	SetVehicleVelocity(vehicleid, x, y, z);
 }
 
 forward Float:GetDistanceBetweenPoints(Float:X, Float:Y, Float:Z, Float:PointX, Float:PointY, Float:PointZ);
@@ -1012,7 +1012,7 @@ stock IsValidInterior(interiorid)
 {
 	switch(interiorid)
 	{
-	    case 1..3, 5, 7, 8, 10, 12: return true;
+		case 1..3, 5, 7, 8, 10, 12: return true;
 	}
 	return false;
 }
@@ -1021,117 +1021,117 @@ stock GetInteriorInsidePos(interior, &Float:X, &Float:Y, &Float:Z)
 {
 	switch(interior)
 	{
-	    case 1:
-	    {
-	        X = 223.1425;
-	        Y = 1287.2781;
-	        Z = 1082.1406;
-	    }
-	    case 2:
-	    {
-	        X = 226.005401;
-	        Y = 1240.039062;
-	        Z = 1082.140625;
-	    }
-	    case 3:
-	    {
-	        X = 235.3299;
-	        Y = 1187.1647;
-	        Z = 1080.2578;
-	    }
-	    case 5:
-	    {
-     		X = 318.6448;
-	        Y = 1114.4795;
-	        Z = 1083.8828;
-	    }
-	    case 7:
-	    {
-	        X = 225.7482;
-	        Y = 1022.0986;
-	        Z = 1084.0159;
-	    }
-	    case 8:
-	    {
-	        X = 2365.3176;
-	        Y = -1134.9512;
-	        Z = 1050.8750;
-	    }
-	    case 10:
-	    {
-	        X = 2269.7822;
-	        Y = -1210.4670;
-	        Z = 1047.5625;
-	    }
-	    case 12:
-	    {
- 	        X = 2324.419921;
-	        Y = -1145.568359;
-	        Z = 1050.710083;
-	    }
+		case 1:
+		{
+			X = 223.1425;
+			Y = 1287.2781;
+			Z = 1082.1406;
+		}
+		case 2:
+		{
+			X = 226.005401;
+			Y = 1240.039062;
+			Z = 1082.140625;
+		}
+		case 3:
+		{
+			X = 235.3299;
+			Y = 1187.1647;
+			Z = 1080.2578;
+		}
+		case 5:
+		{
+	 		X = 318.6448;
+			Y = 1114.4795;
+			Z = 1083.8828;
+		}
+		case 7:
+		{
+			X = 225.7482;
+			Y = 1022.0986;
+			Z = 1084.0159;
+		}
+		case 8:
+		{
+			X = 2365.3176;
+			Y = -1134.9512;
+			Z = 1050.8750;
+		}
+		case 10:
+		{
+			X = 2269.7822;
+			Y = -1210.4670;
+			Z = 1047.5625;
+		}
+		case 12:
+		{
+ 			X = 2324.419921;
+			Y = -1145.568359;
+			Z = 1050.710083;
+		}
 	}
 	return 1;
 }
 
 ColouredText(text[])
 {
-    enum colorEnum
-    {
-    	colorName[16],
-     	colorID[7]
-    };
-    new	colorInfo[][colorEnum] =
-    {
-    	{ "BLUE",           "1B1BE0" },
-     	{ "PINK",           "E81CC9" },
-      	{ "YELLOW",         "DBED15" },
-       	{ "LIGHTGREEN",     "8CED15" },
-        { "LIGHTBLUE",      "15D4ED" },
-        { "RED",            "FF0000" },
-        { "GREY",           "BABABA" },
-        { "WHITE",          "FFFFFF" },
-        { "ORANGE",         "DB881A" },
-        { "GREEN",          "37DB45" },
-        { "PURPLE",         "7340DB" }
-        },
-        string[(128 + 32)],
-        tempString[16],
-        pos = -1,
-        x;
-    strmid(string, text, 0, 128, sizeof(string));
+	enum colorEnum
+	{
+		colorName[16],
+	 	colorID[7]
+	};
+	new	colorInfo[][colorEnum] =
+	{
+		{ "BLUE",		   "1B1BE0" },
+	 	{ "PINK",		   "E81CC9" },
+	  	{ "YELLOW",		 "DBED15" },
+	   	{ "LIGHTGREEN",	 "8CED15" },
+		{ "LIGHTBLUE",	  "15D4ED" },
+		{ "RED",			"FF0000" },
+		{ "GREY",		   "BABABA" },
+		{ "WHITE",		  "FFFFFF" },
+		{ "ORANGE",		 "DB881A" },
+		{ "GREEN",		  "37DB45" },
+		{ "PURPLE",		 "7340DB" }
+		},
+		string[(128 + 32)],
+		tempString[16],
+		pos = -1,
+		x;
+	strmid(string, text, 0, 128, sizeof(string));
 
-    for( ; x != sizeof(colorInfo); ++x)
-    {
-        format(tempString, sizeof(tempString), "#%s", colorInfo[x][colorName]);
+	for( ; x != sizeof(colorInfo); ++x)
+	{
+		format(tempString, sizeof(tempString), "#%s", colorInfo[x][colorName]);
 
-        while((pos = strfind(string, tempString, true, (pos + 1))) != -1)
-        {
-            new
-                tempLen = strlen(tempString),
-                tempVar,
-                i = pos
-            ;
-            format(tempString, sizeof(tempString), "{%s}", colorInfo[x][colorID]);
+		while((pos = strfind(string, tempString, true, (pos + 1))) != -1)
+		{
+			new
+				tempLen = strlen(tempString),
+				tempVar,
+				i = pos
+			;
+			format(tempString, sizeof(tempString), "{%s}", colorInfo[x][colorID]);
 
-            if(tempLen < 8)
-            {
-                for(new j; j != (8 - tempLen); ++j)
-                {
-                    strins(string, " ", pos);
-                }
-            }
-            for( ; ((string[i] != 0) && (tempVar != 8)) ; ++i, ++tempVar)
-            {
-                string[i] = tempString[tempVar];
-            }
-            if(tempLen > 8)
-            {
-                strdel(string, i, (i + (tempLen - 8)));
-            }
-            x = -1;
-        }
-    }
-    return string;
+			if(tempLen < 8)
+			{
+				for(new j; j != (8 - tempLen); ++j)
+				{
+					strins(string, " ", pos);
+				}
+			}
+			for( ; ((string[i] != 0) && (tempVar != 8)) ; ++i, ++tempVar)
+			{
+				string[i] = tempString[tempVar];
+			}
+			if(tempLen > 8)
+			{
+				strdel(string, i, (i + (tempLen - 8)));
+			}
+			x = -1;
+		}
+	}
+	return string;
 }
 
 GetStacja(playerid)
@@ -1141,11 +1141,11 @@ GetStacja(playerid)
 
 	for(new i; i<MAX_STACJE; i++)
 	{
-	    if(stationInfo[i][sID])
+		if(stationInfo[i][sID])
 			if(IsPlayerInRangeOfPoint(playerid, 10.0, stationInfo[i][sPosX], stationInfo[i][sPosY], stationInfo[i][sPosZ]))
 			{
-			    stacjaid = i;
-			    break;
+				stacjaid = i;
+				break;
 			}
 	}
 
@@ -1315,8 +1315,8 @@ stock GetPlayerLevelName(level)
 
 stock GetPlayerLevel(exp)
 {
-    static levels[] = {
-        (-1), 0, 10, 20,
+	static levels[] = {
+		(-1), 0, 10, 20,
 		35, 45, 60, 80,
 		120, 150, 195, 240,
 		287, 355, 410, 476,
@@ -1325,13 +1325,13 @@ stock GetPlayerLevel(exp)
 		1510, 1588, 1630, 1672,
 		1742, 2000, 2450, 2725,
 		3010, 3550, 3900, 4450
-    };
-    new level = 1;
-    for (new i = 1;
-        i < sizeof(levels) && exp > levels[i];
-        i++, level++
-    ) {}
-    return level;
+	};
+	new level = 1;
+	for (new i = 1;
+		i < sizeof(levels) && exp > levels[i];
+		i++, level++
+	) {}
+	return level;
 }
 
 forward CinematicCameraIntro(playerid);
@@ -1456,4 +1456,39 @@ stock StopCinematicCameraIntro(playerid)
 	DeletePVar(playerid, "INTRO_Timer");
 	StopAudioStreamForPlayer(playerid);
 	return 1;
+}
+
+bool:IsPlayerSpawned(playerid)
+{
+	new pstate = GetPlayerState(playerid);
+	if(pstate != 1 && pstate != 2 && pstate != 3) 
+		return false;
+	return true;
+}
+
+stock GetPlayerFPS(playerid)
+{
+	SetPVarInt(playerid, "drunkLevel", GetPlayerDrunkLevel(playerid));
+
+	if(GetPVarInt(playerid, "drunkLevel") < 100)
+		SetPlayerDrunkLevel(playerid, 2000);
+	else
+	{
+		if(GetPVarInt(playerid, "drunkLevelL") != GetPVarInt(playerid, "drunkLevel")) 
+		{
+			if(IsPlayerSpawned(playerid))
+	  		{
+				new FPS = GetPVarInt(playerid, "drunkLevelL") - GetPVarInt(playerid, "drunkLevel");
+				SetPVarInt(playerid, "drunkLevelL", GetPVarInt(playerid, "drunkLevel"));
+				SetPVarInt(playerid, "ept_fps", ((GetPVarInt(playerid, "ept_fps") > 1 ? GetPVarInt(playerid, "ept_fps") : FPS) + FPS-1) / 2);
+
+				return FPS - 1;
+			}
+			else
+	  		{
+				return GetPVarInt(playerid, "ept_fps");
+			}
+		}
+	}
+	return 0;
 }

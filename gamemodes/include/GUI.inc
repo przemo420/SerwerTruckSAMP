@@ -131,7 +131,7 @@ Dialog:DIALOG_ID_REGISTER(playerid, response, listitem, inputtext[])
 			StopCinematicCameraIntro(playerid);
 			ShowPlayerConnect(playerid, false);
 			ShowConnect(playerid, false);
-			TextDrawShowForPlayer(playerid, MainTextDraws[Date]);
+			TextDrawShowForPlayer(playerid, MainTextDraws[Time]);
 
 			SetSpawnInfo(playerid, 0, playerInfo[playerid][pSkin], 1648.4308, -1053.9159, 23.8984, 0.0, 0, 0, 0, 0, 0, 0);
 			TogglePlayerSpectating(playerid, false);
@@ -1292,44 +1292,48 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 	if(!response)
 		return SelectTextDraw(playerid, 0xA82A23FF);
 
-	new s_buf[451+MAX_PLAYER_NAME+129], Name[32], Pass[129], ip[16];
+	new 
+		szBuffer[466+MAX_PLAYER_NAME+129], 
+		nick[32], 
+		password[129], 
+		ip[16];
 
 	if(isnull(inputtext))
 	{
-		format(s_buf, sizeof(s_buf), "{FFFFFF}Serwer-Truck SAMP - Logowanie konta.\n\n{a9c4e4}WprowadŸ has³o do konta, aby zacz¹æ rozgrywkê.\n\n");
-		format(s_buf, sizeof(s_buf), "%s{a9c4e4}Wykorzysta³eœ ju¿ {FFFFFF}[%d/3] {a9c4e4}próby zalogowania.\n\n{FFFFFF}www.serwertruck.eu", s_buf, GetPVarInt(playerid, "leci"));
+		format(szBuffer, sizeof(szBuffer), "{FFFFFF}Serwer-Truck SAMP - Logowanie konta.\n\n{a9c4e4}WprowadŸ has³o do konta, aby zacz¹æ rozgrywkê.\n\n");
+		format(szBuffer, sizeof(szBuffer), "%s{a9c4e4}Wykorzysta³eœ ju¿ {FFFFFF}[%d/3] {a9c4e4}próby zalogowania.\n\n{FFFFFF}www.serwertruck.eu", szBuffer, GetPVarInt(playerid, "leci"));
 
-		Dialog_Show(playerid, DIALOG_ID_LOGIN, DIALOG_STYLE_PASSWORD, "Panel > Logowanie", s_buf, "Zaloguj", "Zamknij");
+		Dialog_Show(playerid, DIALOG_ID_LOGIN, DIALOG_STYLE_PASSWORD, "Panel > Logowanie", szBuffer, "Zaloguj", "Zamknij");
 		return 1;
 	}
 
 	GetPlayerIp(playerid, ip, sizeof(ip));
 
-	WP_Hash(Pass, sizeof (Pass), inputtext);
-	mysql_real_escape_string(PlayerName(playerid), Name);
+	WP_Hash(password, sizeof(password), inputtext);
+	mysql_real_escape_string(PlayerName(playerid), nick);
 
-	format(s_buf, sizeof(s_buf), "SELECT gracze.ID, gracze.Money, gracze.Score, gracze.Admin, gracze.Bankomat, gracze.Firma, gracze.Skin, gracze.Tacho, gracze.Foto, gracze.Toll, gracze.Gtime, gracze.Worktime, gracze.BuildMaster, gracze.Adr, \
+	format(szBuffer, sizeof szBuffer, "SELECT gracze.ID, gracze.Money, gracze.Score, gracze.Admin, gracze.Bankomat, gracze.Firma, gracze.Skin, gracze.Tacho, gracze.Foto, gracze.Toll, gracze.Gtime, gracze.Worktime, gracze.BuildMaster, gracze.Adr, \
 		CASE WHEN scigani.id IS NOT NULL THEN scigani.id ELSE 0 END AS sciganiID \
 		FROM `Accounts` AS gracze \
 		LEFT JOIN `st_scigani` AS scigani ON gracze.ID = scigani.graczid AND scigani.aresztowanyprzez = 0 \
-		WHERE gracze.name = '%s' AND `Pass` = '%s'", Name, Pass);
-	mysql_query(s_buf);
+		WHERE gracze.nick = '%s' AND `Pass` = '%s'", nick, password);
+	mysql_query(szBuffer);
 	mysql_store_result();
 
-	if(mysql_fetch_row(s_buf, "|")) 
+	if(mysql_fetch_row(szBuffer, "|")) 
 	{
 		PlayerLogged(playerid);
 		ResetPlayerMoney(playerid);
 
-		sscanf(s_buf, "e<p<|>ddddddddddddddd>", playerInfo[playerid]);
+		sscanf(szBuffer, "e<p<|>dddfdddddddddddd>", playerInfo[playerid]);
 
 		mysql_free_result();
 
-		format(s_buf, sizeof(s_buf), "UPDATE `Accounts` SET `Online`='1', `IP`='%s' WHERE `Name` = '%s'", ip, Name);
-		mysql_query(s_buf);
+		format(szBuffer, sizeof(szBuffer), "UPDATE `Accounts` SET `Online`='1', `IP`='%s' WHERE `nick` = '%s'", ip, nick);
+		mysql_query(szBuffer);
 
-		format(s_buf, sizeof(s_buf), "[IP: %s] Zalogowano poprawnie (próba: %d)", ip, GetPVarInt(playerid, "leci"));
-		ToLog(playerInfo[playerid][pID], LOG_TYPE_PLAYER, s_buf);
+		format(szBuffer, sizeof(szBuffer), "[IP: %s] Zalogowano poprawnie (próba: %d)", ip, GetPVarInt(playerid, "leci"));
+		ToLog(playerInfo[playerid][pID], LOG_TYPE_PLAYER, szBuffer);
 
 		GivePlayerMoney(playerid, playerInfo[playerid][pMoney]);
 		SetPlayerScore(playerid, playerInfo[playerid][pScore]);
@@ -1340,7 +1344,8 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 		StopCinematicCameraIntro(playerid);
 		ShowPlayerConnect(playerid, false);
 		ShowConnect(playerid, false);
-		TextDrawShowForPlayer(playerid, MainTextDraws[Date]);
+		ShowPlayerHud(playerid, true);
+		TextDrawShowForPlayer(playerid, MainTextDraws[Time]);
 
 		SprawdzPoziom(playerid);
 		SetSpawnInfo(playerid, 0, playerInfo[playerid][pSkin], 1648.4308, -1053.9159, 23.8984, 0.0, 0, 0, 0, 0, 0, 0);
@@ -1357,10 +1362,10 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 		timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "d", playerid);
 	}
 
-	format(s_buf, sizeof(s_buf), "{FFFFFF}Serwer-Truck SAMP - Logowanie konta.\n\n{a9c4e4}WprowadŸ has³o do konta aby zacz¹æ rozgrywkê.\n\n");
-	format(s_buf, sizeof(s_buf), "%s{a9c4e4}Wykorzysta³eœ ju¿ {FFFFFF}[%d/3] {a9c4e4}próby zalogowania.\n\n{FFFFFF}www.serwertruck.eu", s_buf, GetPVarInt(playerid, "leci"));
+	format(szBuffer, sizeof(szBuffer), "{FFFFFF}Serwer-Truck SAMP - Logowanie konta.\n\n{a9c4e4}WprowadŸ has³o do konta aby zacz¹æ rozgrywkê.\n\n");
+	format(szBuffer, sizeof(szBuffer), "%s{a9c4e4}Wykorzysta³eœ ju¿ {FFFFFF}[%d/3] {a9c4e4}próby zalogowania.\n\n{FFFFFF}www.serwertruck.eu", szBuffer, GetPVarInt(playerid, "leci"));
 
-	Dialog_Show(playerid, DIALOG_ID_LOGIN, DIALOG_STYLE_PASSWORD, "Panel > Logowanie", s_buf, "Zaloguj", "Zamknij");
+	Dialog_Show(playerid, DIALOG_ID_LOGIN, DIALOG_STYLE_PASSWORD, "Panel > Logowanie", szBuffer, "Zaloguj", "Zamknij");
 
 	return 1;
 }

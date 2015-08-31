@@ -107,23 +107,18 @@ public ViaToll_OnGameModeInit()
 
 forward HideViaBlip(playerid);
 public HideViaBlip(playerid)
-	return SetPVarInt(playerid, "ViaPoint", 0), TextDrawHideForPlayer(playerid, Speedometer[ViaTollPlus]);
+{
+	PlayerTextDrawColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid], -16776961);
+	PlayerTextDrawShow(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid]);
+	SetPVarInt(playerid, "ViaPoint", 0);
+	return 1;
+}
 
 forward ViaToll_OneSecPlayerTimer(playerid);
 public ViaToll_OneSecPlayerTimer(playerid)
 {
 	if(!IsPlayerInAnyVehicle(playerid) || !IsPlayerInTruck(playerid) || GetPlayerState(playerid) != PLAYER_STATE_DRIVER)
 		return 1;
-
-	if(GetViaMoney(playerid) <= 0)
-	{
-		if(Speedometer[ViaTollVisible])
-			TextDrawShowForPlayer(playerid, Speedometer[ViaTollX]);
-		else
-			TextDrawHideForPlayer(playerid, Speedometer[ViaTollX]);
-	}
-	else
-		TextDrawHideForPlayer(playerid, Speedometer[ViaTollX]);
 
 	Loop(i, sizeof viaPoints)
 	{
@@ -137,9 +132,17 @@ public ViaToll_OneSecPlayerTimer(playerid)
 					GiveViaMoney(playerid, -1);
 
 					if(GetViaMoney(playerid) >= 1)
-						TextDrawShowForPlayer(playerid, Speedometer[ViaTollPlus]), SetTimerEx("HideViaBlip", 3000, false, "d", playerid);
-
-					
+					{
+						PlayerTextDrawColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid], 3705873);
+						PlayerTextDrawShow(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid]);
+						SetTimerEx("HideViaBlip", 3000, false, "d", playerid);
+					}
+					else
+					{
+						PlayerTextDrawColor(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid], 13182502);
+						PlayerTextDrawShow(playerid, hudInfo[tdInfoSpeedo][TD_CAR_TOLL][playerid]);
+						SetTimerEx("HideViaBlip", 3000, false, "d", playerid);
+					}
 					SetPVarInt(playerid, "ViaPoint", 1);
 				}
 			}
@@ -148,10 +151,6 @@ public ViaToll_OneSecPlayerTimer(playerid)
 	
 	return 1;
 }
-
-forward ViaToll_OneSecTimer();
-public ViaToll_OneSecTimer()
-	Speedometer[ViaTollVisible] = !Speedometer[ViaTollVisible];
 
 GetViaShop(playerid)
 {
