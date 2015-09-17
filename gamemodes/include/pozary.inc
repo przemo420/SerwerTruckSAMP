@@ -29,15 +29,6 @@ CMD:pozary(playerid, cmdtext[])
 	return 1;
 }
 
-CMD:nadyzurze(playerid, cmdtext[])
-{
-	new string[50];
-	for(new i; i<=7; i++)
-		format(string, sizeof(string), "%s%s (%d)\n", string, firmInfo[i][tName], NaDyzurze[i]);
-
-	return ShowInfo(playerid, string);
-}
-
 forward Fire_OneSecPlayerTimer(playerid);
 public Fire_OneSecPlayerTimer(playerid)
 {
@@ -48,6 +39,9 @@ public Fire_OneSecPlayerTimer(playerid)
 	{
 		new fireobject = GetPlayerCameraTargetObject(playerid);
 		new id = GetClosestFire(playerid);
+
+		if(id > MAX_FIRE || id < 0)
+			return 1;
 
 		if(fireobject == INVALID_OBJECT_ID)
 			return 1;

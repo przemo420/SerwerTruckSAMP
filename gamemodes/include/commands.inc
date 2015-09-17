@@ -42,8 +42,8 @@ Dialog:DIALOG_FAQ(playerid, response, listitem, inputtext[])
 		case 1: return cmd_spisfirm(playerid);
 		case 2: return cmd_poziomy(playerid);
 		case 3: return cmd_zdolnosci(playerid, "info");
-		case 4: return 1;
-		case 5: return cmd_komendy(playerid);
+		case 4: return cmd_faq123321(playerid);
+		case 5: return cmd_cmd(playerid);
 		case 6: return cmd_autorzy(playerid, "");
 	}
 	return 1;
@@ -80,7 +80,7 @@ CMD:faq123321(playerid)
 	strcat(s," \n");
 	strcat(s,""GCOLOR_YELLOW"Mi³ej gry ¿yczy administracja.\n");
 	
-	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", s, "Zamknij", #);
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", s, "Wstecz", #);
 }
 
 CMD:poziomy(playerid)
@@ -119,7 +119,7 @@ CMD:poziomy(playerid)
 	strcat(s, ""COLOR_GUI"Poziom 35 - 39\t\tKról szos");
 	strcat(s, "\n");
 	strcat(s, ""COLOR_GUI"Poziom 40\t\tLegenda");
-	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", s, "Zamknij", #);
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", s, (IsPlayerLogged(playerid)) ? ("WyjdŸ") : ("Wstecz"), #);
 }
 
 CMD:spisfirm(playerid)
@@ -133,7 +133,7 @@ CMD:spisfirm(playerid)
 	strcat(s, "\n");
 	strcat(s, ""COLOR_GUI"SM Logistic\nCargo Tranzit\nBuild Trans\nPetrol Tank");
 
-	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", s, "Zamknij", #);
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", s, "Wstecz", #);
 }
 
 CMD:animacje(playerid, cmdtext[])
@@ -152,7 +152,7 @@ CMD:autor(playerid, params[])
 	return cmd_autorzy(playerid, params);
 
 CMD:autorzy(playerid, params[])
-	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", "Programiœci:\n- Maciek.\n- GeDox\n- Kozak59\n\nBeta-Testerzy:\n- [ST]Kill_Repeat\n- [ST][DJ]Bass\n- Reiban.\n\nTworzenie obiektów:\n- [ST][DJ]Bass\n- TDi\n- Laud.\n- Muscu\n- Marcin[WGM]\n- PolskiJankes\n- Kierowca\n- Kozak59\n- Devil\n- Mati\n - TRAKER", "Zamknij", "");
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", "Programiœci:\n- Maciek.\n- GeDox\n- Kozak59\n\nBeta-Testerzy:\n- [ST]Kill_Repeat\n- [ST][DJ]Bass\n- [ST]Reiban.\n\nTworzenie obiektów:\n- [ST][DJ]Bass\n- TDi\n- Laud.\n- Muscu\n- Marcin[WGM]\n- PolskiJankes\n- Kierowca\n- Kozak59\n- Devil\n- Mati\n- TRAKER\n- Zeruœ\n- Prezes\n- KillerPL", "Wstecz", #);
 
 CMD:tel(playerid, params[])
 	return cmd_telefon(playerid, params);
@@ -163,6 +163,7 @@ CMD:phone(playerid, params[])
 CMD:telefon(playerid, params[])
 {
 	new szString[64];
+	UpdateOnlineWorkers();
 	format(szString, sizeof szString, "Policja\t\t\t(%d)\nPogotowie\t\t(%d)\nPomoc drogowa\t(%d)", NaDyzurze[1], NaDyzurze[2], NaDyzurze[3]);
 	return Dialog_Show(playerid, DIALOG_ID_TELEPHONE, DIALOG_STYLE_LIST, " ", szString, "Wybierz", "Anuluj");
 }
@@ -281,6 +282,29 @@ CMD:pauza(playerid, params[])
 	return 1;
 }
 
+CMD:magnes(playerid, params[])
+{
+	if(!IsPlayerInAnyVehicle(playerid))
+		return Msg(playerid, COLOR_ERROR, "Nie jesteœ w pojeŸdzie.");
+
+	if(!IsPlayerInTruck(playerid))
+		return Msg(playerid, COLOR_ERROR, "Nie mo¿esz u¿ywaæ magnesu w tym samochodzie.");
+
+	if(!playerInfo[playerid][pMagnes])
+	{
+		playerInfo[playerid][pMagnesTime] = gettime();
+		playerInfo[playerid][pMagnes] = true;
+		Msg(playerid, COLOR_INFO, "Magnes zosta³ w³¹czony.");
+	}
+	else
+	{
+		playerInfo[playerid][pMagnesTime] = gettime();
+		playerInfo[playerid][pMagnes] = false;
+		Msg(playerid, COLOR_INFO, "Magnes zosta³ wy³¹czony.");
+	}
+	return 1;
+}
+
 CMD:v(playerid, params[])
 {
 	new string[100], vehicleid = GetPlayerVehicleID(playerid), engine, lights, alarm, doors ,bonnet, boot, objective;
@@ -299,21 +323,61 @@ CMD:v(playerid, params[])
 	return 1;
 }
 
+CMD:cmd(playerid)
+{
+	new szString[1306];
+	strcat(szString, "Komendy wszystkich:\n \n");
+	strcat(szString, "/pomoc - Wyœwietla menu pomocy\n");
+	strcat(szString, "/pauza - Krêcenie pauzy / odpoczynek\n");
+	strcat(szString, "/animacja - Wyœwietla dostêpne na serwerze animacje\n");
+	strcat(szString, "/autorzy - Pokazuje twórców mapy\n");
+	strcat(szString, "/telefon - S³u¿y do wzywania frakcji uprzywilejowanych\n");
+	strcat(szString, "/pojazd - Tworzenie pojazdu\n");
+	strcat(szString, "/spawn - Przeniesienie gracza na spawn\n");
+	strcat(szString, "/pasy - Zapinanie pasów w pojeŸdzie\n");
+	strcat(szString, "/stats -Statystyki gracza\n");
+	strcat(szString, "/firma - Wyœwietla menu firmy w której pracujemy\n");
+	strcat(szString, "/viatoll - Kupowanie viatollu na stacji\n");
+	strcat(szString, "/lastpos - Teleportacja do ostatniej pozycji\n");
+	strcat(szString, "/v - Otwiera menu pojazdu\n");
+	strcat(szString, "/tankuj - Tankowanie pojazdu\n");
+	strcat(szString, "/praca - Rozpoczyna pracê\n");
+	strcat(szString, "/dyzur - Rozpoczyna dy¿ur\n");
+	strcat(szString, "/adr - Kurs adr\n");
+	strcat(szString, "/pogodynka - wWyœwietla prognozê pogody\n");
+	strcat(szString, "/reczny - Zaci¹ganie hamulca rêcznego\n");
+	strcat(szString, "/konwoj - Tworzenie konwoju\n");
+	strcat(szString, "/zaproszenia - Zaproszenia do konwoju\n");
+	strcat(szString, "/radio - W³¹czanie radia\n");
+	strcat(szString, "/bankomat - Otwiera menu bankomatu\n");
+	strcat(szString, "/tablica - Tablica og³oszeñ\n");
+	strcat(szString, "/spisfirm - Spis firm/frakcji dostêpnych na serwerze\n");
+	strcat(szString, "/zdolnosci - Menu zdolnoœci kierowcy\n");
+	strcat(szString, "/poziomy - Informacje o poziomach\n");
+	strcat(szString, "/magnes - uruchamia magnes tachografu\n");
+	strcat(szString, "/gps - otwiera menu GPSu\n");
+	strcat(szString, "/anuluj - anuluje obecne zlecenie");
+
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "Dostêpne komendy", szString, (IsPlayerLogged(playerid)) ? ("WyjdŸ") : ("Wstecz"), #);
+}
+
 CMD:cmds(playerid)
 {
-	new szString[372], firmaid=playerInfo[playerid][pFirm];
-	strcat(szString, "Komendy wszystkich:\n");
-	strcat(szString, szCommands[0]);
+	new firm = playerInfo[playerid][pFirm];
+	if(firm < 1)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(GetPVarInt(playerid, "Worked") && firmaid != 0)
-		strcat(szString, "\n---\nKomendy firmy:\n"), strcat(szString, szCommands[firmInfo[firmaid][tType]]);
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Aktualnie nie pracujesz.");
 
-	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_LIST, "Dostêpne komendy", szString, "WyjdŸ", #);
+	new szString[330];
+	strcat(szString, szCommands[firm]);
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "Dostêpne komendy", szString, "WyjdŸ", #);
 }
 
 CMD:komendy(playerid)
 {
-	return cmd_cmds(playerid);
+	return cmd_cmd(playerid);
 }
 
 CMD:tachograf(playerid)
@@ -328,9 +392,70 @@ CMD:tachograf(playerid)
 	- /wypadki
 */
 
+CMD:acmd(playerid)
+{
+	if(playerInfo[playerid][pAdmin] < 1)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
+	new szString[2000];
+
+	strcat(szString, "/mute - wycisza gracza\n");
+	strcat(szString, "/unmute - koniec wyciszenia gracza\n");
+	strcat(szString, "/warn - daje ostrze¿enie graczowi\n");
+	strcat(szString, "/unwarn - zdejmuje ostrze¿enie z gracza\n");
+	strcat(szString, "/kick - wyrzuca gracza z serwera\n");
+	strcat(szString, "/ban - banuje gracza na dany okres czasu\n");
+	strcat(szString, "/pogoda - zmiana pogody na serwerze\n");
+	strcat(szString, "/clear - czyœcie czat\n");
+	strcat(szString, "/refuelveh - tankuje pojazd\n");
+	strcat(szString, "/repair - naprawia pojazd\n");
+	strcat(szString, "/colorplayer - zmienia kolor nicku gracza\n");
+	strcat(szString, "/createveh - tworzy pojazd admina\n");
+	strcat(szString, "/destroyveh - usuwa wybrany pojazd admina\n");
+	strcat(szString, "/destroyvehall - usuwa wszystkie pojazdy stworzone przez admina\n");
+	strcat(szString, "/setcash - ustawia stan gotówki gracza\n");
+	strcat(szString, "/givemoney - dodaje gotówkê\n");
+	strcat(szString, "/resetscore - resetuje iloœæ score gracza\n");
+	strcat(szString, "/resetmoney - resetuje iloœæ pieniêdzy gracza\n");
+	strcat(szString, "/setscore - ustawia iloœæ score danego gracza\n");
+	strcat(szString, "/givescore - dodaje score\n");
+	strcat(szString, "/givescoreall - dodaje score wszystkim graczom na serwerze\n");
+	strcat(szString, "/givemoneyall - dodaje pieni¹dze wszystkim graczom na serwerze\n");
+	strcat(szString, "/dodajpracownika - dodaje pracownika do firmy/frakcji\n");
+	strcat(szString, "/ustawlidera - ustawia lidera firmy/frakcji\n");
+	strcat(szString, "/hideme - ukrywa administratora na liœcie\n");
+	strcat(szString, "/showme - pokazuje administratora na liœcie\n");
+	strcat(szString, "/respawn - respawn nieu¿ywanych pojazdów\n");
+	strcat(szString, "/givegun - daje broñ danemu graczowi\n");
+	strcat(szString, "/disarm - rozbraja gracza\n");
+	strcat(szString, "/disarmall - rozbraja wszystkich graczy\n");
+	strcat(szString, "/setskin - ustawia skin danemu graczowi\n");
+	strcat(szString, "/heal - ulecza gracza\n");
+	strcat(szString, "/armor - dajesz armor graczowi\n");
+	strcat(szString, "/killp - zabija gracza\n");
+	strcat(szString, "/explode - exploduje gracza\n");
+	strcat(szString, "/remove - wyrzuca gracza z pojazdu\n");
+	strcat(szString, "/freeze - zamra¿a gracza\n");
+	strcat(szString, "/unfreeze - odmra¿a gracza\n");
+	strcat(szString, "/freezeall - zamra¿a wszystkich graczy na serwerze\n");
+	strcat(szString, "/unfreezeall - odmra¿a wszystkich graczy na serwerze\n");
+	strcat(szString, "/cd - rozpoczyna odliczanie z zamro¿eniem wszystkich graczy lub bez\n");
+	strcat(szString, "/uping - podnosi gracza\n");
+	strcat(szString, "/downing - opuszcza gracza\n");
+	strcat(szString, "/specon - podgl¹dasz gracza\n");
+	strcat(szString, "/specoff - wy³¹cza podgl¹d gracza\n");
+	strcat(szString, "/tp - teleportuje gracza\n");
+	strcat(szString, "/tphere - teleportuje gracza do nas\n");
+	strcat(szString, "/setloc - ustawia teleport\n");
+	strcat(szString, "/tploc - teleportuje do ustawionego teleportu\n");
+	strcat(szString, "/ann - og³oszenie na œrodku ekranu");
+
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, "Dostêpne komendy", szString, "WyjdŸ", #);
+}
+
 CMD:ulecz(playerid, params[])
 {
-	new forplayerid, string[90];
+	new targetid, string[90];
 
 	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_MEDIC)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
@@ -338,39 +463,36 @@ CMD:ulecz(playerid, params[])
 	if(!GetPVarInt(playerid, "Worked"))
 		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
 
-	if(sscanf(params, "d", forplayerid))
+	if(sscanf(params, "d", targetid))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: {b}/ulecz [id gracza]{/b}");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracza z tym ID nie ma online.");
 
-	if(GetDistancePlayerToPlayer(playerid, forplayerid) > 3.0)
+	if(GetDistancePlayerToPlayer(playerid, targetid) > 3.0)
 		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od gracza.");
 
 	if(GetPlayerSpeed(playerid) > 0)
 		return Msg(playerid, COLOR_ERROR, "Gracz nie mo¿e siê poruszaæ.");
 
-	if(GetPVarInt(forplayerid, "Wypadek"))
+	if(GetPVarInt(targetid, "Wypadek"))
 	{
-		DeletePVar(forplayerid, "Wypadek");
-		DeletePVar(forplayerid, "Wypadekzmedykiem");
-
-		Loop(i, MAX_PLAYERS)
-			if(firmInfo[playerInfo[i][pFirm]][tType] == TEAM_TYPE_MEDIC && !GetPVarInt(i, "AFK"))
-				RemovePlayerMapIcon(i, forplayerid);
+		FadeColorForPlayer(targetid, 204, 58, 41, 125, 0, 0, 0, 0, 25, 0);
+		DeletePVar(targetid, "Wypadek");
+		DeletePVar(targetid, "Wypadekzmedykiem");
 	}
 
 	KillTimer(GetPVarInt(playerid, "healTimer"));
 	DeletePVar(playerid, "healTimer");
 
-	TogglePlayerControllable(forplayerid, 1);
-	SetPlayerHealth(forplayerid, 100.0);
+	TogglePlayerControllable(targetid, 1);
+	SetPlayerHealth(targetid, 100.0);
 
-	format(string, sizeof(string), "Uleczy³eœ gracza {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(forplayerid), forplayerid);
+	format(string, sizeof(string), "Uleczy³eœ gracza {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(targetid), targetid);
 	Msg(playerid, COLOR_INFO3, string);
 
 	format(string, sizeof(string), "Zosta³eœ uleczony przez ratownika {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(playerid), playerid);
-	Msg(forplayerid, COLOR_INFO3, string);
+	Msg(targetid, COLOR_INFO3, string);
 	return 1;
 }
 
@@ -412,6 +534,11 @@ CMD:zgloszenia(playerid)
 
 	Dialog_Show(playerid, DIALOG_CALL, DIALOG_STYLE_TABLIST_HEADERS, "Lista zg³oszeñ", szString, "Wybierz", "WyjdŸ");
 	return 1;
+}
+
+CMD:wezwania(playerid)
+{
+	return cmd_zgloszenia(playerid);
 }
 
 Dialog:DIALOG_CALL(playerid, response, listitem, inputtext[])
@@ -457,6 +584,7 @@ Dialog:DIALOG_CALL2(playerid, response, listitem, inputtext[])
 			}
 			callInfo[type][callAssigned][id] = playerid;
 			Msg(playerid, COLOR_INFO, "Pomyœlnie przyjêto zg³oszenie.");
+			Msg(callInfo[type][callPCalled], COLOR_INFO, "Zg³oszenie zosta³o przyjête! Ju¿ ktoœ do Ciebie jedzie!");
 			SetPVarInt(playerid, "RESERVED", 1);
 
 			new Float:pos[3], player = callInfo[type][callPCalled][id];
@@ -497,14 +625,9 @@ CMD:dyzur(playerid, params[])
 		
 		Loop(player, MAX_PLAYERS)
 		{
-			if(GetDistancePlayerToPlayer(playerid, player) < 30)
-			{
-				format(string, sizeof string, "Gracz {b}%s{/b} rozpocz¹³ dy¿ur w: {b}%s{/b}.", PlayerName(playerid), firmInfo[firmaid][tName]);
-				Msg(player, COLOR_INFO2, string);
-			}
+			format(string, sizeof string, "Gracz {b}%s{/b} rozpocz¹³ dy¿ur w: {b}%s{/b}.", PlayerName(playerid), firmInfo[firmaid][tName]);
+			Msg(player, COLOR_INFO2, string);
 		}
-
-		NaDyzurze[firmaid]++;
 
 		if(firmInfo[firmaid][tType] == TEAM_TYPE_MEDIC)
 			EnablePlayerCameraTarget(playerid, 1);
@@ -535,11 +658,18 @@ CMD:dyzur(playerid, params[])
 			RemovePlayerMapIcon(playerid, 73);
 		}
 
-		NaDyzurze[firmaid]--;
+		if(GetPVarInt(playerid, "RadarOnline"))
+		{
+			ShowPlayerRadar(playerid, false);
+			Msg(playerid, COLOR_INFO, "Wy³¹czono radar.");
+			DeletePVar(playerid, "RadarOnline");
+		}
 
 		if(firmInfo[firmaid][tType] == TEAM_TYPE_MEDIC)
 			EnablePlayerCameraTarget(playerid, 0);
 	}
+
+	UpdateOnlineWorkers();
 
 	if(firmInfo[firmaid][tType] == TEAM_TYPE_POMOC)
 	{
@@ -547,13 +677,13 @@ CMD:dyzur(playerid, params[])
 		{
 			for(new i; i <= 8; i++)
 				GetDynamicObjectPos(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]),
-				MoveDynamicObject(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]+5.0, 10);
+				MoveDynamicObject(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]+7.0, 10);
 		}
 		else
 		{
 			for(new i; i <= 8; i++)
 				GetDynamicObjectPos(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]),
-				MoveDynamicObject(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]-5.0, 10);
+				MoveDynamicObject(Spray[i], ObjectPos[0], ObjectPos[1], ObjectPos[2]-7.0, 10);
 		}
 	}
 
@@ -571,6 +701,13 @@ CMD:praca(playerid, params[])
 	{
 		DeletePVar(playerid, "Worked");
 		DeletePVar(playerid, "Working");
+
+		if(GetPVarInt(playerid, "RadarOnline"))
+		{
+			ShowPlayerRadar(playerid, false);
+			Msg(playerid, COLOR_INFO, "Wy³¹czono radar.");
+			DeletePVar(playerid, "RadarOnline");
+		}
 
 		if(firmInfo[playerInfo[playerid][pFirm]][tType] > 0 && firmInfo[playerInfo[playerid][pFirm]][tType] < 4)
 		{
@@ -631,10 +768,14 @@ CMD:praca(playerid, params[])
 			}
 		}
 
-		Msg(playerid, COLOR_INFO, "Zaczynasz pracê. By móc u¿ywaæ komend wpisz {b}/dyzur{/b}.");
+		if(playerInfo[playerid][pFirm] <= 3)
+			Msg(playerid, COLOR_INFO, "Zaczynasz pracê. By móc u¿ywaæ komend wpisz {b}/dyzur{/b}.");
+		else
+			SetPVarInt(playerid, "Worked", 1);
 
 		SetPVarInt(playerid, "Working", 1);
 		SetPlayerColor(playerid, firmInfo[firmaid][tColor]);
+		UpdateOnlineWorkers();
 
 		Dialog_Show(playerid, DIALOG_TP_LOGIN_SKIN, DIALOG_STYLE_LIST, "Firma > Skiny", "Skin 1\nSkin 2\nSkin 3\nSkin 4\nSkin 5", "Ok", "");
 	}
@@ -698,16 +839,16 @@ CMD:praca(playerid, params[])
 
 CMD:god(playerid, params[])
 {
-	new forplayerid, string[128];
+	new targetid, string[128];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "d", forplayerid))
+	if(sscanf(params, "d", targetid))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: {b}/god [id gracza]{/b}");
 
-	SetPlayerHealth(forplayerid, 9999999);
-	format(string, sizeof string, "Da³eœ nieœmiertelnoœæ graczowi {b}%s{/b} (ID: %d).", PlayerName(forplayerid), forplayerid);
+	SetPlayerHealth(targetid, 9999999);
+	format(string, sizeof string, "Da³eœ nieœmiertelnoœæ graczowi {b}%s{/b} (ID: %d).", PlayerName(targetid), targetid);
 	Msg(playerid, COLOR_INFO, string);
 	format(string, sizeof string, "Administrator {b}%s{/b} (ID: %d) da³ Ci nieœmiertelnoœæ.", PlayerName(playerid), playerid);
 	
@@ -716,39 +857,40 @@ CMD:god(playerid, params[])
 
 CMD:repair(playerid, params[])
 {
-	new forplayerid, string[128];
+	new targetid, string[128];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "d", forplayerid))
+	if(sscanf(params, "d", targetid))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /repair [id gracza]");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
-	if(!IsPlayerInAnyVehicle(forplayerid))
+	if(!IsPlayerInAnyVehicle(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracz ten nie znajduje siê w pojeŸdzie.");
 
-	RepairVehicle(GetPlayerVehicleID(forplayerid));
+	RepairVehicle(GetPlayerVehicleID(targetid));
 	
-	if(IsTrailerAttachedToVehicle(GetPlayerVehicleID(forplayerid)))
-		RepairVehicle(GetVehicleTrailer(GetPlayerVehicleID(forplayerid)));
+	if(IsTrailerAttachedToVehicle(GetPlayerVehicleID(targetid)))
+		RepairVehicle(GetVehicleTrailer(GetPlayerVehicleID(targetid)));
 
-	format(string, sizeof string, "Naprawi³eœ pojazd graczowi {b}%s{/b} (ID: %d).", PlayerName(forplayerid), forplayerid);
+	format(string, sizeof string, "Naprawi³eœ pojazd graczowi {b}%s{/b} (ID: %d).", PlayerName(targetid), targetid);
 	Msg(playerid, COLOR_INFO, string);
 	format(string, sizeof string, "Administrator {b}%s{/b} (ID: %d) naprawi³ ci pojazd.", PlayerName(playerid), playerid);
 
-	return Msg(forplayerid, COLOR_INFO, string);
+	return Msg(targetid, COLOR_INFO, string);
 }
 
 CMD:tpto(playerid, params[])
 {
-	if(isnull(params))
+	new targetid;
+	if(sscanf(params, "d", targetid))
 		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/tpto [id gracza]{/b}");
 
 	new string[10];
-	format(string, sizeof(string), "%d %s", playerid, params);
+	format(string, sizeof(string), "%d %d", playerid, targetid);
 	return cmd_tp(playerid, string);
 }
 
@@ -764,28 +906,28 @@ CMD:tphere(playerid, params[])
 
 CMD:tp(playerid, params[])
 {
-	new forplayerid, wheplayerid, string[138];
+	new targetid, wheplayerid, string[138];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "dd", forplayerid, wheplayerid))
+	if(sscanf(params, "dd", targetid, wheplayerid))
 		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/tp [id gracza] [id gracza]{/b}");
 
 	new Float:x, Float:y, Float:z;
-	new vehicleid = GetPlayerVehicleID(forplayerid);
+	new vehicleid = GetPlayerVehicleID(targetid);
 	GetPlayerPos(wheplayerid, x,y,z);
 
-	if(IsPlayerInAnyVehicle(forplayerid))
+	if(IsPlayerInAnyVehicle(targetid))
 	{
 		SetVehiclePos(vehicleid, x,y,z);
-		SetPlayerPos(forplayerid, x,y,z);
-		PutPlayerInVehicle(forplayerid, vehicleid, 0);
+		SetPlayerPos(targetid, x,y,z);
+		PutPlayerInVehicle(targetid, vehicleid, 0);
 	}
 	else
-		SetPlayerPos(forplayerid, x,y,z);
+		SetPlayerPos(targetid, x,y,z);
 	
-	if(playerid == forplayerid)
+	if(playerid == targetid)
 	{
 		format(string, sizeof string, "Teleportowa³eœ siê do {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(wheplayerid), wheplayerid);
 		Msg(playerid, COLOR_INFO2, string);
@@ -794,18 +936,18 @@ CMD:tp(playerid, params[])
 	}
 	else if(playerid == wheplayerid)
 	{
-		format(string, sizeof string, "Teleportowa³eœ {b}%s{/b} (ID: {b}%d{/b}) do siebie.", PlayerName(forplayerid), forplayerid);
+		format(string, sizeof string, "Teleportowa³eœ {b}%s{/b} (ID: {b}%d{/b}) do siebie.", PlayerName(targetid), targetid);
 		Msg(playerid, COLOR_INFO2, string);
-		format(string, sizeof string, "Administrator {b}%s{/b} (ID: {b}%d{/b}) teleportowa³ ciê do ciebie.", PlayerName(playerid), playerid);
-		Msg(forplayerid, COLOR_INFO2, string);
+		format(string, sizeof string, "Administrator {b}%s{/b} (ID: {b}%d{/b}) teleportowa³ siê do ciebie.", PlayerName(playerid), playerid);
+		Msg(targetid, COLOR_INFO2, string);
 	}
 	else
 	{
-		format(string, sizeof string, "Teleportowa³eœ gracza {b}%s{/b} (ID: {b}%d{/b}) do {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(forplayerid), forplayerid, PlayerName(wheplayerid), wheplayerid);
+		format(string, sizeof string, "Teleportowa³eœ gracza {b}%s{/b} (ID: {b}%d{/b}) do {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(targetid), targetid, PlayerName(wheplayerid), wheplayerid);
 		Msg(playerid, COLOR_INFO2, string);
 		format(string, sizeof string, "Administrator {b}%s{/b} (ID: {b}%d{/b}) teleportowa³ ciê do {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(playerid), playerid, PlayerName(wheplayerid), wheplayerid);
-		Msg(forplayerid, COLOR_INFO2, string);
-		format(string, sizeof string, "Administrator {b}%s{/b} (ID: {b}%d{/b}) teleportowa³ do ciebie {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(playerid), playerid, PlayerName(forplayerid), forplayerid);
+		Msg(targetid, COLOR_INFO2, string);
+		format(string, sizeof string, "Administrator {b}%s{/b} (ID: {b}%d{/b}) teleportowa³ do ciebie {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(playerid), playerid, PlayerName(targetid), targetid);
 		Msg(wheplayerid, COLOR_INFO2, string);
 	}
 
@@ -909,27 +1051,27 @@ CMD:tploc(playerid, params[])
 
 CMD:setscore(playerid, params[])
 {
-	new forplayerid, score;
+	new targetid, score;
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "dd", forplayerid, score))
+	if(sscanf(params, "dd", targetid, score))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /setscore [id gracza] [score]");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest na serwerze.");
 
 	if(score < 0)
 		return Msg(playerid, COLOR_ERROR, "Nie mo¿esz ustawiæ mniej ni¿ 0.");
 
-	ResetScore(forplayerid);
-	GiveScore(forplayerid, score);
+	ResetScore(targetid);
+	GiveScore(targetid, score);
 
 	new string[126];
 	format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) zmieni³ Ci punkty score na {b}%d{/b}.", PlayerName(playerid), playerid, score);
-	Msg(forplayerid, COLOR_INFO, string);
-	format(string, sizeof(string), "Ustawi³eœ graczowi {b}%s{/b} (ID: {b}%d{/b}) punkty score na {b}%d{/b}.", PlayerName(forplayerid), forplayerid, score);
+	Msg(targetid, COLOR_INFO, string);
+	format(string, sizeof(string), "Ustawi³eœ graczowi {b}%s{/b} (ID: {b}%d{/b}) punkty score na {b}%d{/b}.", PlayerName(targetid), targetid, score);
 	Msg(playerid, COLOR_INFO, string);
 
 	return 1;
@@ -937,27 +1079,27 @@ CMD:setscore(playerid, params[])
 
 CMD:setcash(playerid, params[])
 {
-	new forplayerid, kasa;
+	new targetid, kasa;
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "dd", forplayerid, kasa))
+	if(sscanf(params, "dd", targetid, kasa))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /setcash [id gracza] [kasa]");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest na serwerze.");
 
 	if(kasa < 0)
 		return Msg(playerid, COLOR_ERROR, "Nie mo¿esz ustawiæ mniej ni¿ 0.");
 
-	ResetMoney(forplayerid);
-	GiveMoney(forplayerid, kasa);
+	ResetMoney(targetid);
+	GiveMoney(targetid, kasa);
 
 	new string[126];
 	format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) ustawi³ ci kasê na {b}%d${/b}.", PlayerName(playerid), playerid, kasa);
-	Msg(forplayerid, COLOR_INFO, string);
-	format(string, sizeof(string), "Ustawi³eœ graczowi {b}%s{/b} (ID: {b}%d{/b}) kasê na {b}%d${/b}.", PlayerName(forplayerid), forplayerid, kasa);
+	Msg(targetid, COLOR_INFO, string);
+	format(string, sizeof(string), "Ustawi³eœ graczowi {b}%s{/b} (ID: {b}%d{/b}) kasê na {b}%d${/b}.", PlayerName(targetid), targetid, kasa);
 	Msg(playerid, COLOR_INFO, string);
 
 	return 1;
@@ -972,16 +1114,16 @@ CMD:refuelvehall(playerid, params[])
 
 CMD:refuelveh(playerid, params[])
 {
-	new forplayerid, all, string[90];
+	new targetid, all, string[90];
 	new vehicleid;
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "dD(0)", forplayerid, all))
+	if(sscanf(params, "dD(0)", targetid, all))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /refuelveh [id gracza]");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
 
 	if(all)
@@ -1000,7 +1142,7 @@ CMD:refuelveh(playerid, params[])
 	}
 	else
 	{
-		vehicleid = GetPlayerVehicleID(forplayerid);
+		vehicleid = GetPlayerVehicleID(targetid);
 
 		if(Spawned[vehicleid])
 			vehInfo_Temp[vehicleid][vFuel] = MaxFuel(GetVehicleModel(vehicleid));
@@ -1008,9 +1150,9 @@ CMD:refuelveh(playerid, params[])
 			vehInfo[DBVehID[vehicleid]][vFuel] = MaxFuel(GetVehicleModel(vehicleid));
 
 		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) zatankowa³ Ci pojazd.", PlayerName(playerid), playerid);
-		Msg(forplayerid, COLOR_INFO, string);
+		Msg(targetid, COLOR_INFO, string);
 
-		format(string, sizeof(string), "Zatankowa³eœ pojazd graczowi {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(forplayerid), forplayerid);
+		format(string, sizeof(string), "Zatankowa³eœ pojazd graczowi {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(targetid), targetid);
 		Msg(playerid, COLOR_INFO, string);
 	}
 	return 1;
@@ -1025,21 +1167,21 @@ CMD:givegunall(playerid, params[])
 
 CMD:givegun(playerid, params[])
 {
-	new forplayerid, weapon, all, string[128];
+	new targetid, weapon, all, string[128];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "ddD(0)", forplayerid, weapon, all))
+	if(sscanf(params, "ddD(0)", targetid, weapon, all))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /givegun [id gracza] [id broni]");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
 
 	if(weapon < 0 || weapon > 46)
 		return Msg(playerid, COLOR_ERROR, "B³êdne ID broni ({b}1-46{/b}).");
 
-	if(all && forplayerid == playerid)
+	if(all && targetid == playerid)
 	{
 		Loop(player, MAX_PLAYERS)
 			if(IsPlayerConnected(player))
@@ -1050,12 +1192,12 @@ CMD:givegun(playerid, params[])
 	}
 	else
 	{
-		GivePlayerWeapon(forplayerid, weapon, 9999999);
+		GivePlayerWeapon(targetid, weapon, 9999999);
 
 		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) da³ Ci broñ ({b}%s{/b}).", PlayerName(playerid), playerid, GetWeaponNameEx(weapon));
-		Msg(forplayerid, COLOR_INFO, string);
+		Msg(targetid, COLOR_INFO, string);
 
-		format(string, sizeof(string), "Da³eœ %s graczowi %s (ID: {b}%d{/b}).", GetWeaponNameEx(weapon), PlayerName(forplayerid), forplayerid);
+		format(string, sizeof(string), "Da³eœ %s graczowi %s (ID: {b}%d{/b}).", GetWeaponNameEx(weapon), PlayerName(targetid), targetid);
 		Msg(playerid, COLOR_INFO, string);
 	}
 	return 1;
@@ -1070,15 +1212,15 @@ CMD:disarmall(playerid, params[])
 
 CMD:disarm(playerid, params[])
 {
-	new forplayerid, all, string[90];
+	new targetid, all, string[90];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "ddD(0)", forplayerid, all))
+	if(sscanf(params, "ddD(0)", targetid, all))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /disarm [id gracza]");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
 
 	if(all)
@@ -1092,12 +1234,12 @@ CMD:disarm(playerid, params[])
 	}
 	else
 	{
-		ResetPlayerWeapons(forplayerid);
+		ResetPlayerWeapons(targetid);
 
 		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) zresetowa³ ci bronie.", PlayerName(playerid), playerid);
-		Msg(forplayerid, COLOR_INFO, string);
+		Msg(targetid, COLOR_INFO, string);
 
-		format(string, sizeof(string), "Zresetowa³eœ bronie graczowi {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(forplayerid), forplayerid);
+		format(string, sizeof(string), "Zresetowa³eœ bronie graczowi {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(targetid), targetid);
 		Msg(playerid, COLOR_INFO, string);
 	}
 	return 1;
@@ -1112,39 +1254,30 @@ CMD:foodall(playerid, params[])
 
 CMD:food(playerid, params[])
 {
-	new forplayerid, all, string[120];
+	new targetid, all, string[120];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "dD(0)", forplayerid, all))
+	if(sscanf(params, "dD(0)", targetid, all))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /food [id gracza]");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
 
 	if(all)
 	{
-		Loop(player, MAX_PLAYERS)
-			if(IsPlayerConnected(player))
-			{
-				//SetPVarInt(player, "JEDZENIEPROCENTY", 100);
-				//SetPlayerProgressBarValue(player, Glod[player], 100.0);
-				//UpdatePlayerProgressBar(player, Glod[player]);
-			}
+
 		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) zmniejszy³ wszystkim g³ód.", PlayerName(playerid), playerid);
 		MsgToAll(COLOR_INFO, string);
 	}
 	else
 	{
-		//SetPVarInt(forplayerid, "JEDZENIEPROCENTY", 100);
-		//SetPlayerProgressBarValue(forplayerid, Glod[forplayerid], 100.0);
-		//UpdatePlayerProgressBar(forplayerid, Glod[forplayerid]);
 
 		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) zmniejszy³ Ci g³ód.", PlayerName(playerid), playerid);
-		Msg(forplayerid, COLOR_INFO, string);
+		Msg(targetid, COLOR_INFO, string);
 
-		format(string, sizeof(string), "Zmniejszy³eœ g³ód graczowi {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(forplayerid), forplayerid);
+		format(string, sizeof(string), "Zmniejszy³eœ g³ód graczowi {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(targetid), targetid);
 		Msg(playerid, COLOR_INFO, string);
 	}
 	return 1;
@@ -1152,26 +1285,26 @@ CMD:food(playerid, params[])
 
 CMD:remove(playerid, params[])
 {
-	new forplayerid, string[100];
+	new targetid, string[100];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "d", forplayerid)) 
+	if(sscanf(params, "d", targetid)) 
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /remove [id gracza]");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
 
-	if(!IsPlayerInAnyVehicle(forplayerid))
+	if(!IsPlayerInAnyVehicle(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest w pojeŸdzie.");
 
-	RemovePlayerFromVehicle(forplayerid);
+	RemovePlayerFromVehicle(targetid);
 
 	format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) wyrzuci³ ciê z pojazdu.", PlayerName(playerid), playerid);
-	Msg(forplayerid, COLOR_INFO, string);
+	Msg(targetid, COLOR_INFO, string);
 
-	format(string, sizeof(string), "Wyrzuci³eœ z pojazdu {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(forplayerid), forplayerid);
+	format(string, sizeof(string), "Wyrzuci³eœ z pojazdu {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(targetid), targetid);
 	Msg(playerid, COLOR_INFO, string);
 	
 	return 1;
@@ -1219,13 +1352,13 @@ CMD:createveh(playerid, params[])
 
 	vehInfo_Temp[AdminsVehs[vehicleID]][vFuel] = MaxFuel(GetVehicleModel(vehicleID));
 	vehInfo_Temp[AdminsVehs[vehicleID]][vFuelType] = IsVehicleTruck(vehicleID) ? FUEL_TYPE_TDI : FUEL_TYPE_BENZ;
-	vehInfo_Temp[AdminsVehs[vehicleID]][vPrzebieg] = 0.0;
+	vehInfo_Temp[AdminsVehs[vehicleID]][vPrzebieg] = -2.0;
 	vehInfo_Temp[AdminsVehs[vehicleID]][Color1] = vehicleColor[0]; 
 	vehInfo_Temp[AdminsVehs[vehicleID]][Color2] = vehicleColor[1]; 
 
 	format(string, sizeof(string), "Stworzy³eœ pojazd o {b}%s{/b} (ID: {b}%d{/b}).", GetVehicleModelName(vehicleModel), vehicleID);
 	Msg(playerid, COLOR_INFO, string);
-
+	PutPlayerInVehicle(playerid, AdminsVehs[vehicleID], 0);
 	return 1;
 }
 
@@ -1294,7 +1427,7 @@ CMD:put(playerid, params[])
 	PutPlayerInVehicle(secondPlayerID, GetPlayerVehicleID(vehiclePlayerID), seat);
 
 	format(string, sizeof(string), "Administrator {b}%s{/b} (ID: %d) wrzuci³ ciê do innego pojazdu.", PlayerName(playerid), playerid);
-	SendClientMessage(secondPlayerID, LIGHTRED, string);
+	Msg(secondPlayerID, COLOR_ERROR, string);
 	format(string, sizeof(string), "Wrzuci³eœ {b}%s{/b} (ID: %d) do innego pojazdu.", PlayerName(secondPlayerID), secondPlayerID);
 	Msg(playerid, COLOR_ERROR, string);
 	format(string, sizeof(string), "Administrator {b}%s{/b} (ID: %d) wrzuci³ {b}%s{/b} (ID: %d) do Twojego pojazdu.", PlayerName(playerid), playerid, PlayerName(secondPlayerID), secondPlayerID);
@@ -1353,15 +1486,15 @@ CMD:freezeall(playerid, params[])
 
 CMD:freeze(playerid, params[])
 {
-	new forplayerid, all, string[96];
+	new targetid, all, string[96];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "dD(0)", forplayerid, all))
+	if(sscanf(params, "dD(0)", targetid, all))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /freeze [id gracza]");
 
-	if(!IsPlayerConnected(forplayerid) && !all)
+	if(!IsPlayerConnected(targetid) && !all)
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest online.");
 
 	if(all)
@@ -1375,11 +1508,11 @@ CMD:freeze(playerid, params[])
 	}
 	else
 	{
-		TogglePlayerControllable(forplayerid, 0);
+		TogglePlayerControllable(targetid, 0);
 
 		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: %d) zamrozi³ Ciê.", PlayerName(playerid), playerid);
-		Msg(forplayerid, COLOR_INFO, string);
-		format(string, sizeof(string), "Zamrozi³eœ {b}%s{/b} (ID: %d).", PlayerName(forplayerid), forplayerid);
+		Msg(targetid, COLOR_INFO, string);
+		format(string, sizeof(string), "Zamrozi³eœ {b}%s{/b} (ID: %d).", PlayerName(targetid), targetid);
 		Msg(playerid, COLOR_INFO, string);
 	}
 
@@ -1391,15 +1524,15 @@ CMD:unfreezeall(playerid, params[])
 
 CMD:unfreeze(playerid, params[])
 {
-	new forplayerid, all, string[96];
+	new targetid, all, string[96];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "dD(0)", forplayerid, all))
+	if(sscanf(params, "dD(0)", targetid, all))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /unfreeze [id gracza]");
 
-	if(!IsPlayerConnected(forplayerid) && !all)
+	if(!IsPlayerConnected(targetid) && !all)
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest online.");
 
 	if(all)
@@ -1413,11 +1546,11 @@ CMD:unfreeze(playerid, params[])
 	}
 	else
 	{
-		TogglePlayerControllable(forplayerid, 1);
+		TogglePlayerControllable(targetid, 1);
 
 		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: %d) odmrozi³ Ciê.", PlayerName(playerid), playerid);
-		Msg(forplayerid, COLOR_INFO, string);
-		format(string, sizeof(string), "Odmrozi³eœ {b}%s{/b} (ID: %d).", PlayerName(forplayerid), forplayerid);
+		Msg(targetid, COLOR_INFO, string);
+		format(string, sizeof(string), "Odmrozi³eœ {b}%s{/b} (ID: %d).", PlayerName(targetid), targetid);
 		Msg(playerid, COLOR_INFO, string);
 	}
 
@@ -1427,42 +1560,42 @@ CMD:unfreeze(playerid, params[])
 
 CMD:killp(playerid, params[])
 {
-	new forplayerid, string[128];
+	new targetid, string[128];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "d", forplayerid))
+	if(sscanf(params, "d", targetid))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /killp [id gracza]");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
-	SetPlayerHealth(forplayerid, 0);
-	format(string, sizeof string, "Zabi³eœ gracza {b}%s{/b} (ID: %d).", PlayerName(forplayerid), forplayerid);
+	SetPlayerHealth(targetid, 0);
+	format(string, sizeof string, "Zabi³eœ gracza {b}%s{/b} (ID: %d).", PlayerName(targetid), targetid);
 	Msg(playerid, COLOR_INFO, string);
 	format(string, sizeof string, "Administrator {b}%s{/b} (ID: %d) zabi³ ciê.", PlayerName(playerid), playerid);
-	Msg(forplayerid, COLOR_INFO, string);
+	Msg(targetid, COLOR_INFO, string);
 	return 1;
 }
 
 CMD:colorplayer(playerid, params[])
 {
-	new forplayerid, kolor[16], string[120], colorId;
+	new targetid, kolor[16], string[120], colorId;
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "ds[16]", forplayerid, kolor))
+	if(sscanf(params, "ds[16]", targetid, kolor))
 		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/colorplayer [id gracza] [kolor]{/b}");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracza z tym ID nie ma online.");
 
 	colorId = -1;
 	for(new i = 0; i < sizeof colors; i++)
 	{
-		if(strfind(colors[i], kolor, false) != -1)
+		if(strfind(colors[i], kolor, true) != -1)
 		{
 			colorId = i;
 			break;
@@ -1477,60 +1610,63 @@ CMD:colorplayer(playerid, params[])
 
 	switch(colorId)
 	{
-		case 0: SetPlayerColor(forplayerid, 0xFFFFFF00); // niewidoczny
-		case 1: SetPlayerColor(forplayerid, 0xFFFFFFFF); // bia³y
-		case 2: SetPlayerColor(forplayerid, 0xFF9900FF); // pomarañczowy
-		case 3: SetPlayerColor(forplayerid, 0xFF0000FF); // czerwony
-		case 4: SetPlayerColor(forplayerid, 0xFF00FFFF); // ró¿owy
-		case 5: SetPlayerColor(forplayerid, 0xFFFF00FF); // ¿ó³ty
-		case 6: SetPlayerColor(forplayerid, 0x663300FF); // br¹zowy
-		case 7: SetPlayerColor(forplayerid, 0x009933FF); // zielony
-		case 8: SetPlayerColor(forplayerid, 0x00FFFFFF); // jasnoniebieski
-		case 9: SetPlayerColor(forplayerid, 0x0000CCFF); // niebieski
+		case 0: SetPlayerColor(targetid, 0xFFFFFF00); // niewidoczny
+		case 1: SetPlayerColor(targetid, 0xFFFFFFFF); // bia³y
+		case 2: SetPlayerColor(targetid, 0xFF9900FF); // pomarañczowy
+		case 3: SetPlayerColor(targetid, 0xFF0000FF); // czerwony
+		case 4: SetPlayerColor(targetid, 0xFF00FFFF); // ró¿owy
+		case 5: SetPlayerColor(targetid, 0xFFFF00FF); // ¿ó³ty
+		case 6: SetPlayerColor(targetid, 0x663300FF); // br¹zowy
+		case 7: SetPlayerColor(targetid, 0x009933FF); // zielony
+		case 8: SetPlayerColor(targetid, 0x00FFFFFF); // jasnoniebieski
+		case 9: SetPlayerColor(targetid, 0x0000CCFF); // niebieski
 	}
 
-	format(string, sizeof string, "Zmieni³eœ kolor graczowi {b}%s{/b} na {b}%s{/b}.", PlayerName(forplayerid), colors[colorId]);
+	format(string, sizeof string, "Zmieni³eœ kolor graczowi {b}%s{/b} na {b}%s{/b}.", PlayerName(targetid), colors[colorId]);
 	Msg(playerid, COLOR_INFO, string);
 	format(string, sizeof string, "Administrator {b}%s{/b} zmieni³ Ci kolor na {b}%s{/b}.", PlayerName(playerid), colors[colorId]);
-	Msg(forplayerid, COLOR_INFO, string);
+	Msg(targetid, COLOR_INFO, string);
 	return 1;
 }
 
 CMD:dodajadmin(playerid, params[])
 {
-	new forplayerid, poziom, string[128];
+	new targetid, poziom, string[128];
 
 	if(!HasPlayerFullPermission(playerid) && playerInfo[playerid][pAdmin] != 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "dd", forplayerid, poziom))
+	if(sscanf(params, "dd", targetid, poziom))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /dodajadmin [id] [poziom]");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest na serwerze.");
 
-	playerInfo[forplayerid][pAdmin] = poziom;
-	format(string, sizeof string, "Gracz {b}%s{/b} zosta³ dodany do grupy administratorów.", PlayerName(forplayerid));
+	playerInfo[targetid][pAdminAllowed] = poziom;
+	format(string, sizeof string, "Gracz {b}%s{/b} zosta³ dodany do grupy administratorów.", PlayerName(targetid));
 	Msg(playerid, COLOR_INFO, string);
 
+	mysql_real_escape_string(PlayerName(targetid), string);
+	format(string, sizeof string, "UPDATE `Accounts` SET `Admin` = '%d' WHERE `Name` = '%s'", poziom, string);
+	mysql_query(string);
 	return 1;
 }
 
 CMD:usunadmin(playerid, params[])
 {
-	new forplayerid, string[128];
+	new targetid, string[128];
 
 	if(!HasPlayerFullPermission(playerid))
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "d", forplayerid))
+	if(sscanf(params, "d", targetid))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /usunadmin [id]");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest na serwerze.");
 
 	playerInfo[playerid][pAdmin] = 0;
-	format(string, sizeof string, "Gracz {b}%s{/b} zosta³ usuniêty z grupy administratorów.", PlayerName(forplayerid));
+	format(string, sizeof string, "Gracz {b}%s{/b} zosta³ usuniêty z grupy administratorów.", PlayerName(targetid));
 	Msg(playerid, COLOR_INFO, string);
 	
 	return 1;
@@ -1538,26 +1674,26 @@ CMD:usunadmin(playerid, params[])
 
 CMD:setname(playerid, params[])
 {
-	new forplayerid, nick[20], string[128];
+	new targetid, nick[20], string[128];
 
-	if(!HasPlayerFullPermission(playerid))
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "ds[20]", forplayerid, nick))
+	if(sscanf(params, "ds[20]", targetid, nick))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /setname [id gracza] [nick]");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
 
-	format(string, sizeof string, "UPDATE `Accounts` SET `Name` = '%s' WHERE `Name` = '%s'", nick, PlayerName(forplayerid));
+	format(string, sizeof string, "UPDATE `Accounts` SET `Name` = '%s' WHERE `Name` = '%s'", nick, PlayerName(targetid));
 	mysql_query(string);
 
 	format(string, sizeof string, "Administrator {b}%s{/b} (ID: %d) zmieni³ ci nick na %s.", PlayerName(playerid), playerid, nick);
-	Msg(forplayerid, COLOR_INFO, string);
-	format(string, sizeof string, "Zmieni³eœ graczowi nick z {b}%s{/b} (ID: %d) na %s.", PlayerName(forplayerid), playerid, nick);
-	Msg(forplayerid, COLOR_INFO, string);
+	Msg(targetid, COLOR_INFO, string);
+	format(string, sizeof string, "Zmieni³eœ graczowi nick z {b}%s{/b} (ID: %d) na %s.", PlayerName(targetid), playerid, nick);
+	Msg(targetid, COLOR_INFO, string);
 
-	SetPlayerName(forplayerid, nick);
+	SetPlayerName(targetid, nick);
 	return 1;
 }
 
@@ -1584,8 +1720,13 @@ CMD:respawniko(playerid, params[])
 		if(Uzywany[nr] == false)
 			SetVehicleToRespawn(nr);
 
-	SendClientMessageToAll(0x0, "Wszystkie pojazdy powróci³y na miejsce spawnu.");
+	MsgToAll(COLOR_INFO, "Wszystkie pojazdy powróci³y na miejsce spawnu.");
 	return 1;
+}
+
+CMD:respawn(playerid, params[])
+{
+	return cmd_respawniko(playerid, params);
 }
 
 CMD:dodajstacje(playerid, params[])
@@ -1600,7 +1741,11 @@ CMD:dodajstacje(playerid, params[])
 	format(string, sizeof string, "INSERT INTO `Stacje` (`PosX`, `PosY`, `PosZ`) VALUES('%f', '%f', '%f')", Pos[0], Pos[1], Pos[2]);
 	mysql_query(string);
 
-	format(string, sizeof string, "{808040}STACJA BENZYNOWA {808040}[VID: {FFFFFF}%d{808040}]\n[ Zbiorniki: 3000/3000 ]\n{FFFFFF}/tankuj", ID_STACJA);
+	stationInfo[ID_STACJA][sPosX] = Pos[0];
+	stationInfo[ID_STACJA][sPosY] = Pos[1];
+	stationInfo[ID_STACJA][sPosZ] = Pos[2];
+
+	format(string, sizeof string, "Stacja paliwowa w {b}%s{/b} (ID: {b}%d{/b})\nAby zatankowaæ wpisz {b}/tankuj{/b}", GetPointZone(stationInfo[ID_STACJA][sPosX], stationInfo[ID_STACJA][sPosY]), ID_STACJA);
 	StacjeText3D[ID_STACJA] = CreateDynamic3DTextLabel(string, ZIELONY2, Pos[0], Pos[1], Pos[2]+0.5, 30.0);
 	
 	StacjeMapIcon[ID_STACJA] = CreateDynamicMapIcon(stationInfo[ID_STACJA][sPosX], stationInfo[ID_STACJA][sPosY], stationInfo[ID_STACJA][sPosZ], 55, 0, _, _, _, 300.0);
@@ -1640,7 +1785,9 @@ CMD:pogoda(playerid, params[])
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	new weatherid = strval(params);
+	new weatherid;
+	if(sscanf(params, "d", weatherid))
+		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/pogoda [id]{/b}."); 
 
 	if(weatherid < 0 || weatherid > 20)
 		return Msg(playerid, COLOR_ERROR, "Nieprawid³owe ID pogody {b}(0-20){/b}.");
@@ -1654,30 +1801,30 @@ CMD:pogoda(playerid, params[])
 
 CMD:ustawlidera(playerid, params[])
 {
-	new forplayerid, firmaid, string[100];
+	new targetid, firmaid, string[100];
 	
 	if(playerInfo[playerid][pAdmin] != 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "dd", forplayerid, firmaid))
+	if(sscanf(params, "dd", targetid, firmaid))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /ustawlidera [id gracza] [id firmy]");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
 
 	if(firmInfo[firmaid][tID] == 0)
 		return Msg(playerid, COLOR_ERROR, "B³êdne ID firmy.");
 
-	firmInfo[firmaid][tChef] = playerInfo[forplayerid][pID];
-	playerInfo[forplayerid][pFirm] = firmaid;
+	firmInfo[firmaid][tChef] = playerInfo[targetid][pID];
+	playerInfo[targetid][pFirm] = firmaid;
 	
-	format(string, sizeof(string), "UPDATE `Firmy` SET `Szef` = '%d' WHERE `id` = '%d'", playerInfo[forplayerid][pID], firmaid);
+	format(string, sizeof(string), "UPDATE `Firmy` SET `Szef` = '%d' WHERE `id` = '%d'", playerInfo[targetid][pID], firmaid);
 	mysql_query(string);
 
 	format(string, sizeof(string), "Administrator {b}%s{/b} zarz¹dzi³ Ciê szefem firmy {b}%s{/b}.", PlayerName(playerid), firmInfo[firmaid][tName]);
-	Msg(forplayerid, COLOR_INFO, string);
+	Msg(targetid, COLOR_INFO, string);
 	
-	format(string, sizeof(string), "{b}%s{/b} sta³ siê szefem firmy {b}%s{/b}.", PlayerName(forplayerid), firmInfo[firmaid][tName]);
+	format(string, sizeof(string), "{b}%s{/b} sta³ siê szefem firmy {b}%s{/b}.", PlayerName(targetid), firmInfo[firmaid][tName]);
 	Msg(playerid, COLOR_INFO, string);
 	
 	return 1;
@@ -1710,10 +1857,9 @@ CMD:dodajpojazd(playerid, params[])
 	GetVehiclePos(vehicleid, Pos[0], Pos[1], Pos[2]);
 	GetVehicleZAngle(vehicleid, Pos[3]);
 
-	format(string, sizeof(string), "INSERT INTO `Pojazdy` (`model`, `owner_id`, `owner_type`, `PosX`, `PosY`, `PosZ`, `PosA`, `Health`, `Fuel`, `FuelType`, `Color1`, `Color2`, `Plate`) VALUES ('%d', '%d', '1', '%f', '%f', '%f', '%f', '1000.0', '%d', '%d', '%d', '%d', 'Rej. Cipa')", GetVehicleModel(vehicleid), firmaid, Pos[0], Pos[1], Pos[2], Pos[3], MaxFuel(GetVehicleModel(vehicleid)), 
+	format(string, sizeof(string), "INSERT INTO `Pojazdy` (`model`, `owner_id`, `owner_type`, `PosX`, `PosY`, `PosZ`, `PosA`, `Health`, `Fuel`, `FuelType`, `Color1`, `Color2`, `Plate`, `Przeglad`, `gasBootle`, `gasAmount`) VALUES ('%d', '%d', '1', '%f', '%f', '%f', '%f', '1000.0', '%d', '%d', '%d', '%d', 'Rej. Cipa', NOW(), '0', '0.0')", GetVehicleModel(vehicleid), firmaid, Pos[0], Pos[1], Pos[2], Pos[3], MaxFuel(GetVehicleModel(vehicleid)), 
 			(IsVehicleTruck(vehicleid) ? FUEL_TYPE_TDI : FUEL_TYPE_BENZ), vehInfo_Temp[vehicleid][Color1], vehInfo_Temp[vehicleid][Color2]);
 	mysql_query(string);
-	printf(string);
 
 	DestroyVehicle(vehicleid);
 	Spawned[vehicleid] = false;
@@ -1722,94 +1868,66 @@ CMD:dodajpojazd(playerid, params[])
 	return 1;
 }
 
-CMD:debug(playerid, params[])
-{
-	new string[500], pVarName[128], pVarNameA[80];
-	new PVarUpperIndex = GetPVarsUpperIndex(playerid) + 1;
-
-	strcat(string, "Nazwa\tWartoœæ\n");
-
-	for(new i=0; i != PVarUpperIndex; i++)
-	{
-	    GetPVarNameAtIndex(playerid, i, pVarName, sizeof(pVarName));
-	    
-	    switch(GetPVarType(playerid, pVarName))
-	    {
-	    	case PLAYER_VARTYPE_INT: format(string, sizeof(string), "%s%s\t%d\n", string, pVarName, GetPVarInt(playerid, pVarName));
-	    	case PLAYER_VARTYPE_STRING: format(string, sizeof(string), "%s%s\t%f\n", string, pVarName, GetPVarFloat(playerid, pVarName));
-	    	case PLAYER_VARTYPE_FLOAT:
-	    	{
-	    		GetPVarString(playerid, pVarName, pVarNameA, sizeof(pVarNameA));
-	    		format(string, sizeof(string), "%s%s\t%s\n", string, pVarName, pVarNameA);
-	    	}
-	    }
-	}
- 
-	Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST_HEADERS, "Debug PVAR", string, "Ok", "");
-
-	return 1;
-}
-
 CMD:dodajpracownika(playerid, params[])
 {
-	new forplayerid, firmaid, string[80];
+	new targetid, firmaid, string[80];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "dd", forplayerid, firmaid))
+	if(sscanf(params, "dd", targetid, firmaid))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /dodajpracownika [graczid] [firmaid]");
 
 	if(firmaid > 7 || firmaid < 0)
 		return Msg(playerid, COLOR_ERROR, "ID firmy musi byæ w przedziale 0-7.");
 
-	playerInfo[forplayerid][pFirm] = firmaid;
+	playerInfo[targetid][pFirm] = firmaid;
 
 	format(string, sizeof(string), "Administrator {b}%s{/b} przydzieli³ Ciê do firmy {b}%s{/b}.", PlayerName(playerid), firmInfo[firmaid][tName]);
-	Msg(forplayerid, COLOR_INFO, string);
+	Msg(targetid, COLOR_INFO, string);
 	
-	format(string, sizeof(string), "Przydzieli³eœ {b}%s{/b} do firmy {b}%s{/b}.", PlayerName(forplayerid), firmInfo[firmaid][tName]);
+	format(string, sizeof(string), "Przydzieli³eœ {b}%s{/b} do firmy {b}%s{/b}.", PlayerName(targetid), firmInfo[firmaid][tName]);
 	Msg(playerid, COLOR_INFO, string);
 	return 1;
 }
 
 CMD:usunpracownika(playerid, params[])
 {
-	new forplayerid, string[80];
+	new targetid, string[80];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "d", forplayerid))
+	if(sscanf(params, "d", targetid))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /usunpracownika [graczid]");
 		
-	playerInfo[forplayerid][pFirm] = 0;
+	playerInfo[targetid][pFirm] = 0;
 	format(string, sizeof(string), "Administrator {b}%s{/b} wyrzuci³ Ciê z firmy.", PlayerName(playerid));
-	Msg(forplayerid, COLOR_INFO, string);
+	Msg(targetid, COLOR_INFO, string);
 	
-	format(string, sizeof(string), "Wyrzuci³eœ {b}%s{/b} z firmy.", PlayerName(forplayerid));
+	format(string, sizeof(string), "Wyrzuci³eœ {b}%s{/b} z firmy.", PlayerName(targetid));
 	Msg(playerid, COLOR_INFO, string);
 	return 1;
 }
 
 CMD:heal(playerid, params[])
 {
-	new forplayerid, string[128];
+	new targetid, string[128];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "d", forplayerid))
+	if(sscanf(params, "d", targetid))
 		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/heal [id gracza]{/b}");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
-	SetPlayerHealth(forplayerid, 100.0);
-	format(string, sizeof string, "Uzdrowi³eœ gracza {b}%s{/b}.", PlayerName(forplayerid));
+	SetPlayerHealth(targetid, 100.0);
+	format(string, sizeof string, "Uzdrowi³eœ gracza {b}%s{/b}.", PlayerName(targetid));
 	Msg(playerid, COLOR_INFO, string);
 	format(string, sizeof string, "Administrator {b}%s{/b} uzdrowi³ Ciê.", PlayerName(playerid));
-	Msg(forplayerid, COLOR_INFO, string);
+	Msg(targetid, COLOR_INFO, string);
 	return 1;
 }
 
@@ -1818,47 +1936,47 @@ CMD:armor(playerid, params[])
 
 CMD:armour(playerid, params[])
 {
-	new forplayerid, string[128];
+	new targetid, string[128];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "d", forplayerid))
+	if(sscanf(params, "d", targetid))
 		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/armour [id gracza]{/b}");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
-	SetPlayerArmour(forplayerid, 100.0);
-	format(string, sizeof string, "Da³eœ pancerz graczowi {b}%s{/b}.", PlayerName(forplayerid));
+	SetPlayerArmour(targetid, 100.0);
+	format(string, sizeof string, "Da³eœ pancerz graczowi {b}%s{/b}.", PlayerName(targetid));
 	Msg(playerid, COLOR_INFO, string);
 	format(string, sizeof string, "Administrator {b}%s{/b} da³ Ci pancerz.", PlayerName(playerid));
-	Msg(forplayerid, COLOR_INFO, string);
+	Msg(targetid, COLOR_INFO, string);
 	return 1;
 }
 
 CMD:setskin(playerid, params[])
 {
-	new forplayerid, skin, string[128];
+	new targetid, skin, string[128];
 
 	if(!playerInfo[playerid][pAdmin])
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
-	if(sscanf(params, "dd", forplayerid, skin))
+	if(sscanf(params, "dd", targetid, skin))
 		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/setskin [id gracza] [id skinu 0-311]{/b}");
 
-	if(!IsPlayerConnected(forplayerid))
+	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
 	if(skin < 0 || skin > 311)
 		return Msg(playerid, COLOR_ERROR, "B³êdne ID skina.");
 
-	SetPlayerSkin(forplayerid, skin);
+	SetPlayerSkin(targetid, skin);
 
-	format(string, sizeof string, "Zmieni³eœ skin graczowi {b}%s{/b}.", PlayerName(forplayerid));
+	format(string, sizeof string, "Zmieni³eœ skin graczowi {b}%s{/b}.", PlayerName(targetid));
 	Msg(playerid, COLOR_INFO, string);
 	format(string, sizeof string, "Administrator {b}%s{/b} zmieni³ Ci skin na {b}%d{/b}.", PlayerName(playerid), skin);
-	Msg(forplayerid, COLOR_INFO, string);
+	Msg(targetid, COLOR_INFO, string);
 	return 1;
 }
 
@@ -1895,7 +2013,9 @@ CMD:dodajzaladunek(playerid, params[])
 	else 
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /dodajzaladunek [budowlany/odzie¿owy/elektroniczny/spo¿ywczy/niebezpieczny/nielegalny]");
 
-	new szString[256], baseid = GetClosestBase(playerid), load = -1;
+	new Float:pos[3], szString[256], baseid, load = -1;
+	GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+	baseid = GetClosestBase(pos[0], pos[1], pos[2]);
 	for(new i = 0; i < MAX_LOADINGS; i++)
 	{
 		if(IsValidLoad(i))
@@ -1949,6 +2069,7 @@ CMD:alogin(playerid, params[])
 		{
 			Msg(playerid, COLOR_INFO, "Pomyœlnie zalogowa³eœ siê jako administrator.");
 			playerInfo[playerid][pAdmin] = playerInfo[playerid][pAdminAllowed];
+			UpdateAdminsOnline();
 		}
 		else
 		{
@@ -1961,6 +2082,61 @@ CMD:alogin(playerid, params[])
 
 			Msg(playerid, COLOR_ERROR, "B³êdne has³o, chcesz zgadywaæ dalej?");
 		}
+	}
+	return 1;
+}
+
+CMD:setspawn(playerid)
+{
+	if(GetPVarInt(playerid, "NEWBIE_SETSPAWN"))
+		Dialog_Show(playerid, DIALOG_SETSPAWN, DIALOG_STYLE_LIST, "Wybierz spawn", "Los Santos\nLas Venturas\nRed County\nSan Fierro", "Wybierz", #);
+	else
+	{
+		new szContent[128];
+		format(szContent, sizeof szContent, "%sLos Santos\n%sLas Venturas\n%sRed County\n%sSan Fierro\n%sW³asny spawn", 
+			(playerInfo[playerid][pSpawn] == 0) ? ("{33CC66}") : (""),
+			(playerInfo[playerid][pSpawn] == 1) ? ("{33CC66}") : (""),
+			(playerInfo[playerid][pSpawn] == 2) ? ("{33CC66}") : (""),
+			(playerInfo[playerid][pSpawn] == 3) ? ("{33CC66}") : (""),
+			(playerInfo[playerid][pSpawn] == -1) ? ("{33CC66}") : ("")
+		);
+		Dialog_Show(playerid, DIALOG_SETSPAWN, DIALOG_STYLE_LIST, "Wybierz spawn", szContent, "Wybierz", "Anuluj");
+	}
+	return 1;
+}
+
+Dialog:DIALOG_SETSPAWN(playerid, response, listitem, inputtext[])
+{
+	if(!response && !GetPVarInt(playerid, "NEWBIE_SETSPAWN"))
+		return 1;
+	else if(!response && !GetPVarInt(playerid, "NEWBIE_SETSPAWN"))
+		return cmd_setspawn(playerid);
+
+	switch(listitem)
+	{
+		case 0: playerInfo[playerid][pSpawn] = 0;
+		case 1: playerInfo[playerid][pSpawn] = 1;
+		case 2: playerInfo[playerid][pSpawn] = 2;
+		case 3: playerInfo[playerid][pSpawn] = 3;
+		case 4: playerInfo[playerid][pSpawn] = -1;
+	}
+	if(!GetPVarInt(playerid, "NEWBIE_SETSPAWN"))
+	{
+		if(playerInfo[playerid][pSpawn] < 0)
+		{
+			new Float:pos[4];
+			GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+			GetPlayerFacingAngle(playerid, pos[3]);
+			format(playerInfo[playerid][pSpawnInfo], 32, "%.02f,%.02f,%.02f,%.02f", pos[0], pos[1], pos[2], pos[3]);
+		}
+		cmd_setspawn(playerid);
+		Msg(playerid, COLOR_INFO, "Pomyœlnie zmieniono {b}startowy{/b} spawn.");
+	}
+	else
+	{
+		DeletePVar(playerid, "NEWBIE_SETSPAWN");
+		SetTimerEx("ReqSpawnPlayer", 100, false, "d", playerid);
+		Msg(playerid, COLOR_INFO, "Pomyœlnie ustawiono {b}startowy{/b} spawn. Aby go zmieniæ u¿yj komendy {b}/setspawn{/b}.");
 	}
 	return 1;
 }

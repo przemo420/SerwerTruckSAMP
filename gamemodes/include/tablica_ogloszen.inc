@@ -16,11 +16,12 @@ new Float:TablicaOgloszen[][eTablicaOgloszen] = {
 forward TablicaOgloszen_OnGameModeInit();
 public TablicaOgloszen_OnGameModeInit()
 {
+	new szString[128];
 	Loop(i, sizeof TablicaOgloszen)
 	{
+		format(szString, sizeof szString, "Tablica og³oszeñ w {b}%s{/b}.\nWpisz {b}/tablica{/b} aby u¿yæ.", GetPointZone(TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY]));
 		CreateDynamicObject(2737, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ], 0.0, 0.0, 0.0, -1, -1, -1, 100);
-   		CreateDynamic3DTextLabel("/tablica", LIGHTGREEN, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ], 20.0);
-   		CreateDynamicMapIcon(TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ], 53, LIGHTGREEN, _, _, _, 800.0, MAPICON_LOCAL);
+   		CreateDynamic3DTextLabel(clText(COLOR_INFO, szString), -1, TablicaOgloszen[i][PostionX], TablicaOgloszen[i][PostionY], TablicaOgloszen[i][PostionZ], 20.0);
 	}
 }
 

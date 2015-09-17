@@ -90,9 +90,6 @@ stock VoteInit()
 	TextDrawColor(voteInfo[voteTD][4], -1);
 	TextDrawSetOutline(voteInfo[voteTD][4], 1);
 	TextDrawSetProportional(voteInfo[voteTD][4], 1);
-	TextDrawUseBox(voteInfo[voteTD][4], 1);
-	TextDrawBoxColor(voteInfo[voteTD][4], 0);
-	TextDrawTextSize(voteInfo[voteTD][4], 128.000000, 61.000000);
 }
 
 stock VoteExit()
@@ -201,6 +198,18 @@ CMD:vote(playerid, params[])
 	}
 	else
 		return Msg(playerid, COLOR_ERROR, "Wpisz {b}/vote [tak / nie / start / stop]{/b}");
+	return 1;
+}
+
+CMD:tak(playerid)
+{
+	cmd_vote(playerid, "tak");
+	return 1;
+}
+
+CMD:nie(playerid)
+{
+	cmd_vote(playerid, "nie");
 	return 1;
 }
 

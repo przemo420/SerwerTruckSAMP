@@ -162,6 +162,11 @@ CMD:reczny(playerid)
 		return Msg(playerid, COLOR_ERROR, "Nie jesteœ w pojeŸdzie.");
 	if(GetPlayerState(playerid) != PLAYER_STATE_DRIVER)
 		return Msg(playerid, COLOR_ERROR, "Nie jestes kierowc¹ tego pojazdu");
+	new engine,lights,alarm,doors,bonnet,boot,objective;
+	GetVehicleParamsEx(GetPlayerVehicleID(playerid), engine, lights, alarm, doors, bonnet, boot, objective);
+	if(engine)
+		return Msg(playerid, COLOR_ERROR, "By zaci¹gn¹æ hamulec rêczny musisz mieæ wy³¹czony silnik.");
+
 	if(!brInfo[GetPlayerVehicleID(playerid)][manualBrake])
 	{
 		GetVehiclePos(GetPlayerVehicleID(playerid), brInfo[GetPlayerVehicleID(playerid)][PosX], brInfo[GetPlayerVehicleID(playerid)][PosY], brInfo[GetPlayerVehicleID(playerid)][PosZ]);

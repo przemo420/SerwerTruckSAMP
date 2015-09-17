@@ -108,7 +108,7 @@ stock AddFire(Float:X, Float:Y, Float:Z, wielkosc){
 	Fire[id][fY] = Y;
 	Fire[id][fZ] = Z;
 	Fire[id][Health] = wielkosc;
-	Fire[id][object] = CreateObject(3461, X, Y, Z-2.61, 0, 0, 0.0);
+	Fire[id][object] = CreateDynamicObject(3461, X, Y, Z-2.61, 0, 0, 0.0);
 	format(_firestr, sizeof(_firestr),TXT_TEXT);
 	Fire[id][info] = Create3DTextLabel(_firestr, 0xFFFFFFFFF, X, Y, Z, 20, 0);
 	Fire[id][fMapIcon] = CreateDynamicMapIcon(X, Y, Z, 20, 0xFFFFFFFFF, _, _, _, 6000.0, MAPICON_GLOBAL);
@@ -123,7 +123,7 @@ stock DeleteFire(id){
 	Fire[id][fY] = 0.0;
 	Fire[id][fZ] = 0.0;
 	Fire[id][Health] = 0;
-	DestroyObject(Fire[id][object]);
+	DestroyDynamicObject(Fire[id][object]);
 	Fire[id][object] = -1;
 	Delete3DTextLabel(Fire[id][info]);
 	DestroyDynamicMapIcon(Fire[id][fMapIcon]);

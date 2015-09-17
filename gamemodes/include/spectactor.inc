@@ -56,6 +56,7 @@ public Spectactor_OnPlayerKey(playerid, newkeys, oldkeys)
 					SetPVarInt(playerid, "LeciPetla", 0);
 					obrot = false;
 					znalazlo = true;
+					SpectactorUpdate(playerid);
 					break;
 				}
 				else
@@ -108,7 +109,7 @@ public SpectactorUpdate(playerid)
 
 	GetPlayerHealth(id, plhp);
 	format(string, sizeof(string), "%d~n~%s~n~%d~n~%d~n~%.0f~n~%s~n~%.0f", id, PlayerName(id), GetMoney(id), GetScore(id), plhp, vehhp2, predkosc);
-	PlayerTextDrawSetString(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO2], string);
+	PlayerTextDrawSetString(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], string);
 
 	return 1;
 }
@@ -166,6 +167,6 @@ CMD:specoff(playerid, params[])
 
 	TogglePlayerSpectating(playerid, 0);
 	SpectactorTextDraw(playerid, false);
-
+	DeletePVar(playerid, "Przeglada");
 	return 1;
 }

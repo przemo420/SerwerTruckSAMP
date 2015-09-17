@@ -2,7 +2,7 @@ native IsValidVehicle(vehicle);
 
 #undef MAX_PLAYERS
 
-#define MAX_PLAYERS 		25
+#define MAX_PLAYERS 		40
 #define MAX_STACJE 			200
 #define MAX_FOTORADAROW 	1000
 #define MAX_VIASHOP 		200
@@ -11,10 +11,10 @@ native IsValidVehicle(vehicle);
 #define MAX_SPIKESTRIPS 	25
 #define MAX_BARY 			200
 #define MAX_BARYIN 			200
-#define MAX_BTOBJ 			2000
-#define MAX_BTOBJTD 		2000
 #define MAX_LOADING_POINTS	200
 #define MAX_RADIOS			100
+#define MAX_RESTAURANTS		100
+#define MAX_WORDS			100
 
 // ---------------------------
 
@@ -103,7 +103,7 @@ enum
 // ---------------------------
 
 new const szCommands[][] = {
-	"/pomoc\n/pauza\n/time\n/toll\n/animacja\n/autorzy\n/telefon\n/pojazd\n/spawn\n/pasy\n/stats\n/firma\n/viatoll\n/lastpos\n/v\n/tankuj\n/praca\n/dyzur\n/adr\n/pogodynka\n/reczny\n/konwoj\n/zaproszenia\n/radio\n/bankomat\n/tablica\n/spisfirm\n/zdolnosci\n/poziomy", // globalne
+	" ",
 	"/foto\n/mandat /aresztuj\n/wywal\n/wyrzuc\n/praca\n/dyzur\n/skuj\n/rozkuj\n/kontrola\n/alkomat\n/open\n/close\n/kolczatka\n/usunkolczatke\n/usunkolczatki\n/stop\n/unareszt\n/kartoteka",
 	"/ulecz\n/wypadki\n/wywal\n/wyrzuc\n/praca\n/dyzur\n/o [1 - 8]\n/c [1 - 8]\n/open\n/close", // pogotowie
 	"/open\n/close\n/vehcolor\n/zatankuj\n/praca\n/dyzur\n/open\n/close\n/setplate\n/przeglad",  // pomoc drogowa
@@ -133,6 +133,14 @@ new const szHookInclude[][] = {
 	"Fire", // pozary.inc
 	"GPS", // gps.inc
 	"BT" // organizacje/buildtrans.inc
+};
+
+new const szRandomMessages[][] = {
+	"Nie wiesz jak zacz¹æ? Wpisz {b}/faq{/b} i zapoznaj siê z zasadami panuj¹cymi na SerwerTruck.",
+	"Zapraszamy do czêstego odwiedzania naszego forum {b}www.serwertruck.eu{/b}!",
+	"Ktoœ utrudnia Ci grê? U¿yj komendy {b}/report{/b} by powiadomiæ o tym administracjê.",
+	"Zapraszamy do korzystania z serwerowego {b}Team Speak 3{/b}.",
+	"Zauwa¿y³eœ jakiœ {b}b³¹d{/b} na serwerze? Zg³oœ go nam na forum w trackerze na {b}www.serwertruck.eu/tracker{/b}"
 };
 
 /*
@@ -171,7 +179,8 @@ enum E_GAMEMODE
 	bool:gmCountdownStarted,
 	gmCountdownTimer,
 	gmUsersConnected,
-	adminPass[32]
+	adminPass[32],
+	adminsOnline
 }
 
 enum E_PLAYER 
@@ -179,8 +188,9 @@ enum E_PLAYER
 	pID,
 	pMoney,
 	pScore,
-	pAdminAllowed,
 	Float:pHunger,
+	pAdminAllowed,
+	pOnlineTime,
 	pBankomat,
 	pFirm,
 	pSkin,
@@ -196,7 +206,12 @@ enum E_PLAYER
 	pAdmin,
 	pChained,
 	pChainedTimer,
-	pLastPos
+	pLastPos,
+	pSpawn,
+	pSpawnInfo[32],
+	pCBNick[32],
+	pMagnesTime,
+	bool:pMagnes
 }
 
 enum E_CAMERA
@@ -249,7 +264,8 @@ enum E_GPS
 	bool:gLoadings,
 	bool:gStations,
 	bool:gRestaurants,
-	bool:gViatoll
+	bool:gViatoll,
+	bool:gCustom
 }
 
 enum E_VIATOLL 
@@ -294,7 +310,10 @@ enum E_VEHICLE
 	vOwnerVC,
 	vPlate[32],
 	vPrzeglad[32],
-	vSAMPID
+	bool:vGasBootle,
+	Float:vGasAmount,
+	vSAMPID,
+	bool:vGasStatus
 };
 
 enum E_TEMP_VEHICLE 
@@ -328,9 +347,34 @@ enum E_CALL
 	callAssigned[MAX_PLAYERS*2]
 }
 
+enum E_RESTAURANT
+{
+	bool:resCreated,
+	resId,
+	resInt,
+	Float:resPos[3]
+}
+
+enum E_MENU
+{
+	menName[24],
+	menHunger,
+	menPrice
+}
+
+new menuList[][E_MENU] = {
+	{"Pizza", 20, 30},
+	{"Hot-dog", 10, 15},
+	{"Œniadanie", 40, 60},
+	{"Obiad", 50, 80},
+	{"Kolacja", 20, 30}
+};
+
 new 
+	banwords[MAX_WORDS],
+	resInfo[MAX_RESTAURANTS][E_RESTAURANT],
 	callInfo[3][E_CALL],
-	repInfo[3][E_REPORT],
+	repInfo[MAX_PLAYERS*2][E_REPORT],
 	gmInfo[E_GAMEMODE],
 	radioInfo[MAX_RADIOS][E_RADIO],
 	camInfo[MAX_PLAYERS][E_CAMERA],
@@ -366,9 +410,6 @@ new const Float:gSpawnvehicleplayer[][3] = {
 
 new SECURITYON = 1;
 
-new kierunki[MAX_VEHICLES][4],
-    bool:traffic[MAX_VEHICLES];
-
 #define PRESSED(%0) \
 	(((newkeys & (%0)) == (%0)) && ((oldkeys & (%0)) != (%0)))
 
@@ -387,24 +428,11 @@ new AdminsVehs[MAX_ADMIN_VEHICLES];
 new SpawnedAdminVehicles;
 
 new Text3D:Trucking[MAX_PLAYERS];
-new Text:FleshText;
-new Text3D:bary3D[MAX_BARY];
-new baryIKON[MAX_BARY];
-new Text3D:baryin3D[MAX_BARYIN];
 new podgladADMIN[MAX_PLAYERS] = 0;
-new Firehold[MAX_PLAYERS];
-new Firehold2[MAX_PLAYERS] = 0;
 new kogutPD[MAX_VEHICLES],
     bool:kpd[MAX_VEHICLES];
 new kogutPOLI[MAX_VEHICLES],
     bool:kpoli[MAX_VEHICLES];
-
-enum eBTNapis {
-	btnStworzyl[MAX_PLAYER_NAME],
-	btnText[80],
-	Text3D:btnNapis
-}
-new BTNapis[MAX_BTOBJTD][eBTNapis];
 
 new Text:AlertTD;
 
@@ -509,7 +537,7 @@ new VehicleNames[212][] = {
 {"Firetruck"},{"Trashmaster"},{"Stretch"},{"Manana"},{"Infernus"},{"Voodoo"},{"Pony"},{"Mule"},
 {"Cheetah"},{"Ambulance"},{"Leviathan"},{"Moonbeam"},{"Esperanto"},{"Taxi"},{"Washington"},
 {"Bobcat"},{"Mr Whoopee"},{"BF Injection"},{"Hunter"},{"Premier"},{"Enforcer"},{"Securicar"},
-{"Banshee"},{"Predator"},{"Bus"},{"Rhino"},{"Barracks"},{"Hotknife"},{"PeÅ‚na naczepa"},{"Previon"},
+{"Banshee"},{"Predator"},{"Bus"},{"Rhino"},{"Barracks"},{"Hotknife"},{"Pe³na naczepa"},{"Previon"},
 {"Coach"},{"Cabbie"},{"Stallion"},{"Rumpo"},{"RC Bandit"},{"Romero"},{"Packer"},{"Monster"},
 {"Admiral"},{"Squalo"},{"Seasparrow"},{"Pizzaboy"},{"Tram"},{"Wywrotka"},{"Turismo"},
 {"Speeder"},{"Reefer"},{"Tropic"},{"Flatbed"},{"Yankee"},{"Caddy"},{"Solair"},{"Berkley's RC Van"},
@@ -530,8 +558,8 @@ new VehicleNames[212][] = {
 {"Bandito"},{"Freight Flat"},{"Streak Carriage"},{"Kart"},{"Mower"},{"Duneride"},{"Sweeper"},
 {"Broadway"},{"Tornado"},{"AT-400"},{"DFT-30"},{"Huntley"},{"Stafford"},{"BF-400"},{"Newsvan"},
 {"Tug"},{"Cysterna"},{"Emperor"},{"Wayfarer"},{"Euros"},{"Hotdog"},{"Club"},{"Freight Carriage"},
-{"SkrÃ³cona naczepa"},{"Andromada"},{"Dodo"},{"RC Cam"},{"Launch"},{"Police Car (LSPD)"},{"Police Car (SFPD)"},
-{"Police Car (LVPD)"},{"Police Ranger"},{"Picador"},{"S.W.A.T. Van"},{"Alpha"},{"Phoenix"},{"Glendale"},
+{"Skrócona naczepa"},{"Andromada"},{"Dodo"},{"RC Cam"},{"Launch"},{"Police LSPD"},{"Police SFPD"},
+{"Police LVPD"},{"Police Ranger"},{"Picador"},{"S.W.A.T. Van"},{"Alpha"},{"Phoenix"},{"Glendale"},
 {"Sadler"},{"Luggage Trailer A"},{"Luggage Trailer B"},{"Stair Trailer"},{"Boxville"},{"Farm Plow"},
 {"Utility Trailer"}};
 
@@ -604,3 +632,8 @@ new Float:viaPoints[][] =
 	{1347.0687,-2281.6086,13.3904},
 	{1331.9624,-2279.8809,13.3828}
 };
+
+new 
+	__FlashTime[MAX_VEHICLES],
+	_Flash[MAX_VEHICLES],
+	enabledFlashes;

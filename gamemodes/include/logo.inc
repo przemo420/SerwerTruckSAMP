@@ -104,6 +104,7 @@ stock FadeLogoExit()
 
 public UpdateFadeLogoTimer()
 {
+	_UpdateFadeTimer();
 	if(Step)
 	{
 		Step--;

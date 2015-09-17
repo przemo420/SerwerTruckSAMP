@@ -5,24 +5,24 @@ CMD:viatoll(playerid, params[])
 {
 	new viashopid = GetViaShop(playerid);
 	if(viashopid == INVALID_VIASHOP_ID)
-		return ShowInfo(playerid, "Nie znajdujesz siÃª przy sklepie ViaToll.");
+		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê przy sklepie ViaToll.");
 
-	Dialog_Show(playerid, DIALOG_ID_VIATOLL, DIALOG_STYLE_LIST, "Sklep ViaToll", "Kup 1 impuls [$25]\nKup 5 impulsÃ³w [$125]\nKup 10 impulsÃ³w [$250]\nKup 20 impulsÃ³w [$500]\nKup 50 impulsÃ³w [$1250]", "Ok", "Anuluj");
+	Dialog_Show(playerid, DIALOG_ID_VIATOLL, DIALOG_STYLE_LIST, "Sklep ViaToll", "Kup 1 impuls [$25]\nKup 5 impulsów [$125]\nKup 10 impulsów [$250]\nKup 20 impulsów [$500]\nKup 50 impulsów [$1250]", "Wybierz", "Anuluj");
 	return 1;
 }
 
 CMD:dodajviatoll(playerid, params[])
 {
 	if(!playerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieÃ±.");
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	new string[128];
 
 	new postawionyID = GetViaShop(playerid);
 	if(postawionyID > INVALID_VIASHOP_ID)
 	{
-		format(string, sizeof string, "Sklep viatoll zostaÅ‚ juÅ¼ utworzony, uid: %d.", postawionyID);
-		SendClientMessage(playerid,LIGHTRED,string);
+		format(string, sizeof string, "Sklep ViaToll ID {b}%d{/b} zosta³ ustawiony pomyœlnie.", postawionyID);
+		Msg(playerid, COLOR_INFO, string);
 		return 1;
 	}
 
@@ -32,17 +32,17 @@ CMD:dodajviatoll(playerid, params[])
 	format(string, sizeof string, "INSERT INTO `VIASHOP` VALUES('', '%f', '%f', '%f')", Pos[0], Pos[1], Pos[2]);
 	mysql_query(string);
 
-	format(string, sizeof string, "{808040}SKLEP VIATOLL {808040}[VID: {FFFFFF}%d{808040}]\n{FFFFFF}/viatoll", ID_VIATOLL);
-	viashop3D[ID_VIATOLL] = CreateDynamic3DTextLabel(string, ZIELONY3, Pos[0], Pos[1], Pos[2]+0.5, 30.0);
-	viashopIKON[ID_VIATOLL] = CreateDynamicMapIcon(Pos[0], Pos[1], Pos[2], 56, LIGHTRED);
-
-	format(string, sizeof string, "{008000}Sklep viatoll o uid: {FFFFFF}%d {008000}zostaÂ³pomyÅ“lnie utworzony.", ID_VIATOLL);
-	SendClientMessage(playerid, 0x0, string);
-
 	viaInfo[ID_VIATOLL][vtID] = mysql_insert_id();
 	viaInfo[ID_VIATOLL][vtPosX] = Pos[0];
 	viaInfo[ID_VIATOLL][vtPosY] = Pos[1];
 	viaInfo[ID_VIATOLL][vtPosZ] = Pos[2];
+
+	format(string, sizeof string, "Sklep viaTOLL w {b}%s{/b} (ID: {b}%d{/b})\nAby wejœæ wpisz {b}/viatoll{/b}.", GetPointZone(viaInfo[ID_VIATOLL][vtPosX], viaInfo[ID_VIATOLL][vtPosY]), ID_VIATOLL);
+	viashop3D[ID_VIATOLL] = CreateDynamic3DTextLabel(string, ZIELONY3, Pos[0], Pos[1], Pos[2]+0.5, 30.0);
+	viashopIKON[ID_VIATOLL] = CreateDynamicMapIcon(Pos[0], Pos[1], Pos[2], 56, LIGHTRED);
+
+	format(string, sizeof string, "Sklep viaTOLL o ID {b}%d{/b} zosta³ pomyœlnie dodany.", ID_VIATOLL);
+	Msg(playerid, COLOR_INFO, string);
 
 	ID_VIATOLL++;
 
@@ -52,16 +52,16 @@ CMD:dodajviatoll(playerid, params[])
 CMD:usunviatoll(playerid, params[])
 {
 	if(!playerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieÃ±.");
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	new string[132];
 
 	new viashopid = GetViaShop(playerid);
 	if(viashopid == INVALID_VIASHOP_ID)
-		return SendClientMessage(playerid, LIGHTRED, "Nie znajdujesz siÃª przy sklepie viatoll.");
+		return Msg(playerid, COLOR_ERROR, "Nie znajdujesz siê przy sklepie viatoll.");
 
-	format(string, sizeof string, "{008000}Sklep viatoll o uid: {FFFFFF}%d {008000}zostaÂ³ pomy?lnie utworzony.", viashopid);
-	SendClientMessage(playerid,0x0,string);
+	format(string, sizeof string, "Sklep viaTOLL o ID {b}%d{/b} zosta³ usuniêty pomyœlnie.", viashopid);
+	Msg(playerid, COLOR_INFO, string);
 
 	DestroyDynamic3DTextLabel(viashop3D[viashopid]);
 	DestroyDynamicMapIcon(viashopIKON[viashopid]);
@@ -90,8 +90,8 @@ public ViaToll_OnGameModeInit()
 	{
     	sscanf(string, "e<p<|>dfff>", viaInfo[ID_VIATOLL]);
 
-		format(string, sizeof string, "{808040}SKLEP VIATOLL {808040}[VID: {FFFFFF}%d{808040}]\n{FFFFFF}/viatoll", ID_VIATOLL);
-		viashop3D[ID_VIATOLL] = CreateDynamic3DTextLabel(string, ZIELONY3, viaInfo[ID_VIATOLL][vtPosX], viaInfo[ID_VIATOLL][vtPosY], viaInfo[ID_VIATOLL][vtPosZ]+0.5, 30.0);
+		format(string, sizeof string, "Sklep viaTOLL w {b}%s{/b} (ID: {b}%d{/b})\nAby wejœæ wpisz {b}/viatoll{/b}.", GetPointZone(viaInfo[ID_VIATOLL][vtPosX], viaInfo[ID_VIATOLL][vtPosY]), ID_VIATOLL);
+		viashop3D[ID_VIATOLL] = CreateDynamic3DTextLabel(clText(COLOR_INFO2, string), -1, viaInfo[ID_VIATOLL][vtPosX], viaInfo[ID_VIATOLL][vtPosY], viaInfo[ID_VIATOLL][vtPosZ]+0.5, 30.0);
 		viashopIKON[ID_VIATOLL] = CreateDynamicMapIcon(viaInfo[ID_VIATOLL][vtPosX], viaInfo[ID_VIATOLL][vtPosY], viaInfo[ID_VIATOLL][vtPosZ], 56, LIGHTRED, _, _, _, 300);
 
 		viashop3DForAll[ID_VIATOLL] = CreateDynamicMapIcon(viaInfo[ID_VIATOLL][vtPosX], viaInfo[ID_VIATOLL][vtPosY], viaInfo[ID_VIATOLL][vtPosZ], 56, LIGHTRED, _, _, GetMaxPlayers()+1, 6000.0);
@@ -175,22 +175,22 @@ Dialog:DIALOG_ID_VIATOLL(playerid, response, listitem, inputtext[])
 	if(!response)
 		return 1;
 
-	new impulsow, koszt, str[40];
+	new impulsow, koszt, str[80];
 
 	switch(listitem)
 	{
 		case 0: {impulsow=1; koszt=25;}
-		case 2: {impulsow=5; koszt=125;}
-		case 3: {impulsow=10; koszt=250;}
-		case 4: {impulsow=20; koszt=500;}
-		case 5: {impulsow=50; koszt=1250;}
+		case 1: {impulsow=5; koszt=125;}
+		case 2: {impulsow=10; koszt=250;}
+		case 3: {impulsow=20; koszt=500;}
+		case 4: {impulsow=50; koszt=1250;}
 		default: {impulsow=0; koszt=0;}
 	}
 
 	new firmaid = playerInfo[playerid][pFirm];
 
 	if( (firmaid == 0 && GetMoney(playerid) < koszt) || (firmInfo[firmaid][tID] && firmInfo[firmaid][tBank] < koszt) )
-		return ShowInfo(playerid, "Nie masz tyle pieniÃªdzy.");
+		return ShowInfo(playerid, "Nie masz tyle pieniÄ™dzy.");
 
 	if(firmInfo[firmaid][tID])
 		firmInfo[firmaid][tBank] -= koszt;
@@ -198,7 +198,7 @@ Dialog:DIALOG_ID_VIATOLL(playerid, response, listitem, inputtext[])
 		GiveMoney(playerid, -koszt);
 		
 	GiveViaMoney(playerid, impulsow);
-	format(str, sizeof(str), "KupiÂ³eÅ“ %d impuls/Ã³w za $%d.", impulsow, koszt);
-	ShowInfo(playerid, str);
+	format(str, sizeof(str), "KupiÅ‚eÅ› {b}%d{/b} impuls/Ã³w za {b}$%d{/b}.", impulsow, koszt);
+	Msg(playerid, COLOR_INFO, str);
 	return 1;
 }

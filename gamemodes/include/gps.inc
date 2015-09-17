@@ -1,7 +1,11 @@
 //CMD:gps(playerid, params[])
 	//return cmd_nawigacja(playerid, params);
 CMD:gps(playerid, params[])
-	return Dialog_Show(playerid, DIALOG_ID_GPS, DIALOG_STYLE_LIST, "GPS System", "Doki towarowe\nStacje\nBary\nSklepy ViaToll\nWy³¹cz", "Wybierz", "");
+{
+	Msg(playerid, COLOR_ERROR, "Funkcja tymczasowo wy³¹czona.");
+	return 1;
+	//return Dialog_Show(playerid, DIALOG_ID_GPS, DIALOG_STYLE_LIST, "GPS System", "Doki towarowe\nStacje\nRestauracje\nSklepy ViaToll\nW³asna lokalizacja\nWy³¹cz", "Wybierz", "");
+}
 
 forward GPS_OnPlayerDisconnect(playerid);
 public GPS_OnPlayerDisconnect(playerid)
@@ -14,7 +18,7 @@ public GPS_Function(playerid, listitem)
 	{
 		case 1: // Stacje
 		{
-			if(gpsInfo[playerid][gStations] || gpsInfo[playerid][gLoadings] || gpsInfo[playerid][gRestaurants] || gpsInfo[playerid][gViatoll])
+			if(gpsInfo[playerid][gStations] || gpsInfo[playerid][gLoadings] || gpsInfo[playerid][gRestaurants] || gpsInfo[playerid][gViatoll] || gpsInfo[playerid][gCustom])
 				return ShowInfo(playerid, "Ju¿ masz w³¹czonego GPSa, najpierw go wy³¹cz.");
 
 			for(new i; i <= ID_STACJA; i++)
@@ -25,14 +29,14 @@ public GPS_Function(playerid, listitem)
 		}
 		case 2: // Bary
 		{
-			if(gpsInfo[playerid][gStations] || gpsInfo[playerid][gLoadings] || gpsInfo[playerid][gRestaurants] || gpsInfo[playerid][gViatoll])
+			if(gpsInfo[playerid][gStations] || gpsInfo[playerid][gLoadings] || gpsInfo[playerid][gRestaurants] || gpsInfo[playerid][gViatoll] || gpsInfo[playerid][gCustom])
 				return ShowInfo(playerid, "Ju¿ masz w³¹czonego GPSa, najpierw go wy³¹cz.");
 
 			ShowInfo(playerid, "Funkcja chwilowo wy³¹czona.");
 		}
 		case 3: // ViaToll
 		{
-			if(gpsInfo[playerid][gStations] || gpsInfo[playerid][gLoadings] || gpsInfo[playerid][gRestaurants] || gpsInfo[playerid][gViatoll])
+			if(gpsInfo[playerid][gStations] || gpsInfo[playerid][gLoadings] || gpsInfo[playerid][gRestaurants] || gpsInfo[playerid][gViatoll] || gpsInfo[playerid][gCustom])
 				return ShowInfo(playerid, "Ju¿ masz w³¹czonego GPSa, najpierw go wy³¹cz.");
 
 			for(new i; i <= ID_STACJA; i++)
@@ -41,7 +45,14 @@ public GPS_Function(playerid, listitem)
 
 			gpsInfo[playerid][gViatoll]=true;
 		}
-		case 4: // wy³¹cz
+		case 4: // w³asna lokalizacja
+		{
+			if(gpsInfo[playerid][gStations] || gpsInfo[playerid][gLoadings] || gpsInfo[playerid][gRestaurants] || gpsInfo[playerid][gViatoll] || gpsInfo[playerid][gCustom])
+				return ShowInfo(playerid, "Ju¿ masz w³¹czonego GPSa, najpierw go wy³¹cz.");
+
+			
+		}
+		case 5: // wy³¹cz
 		{
 			if(gpsInfo[playerid][gLoadings])
 			{
@@ -67,11 +78,15 @@ public GPS_Function(playerid, listitem)
 
 				gpsInfo[playerid][gStations]=false;
 			}
+			else if(gpsInfo[playerid][gCustom])
+			{
+				gpsInfo[playerid][gCustom] = false;
+			}
 		}
 
 		case 10..16:
 		{
-			if(gpsInfo[playerid][gStations] || gpsInfo[playerid][gLoadings] || gpsInfo[playerid][gRestaurants] || gpsInfo[playerid][gViatoll])
+			if(gpsInfo[playerid][gStations] || gpsInfo[playerid][gLoadings] || gpsInfo[playerid][gRestaurants] || gpsInfo[playerid][gViatoll] || gpsInfo[playerid][gCustom])
 				return ShowInfo(playerid, "Ju¿ masz w³¹czonego GPSa, najpierw go wy³¹cz.");
 
 			for(new i; i <= ID_DOKOW; i++)

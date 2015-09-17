@@ -1,7 +1,7 @@
 Dialog:NEVER_DIALOG(playerid, response, listitem, inputtext[])
 {
-	if(!IsPlayerLogged(playerid))
-		SelectTextDraw(playerid, 0xA82A23FF);
+	if(response && !IsPlayerLogged(playerid))
+		cmd_faq(playerid, "");
     return 1;
 }
     
@@ -59,6 +59,10 @@ Dialog:DIALOG_ID_CREATE_VEHICLE_TRUCK(playerid, response, listitem, inputtext[])
 
 	vehicleid = CreateVehicle(model, pos[0], pos[1]+5, pos[2], pos[3], 16, 16, -1);
 
+	vloadInfo[vehicleid][vLoaded] = false;
+	strdel(vloadInfo[vehicleid][vOwner], 0, strlen (vloadInfo[vehicleid][vOwner]));
+	vloadInfo[vehicleid][vCargo] = 0;
+
 	Spawned[vehicleid] = true;
 	SetPVarInt(playerid, "pojazd", vehicleid);
 
@@ -66,8 +70,13 @@ Dialog:DIALOG_ID_CREATE_VEHICLE_TRUCK(playerid, response, listitem, inputtext[])
 	vehInfo_Temp[vehicleid][vFuelType] = IsVehicleTruck(GetVehicleModel(vehicleid)) ? FUEL_TYPE_TDI : FUEL_TYPE_BENZ;
 	vehInfo_Temp[vehicleid][vPrzebieg] = -2.0;
 
+	if(GetOnlineTime(playerid) < 7200)
+	{
+		Msg(playerid, COLOR_INFO2, "W³aœnie stworzy³eœ swój pojazd do pracy. Wpisz {b}/oferta{/b} i wybierz interesuj¹ce Ciê zlecenie!");
+	}
 	Msg(playerid, COLOR_INFO, "Pomyœlnie utworzono pojazd.");
 	PutPlayerInVehicle(playerid, vehicleid, 0);
+	SetVehicleParamsEx(vehicleid, 0, 0, 0, 0, 0, 0, 0);
 	return 1;
 }
 
@@ -78,14 +87,35 @@ Dialog:DIALOG_ID_SPAWN_SELECT(playerid, response, listitem, inputtext[])
 	
 	switch(listitem)
 	{
-		case 0: SetPlayerPos(playerid,1648.4308,-1053.9159,23.8984);
-		case 1: SetPlayerPos(playerid,1398.5642,1009.4103,10.9297);
-		case 2: SetPlayerPos(playerid,-240.4012,-231.1620,2.3985);
-		case 3: SetPlayerPos(playerid,-2136.7207,-126.3667,36.5191);
-		case 4: SetPlayerPos(playerid, firmInfo[playerInfo[playerid][pFirm]][tSpawnX], firmInfo[playerInfo[playerid][pFirm]][tSpawnY], firmInfo[playerInfo[playerid][pFirm]][tSpawnZ]);
+		case 0: Teleport(playerid, 1648.4308, -1053.9159, 23.8984, true);
+		case 1: Teleport(playerid, 1398.5642, 1009.4103, 10.9297, true);
+		case 2: Teleport(playerid, -240.4012, -231.1620, 2.3985, true);
+		case 3: Teleport(playerid, -2136.7207, -126.3667, 36.5191, true);
+		case 4: Teleport(playerid, firmInfo[playerInfo[playerid][pFirm]][tSpawnX], firmInfo[playerInfo[playerid][pFirm]][tSpawnY], firmInfo[playerInfo[playerid][pFirm]][tSpawnZ], true);
 	}
 
 	return 1;
+}
+
+stock Teleport(playerid, Float:x, Float:y, Float:z, bool:gtaVCam = false, bool:preStream = false)
+{
+	if(!gtaVCam)
+		SetPlayerPos(playerid, x, y, z);
+	else
+		if(GetDistanceFromMeToPoint(playerid, x, y, z) >= 500.0)
+			SetPlayerPosCamera(playerid, x, y, z);
+		else
+			SetPlayerPos(playerid, x, y, z);
+
+	if(preStream && !gtaVCam)
+		TogglePlayerControllable(playerid, false), SetTimerEx("Unfreeze", 100, false, "d", playerid);
+	return 1;
+}
+
+forward Unfreeze(playerid);
+public Unfreeze(playerid)
+{
+	return TogglePlayerControllable(playerid, true);
 }
 
 Dialog:DIALOG_ID_REGISTER(playerid, response, listitem, inputtext[])
@@ -112,9 +142,10 @@ Dialog:DIALOG_ID_REGISTER(playerid, response, listitem, inputtext[])
 		{
 			mysql_real_escape_string(PlayerName(playerid), Name);
 			WP_Hash(string, sizeof(string), inputtext);
-			format(string, sizeof string, "INSERT INTO `Accounts` VALUES(NULL, '0', '%s', '%s', '2000', '0', '0', '-1', '0', '1', '0', '0', '0', '0', '%d', '%d', '%d', '%d', '%d', '0', '%s', '0', '0', '1', '0', '0')", 
-				Name, string, H, Mi, D, Mo, Y, ip);
-
+			playerInfo[playerid][pSpawn] = random(4)-1;
+			if(playerInfo[playerid][pSpawn] < 0) playerInfo[playerid][pSpawn] = 0;
+			format(string, sizeof string, "INSERT INTO `Accounts` VALUES(NULL, '0', '%d', 'NULL', '%s', '%s', '2000', '0', '100', '0', '-1', '0', '1', '0', '0', '0', '0', NOW(), '0', '%s', '0', '0', '1', '0', '0', '0.0.0.0.0', 'braknickubrak')", 
+				playerInfo[playerid][pSpawn], Name, string, ip);
 			mysql_query(string);
 
 			SetTimerEx("ReqSpawnPlayer", 100, false, "d", playerid);
@@ -126,14 +157,21 @@ Dialog:DIALOG_ID_REGISTER(playerid, response, listitem, inputtext[])
 			playerInfo[playerid][pID] = mysql_insert_id();
 			playerInfo[playerid][pBankomat] = -1;
 			playerInfo[playerid][pSkin] = 0;
+			playerInfo[playerid][pHunger] = 100.0;
+			format(pPoints[playerid][pSkills], 15, "0.0.0.0.0");
+			format(playerInfo[playerid][pCBNick], 32, "braknickubrak");
 
 			Msg(playerid, COLOR_INFO, "Zarejestrowano pomyœlie. Mi³ej gry ¿yczy administracja. ;)");
 			StopCinematicCameraIntro(playerid);
 			ShowPlayerConnect(playerid, false);
 			ShowConnect(playerid, false);
+			ShowPlayerHud(playerid, true);
 			TextDrawShowForPlayer(playerid, MainTextDraws[Time]);
 
-			SetSpawnInfo(playerid, 0, playerInfo[playerid][pSkin], 1648.4308, -1053.9159, 23.8984, 0.0, 0, 0, 0, 0, 0, 0);
+			Msg(playerid, COLOR_INFO3, "Wpisz {b}/faq{/b}, by zobaczyæ pomoc.");
+			Msg(playerid, COLOR_INFO3, "Wpisz {b}/cmds{/b}, by zobaczyæ komendy.");
+
+			SetSpawnInfo(playerid, 0, playerInfo[playerid][pSkin], gSpawnvehicleplayer[playerInfo[playerid][pSpawn]][0], gSpawnvehicleplayer[playerInfo[playerid][pSpawn]][1], gSpawnvehicleplayer[playerInfo[playerid][pSpawn]][2], 0.0, 0, 0, 0, 0, 0, 0);
 			TogglePlayerSpectating(playerid, false);
 			SpawnPlayer(playerid);
 		}
@@ -220,8 +258,11 @@ Dialog:DIALOG_ID_FIRMA_WPLAC(playerid, response, listitem, inputtext[])
 	new kasa = strval(inputtext);
 	
 	if(kasa > GetMoney(playerid))
-	return Dialog_Show(playerid, DIALOG_ID_FIRMA_WPLAC, DIALOG_STYLE_INPUT, "Firma > Wp³aæ", "{FF0000}Nie posiadasz tyle pieniêdzy.\n \n{000000}WprowadŸ iloœæ pieniêdzy, które chcesz wp³aciæ:", "Ok", "Cofnij");
+		return Dialog_Show(playerid, DIALOG_ID_FIRMA_WPLAC, DIALOG_STYLE_INPUT, "Firma > Wp³aæ", "{FF0000}Nie posiadasz tyle pieniêdzy.\n \n{000000}WprowadŸ iloœæ pieniêdzy, które chcesz wp³aciæ:", "Ok", "Cofnij");
 	
+	if(kasa < 0 || kasa > 1000000)
+		return Dialog_Show(playerid, DIALOG_ID_FIRMA_WPLAC, DIALOG_STYLE_INPUT, "Firma > Wp³aæ", "{FF0000}Poda³eœ z³¹ liczbê.\n \n{000000}WprowadŸ iloœæ pieniêdzy, które chcesz wp³aciæ:", "Ok", "Cofnij");
+
 	GiveMoney(playerid, -kasa);
 	firmInfo[playerInfo[playerid][pFirm]][tBank] += kasa;
 	
@@ -430,7 +471,7 @@ Dialog:DIALOG_ID_VEHICLE(playerid, response, listitem, inputtext[])
 				(vehInfo_Temp[vehicleid][vFuelType] == FUEL_TYPE_BENZ ? ("Benzyna") : (vehInfo_Temp[vehicleid][vFuelType] == FUEL_TYPE_TDI ? ("Diesel") : ("Gaz"))),
 				vehInfo_Temp[vehicleid][vPrzebieg]);
 			else
-				format(string, sizeof(string), "UID: \t%d\nID: \t%d\nW³aœciciel: \t%d\nSub w³aœciciel: \t%d\nTyp w³aœciciela: \t%s\nModel: \t%d\nHP: \t%0.0f\nPaliwo: \t%0.0f\nTyp paliwa: \t%s\nPrzebieg: %0.1fkm\nKolor: \t%d:%d\nPrzegl¹d: %s",
+				format(string, sizeof(string), "UID: \t%d\nID: \t%d\nW³aœciciel: \t%d\nSub w³aœciciel: \t%d\nTyp w³aœciciela: \t%s\nModel: \t%d\nHP: \t%0.0f\nPaliwo: \t%0.0f\nTyp paliwa: \t%s\nPrzebieg: %0.1fkm\nKolor: \t%d:%d\nPrzegl¹d: %s\nButla gazowa: \t%s",
 				vehuid,
 				vehicleid,
 				vehInfo[vehuid][vOwnerID],
@@ -438,12 +479,14 @@ Dialog:DIALOG_ID_VEHICLE(playerid, response, listitem, inputtext[])
 				(vehInfo[vehuid][vOwnerType] == OWNER_TYPE_PLAYER ? ("Gracz") : ("Firma")),
 				vehInfo[vehuid][vModel],
 				sVehHP,
-				vehInfo[vehuid][vFuel],
+				(vehInfo[vehuid][vGasStatus]) ? (vehInfo[vehuid][vGasAmount]) : (vehInfo[vehuid][vFuel]),
 				(vehInfo[vehuid][vFuelType] == FUEL_TYPE_BENZ ? ("Benzyna") : (vehInfo[vehuid][vFuelType] == FUEL_TYPE_TDI ? ("Diesel") : ("Gaz"))),
 				vehInfo[vehuid][vPrzebieg],
 				vehInfo[vehuid][vColor1],
 				vehInfo[vehuid][vColor2],
-				vehInfo[vehuid][vPrzeglad]);
+				vehInfo[vehuid][vPrzeglad],
+				(vehInfo[vehuid][vGasBootle]) ? ("tak") : ("nie")
+				);
 			
 			Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST, "Pojazd > Informacje", string, "Ok", "");
 		}
@@ -462,7 +505,7 @@ Dialog:DIALOG_ID_VEHICLE(playerid, response, listitem, inputtext[])
 			(vehInfo[vehuid][vOwnerType] == OWNER_TYPE_TEAM && playerInfo[playerid][pID] != firmInfo[playerInfo[playerid][pFirm]][tChef]))
 			return ShowInfo(playerid, "Nie mo¿esz zarz¹dzaæ tym pojazdem.");
 			
-			Dialog_Show(playerid, DIALOG_ID_VEHICLE_ZARZADZAJ, DIALOG_STYLE_LIST, "Pojazd > Zarz¹dzaj", "Zaparkuj\nUstaw zastêpcê", "Ok", "Anuluj");
+			Dialog_Show(playerid, DIALOG_ID_VEHICLE_ZARZADZAJ, DIALOG_STYLE_LIST, "Pojazd > Zarz¹dzaj", "Zaparkuj\nUstaw zastêpcê%s", "Ok", "Anuluj", (GetVehicleTrailer(vehicleid) > 0) ? ("\nZaparkuj naczepê") : (""));
 		}
 	}
 	return 1;
@@ -494,9 +537,34 @@ Dialog:DIALOG_ID_VEHICLE_ZARZADZAJ(playerid, response, listitem, inputtext[])
 			
 			LadujPojazd(_, _, vehuid);
 			PutPlayerInVehicle(playerid, vehInfo[vehuid][vSAMPID], 0);
+			Msg(playerid, COLOR_INFO, "Pomyœlnie przeparkowano.");
 		}
-		
 		case 1: ShowInfo(playerid, "Ustawienie zastêpcy jest chwilowo nie mo¿liwe.");
+		case 2:
+		{
+			new trailerid = GetVehicleTrailer(vehicleid);
+			if(Spawned[trailerid])
+				return Msg(playerid, COLOR_ERROR, "Nie mo¿na zaparkowaæ tej naczepy.");
+			vehuid = DBVehID[trailerid];
+
+			DetachTrailerFromVehicle(vehicleid);
+
+			GetVehiclePos(trailerid, Pos[0], Pos[1], Pos[2]);
+			GetVehicleZAngle(trailerid, Pos[3]);
+			
+			vehInfo[vehuid][vPosX] = Pos[0];
+			vehInfo[vehuid][vPosY] = Pos[1];
+			vehInfo[vehuid][vPosZ] = Pos[2];
+			vehInfo[vehuid][vPosA] = Pos[3];
+			
+			SaveVehicle(trailerid);
+			DestroyVehicle(trailerid);
+			DBVehID[trailerid]=0;
+			ResetVariablesInEnum(vehInfo[vehuid], E_VEHICLE);
+			
+			LadujPojazd(_, _, vehuid);
+			Msg(playerid, COLOR_INFO, "Pomyœlnie przeparkowano.");
+		}
 	}
 	return 1;
 }
@@ -516,13 +584,13 @@ Dialog:DIALOG_ID_TELEPHONE(playerid, response, listitem, inputtext[])
 
 	switch(listitem)
 	{
-		case 0: strins(name, "policja", 0); 
-		case 1: strins(name, "pogotowie", 0);
-		case 2: strins(name, "pomoc drogowa", 0);
+		case 0: strins(name, "policji", 0); 
+		case 1: strins(name, "pogotowia", 0);
+		case 2: strins(name, "pomocy drogowej", 0);
 	}
 
 	SetPVarInt(playerid, "TELEPHONE", listitem+1);
-	format(szString, sizeof szString, "Halo... tutaj %s.\nCo siê sta³o?", name);
+	format(szString, sizeof szString, "Podaj powód dla którego chcesz wezwaæ jednostkê %s oraz Twoj¹ dok³adn¹ lokalizacjê!", name);
 	Dialog_Show(playerid, DIALOG_ID_TELEPHONE2, DIALOG_STYLE_INPUT, " ", szString, "Zadzwoñ", "Wstecz");
 	return 1;
 }
@@ -549,9 +617,9 @@ Dialog:DIALOG_ID_TELEPHONE2(playerid, response, listitem, inputtext[])
 
 	format(szString, sizeof szString, "Nowe wezwanie! Gracz {b}%s{/b} potrzebuje {b}%s{/b}. Powód: {b}%s{/b}.", PlayerName(playerid), name, inputtext);
 
-	for(new i = 0; i < MAX_PLAYERS; i++)
+	foreach (new i : Player)
 	{
-		if(!IsPlayerConnected(i) || !IsPlayerLogged(i))
+		if(!IsPlayerLogged(i))
 			continue;
 
 		if(GetPVarInt(i, "Worked") && firmInfo[playerInfo[i][pFirm]][tType] == GetPVarInt(playerid, "TELEPHONE"))
@@ -880,66 +948,6 @@ Dialog:ANIM7_DIALOG(playerid, response, listitem, inputtext[])
 	return 1;
 }
 
-
-	Dialog:DIALOG_MENU_BAR(playerid, response, listitem, inputtext[])
-	{
-		if(response == 1)
-		{
-			new procent = GetPVarInt(playerid, "JEDZENIEPROCENTY");
-			new stan, money;
-
-			switch(listitem)
-			{
-				case 0..1, 6..9:
-				{
-					cmd_menu(playerid, "");
-				}
-
-				case 2:
-				{
-					stan = 100;
-					money = 250;
-
-					SendClientMessage(playerid, 0x008040FF, "Kupi³eœ obiad.");
-				}
-
-				case 3:
-				{
-					stan = 70;
-					money = 200;
-
-					SendClientMessage(playerid, 0x008040FF, "Kupi³eœ ?niadanie.");
-				}
-
-				case 4:
-				{
-					stan = 50;
-					money = 150;
-
-					SendClientMessage(playerid, 0x008040FF, "Kupi³eœ kolacj?");
-				}
-
-				case 5:
-				{
-					stan = 25;
-					money = 100;
-
-					SendClientMessage(playerid, 0x008040FF, "Kupi³eœ deser.");
-				}
-			}
-
-			if(money)
-			{
-				GiveMoney(playerid, -money);
-
-				SetPVarInt(playerid, "JEDZENIEPROCENTY", (procent+stan >= 100) ? (100) : (procent+stan));
-				//SetPlayerProgressBarValue(playerid, Glod[playerid], float((procent+stan >= 100) ? (100) : (procent+stan)));
-				//UpdatePlayerProgressBar(playerid, Glod[playerid]);
-			}
-		}
-		return 1;
-	}
-
 /*Dialog:DIALOG_PANEL)
 {
 if(response)
@@ -1263,9 +1271,9 @@ Dialog:POLICE_DIALOG(playerid, response, listitem, inputtext[])
 
 	if(!response)
 	{
-		format(string, sizeof string, ""GCOLOR_YELLOW"Gracz %s odmówi³ przyjêcia mandatu.",PlayerName(playerid));
-		SendClientMessage(GetPVarInt(playerid,"kontrola"), 0x0, string);
-		SendClientMessage(playerid,0x0,""GCOLOR_YELLOW"Odmówi³eœ przyjêcia mandatu. Z twojego konta zosta³ pobrane podwojone punkty score.");
+		format(string, sizeof string, "Gracz {b}%s{/b} odmówi³ przyjêcia mandatu.", PlayerName(playerid));
+		Msg(GetPVarInt(playerid,"kontrola"), COLOR_ERROR, string);
+		Msg(playerid, COLOR_ERROR, "Odmówi³eœ przyjêcia mandatu. Z twojego konta zosta³ pobrane podwojone punkty score.");
 		GiveScore(playerid, -(GetPVarInt(playerid, "opcja2")*2));
 
 		DeletePVar(playerid, "kontrola");
@@ -1274,9 +1282,9 @@ Dialog:POLICE_DIALOG(playerid, response, listitem, inputtext[])
 	}
 	else
 	{
-		format(string, sizeof string, ""GCOLOR_YELLOW"Gracz %s przyj¹³ mandat.",PlayerName(playerid));
-		SendClientMessage(GetPVarInt(playerid,"kontrola"), 0x0, string);
-		SendClientMessage(playerid,0x0,""GCOLOR_YELLOW"Przyj¹³eœ mandat.");
+		format(string, sizeof string, "Gracz {b}%s{/b} przyj¹³ mandat.", PlayerName(playerid));
+		Msg(GetPVarInt(playerid,"kontrola"), COLOR_INFO, string);
+		Msg(playerid, COLOR_INFO, "Przyj¹³eœ mandat.");
 		GiveMoney(playerid, -GetPVarInt(playerid, "opcja1"));
 		GiveScore(playerid, -GetPVarInt(playerid, "opcja2"));
 
@@ -1293,7 +1301,7 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 		return SelectTextDraw(playerid, 0xA82A23FF);
 
 	new 
-		szBuffer[466+MAX_PLAYER_NAME+129], 
+		szBuffer[600+MAX_PLAYER_NAME+129], 
 		nick[32], 
 		password[129], 
 		ip[16];
@@ -1312,11 +1320,8 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 	WP_Hash(password, sizeof(password), inputtext);
 	mysql_real_escape_string(PlayerName(playerid), nick);
 
-	format(szBuffer, sizeof szBuffer, "SELECT gracze.ID, gracze.Money, gracze.Score, gracze.Admin, gracze.Bankomat, gracze.Firma, gracze.Skin, gracze.Tacho, gracze.Foto, gracze.Toll, gracze.Gtime, gracze.Worktime, gracze.BuildMaster, gracze.Adr, \
-		CASE WHEN scigani.id IS NOT NULL THEN scigani.id ELSE 0 END AS sciganiID \
-		FROM `Accounts` AS gracze \
-		LEFT JOIN `st_scigani` AS scigani ON gracze.ID = scigani.graczid AND scigani.aresztowanyprzez = 0 \
-		WHERE gracze.nick = '%s' AND `Pass` = '%s'", nick, password);
+	format(szBuffer, sizeof szBuffer, "SELECT ID, Money, Score, Hunger, allowedPoints, skills, pSpawn, pSpawnInfo, TimeOnline, cbradioNick, \
+		Admin, Bankomat, Firma, Skin, Tacho, Toll, Gtime, Worktime, BuildMaster, Adr FROM Accounts WHERE Name = '%s' AND Pass = '%s'", nick, password);
 	mysql_query(szBuffer);
 	mysql_store_result();
 
@@ -1324,12 +1329,37 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 	{
 		PlayerLogged(playerid);
 		ResetPlayerMoney(playerid);
+		ResetMoney(playerid);
 
-		sscanf(szBuffer, "e<p<|>dddfdddddddddddd>", playerInfo[playerid]);
+		sscanf(szBuffer, "p<|>dddfds[15]ds[32]ds[32]dddddddddd",
+			playerInfo[playerid][pID],
+			playerInfo[playerid][pMoney],
+			playerInfo[playerid][pScore],
+			playerInfo[playerid][pHunger],
+			pPoints[playerid][pAllowedPoints],
+			pPoints[playerid][pSkills],
+			playerInfo[playerid][pSpawn],
+			playerInfo[playerid][pSpawnInfo],
+			playerInfo[playerid][pOnlineTime],
+			playerInfo[playerid][pCBNick],
+			playerInfo[playerid][pAdminAllowed],
+			playerInfo[playerid][pBankomat],
+			playerInfo[playerid][pFirm],
+			playerInfo[playerid][pSkin],
+			playerInfo[playerid][pTacho],
+			playerInfo[playerid][pToll],
+			playerInfo[playerid][pGTime],
+			playerInfo[playerid][pWorkTime],
+			playerInfo[playerid][pBuildmaster],
+			playerInfo[playerid][pADR]);
 
 		mysql_free_result();
 
-		format(szBuffer, sizeof(szBuffer), "UPDATE `Accounts` SET `Online`='1', `IP`='%s' WHERE `nick` = '%s'", ip, nick);
+		if(IsAccountPursued(playerInfo[playerid][pID]))
+			playerInfo[playerid][pPursued] = 1;
+		playerInfo[playerid][pPursued] = 0;
+
+		format(szBuffer, sizeof(szBuffer), "UPDATE `Accounts` SET `Online`='1', `IP`='%s' WHERE `name` = '%s'", ip, nick);
 		mysql_query(szBuffer);
 
 		format(szBuffer, sizeof(szBuffer), "[IP: %s] Zalogowano poprawnie (próba: %d)", ip, GetPVarInt(playerid, "leci"));
@@ -1338,17 +1368,24 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 		GivePlayerMoney(playerid, playerInfo[playerid][pMoney]);
 		SetPlayerScore(playerid, playerInfo[playerid][pScore]);
 
-		//LadujPojazd(playerInfo[playerid][pID], OWNER_TYPE_PLAYER);
-
 		Msg(playerid, COLOR_INFO, "Zalogowano pomyœlie. Mi³ej gry ¿yczy administracja. ;)");
 		StopCinematicCameraIntro(playerid);
 		ShowPlayerConnect(playerid, false);
 		ShowConnect(playerid, false);
 		ShowPlayerHud(playerid, true);
 		TextDrawShowForPlayer(playerid, MainTextDraws[Time]);
+		SetPlayerProgressBarValue(playerid, hudInfo[tdHungerProgress][playerid], playerInfo[playerid][pHunger]);
 
 		SprawdzPoziom(playerid);
-		SetSpawnInfo(playerid, 0, playerInfo[playerid][pSkin], 1648.4308, -1053.9159, 23.8984, 0.0, 0, 0, 0, 0, 0, 0);
+		
+		if(playerInfo[playerid][pSpawn] >= 0)
+			SetSpawnInfo(playerid, 0, playerInfo[playerid][pSkin], gSpawnvehicleplayer[playerInfo[playerid][pSpawn]][0], gSpawnvehicleplayer[playerInfo[playerid][pSpawn]][1], gSpawnvehicleplayer[playerInfo[playerid][pSpawn]][2], 0.0, -1, -1, -1, -1, -1, -1);
+		else
+		{
+			new Float:pos[4];
+			sscanf(playerInfo[playerid][pSpawnInfo], "p<,>ffff", pos[0], pos[1], pos[2], pos[3]);
+			SetSpawnInfo(playerid, 0, playerInfo[playerid][pSkin], pos[0], pos[1], pos[2], pos[3], 0, 0, 0, 0, 0, 0);
+		}
 		TogglePlayerSpectating(playerid, false);
 		SpawnPlayer(playerid);
 		return 1;
@@ -1366,6 +1403,5 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 	format(szBuffer, sizeof(szBuffer), "%s{a9c4e4}Wykorzysta³eœ ju¿ {FFFFFF}[%d/3] {a9c4e4}próby zalogowania.\n\n{FFFFFF}www.serwertruck.eu", szBuffer, GetPVarInt(playerid, "leci"));
 
 	Dialog_Show(playerid, DIALOG_ID_LOGIN, DIALOG_STYLE_PASSWORD, "Panel > Logowanie", szBuffer, "Zaloguj", "Zamknij");
-
 	return 1;
 }

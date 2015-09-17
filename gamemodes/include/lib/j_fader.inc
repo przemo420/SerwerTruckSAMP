@@ -75,7 +75,6 @@ public Fade_OnGameModeInit()
 	TextDrawTextSize(_text,640,480);
 	TextDrawLetterSize(_text,0.0,50.0);
 	TextDrawUseBox(_text,1);
-	SetTimer("_UpdateFadeTimer",_UPDATERATE,1);
 	_UpdateOPA();
 	return 1;
 }

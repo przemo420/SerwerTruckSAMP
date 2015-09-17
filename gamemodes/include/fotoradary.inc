@@ -50,7 +50,7 @@ public Photo_OnPlayerConnect(playerid)
 
 public PhotoradarUpdate()
 {
-	for(new i = 0; i < MAX_PLAYERS; i++)
+	foreach (new i : Player)
 	{
 		if(!IsPlayerConnected(i) || pPhotoed[i] || GetPlayerState(i) != PLAYER_STATE_DRIVER)
 			continue;
@@ -67,8 +67,8 @@ public PhotoradarUpdate()
 			continue;
 
 		pPhotoed[i] = true;
-		SetTimerEx("UnlockPhotoradar", 2*1000, false, "d", i);
-		GetVehicleSpeed(vehicleid, speed); speed -= phInfo[photoradar][phMaxSpeed];
+		SetTimerEx("UnlockPhotoradar", 1500, false, "d", i);
+		GetVehicleSpeed(vehicleid, speed); speed -= float(phInfo[photoradar][phMaxSpeed]);
 		if(speed < 10.0)
 			continue;
 
@@ -84,6 +84,7 @@ public PhotoradarUpdate()
 		Msg(i, COLOR_INFO2, szString);
 		Msg(i, COLOR_INFO2, "Mandat zostanie wypisany podczas kontroli.");
 		GiveFotoPolice(i, mandate);
+		FadeColorForPlayer(i, 255, 255, 255, 125, 0, 0, 0, 0, 25, 0);
 	}
 	return 1;
 }

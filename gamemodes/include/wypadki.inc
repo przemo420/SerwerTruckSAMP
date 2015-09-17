@@ -9,82 +9,93 @@ public Wypadek()
 {
 	if(CRASHON == 1)
 	{
-		new LiczbaMedykow = 0;
+		foreach (new playerid : Player)
+		{
+			if(NaDyzurze[TEAM_TYPE_MEDIC] <= 0)
+			{
+				if(!IsPlayerConnected(playerid) || !IsPlayerLogged(playerid))
+					continue;
 
-		Loop(playerid, MAX_PLAYERS)
-			if(firmInfo[playerInfo[playerid][pFirm]][tType] == TEAM_TYPE_MEDIC)
-				if(GetPVarInt(playerid, "Worked") && !GetPVarInt(playerid, "AFK"))
-					LiczbaMedykow++;
+				if(GetPVarInt(playerid, "Wypadek") > 0 && GetPVarInt(playerid, "Wypadekzmedykiem") > 0)
+				{
+					Msg(playerid, COLOR_INFO, "Pracownicy pogotowia zakoñczyli dy¿ur, ockniesz siê za {b}15 sekund{/b}.");
+					SetPVarInt(playerid, "healTimer", SetTimerEx("POwypadku", 15 * 1000, false, "d", playerid));
+					DeletePVar(playerid, "Wypadekzmedykiem");
+					FadeColorForPlayer(playerid, 181, 51, 36, 125, 204, 58, 41, 125, 20, 0);
+				}
+			}
+		}
 
 		new Float:health;
-
-		Loop(i, MAX_VEHICLES)
+		foreach (new i : Vehicle)
 		{
-			if(!IsValidVehicle(i) || !IsPlayerInAnyVehicle(i))
+			if(!IsValidVehicle(i))
 				continue;
 
-			GetVehicleHealth(GetPlayerVehicleID(i), NoweHPPojazdu[GetPlayerVehicleID(i)]);
+			GetVehicleHealth(i, NoweHPPojazdu[i]);
 
-			if(IsPlayerConnected(i))
+			if((StareHPPojazdu[i] - NoweHPPojazdu[i]) >= 40.0)
 			{
-				new t;
-				if(LiczbaMedykow <= 0 && GetPVarInt(i, "Wypadek") && GetPVarInt(i, "Wypadekzmedykiem"))
+				new cargoVehicle = IsVehicleTruck(GetVehicleModel(i)) ? GetVehicleTrailer(i) : i;
+				if(vloadInfo[cargoVehicle][vLoaded] == true)
 				{
-					Msg(i, COLOR_INFO, "Pracownicy pogotowia zakoñczyli dy¿ur, ockniesz siê za {b}15 sekund{/b}.");
-					t = SetTimerEx("POwypadku", 15000, false, "u", i);
-					SetPVarInt(i, "healTimer", t);
-					DeletePVar(i, "Wypadekzmedykiem");
-				}
-
-				if((StareHPPojazdu[GetPlayerVehicleID(i)] - NoweHPPojazdu[GetPlayerVehicleID(i)]) >= 100 && IsPlayerInVehicle(i, GetPlayerVehicleID(i)) && (GetPlayerState(i) == PLAYER_STATE_DRIVER || GetPlayerState(i) == PLAYER_STATE_PASSENGER) && !GetPVarInt(i, "Wypadek"))
-				{
-					Loop(g, MAX_PLAYERS)
+					if((StareHPPojazdu[i] - NoweHPPojazdu[i]) >= 25.0)
 					{
-						if(IsPlayerConnected(g))
-						{
-							if(IsPlayerInVehicle(g, GetPlayerVehicleID(i)))
-							{
-								new vehicleid = GetPlayerVehicleID(g);
-								new engine,lights,alarm,doors,bonnet,boot,objective;
-								GetVehicleParamsEx(vehicleid,engine,lights,alarm,doors,bonnet,boot,objective);
-								 			
-								GetPlayerHealth(g, health);
-								TogglePlayerControllable(g, 0);
-								SetVehicleParamsEx(vehicleid,VEHICLE_PARAMS_OFF,lights,alarm,doors,bonnet,boot,objective);
-
-								if(GetPVarInt(g, "PASY"))
-									SetPlayerHealth(g, health-10);
-								else 
-									SetPlayerHealth(g, health-40);
-	
-								GetVehicleHealth(GetPlayerVehicleID(g), NoweHPPojazdu[GetPlayerVehicleID(g)]);
-
-								if(NoweHPPojazdu[GetPlayerVehicleID(g)] < 300) 
-									SetVehicleHealth(GetPlayerVehicleID(i), 0);
-
-								if(LiczbaMedykow > 0)
-								{
-									Msg(g, COLOR_ERROR, "Spowodowa³eœ wypadek, poczekaj na {b}przyjazd{/b} pogotowia.");
-									SetPVarInt(g, "Wypadekzmedykiem", 1);
-									
-									MedicInfo(g);
-								}
-								else
-								{
-									Msg(g, COLOR_ERROR, "Spowodowa³eœ wypadek, odzyskasz przytomnoœæ za {b}30 sekund{/b}.");
-									t = SetTimerEx("POwypadku", 30000, false, "u", g);
-									SetPVarInt(g, "healTimer", t);
-								}
-
-								SetPVarInt(g, "Wypadek", 1);
-								awaryjne(g);
-							}
-						}
+						cargoHealth[cargoVehicle] -= (StareHPPojazdu[i] - NoweHPPojazdu[i])/1.2;
+						if(cargoHealth[cargoVehicle] < 0.0)
+							cargoHealth[cargoVehicle] = 0.0;
+						printf("Stan towaru spada do %f HP.", cargoHealth[cargoVehicle]);
 					}
 				}
+				foreach (new g : Player)
+				{
+					if(IsPlayerSpawned(g) && IsPlayerInVehicle(g, i) && !GetPVarInt(g, "Wypadek"))
+					{
+						new t;
+						new engine, lights, alarm, doors, bonnet, boot, objective;
+						GetVehicleParamsEx(i, engine, lights, alarm, doors, bonnet, boot, objective);
+								 			
+						GetPlayerHealth(g, health);
+						TogglePlayerControllable(g, 0);
+						SetVehicleParamsEx(i, VEHICLE_PARAMS_OFF, lights, alarm, doors, bonnet, boot, objective);
 
-				GetVehicleHealth(GetPlayerVehicleID(i), StareHPPojazdu[GetPlayerVehicleID(i)]);
+						if(GetPVarInt(g, "PASY"))
+							SetPlayerHealth(g, health - random(10));
+						else 
+							SetPlayerHealth(g, health - random(20));
+	
+						GetVehicleHealth(i, NoweHPPojazdu[i]);
+
+						if(NoweHPPojazdu[i] < 300)
+						{
+							SetVehicleHealth(i, 0);
+							new Float:Pos[3];
+							GetPlayerPos(g, Float:Pos[0], Float:Pos[1], Float:Pos[2]);
+							CreateExplosion(Float:Pos[0], Float:Pos[1], Float:Pos[2], 2, 50);
+						}
+
+						if(NaDyzurze[TEAM_TYPE_MEDIC] > 0)
+						{
+							Msg(g, COLOR_ERROR, "Spowodowa³eœ wypadek, poczekaj na {b}przyjazd{/b} pogotowia.");
+							SetPVarInt(g, "Wypadekzmedykiem", 1);
+							FadeColorForPlayer(g, 181, 51, 36, 125, 204, 58, 41, 125, 20, 0);
+									
+							MedicInfo(g);
+						}
+						else
+						{
+							FadeColorForPlayer(g, 181, 51, 36, 125, 204, 58, 41, 125, 20, 0);
+							Msg(g, COLOR_ERROR, "Spowodowa³eœ wypadek, odzyskasz przytomnoœæ za {b}30 sekund{/b}.");
+							t = SetTimerEx("POwypadku", 30000, false, "d", g);
+							SetPVarInt(g, "healTimer", t);
+						}
+
+						SetPVarInt(g, "Wypadek", 1);
+						
+					}
+				}
 			}
+			GetVehicleHealth(i, StareHPPojazdu[i]);
 		}
 	}
 	return 1;
@@ -94,6 +105,7 @@ public Wypadek()
 forward POwypadku(playerid);
 public POwypadku(playerid)
 {
+	FadeColorForPlayer(playerid, 204, 58, 41, 125, 0, 0, 0, 0, 25, 0);
 	DeletePVar(playerid, "Wypadek");
 	DeletePVar(playerid, "Wypadekzmedykiem");
 	DeletePVar(playerid, "healTimer");
@@ -105,31 +117,24 @@ public POwypadku(playerid)
 forward MedicInfo(playerid);
 public MedicInfo(playerid)
 {
-	new string[128], Float:Pos[3];
-	GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
-
-	Loop(i, MAX_PLAYERS)
+	foreach (new i : Player)
 	{
-		if(firmInfo[playerInfo[i][pFirm]][tType] == TEAM_TYPE_MEDIC && !GetPVarInt(i, "AFK"))
+		if(IsWorked(i, TEAM_TYPE_MEDIC) && !GetPVarInt(i, "AFK") && i != playerid && !GetPVarInt(i, "otherAFK"))
 		{
-			format(string, sizeof string, "Gracz {b}%s{/b} (ID: {b}%d{/b}) spowodowa³ wypadek! Zosta³ oznaczony na minimapce.", PlayerName(playerid), playerid);
-			Msg(i, COLOR_ERROR, string);
-
-			SetPlayerMapIcon(i, playerid, Pos[0], Pos[1], Pos[2], 19, 0, MAPICON_GLOBAL_CHECKPOINT);
+			Msg(i, COLOR_ERROR, "Ktoœ spowodowa³ wypadek, musisz poczekaæ na zg³oszenie!");
 		}
 	}
 
-	Msg(playerid, COLOR_INFO, "Pogotowie zosta³o {b}zawiadomione{/b}.");
+	Msg(playerid, COLOR_INFO, "Musisz {b}zawiadomiæ{/b} pogotowie komend¹ {b}/telefon{/b}!");
 	return 1;
 }
 
-// Komendy
 CMD:crashveh(playerid, params[])
 {
 	new string[128];
 
 	if(!playerInfo[playerid][pAdmin])
-		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(CRASHON == 1)
 	{

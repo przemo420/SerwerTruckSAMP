@@ -46,122 +46,25 @@ public Pomoc_OnPlayerEnterJob(playerid)
 	return GivePlayerWeapon(playerid, 41, 99999);
 }
 
-forward Pomoc_OnPlayerKey(playerid, newkeys, oldkeys);
-public Pomoc_OnPlayerKey(playerid, newkeys, oldkeys)
+CMD:vehcolor(playerid, params[])
 {
-	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POMOC)
-		return 0;
+	if(playerInfo[playerid][pFirm] != TEAM_TYPE_POMOC)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
 
-	if(newkeys & KEY_FIRE &&(GetPlayerWeapon(playerid) == 41 && !IsPlayerInAnyVehicle(playerid)))
-	{
-		new nearveh = GetNearestVehicle(playerid,5);
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie");
 
-		if(Spawned[nearveh])
-			return Msg(playerid, COLOR_ERROR, "Nie mo¿esz przemalowaæ tego pojazdu.");
+	new color[2];
+	if(sscanf(params, "dd", color[0], color[1]))
+		return Msg(playerid, COLOR_ERROR, "Wpisz /vehcolor [kolor 1] [kolor2]");
 
-		if(GetPVarType(playerid, "typ1") == PLAYER_VARTYPE_NONE)
-			return Dialog_Show(playerid, DIALOG_CHANGE_COLOR, DIALOG_STYLE_INPUT, "Malowanie pojazdu", "Wpisz kolor w postaci:\nkolor1:kolor2", "Maluj", "Anuluj");
+	if((color[0] > 255 || color[0] < 0) || (color[1] > 255 || color[1] < 0))
+		return Msg(playerid, COLOR_ERROR, "Kolor musi znajdowaæ siê w przedziale {b}0 - 255{/b}.");
 
-		if(IsPlayerFacingVehicle(playerid,nearveh))
-		{
-			SetTimerEx("ResprayTimer",3000,false,"ii",playerid,GetNearestVehicle(playerid,5));
-			Firehold[playerid] = 1;
-		}
-	}
-	
-	if(oldkeys & KEY_FIRE && (Firehold[playerid] == 1)) 
-		Firehold[playerid] = 0;
-	
-	if(newkeys & KEY_FIRE && (GetPlayerWeapon(playerid) == 11 && !IsPlayerInAnyVehicle(playerid)))
-	{
-		new nearveh = GetNearestVehicle(playerid,5);
-
-		if(IsPlayerFacingVehicle(playerid,nearveh))
-		{
-			if(Firehold2[playerid] == 0)
-				Firehold2[playerid] = 1;
-			else if(Firehold2[playerid] == 1)
-				Firehold2[playerid] = 2;
-			else if(Firehold2[playerid] == 2)
-				Firehold2[playerid] = 3;
-			else if(Firehold2[playerid] == 3)
-			{
-				SetTimerEx("RepairTimer",3000,false,"ii",playerid,GetNearestVehicle(playerid,5));
-				Firehold2[playerid] = 4;
-			}
-		}
-	}
-
-	return 1;
-}
-
-forward ResprayTimer(playerid,vehicleid);
-public ResprayTimer(playerid,vehicleid)
-{
-	new kolor1 = GetPVarInt(playerid,"typ1");
-	new kolor2 = GetPVarInt(playerid,"typ2");
-
-	if(GetPlayerWeapon(playerid) == 41 && GetNearestVehicle(playerid,8) == vehicleid && Firehold[playerid] == 1)
-	{
-		if(IsPlayerFacingVehicle(playerid,vehicleid))
-		{
-			ChangeVehicleColor(vehicleid, kolor1, kolor2);
-			RepairVehicle(vehicleid);
-
-			new vehuid = DBVehID[vehicleid];
-			if(!Spawned[vehicleid])
-			{	
-				vehInfo[vehuid][vColor1] = kolor1;
-				vehInfo[vehuid][vColor2] = kolor2;
-				vehInfo[vehuid][vHealth] = 1000.0;
-
-				SaveVehicle(vehicleid);
-			}
-
-			SendClientMessage(playerid, 0x0, "{C0C0C0}Lakierowanie pojazdu zakoñczone.");
-			DeletePVar(playerid, "typ1");
-			DeletePVar(playerid, "typ2");
-			ResetPlayerWeapons(playerid);
-			GivePlayerWeapon(playerid, 43, 9999);
-			GivePlayerWeapon(playerid, 11, 99999);
-			GivePlayerWeapon(playerid, 41, 99999);
-		}
-	}
-
-	return 1;
-}
-
-forward RepairTimer(playerid,vehicleid);
-public RepairTimer(playerid,vehicleid)
-{
-	if(GetPlayerWeapon(playerid) == 11 && Firehold2[playerid] == 4)
-	{
-		if(IsPlayerFacingVehicle(playerid,vehicleid))
-		{
-			RepairVehicle(vehicleid);
-
-			new vehuid = DBVehID[vehicleid];
-
-			if(!Spawned[vehicleid])
-			{
-				vehInfo[vehuid][vPanels] = 0;
-				vehInfo[vehuid][vDoors] = 0;
-				vehInfo[vehuid][vLights] = 0;
-				vehInfo[vehuid][vTires] = 0;
-				vehInfo[vehuid][vHealth] = 1000.0;
-
-				SaveVehicle(vehicleid);
-			}
-
-			SendClientMessage(playerid, 0x0, "{C0C0C0}Naprawianie pojazdu zakoñczone.");
-			ResetPlayerWeapons(playerid);
-			GivePlayerWeapon(playerid, 43, 9999);
-			GivePlayerWeapon(playerid, 11, 99999);
-			GivePlayerWeapon(playerid, 41, 99999);
-			Firehold2[playerid] = 0;
-		}
-	}
-
+	SetPVarInt(playerid, "changeColor", 1);
+	SetPVarInt(playerid, "changeColor_", color[0]);
+	SetPVarInt(playerid, "changeColor__", color[1]);
+	Msg(playerid, COLOR_INFO, "Wszystko w porz¹tku, teraz wejdŸ do pojazdu i wciœnij klawisz 'Y'.");
 	return 1;
 }
 
@@ -212,20 +115,6 @@ public SetPos(vehicleid, Float:x, Float:y, Float:z)
 	return 1;
 }
 
-CMD:napraw(playerid, params[])
-{
-	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POMOC)
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
-
-	if(!GetPVarInt(playerid, "Worked"))
-		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
-
-	Firehold2[playerid] = 0;
-	Msg(playerid, COLOR_INFO3, "Mo¿esz {b}zacz¹æ{/b} naprawianie pojazdu.");
-	GivePlayerWeapon(playerid, 11, 50000);
-	return 1;
-}
-
 CMD:zatankuj(playerid)
 {
 	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POMOC)
@@ -242,10 +131,37 @@ CMD:zatankuj(playerid)
 	if(Spawned[vehicleid])
 		vehInfo_Temp[vehicleid][vFuel] = MaxFuel(GetVehicleModel(vehicleid));
 	else
-		vehInfo[DBVehID[vehicleid]][vFuel] = MaxFuel(GetVehicleModel(vehicleid));
+	{
+		if(!vehInfo[DBVehID[vehicleid]][vGasStatus])
+			vehInfo[DBVehID[vehicleid]][vFuel] = float(MaxFuel(GetVehicleModel(vehicleid)));
+		else
+			vehInfo[DBVehID[vehicleid]][vGasAmount] = 60.0;
+	}
 
 	format(string, sizeof(string), "Zatankowa³eœ pojazd {b}ID: %d{/b} do pe³na.", vehicleid);
 	Msg(playerid, COLOR_INFO3, string);
+	return 1;
+}
+
+CMD:rachunek(playerid, params[])
+{
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POMOC)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
+
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
+	new cash, targetid;
+	if(sscanf(params, "dd", targetid, cash))
+		return Msg(playerid, COLOR_ERROR, "Wpisz /rachunek [id gracza] [wielkoœæ]");
+	if(!IsPlayerConnected(targetid))
+		return Msg(playerid, COLOR_ERROR, "Gracza z tym ID nie ma online.");
+	if(cash < 0)
+		return Msg(playerid, COLOR_ERROR, "Podana kwota jest zbyt niska.");
+	new szString[158];
+	format(szString, sizeof szString, "Pracownik {b}Pomocy Drogowej{/b} %s wystawi³ Ci rachunek na kwotê {b}$%d{/b}. Aby zap³aciæ wpisz /przelej.", PlayerName(playerid), cash);
+	Msg(targetid, COLOR_INFO3, szString);
+	Msg(playerid, COLOR_INFO3, "Rachunek wystawiony!");
 	return 1;
 }
 
@@ -281,23 +197,6 @@ Dialog:DIALOG_SET_PLATE(playerid, response, listitem, inputtext[])
 
 		SaveVehicle(vehicleid);
 	}
-
-	return 1;
-}
-
-Dialog:DIALOG_CHANGE_COLOR(playerid, response, listitem, inputtext[])
-{
-	if(!response)
-		return 1;
-
-	new kolor1, kolor2;
-	if(sscanf(inputtext, "p<:>dd", kolor1, kolor2) || kolor1 < 0 || kolor2 < 0 || kolor1 > 255 || kolor2 > 255)
-		return Dialog_Show(playerid, DIALOG_CHANGE_COLOR, DIALOG_STYLE_INPUT, "Malowanie pojazdu", "Wpisz kolor w postaci:\nkolor1:kolor2", "Maluj", "Anuluj");
-
-	SetPVarInt(playerid, "typ1", kolor1);
-	SetPVarInt(playerid, "typ2", kolor2);
-
-	Msg(playerid, COLOR_INFO, "Mo¿esz zaz¹æ malowaæ pojazd.");
 
 	return 1;
 }

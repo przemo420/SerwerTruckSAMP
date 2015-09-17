@@ -54,10 +54,13 @@ new saloonVehicles[][] = {
 	{SALOON_PERSONAL, 586, 270000, 180, 2}, {SALOON_PERSONAL, 554, 280000, 135, 2},
 	{SALOON_PERSONAL, 477, 530000, 175, 2}, {SALOON_PERSONAL, 521, 510000, 190, 2},
 	{SALOON_PERSONAL, 587, 325000, 155, 2}, {SALOON_PERSONAL, 562, 500000, 167, 2},
-	{SALOON_COMPANY, 482, 550000, 167, 2}, {SALOON_COMPANY, 403, 850000, 155, 2}, 
-	{SALOON_COMPANY, 515, 1050000, 155, 2}, {SALOON_COMPANY, 514, 950000, 155, 2}, 
+	{SALOON_COMPANY, 482, 550000, 167, 2}, {SALOON_COMPANY, 403, 600000, 155, 2}, 
+	{SALOON_COMPANY, 515, 750000, 155, 2}, {SALOON_COMPANY, 514, 700000, 155, 2}, 
 	{SALOON_COMPANY, 435, 325000, 0, 0}, {SALOON_COMPANY, 450, 325000, 0, 0},
-	{SALOON_COMPANY, 584, 325000, 0, 0}, {SALOON_COMPANY, 591, 325000, 0, 0}
+	{SALOON_COMPANY, 584, 325000, 0, 0}, {SALOON_COMPANY, 591, 325000, 0, 0},
+	{SALOON_COMPANY, 440, 350000, 0, 0}, {SALOON_COMPANY, 455, 600000, 0, 0},
+	{SALOON_COMPANY, 459, 400000, 0, 0}, {SALOON_COMPANY, 499, 325000, 0, 0},
+	{SALOON_COMPANY, 414, 275000, 0, 0}, {SALOON_COMPANY, 578, 400000, 0, 0}
 };
 
 CMD:salon(playerid)
@@ -70,7 +73,7 @@ CMD:salon(playerid)
 	else if(IsPlayerInRangeOfPoint(playerid, 4.0, -1649.904, 1209.725, 7.250)) // salon pojazdów ciê¿arowych
 	{
 		if(GetPVarInt(playerid, "SALOON_Block")) return Msg(playerid, COLOR_ERROR, "Teraz nie mo¿esz tego zrobiæ.");
-		if(firmInfo[playerInfo[playerid][pFirm]][tChef] == playerInfo[playerid][pID] || firmInfo[playerInfo[playerid][pFirm]][tVcChef] == playerInfo[playerid][pID])
+		if(!(IsFractionBoss(playerid) || IsFractionViceBoss(playerid)))
 			return Msg(playerid, COLOR_ERROR, "Nie jesteœ szefem ¿adnej firmy.");
 		new firmaid = playerInfo[playerid][pFirm];
 		if(firmaid < 4)
@@ -230,7 +233,7 @@ Dialog:DIALOG_SALOON_COMPANY3(playerid, response, listitem, inputtext[])
 
 stock BuyCompanyVehicle(playerid)
 {
-	new firmaid = playerInfo[playerid][pFirm], szString[320], id = GetPVarInt(playerid, "SALOON_Vehicle"), cash = firmInfo[firmaid][tBank];
+	new firmaid = playerInfo[playerid][pFirm], szString[390], id = GetPVarInt(playerid, "SALOON_Vehicle"), cash = firmInfo[firmaid][tBank];
 	format(szString, sizeof szString, "%d\tLinneruner\t$300000\n", id);
 	if(cash < saloonVehicles[id][S_PRICE])
 	{
@@ -245,10 +248,9 @@ stock BuyCompanyVehicle(playerid)
 
 	new vehicleid = CreateVehicle(saloonVehicles[id][S_MODEL], -1646.6908, 1215.5980, 9.9067, 225.8644, random(50), random(50), -1);
 
-	format(szString, sizeof(szString), "INSERT INTO `Pojazdy` (`model`, `owner_id`, `owner_type`, `PosX`, `PosY`, `PosZ`, `PosA`, `Health`, `Fuel`, `FuelType`, `Color1`, `Color2`, `Plate`, `Plate`, `Przeglad`) VALUES ('%d', '%d', '1', '-1646.6908', '1215.5980', '9.9067', '225.8644', '1000.0', '%d', '%d', '0', '0', 'SerwerTruck', '%d')", GetVehicleModel(vehicleid), firmaid, MaxFuel(GetVehicleModel(vehicleid)), 
+	format(szString, sizeof(szString), "INSERT INTO `Pojazdy` (`model`, `owner_id`, `owner_type`, `PosX`, `PosY`, `PosZ`, `PosA`, `Health`, `Fuel`, `FuelType`, `Color1`, `Color2`, `Plate`, `Plate`, `Przeglad`, `gasBootle`, `gasAmount`) VALUES ('%d', '%d', '1', '-1646.6908', '1215.5980', '9.9067', '225.8644', '1000.0', '%d', '%d', '0', '0', 'SerwerTruck', '%d', '0', '0.0')", GetVehicleModel(vehicleid), firmaid, MaxFuel(GetVehicleModel(vehicleid)), 
 			(IsVehicleTruck(vehicleid) ? FUEL_TYPE_TDI : FUEL_TYPE_BENZ), gettime());
 	mysql_query(szString);
-	printf(szString);
 
 	DestroyVehicle(vehicleid);
 	Spawned[vehicleid] = false;
@@ -259,13 +261,9 @@ stock BuyCompanyVehicle(playerid)
 
 stock BuyPrivateVehicle(playerid)
 {
-	new szString[27], id = GetPVarInt(playerid, "SALOON_Vehicle");
+	new szString[390], id = GetPVarInt(playerid, "SALOON_Vehicle");
 	format(szString, sizeof szString, "%d\tLinneruner\t$300000\n", id);
 	
-	Msg(playerid, COLOR_ERROR, "Funkcja tymczasowo wy³¹czona.");
-	return DIALOG_SALOON_PERSONAL2(playerid, true, 0, szString);
-	
-	/*
 	if(GetPlayerMoney(playerid) < saloonVehicles[id][S_PRICE])
 	{
 		Msg(playerid, COLOR_ERROR, "Nie posiadasz wystarczaj¹co pieniêdzy aby kupiæ ten pojazd.");
@@ -273,11 +271,20 @@ stock BuyPrivateVehicle(playerid)
 	}
 
 	GiveMoney(playerid, -saloonVehicles[id][S_PRICE]);
-	CreateVehicle(saloonVehicles[id][S_MODEL], -1988.6996, 275.1513, 34.8315, 87.2160, random(50), random(50), -1);
+	new vehicleid = CreateVehicle(saloonVehicles[id][S_MODEL], -1988.6996, 275.1513, 34.8315, 87.2160, random(50), random(50), -1);
+	format(szString, sizeof(szString), "INSERT INTO `Pojazdy` (`model`, `owner_id`, `owner_type`, `PosX`, `PosY`, `PosZ`, `PosA`, `Health`, `Fuel`, `FuelType`, `Color1`, `Color2`, `Plate`, `Plate`, `Przeglad`, `gasBootle`, `gasAmount`) VALUES ('%d', '%d', '0', '-1646.6908', '1215.5980', '9.9067', '225.8644', '1000.0', '%d', '%d', '0', '0', 'SerwerTruck', NOW(), '0', '0.0')", GetVehicleModel(vehicleid), playerInfo[playerid][pID], MaxFuel(GetVehicleModel(vehicleid)), 
+		FUEL_TYPE_BENZ);
+	mysql_query(szString);
+
+	DestroyVehicle(vehicleid);
+	Spawned[vehicleid] = false;
+
+	LadujPojazd(_, _, mysql_insert_id());
+
 	DeletePVar(playerid, "SALOON_Type");
 	DeletePVar(playerid, "SALOON_Vehicle");
 	Msg(playerid, COLOR_INFO, "Pomyœlnie zakupiono prywatny pojazd.");
-	return 1;*/
+	return 1;
 }
 
 stock PreviewPrivateVehicle(playerid)

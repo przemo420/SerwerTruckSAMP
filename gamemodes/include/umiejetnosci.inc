@@ -105,14 +105,14 @@ CMD:zdolnosci(playerid, params[])
 		strcat(szString, "\n");
 		strcat(szString, "{50C878}Dowóz na czas{FFFFFF} - specjalna umiejêtnoœæ która zwiêksza czas na dowóz towaru (1 minuta, 2 minuty, 3 minuty, 4 minuty, 5 minut).");
 		strcat(szString, "\n");
-		strcat(szString, "{50C878}D³ugi dystans{FFFFFF} - specjalna umiejêtnoœæ która umo¿liwia przewo¿enie towarów na d³u¿szych dystansach (1250j, 1500j, 1750j, 2000j, 2000j +).");
+		strcat(szString, "{50C878}D³ugi dystans{FFFFFF} - specjalna umiejêtnoœæ która umo¿liwia przewo¿enie towarów na d³u¿szych dystansach (1500j, 1750j, 2000j, 2250j, 2250j +).");
 		strcat(szString, "\n");
 		strcat(szString, "{50C878}Du¿a wartoœæ{FFFFFF} - specjalna umiejêtnoœæ która zwiêksza wynagrodzenie z towaru (2%, 5%, 7%, 9%, 10%).");
 		strcat(szString, "\n");
 		strcat(szString, "{50C878}Mniejsza kara{FFFFFF} - specjalna umiejêtnoœæ która zmniejsza karê z towaru (2%, 5%, 7%, 9%, 10%).");
 		strcat(szString, "\n \n");
 		strcat(szString, "{50C878}Wydanych punktów nie mo¿na przywróciæ.");
-		Dialog_Show(playerid, DIALOG_SKILL, DIALOG_STYLE_MSGBOX, " ", szString, "WyjdŸ", #);
+		Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", szString, (!IsPlayerLogged(playerid)) ? ("Wstecz") : ("WyjdŸ"), #);
 	}
 	else
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /zdolnosci [rozdaj/info]");
@@ -157,12 +157,12 @@ stock GetAllowedDistance(level)
 
 	switch(level)
 	{
-		case 0: distance = 1000;
-		case 1: distance = 1250;
-		case 2: distance = 1500;
-		case 3: distance = 1750;
-		case 4: distance = 2000;
-		case 5: distance = 4000;
+		case 0: distance = 1500;
+		case 1: distance = 1750;
+		case 2: distance = 2000;
+		case 3: distance = 2250;
+		case 4: distance = 2500;
+		case 5: distance = 10000;
 	}
 	return distance;
 }
@@ -198,11 +198,6 @@ stock GetLessPent(level)
 	}
 	return percents;
 }
-
-Dialog:DIALOG_SKILL(playerid, response, listitem, inputtext[])
-{
-	return 1;
-}	
 
 Dialog:DIALOG_SKILL_INFO(playerid, response, listitem, inputtext[])
 {

@@ -1,4 +1,4 @@
-#define MAX_CRASHS 30
+#define MAX_CRASHS 80
 
 enum E_CRASH
 {
@@ -85,7 +85,8 @@ stock IsFreeCrash(crashid)
 	return false;
 }
 
-stock TruncateCrashTable()
+forward TruncateCrashTable();
+public TruncateCrashTable()
 {
 	for(new i = 0; i < MAX_CRASHS; i++)
 	{
@@ -105,7 +106,7 @@ CMD:lastpos(playerid)
 {
 	if(pTempPos[playerid][0] == 0 && pTempPos[playerid][1] == 0 && pTempPos[playerid][2] == 0)
 		return Msg(playerid, COLOR_INFO, "Brak pozycji do wczytania.");
-	SetPlayerPos(playerid, pTempPos[playerid][0], pTempPos[playerid][1], pTempPos[playerid][2]);
+	Teleport(playerid, pTempPos[playerid][0], pTempPos[playerid][1], pTempPos[playerid][2], true);
 	Msg(playerid, COLOR_INFO, "Pozycja {b}crashu / timeoutu{/b} zosta³a wczytana.");
 	pTempPos[playerid][0] = 0.0;
 	pTempPos[playerid][1] = 0.0;

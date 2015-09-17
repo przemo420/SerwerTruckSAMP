@@ -16,6 +16,23 @@ stock IsAccountExists(name[])
 	return false;
 }
 
+stock IsAccountPursued(userid)
+{
+	new string[68];
+	format(string, sizeof(string), "SELECT policjantid FROM st_scigani WHERE graczid = '%d' LIMIT 1;", userid);
+	mysql_query(string);
+	mysql_store_result();
+
+	if(mysql_num_rows() && mysql_fetch_int() >= 1)
+	{
+		mysql_free_result();
+		return true;
+	}
+
+	mysql_free_result();
+	return false;
+}
+
 PlayerName(playerid)
 {
 	new name[MAX_PLAYER_NAME];
@@ -93,7 +110,6 @@ IsWorked(playerid, fraction)
 
 IsFractionBoss(playerid)
 {
-	printf("%d vs ", firmInfo[playerInfo[playerid][pFirm]][tChef], playerInfo[playerid][pID]);
 	if(firmInfo[playerInfo[playerid][pFirm]][tChef] != playerInfo[playerid][pID])
 		return false;
 	return true;
@@ -165,19 +181,6 @@ IsPlayerInTruck(playerid)
 		return 0;
 		
 	return IsVehicleTruck(GetVehicleModel(GetPlayerVehicleID(playerid)));
-}
-
-IsPlayerInBus(playerid)
-{
-	new vehicleid = GetVehicleModel(GetPlayerVehicleID(playerid));
-
-	if(!IsPlayerInAnyVehicle(playerid))
-		return 0;
-
-	if(vehicleid == 440 || vehicleid == 455 || vehicleid == 456 || vehicleid == 459 || vehicleid == 482 || vehicleid == 498 || vehicleid == 499 || vehicleid == 578 || vehicleid ==  609)
-		return 1;
-
-	return 0;
 }
 
 ToLog(ownerid, typelog, param1[], param2[]="")
@@ -469,7 +472,7 @@ stock FindString(string1[], string2[], &start = 0, &end = 0)
 	return false;
 }
 
-GetNearestVehicle(playerid, Float:Distance = 1000.0)
+stock GetNearestVehicle(playerid, Float:Distance = 1000.0)
 {
 	Distance = floatabs(Distance);
 
@@ -497,7 +500,7 @@ GetNearestVehicle(playerid, Float:Distance = 1000.0)
 	return INVALID_VEHICLE_ID;
 }
 
-IsPlayerFacingVehicle(playerid,vehicleid)
+stock IsPlayerFacingVehicle(playerid,vehicleid)
 {
 	new Float:zX,Float:zY,Float:zZ,Float:X,Float:Y,Float:Z,Float:ang;
 
@@ -576,18 +579,6 @@ ConvertMS(Miliseconds, &hours, &minutes, &seconds)
    Miliseconds -= minutes * 60000;
    seconds = Miliseconds / 1000;
    Miliseconds -= seconds * 1000;
-}
-
-GetFreeRemontBTID()
-{
-	new obiektid = INVALID_REMONTBT3D_ID, counter = 0;
-	while(obiektid == INVALID_REMONTBT3D_ID)
-	{
-		counter++;
-		if(BTNapis[counter][btnNapis] == Text3D:INVALID_REMONTBT3D_ID)
-		 	obiektid = counter;
-	}
-	return obiektid;
 }
 
 GetMoveDirectionFromKeys(ud, lr)
@@ -724,7 +715,7 @@ FlyMode(playerid)
 	return 1;
 }
 
-stock IsValidBarInterior(interiorid)
+stock IsValidRestaurantInterior(interiorid)
 {
 	switch(interiorid)
 	{
@@ -733,7 +724,7 @@ stock IsValidBarInterior(interiorid)
 	return false;
 }
 
-GetPosBarInterior(interior, &Float:X, &Float:Y, &Float:Z)
+stock GetPosRestaurantInterior(interior, &Float:X, &Float:Y, &Float:Z)
 {
 	switch(interior)
 	{
@@ -783,44 +774,9 @@ GetPosBarInterior(interior, &Float:X, &Float:Y, &Float:Z)
 	return 1;
 }
 
-GetBarInterior(barid)
+stock GetRestaurantInterior(resid)
 {
-	new query[128];
-	format(query, sizeof query, "SELECT Int FROM `BARY` WHERE `ID` = '%d'", barid);
-	new DBResult:result;// = db_query(Cargos, query);
-	if(!db_num_rows(result))
-	{
-		db_free_result(result);
-		return 0;
-	}
-	new interiorStr[3];
-	db_get_field(result, 0, interiorStr, sizeof interiorStr);
-	db_free_result(result);
-	new interior = strval(interiorStr);
-	return interior;
-}
-
-GetBarPos(barid, &Float:X, &Float:Y, &Float:Z)
-{
-	new query[128];
-	format(query, sizeof query, "SELECT PosX, PosY, PosZ FROM `BARY` WHERE `ID` = '%d'", barid);
-	new DBResult:result;// = db_query(Cargos, query);
-	if(!db_num_rows(result))
-	{
-		db_free_result(result);
-		return 0;
-	}
-
-	new pos[3][20];
-	db_get_field(result, 0, pos[0], 20);
-	db_get_field(result, 1, pos[1], 20);
-	db_get_field(result, 2, pos[2], 20);
-	db_free_result(result);
-
-	X = floatstr(pos[0]);
-	Y = floatstr(pos[1]);
-	Z = floatstr(pos[2]);
-	return 1;
+	return resInfo[resid][resInt];
 }
 
 Float:GetHeadingAngle(Float:targetX, Float:targetY, Float:entityX, Float:entityY)
@@ -926,86 +882,86 @@ return 0;
 
 MaxFuel(vehicletype)
 {
-switch(vehicletype)
-{
-case 403: return 1000;
-case 514: return 800;
-case 515: return 750;
-case 455: return 500;
-case 578: return 380;
-case 459: return 150;
-case 440: return 190;
-case 602: return 75;
-case 518: return 80;
-case 496: return 55;
-case 581: return 30;
-case 536: return 70;
-case 589: return 45;
-case 542: return 60;
-case 480: return 80;
-case 419: return 80;
-case 565: return 45;
-case 463: return 30;
-case 533: return 60;
-case 462: return 10;
-case 559: return 65;
-case 426: return 70;
-case 603: return 75;
-case 461: return 30;
-case 475: return 70;
-case 535: return 75;
-case 405: return 65;
-case 439: return 55;
-case 468: return 25;
-case 558: return 65;
-case 412: return 75;
-case 586: return 30;
-case 477: return 65;
-case 521: return 25;
-case 587: return 60;
-case 562: return 60;
-case 401: return 50;
-case 527: return 50;
-case 507: return 70;
-case 526: return 45;
-case 551: return 75;
-case 410: return 40;
-case 600: return 60;
-case 436: return 45;
-case 445: return 55;
-case 575: return 50;
-case 422: return 50;
-case 466: return 65;
-case 579: return 80;
-case 545: return 45;
-case 474: return 60;
-case 508: return 100;
-case 400: return 75;
-case 500: return 65;
-case 467: return 75;
-case 534: return 70;
-case 479: return 55;
-case 489: return 90;
-case 495: return 85;
-case 567: return 70;
-case 580: return 75;
-case 543: return 60;
-case 576: return 75;
-case 421: return 65;
-case 478: return 60;
-case 554: return 90;
-case 547: return 60;
-case 561: return 60;
-case 458: return 60;
-case 550: return 60;
-case 560: return 75;
-case 549: return 70;
-case 566: return 65;
-case 540: return 55;
-case 555: return 55;
-case 529: return 60;
-}
-return 50;
+	switch(vehicletype)
+	{
+		case 403: return 1000;
+		case 514: return 800;
+		case 515: return 750;
+		case 455: return 500;
+		case 578: return 380;
+		case 459: return 150;
+		case 440: return 190;
+		case 602: return 75;
+		case 518: return 80;
+		case 496: return 55;
+		case 581: return 30;
+		case 536: return 70;
+		case 589: return 45;
+		case 542: return 60;
+		case 480: return 80;
+		case 419: return 80;
+		case 565: return 45;
+		case 463: return 30;
+		case 533: return 60;
+		case 462: return 10;
+		case 559: return 65;
+		case 426: return 70;
+		case 603: return 75;
+		case 461: return 30;
+		case 475: return 70;
+		case 535: return 75;
+		case 405: return 65;
+		case 439: return 55;
+		case 468: return 25;
+		case 558: return 65;
+		case 412: return 75;
+		case 586: return 30;
+		case 477: return 65;
+		case 521: return 25;
+		case 587: return 60;
+		case 562: return 60;
+		case 401: return 50;
+		case 527: return 50;
+		case 507: return 70;
+		case 526: return 45;
+		case 551: return 75;
+		case 410: return 40;
+		case 600: return 60;
+		case 436: return 45;
+		case 445: return 55;
+		case 575: return 50;
+		case 422: return 50;
+		case 466: return 65;
+		case 579: return 80;
+		case 545: return 45;
+		case 474: return 60;
+		case 508: return 100;
+		case 400: return 75;
+		case 500: return 65;
+		case 467: return 75;
+		case 534: return 70;
+		case 479: return 55;
+		case 489: return 90;
+		case 495: return 85;
+		case 567: return 70;
+		case 580: return 75;
+		case 543: return 60;
+		case 576: return 75;
+		case 421: return 65;
+		case 478: return 60;
+		case 554: return 90;
+		case 547: return 60;
+		case 561: return 60;
+		case 458: return 60;
+		case 550: return 60;
+		case 560: return 75;
+		case 549: return 70;
+		case 566: return 65;
+		case 540: return 55;
+		case 555: return 55;
+		case 529: return 60;
+	}
+	return 50;
 }
 
 stock IsValidInterior(interiorid)
@@ -1241,7 +1197,7 @@ stock TimestampToDate(Timestamp, &year, &month, &day, &hour, &minute, &second, H
 stock clText(colorid, text[])
 {
 	new
-		buffer[400],
+		buffer[700],
 		curColor,
 		tmpColor[16],
 		tmpColorCode;
@@ -1316,7 +1272,7 @@ stock GetPlayerLevelName(level)
 stock GetPlayerLevel(exp)
 {
 	static levels[] = {
-		(-1), 0, 10, 20,
+		0, 10, 20,
 		35, 45, 60, 80,
 		120, 150, 195, 240,
 		287, 355, 410, 476,
@@ -1328,7 +1284,7 @@ stock GetPlayerLevel(exp)
 	};
 	new level = 1;
 	for (new i = 1;
-		i < sizeof(levels) && exp > levels[i];
+		i < sizeof(levels) && exp >= levels[i];
 		i++, level++
 	) {}
 	return level;
@@ -1490,5 +1446,179 @@ stock GetPlayerFPS(playerid)
 			}
 		}
 	}
-	return 0;
+	return GetPVarInt(playerid, "ept_fps");
+}
+
+stock IsPlayerLookingAtPlayer(player1, player2) 
+{ // Simon edited by Carlton
+        if (!IsPlayerConnected(player1) || !IsPlayerConnected(player2)) return 0;
+        if(player1 == player2) return 0;
+        new
+                Float: distance,
+                Float: vectorX,
+                Float: vectorY,
+                Float: vectorZ,
+                Float: plyrPos[2][3],
+                Float: projPos[3];
+        GetPlayerCameraFrontVector(player1, vectorX, vectorY, vectorZ);
+        GetPlayerCameraPos(player1, plyrPos[0][0], plyrPos[0][1], plyrPos[0][2]);
+        GetPlayerPos(player2, plyrPos[1][0], plyrPos[1][1], plyrPos[1][2]);
+        #define SQUARE(%1)  ((%1)*(%1))
+        distance = floatsqroot(
+        SQUARE(plyrPos[1][0]-plyrPos[0][0]) + SQUARE(plyrPos[1][1]-plyrPos[0][1]) + SQUARE(plyrPos[1][2]-plyrPos[0][2]));
+        projPos[0] = plyrPos[0][0] + vectorX * distance;
+        projPos[1] = plyrPos[0][1] + vectorY * distance;
+        projPos[2] = plyrPos[0][2] + vectorZ * distance;
+        return ((SQUARE(plyrPos[1][0]-projPos[0]) + SQUARE(plyrPos[1][1]-projPos[1]) + SQUARE(plyrPos[1][2]-projPos[2])) <= SQUARE(distance / 6));
+        #undef SQUARE
+}
+
+forward OnPosCameraComplete(playerid);
+
+new Float:toPos[MAX_PLAYERS][3], 
+	Float:fromPos[MAX_PLAYERS][3];
+
+forward SetPlayerPosCamera(playerid, Float:xg, Float:yg, Float:zg);
+public SetPlayerPosCamera(playerid, Float:xg, Float:yg, Float:zg)
+{
+	switch (GetPVarInt(playerid, "tpStep"))
+	{
+		case 0:
+		{
+			SetPVarInt(playerid, "TELEPORT", 1);
+			if(GetPVarInt(playerid,"ENDTP") > gettime() || IsPlayerInRangeOfPoint(playerid, 5.0, xg, yg, zg)) return true;
+			SetPVarInt(playerid,"ENDTP", gettime() + 10);
+			PlaySound(playerid, 1150);
+			toPos[playerid][0] = xg,
+			toPos[playerid][1] = yg,
+			toPos[playerid][2] = zg,
+			GetPlayerPos(playerid, fromPos[playerid][0], fromPos[playerid][1], fromPos[playerid][2]);
+			if(IsPlayerInAnyVehicle(playerid) && 2 == GetPlayerState(playerid)) SetVehicleVirtualWorld(GetPlayerVehicleID(playerid), playerid+1);
+			SetPlayerVirtualWorld(playerid,playerid+1);
+			TogglePlayerControllable(playerid, 0);
+			SetPlayerCameraPos(playerid, fromPos[playerid][0], fromPos[playerid][1], fromPos[playerid][2] + 20);
+			SetPlayerCameraLookAt(playerid, fromPos[playerid][0], fromPos[playerid][1], fromPos[playerid][2]);
+			SetTimerEx("SetPlayerPosCamera", 1000, false, "i", playerid);
+			SetPVarInt(playerid, "tpStep", 1);
+		}
+		case 1:
+		{
+			PlaySound(playerid, 1150);
+			SetPlayerCameraPos(playerid, fromPos[playerid][0], fromPos[playerid][1], fromPos[playerid][2] + 50);
+			SetPlayerCameraLookAt(playerid, fromPos[playerid][0], fromPos[playerid][1], fromPos[playerid][2]);
+			SetTimerEx("SetPlayerPosCamera", 1000, false, "i", playerid);
+			SetPVarInt(playerid, "tpStep", 2);
+		}
+		case 2:
+		{
+			PlaySound(playerid, 1150);
+			SetPlayerCameraPos(playerid, fromPos[playerid][0], fromPos[playerid][1], fromPos[playerid][2] + 100);
+			SetPlayerCameraLookAt(playerid, fromPos[playerid][0], fromPos[playerid][1], fromPos[playerid][2]);
+			SetTimerEx("SetPlayerPosCamera", 1000, false, "i", playerid);
+			SetPVarInt(playerid, "tpStep", 3);
+		}
+		case 3:
+		{
+			PlaySound(playerid, 1150);
+			SetPlayerCameraPos(playerid, fromPos[playerid][0], fromPos[playerid][1], fromPos[playerid][2] + 200);
+			SetPlayerCameraLookAt(playerid, fromPos[playerid][0], fromPos[playerid][1], fromPos[playerid][2]);
+			SetTimerEx("SetPlayerPosCamera", 1000, false, "i", playerid);
+			SetPVarInt(playerid, "tpStep", 4);
+		}
+		case 4:
+		{
+			if(IsPlayerInAnyVehicle(playerid) && 2 == GetPlayerState(playerid))
+			{
+				SetVehiclePos(GetPlayerVehicleID(playerid), toPos[playerid][0], toPos[playerid][1], toPos[playerid][2]);
+			}
+			else
+			{
+				SetPlayerPos(playerid, toPos[playerid][0], toPos[playerid][1], toPos[playerid][2]);
+			}
+			InterpolateCameraPos(playerid, fromPos[playerid][0], fromPos[playerid][1], fromPos[playerid][2] + 200, toPos[playerid][0],toPos[playerid][1],toPos[playerid][2]+200, 5000);
+			InterpolateCameraLookAt(playerid, fromPos[playerid][0], fromPos[playerid][1], fromPos[playerid][2], toPos[playerid][0],toPos[playerid][1],toPos[playerid][2], 5000);
+			SetTimerEx("SetPlayerPosCamera",4000,false,"i",playerid);
+			SetPVarInt(playerid, "tpStep", 5);
+		}
+		case 5:
+		{
+			PlaySound(playerid, 1150);
+			SetPlayerCameraPos(playerid, toPos[playerid][0],toPos[playerid][1],toPos[playerid][2] + 100);
+			SetPlayerCameraLookAt(playerid, toPos[playerid][0],toPos[playerid][1],toPos[playerid][2]);
+			SetTimerEx("SetPlayerPosCamera", 1000, false, "i", playerid);
+			SetPVarInt(playerid, "tpStep", 6);
+		}
+		case 6:
+		{
+			PlaySound(playerid, 1150);
+			SetPlayerCameraPos(playerid, toPos[playerid][0],toPos[playerid][1],toPos[playerid][2] + 50);
+			SetPlayerCameraLookAt(playerid, toPos[playerid][0],toPos[playerid][1],toPos[playerid][2]);
+			SetTimerEx("SetPlayerPosCamera", 1000, false, "i", playerid);
+			SetPVarInt(playerid, "tpStep", 7);
+		}
+		case 7:
+		{
+			PlaySound(playerid, 1150);
+			TogglePlayerControllable(playerid, true);
+			SetPlayerVirtualWorld(playerid,0);
+			if(IsPlayerInAnyVehicle(playerid) && 2 == GetPlayerState(playerid)) 
+				SetVehicleVirtualWorld(GetPlayerVehicleID(playerid), 0);
+			SetPlayerVirtualWorld(playerid, 0);
+			SetCameraBehindPlayer(playerid);
+			DeletePVar(playerid, "tpStep");
+			DeletePVar(playerid, "TELEPORT");
+			CallLocalFunction("OnPosCameraComplete", "i", playerid);
+		}
+	}
+	return 1;
+}
+
+public OnPosCameraComplete(playerid)
+{
+	return 1;
+}
+
+stock UpdateAdminsOnline()
+{
+	foreach (new i : Player)
+	{
+		if(playerInfo[i][pAdmin] > 0)
+			gmInfo[adminsOnline]++;
+	}
+}
+
+stock GetVehicleInfrontID(vehid)
+{
+    new Float: temp = 7.0;
+	new j = 0;
+	for (new i = 1; i <= MAX_VEHICLES; i++)
+	{
+	    new Float: a, Float: x1, Float: y1, Float: z1, Float: x2, Float: y2, Float: z2;
+    	GetVehiclePos (vehid, x1, y1, z1);
+    	GetVehicleZAngle (vehid, a);
+ 		if (i != vehid)
+ 		{
+	 		if (GetVehiclePos (i, x2, y2, z2))
+			{
+				new Float: distance = floatsqroot (floatpower ((x1 - x2), 2) + floatpower ((y1 - y2), 2) + floatpower ((z1 - z2), 2));
+				GetVehicleZAngle (vehid, a);
+
+				if (distance < 300.0)
+				{
+    				x1 = x1 + (distance * floatsin(-a, degrees));
+					y1 = y1 + (distance * floatcos(-a, degrees));
+
+					distance = floatsqroot ((floatpower ((x1 - x2), 2)) + (floatpower ((y1 - y2), 2)));
+
+					if (temp > distance)
+					{
+						temp = distance;
+						j = i;
+					}
+				}
+			}
+		}
+	}
+	if (temp < 12.0) return j;
+	return -1;
 }

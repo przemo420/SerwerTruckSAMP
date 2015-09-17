@@ -7,7 +7,7 @@ enum eWeather
 	wWeather,
 	wNextWeather,
 	wNextTime,
-	wText[220]
+	wText[256]
 }
 
 new weatherInfo[eWeather];
@@ -162,7 +162,7 @@ stock GetNextWeatherTime()
 
 
 CMD:pogodynka(playerid)
-	return Dialog_Show(playerid, DIALOG_WEATHER, DIALOG_STYLE_MSGBOX, " ", weatherInfo[wText], "Wyjdü", "");
+	return Dialog_Show(playerid, DIALOG_WEATHER, DIALOG_STYLE_MSGBOX, " ", weatherInfo[wText], "Wyjdü", #);
 
 Dialog:DIALOG_WEATHER(playerid, response, listitem, inputtext[])
 {

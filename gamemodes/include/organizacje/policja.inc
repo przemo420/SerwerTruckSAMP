@@ -31,10 +31,9 @@ CMD:alkomat(playerid, params[])
 	if(GetDistancePlayerToPlayer(playerid, targetid) > 20)
 		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od gracza.");
 
-	if(GetPlayerState(targetid) != PLAYER_STATE_DRIVER)
-		return Msg(playerid, COLOR_ERROR, "Gracz z tym ID nie prowadzi pojazdu.");
-
+	TogglePlayerControllable(targetid, false);
 	Msg(playerid, COLOR_INFO2, "Trwa sprawdzanie...");
+	Msg(targetid, COLOR_INFO2, "Trwa sprawdzanie twojej trzeŸwoœci...");
 	SetTimerEx("AlcoholTest", 5 * 1000, false, "dd", playerid, targetid);
 	return 1;
 }
@@ -207,25 +206,37 @@ CMD:kontrola(playerid, params[])
 	if(GetDistancePlayerToPlayer(playerid, targetid) > 4.0)
 		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od gracza.");
 
-	if(!IsPlayerInAnyVehicle(playerid))
+	if(!IsPlayerInAnyVehicle(targetid))
 		return Msg(playerid, COLOR_ERROR, "Gracz nie jest w pojeŸdzie.");
 
-	if(IsPlayerInTruck(playerid))
-		vehicleid = GetVehicleTrailer(GetPlayerVehicleID(playerid));
+	if(IsPlayerInTruck(targetid))
+		vehicleid = GetVehicleTrailer(GetPlayerVehicleID(targetid));
 	else
-		vehicleid = GetPlayerVehicleID(playerid);
+		vehicleid = GetPlayerVehicleID(targetid);
 	
+	if(vehicleid == -1)
+		vehicleid = GetPlayerVehicleID(targetid);
+
 	if(!vloadInfo[vehicleid][vLoaded])
 		strcat(towarname, "Brak");
 	else
 		strcat(towarname, waresInfo[vloadInfo[vehicleid][vCargo]][wName]);
 
-	if(Spawned[GetPlayerVehicleID(playerid)])
+	if(Spawned[GetPlayerVehicleID(targetid)])
 		strcat(przeglad, "AKTUALNY");
 	else
-		strcat(przeglad, vehInfo[DBVehID[GetPlayerVehicleID(playerid)]][vPrzeglad]);
+		strcat(przeglad, vehInfo[DBVehID[GetPlayerVehicleID(targetid)]][vPrzeglad]);
 
-	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\t%s\nTowar:\t%s\nWaga:\t%dkg\nPasy:\t%s\nZaleg³e mandaty:\t$%d", PlayerName(targetid), przeglad, towarname, cargoInfo[vloadInfo[vehicleid][vCargo]][cWeight], (GetPVarInt(playerid, "PASY") > 0) ? ("zapiête") : ("rozpiête"), GetFotoPolice(targetid));
+	new weigth[3];
+	valstr(weigth, cargoInfo[vloadInfo[vehicleid][vCargo]][cWeight]);
+	format(string, sizeof string, "Nick:\t%s\nPrawo jazdy:\tPOSIADA\nPrzegl¹d:\t%s\nTowar:\t%s\nWaga:\t%s t\nPasy:\t%s\nZaleg³e mandaty:\t$%d\nMagnes\t%s", 
+		PlayerName(targetid), 
+		przeglad, 
+		towarname, 
+		(vloadInfo[vehicleid][vLoaded]) ? (weigth) : ("-"), 
+		(GetPVarInt(targetid, "PASY")) ? ("zapiête") : ("rozpiête"), 
+		GetFotoPolice(targetid),
+		((gettime() - playerInfo[targetid][pMagnesTime] <= 300) || (playerInfo[targetid][pMagnes])) ? ("Tak") : ("Nie"));
 	Dialog_Show(playerid, DIALOG_CONTROL, DIALOG_STYLE_TABLIST, "Kontrola", string, "WyjdŸ", #);
 	return 1;
 }
@@ -264,6 +275,7 @@ CMD:skuj(playerid, params[])
 
 		format(szString, sizeof szString, "Zosta³eœ skuty przez policjanta {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(playerid), playerid);
 		Msg(target, COLOR_INFO3, szString);
+		TogglePlayerControllable(target, false);
 
 		playerInfo[target][pChainedTimer] = SetTimerEx("SkutyTeleport", 500, true, "dd", target, playerid);
 	}
@@ -303,6 +315,7 @@ CMD:rozkuj(playerid, params[])
 
 		format(szString, sizeof szString, "Rozku³eœ gracza {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(target), target);
 		Msg(playerid, COLOR_INFO3, szString);
+		TogglePlayerControllable(target, true);
 
 		format(szString, sizeof szString, "Zosta³eœ rozkuty przez policjanta {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(playerid), playerid);
 		Msg(target, COLOR_INFO3, szString);
@@ -318,27 +331,25 @@ CMD:stop(playerid, params[])
 	if(!GetPVarInt(playerid, "Worked"))
 		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
 
-	new string[100], Float:Pos[3];
+	new targetid;
+	if(sscanf(params, "d", targetid))
+		return Msg(playerid, COLOR_ERROR, "Wpisz /stop [id gracza]");
 
-	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
-		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+	if(!IsPlayerConnected(targetid))
+		return Msg(playerid, COLOR_ERROR, "Gracza z tym ID nie ma online.");
 
-	format(string, sizeof string, "Otrzyma³eœ alert od policjanta {FFFFFF}%s.", PlayerName(playerid));
+	new string[128], Float:Pos[3];
+	format(string, sizeof string, "Otrzyma³eœ alert od policjanta {b}%s{/b}.", PlayerName(playerid));
+	Msg(targetid, COLOR_INFO3, string, false);
 
-	Loop(player, MAX_PLAYERS)
-	{
-		if(GetDistancePlayerToPlayer(playerid, player) < 100 && IsPlayerInAnyVehicle(player) && GetPlayerState(player) == PLAYER_STATE_DRIVER)
-		{
-			TextDrawShowForPlayer(player, AlertTD);
-			timer9[player] = SetTimerEx("PolicjaAlert", 10000, 0, "d", player);
+	format(string, sizeof string, "Wys³a³eœ alert do gracza {b}%s{/b}.", PlayerName(targetid));
+	Msg(playerid, COLOR_INFO3, string);
 
-			Msg(player, COLOR_INFO3, string, false);
+	TextDrawShowForPlayer(targetid, AlertTD);
+	timer9[targetid] = SetTimerEx("PolicjaAlert", 5000, 0, "d", targetid);
 
-			GetPlayerPos(player, Pos[0], Pos[1], Pos[2]);
-			PlayerPlaySound(player, 1147, Pos[0], Pos[1], Pos[2]);
-		}
-	}
-	
+	GetPlayerPos(targetid, Pos[0], Pos[1], Pos[2]);
+	PlayerPlaySound(targetid, 1147, Pos[0], Pos[1], Pos[2]);	
 	return 1;
 }
 
@@ -363,9 +374,6 @@ CMD:kartoteka(playerid, params[])
 
 	if(!IsPlayerConnected(forplayerid))
 		return Msg(playerid, COLOR_ERROR, "Gracza o podanym ID nie ma online.");
-
-	if(GetDistancePlayerToPlayer(playerid, forplayerid) > 3.0)
-		return Msg(playerid, COLOR_ERROR, "Znajdujesz siê za daleko od tego gracza.");
 
 	new wiadomosc[600], zapytanie[70];
 	
@@ -517,16 +525,18 @@ public SkutyTeleport(playerid, policjantid)
 {
 	if(!IsPlayerConnected(policjantid))
 	{
+		TogglePlayerControllable(playerid, true);
 		SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
 		return KillTimer(playerInfo[playerid][pChainedTimer]);
+	}
+	if(!IsPlayerConnected(playerid))
+	{
+		KillTimer(playerInfo[playerid][pChainedTimer]);
 	}
 
 	new Float:Pos[3];
 	GetPlayerPos(policjantid, Pos[0], Pos[1], Pos[2]);
-
-	if(GetDistancePlayerToPlayer(playerid, policjantid) > 10.0)
-		SetPlayerPos(playerid, Pos[0], Pos[1]+1.0, Pos[2]);
-		
+	SetPlayerPos(playerid, Pos[0], Pos[1]+1.0, Pos[2]);		
 	return 1;
 }
 
@@ -534,8 +544,9 @@ forward AlcoholTest(playerid, trgtid);
 public AlcoholTest(playerid, trgtid)
 {
 	new szString[128], Float:alcohol = GetPlayerDrunkLevel(trgtid) / 6000;
-	format(szString, sizeof szString, "{FFFFFF}Gracz {82C412}%s{FFFFFF} jest %s{FFFFFF}\nPosiada {82C412}%.02f{FFFFFF}‰ we krwi.", PlayerName(trgtid), (alcohol <= 0.2) ? ("{82C412}trzeÂŸwy") : ("{BA0B0B}pijany"), alcohol);
+	format(szString, sizeof szString, "{FFFFFF}Gracz {82C412}%s{FFFFFF} jest %s{FFFFFF}\nPosiada {82C412}%.02f{FFFFFF}‰ we krwi.", PlayerName(trgtid), (alcohol <= 0.2) ? ("{82C412}trzeŸwy") : ("{BA0B0B}pijany"), alcohol);
 	Dialog_Show(playerid, DIALOG_ALCOHOL, DIALOG_STYLE_MSGBOX, "Alkomat", szString, "WyjdŸ", #);
+	TogglePlayerControllable(trgtid, true);
 	return 1;
 }
 
