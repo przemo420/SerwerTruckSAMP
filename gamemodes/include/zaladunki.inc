@@ -960,7 +960,9 @@ CMD:zaladuj(playerid)
 			SetPVarInt(playerid, "loadProgress", 0);
 			SetPVarInt(playerid, "loadTimerCount", cargoInfo[cargo][cWeight] * 3);
 			SetPVarInt(playerid, "loadCountMax", cargoInfo[cargo][cWeight] * 3);
-			SetPVarInt(playerid, "loadTimer", SetTimerEx("LoadCargo", 1000, true, "id", playerid, IsVehicleTruck(GetVehicleModel(vehicleid)) ? GetVehicleTrailer(vehicleid) : vehicleid));
+			new t;
+			t = SetTimerEx_("LoadCargo", 0, 1000, (cargoInfo[cargo][cWeight] * 3), "ii", playerid, ((IsVehicleTruck(GetVehicleModel(vehicleid))) ? (GetVehicleTrailer(vehicleid)) : (vehicleid)));
+			SetPVarInt(playerid, "loadTimer", t);
 			TogglePlayerControllable(playerid, false);
 
 			new lights,alarm,doors,bonnet,boot,objective,engine;
@@ -1002,7 +1004,9 @@ CMD:rozladuj(playerid)
 			SetPVarInt(playerid, "unloadProgress", 0);
 			SetPVarInt(playerid, "unloadCountMax", cargoInfo[cargo][cWeight] * 3);
 			SetPVarInt(playerid, "unloadTimerCount", cargoInfo[cargo][cWeight] * 3);
-			SetPVarInt(playerid, "unloadTimer", SetTimerEx("UnloadCargo", 1000, true, "id", playerid, IsVehicleTruck(GetVehicleModel(vehicleid)) ? GetVehicleTrailer(vehicleid) : vehicleid));
+			new t;
+			t = SetTimerEx_("UnloadCargo", 0, 1000, (cargoInfo[cargo][cWeight] * 3), "ii", playerid, ((IsVehicleTruck(GetVehicleModel(vehicleid))) ? (GetVehicleTrailer(vehicleid)) : (vehicleid)));
+			SetPVarInt(playerid, "unloadTimer", t);
 			TogglePlayerControllable(playerid, false);
 
 			new lights,alarm,doors,bonnet,boot,objective,engine;
@@ -1034,7 +1038,6 @@ public LoadCargo(playerid, vehicleid)
 		cargoInfo[GetPVarInt(playerid, "cargoID")][cTimeStart] = gettime();
 		DestroyPlayerProgressBar(playerid, pBar[playerid]);
 		new RID = cargoInfo[GetPVarInt(playerid, "cargoID")][cRID];
-		KillTimer(GetPVarInt(playerid, "loadTimer"));
 		Msg(playerid, COLOR_INFO, "Towar zosta³ pomyœlnie za³adowany.");
 		vloadInfo[vehicleid][vCargo] = GetPVarInt(playerid, "cargoID");
 		format(vloadInfo[vehicleid][vOwner], 32, "%s", PlayerNick(playerid));
@@ -1069,6 +1072,7 @@ public LoadCargo(playerid, vehicleid)
 		DeletePVar(playerid, "loadProgress");
 		DeletePVar(playerid, "loadTimerCount");
 		DeletePVar(playerid, "loading");
+		KillTimer_(GetPVarInt(playerid, "loadTimer"));
 	}
 	return 1;
 }
@@ -1160,7 +1164,7 @@ public UnloadCargo(playerid, vehicleid)
 		DeleteCargo(vloadInfo[vehicleid][vCargo]);
 		TogglePlayerControllable(playerid, true);
 
-		KillTimer(GetPVarInt(playerid, "unloadTimer"));
+		KillTimer_(GetPVarInt(playerid, "unloadTimer"));
 
 		vloadInfo[vehicleid][vCargo] = 0;
 		format(vloadInfo[vehicleid][vOwner], 32, "");
@@ -1282,7 +1286,7 @@ CMD:papiery(playerid)
 	if(!GetPVarInt(playerid, "cargoIDAllowed"))
 		return Msg(playerid, COLOR_ERROR, "Udaj siê na za³adunek aby odebraæ papiery.");
 	new	
-		szString[170],
+		szString[190],
 		id = GetPVarInt(playerid, "cargoID"),
 		ZID = cargoInfo[id][cZID], 
 		RID = cargoInfo[id][cRID], 
@@ -1299,7 +1303,7 @@ CMD:papiery(playerid)
 	strcat(szString, "\n");
 	format(szString, sizeof szString, "%sDystans:\t{b}%.02f{/b} km", szString, cargoInfo[id][cDistance]);
 	strcat(szString, "\n");
-	format(szString, sizeof szString, "%sDostawa: {b}%02d:%02d{/b}.", szString, time[3], time[4]);
+	format(szString, sizeof szString, "%sDostawa:\t{b}%02d:%02d{/b}.", szString, time[3], time[4]);
 
 	Dialog_Show(playerid, DIALOG_PAPERS, DIALOG_STYLE_MSGBOX, " ", clText(COLOR_INFO2, szString), "Okej", #);
 	return 1;

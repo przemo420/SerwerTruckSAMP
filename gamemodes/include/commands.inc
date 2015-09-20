@@ -221,16 +221,13 @@ CMD:zapisz(playerid, params[])
 CMD:firma(playerid, params[])
 {
 	if(!playerInfo[playerid][pFirm])
-		return ShowInfo(playerid, "Nie pracujesz w ¿adnej firmie.");
+		return Msg(playerid, COLOR_ERROR, "Nie pracujesz w ¿adnej firmie.");
 
 	new string[300];
 	strcat(string, "Informacje\nPracownicy online\nWp³aæ pieni¹dze");
 
-	if(firmInfo[playerInfo[playerid][pFirm]][tChef] == playerInfo[playerid][pID] || firmInfo[playerInfo[playerid][pFirm]][tVcChef] == playerInfo[playerid][pID] || firmInfo[playerInfo[playerid][pFirm]][tChef] == playerInfo[playerid][pID] || firmInfo[playerInfo[playerid][pFirm]][tAccountant] == playerInfo[playerid][pID])
-		strcat(string, "\n----\nRozdaj wyp³aty");
-
 	if(firmInfo[playerInfo[playerid][pFirm]][tChef] == playerInfo[playerid][pID] || firmInfo[playerInfo[playerid][pFirm]][tVcChef] == playerInfo[playerid][pID])
-		strcat(string, "\nZaproœ gracza\nWyrzuæ gracza\nZastêpca\nKsiêgowy\nUstaw spawn\nWyp³aæ pieni¹dze\nZmieñ skina");
+		strcat(string, "\nZaproœ gracza\nWyrzuæ gracza\nZastêpca\nUstaw spawn\nWyp³aæ pieni¹dze\nZmieñ skina\nWyp³aæ wyp³aty");
 
 	Dialog_Show(playerid, DIALOG_ID_FIRMA, DIALOG_STYLE_LIST, "Firma", string, "Dalej", "Anuluj");
 	return 1;
@@ -482,7 +479,7 @@ CMD:ulecz(playerid, params[])
 		DeletePVar(targetid, "Wypadekzmedykiem");
 	}
 
-	KillTimer(GetPVarInt(playerid, "healTimer"));
+	KillTimer_(GetPVarInt(playerid, "healTimer"));
 	DeletePVar(playerid, "healTimer");
 
 	TogglePlayerControllable(targetid, 1);

@@ -9,7 +9,7 @@
 #include "include/lib/foreach.inc"
 #include "GetVehicleColor"
 #include "include/lib/fixes2.inc"
-#include "include/lib/timers.inc"
+//#include "include/lib/timers.inc"
 #include "include/lib/progressbar2.inc"
 
 #pragma tabsize 0
@@ -124,19 +124,6 @@ public OnGameModeInit()
 		callInfo[2][callAssigned][c] = -1;
 	}
 
-	/*CheckSet(CHEAT_JETPACK);
-	CheckSet(CHEAT_WEAPON);
-	CheckSet(CHEAT_REMOTECONTROL);
-	CheckSet(CHEAT_SPEED);
-	CheckSet(CHEAT_SPAWNKILL);
-	CheckSet(CHEAT_SPOOFKILL);
-	CheckSet(CHEAT_PING);
-	CheckSet(CHEAT_AIRBREAK);
-	CheckSet(CHEAT_TELEPORT);
-	CheckSet(CHEAT_MASSCARTELEPORT);
-	CheckSet(CHEAT_SPEED);
-	CheckSet(CHEAT_CARJACKHACK);*/
-
 	MySQLConnection = mysql_init(LOG_ONLY_ERRORS, 1);
 	mysql_connect("mysql-ols1.ServerProject.pl", "db_12517", "yttMDAhyBOvs", "db_12517", MySQLConnection, 1);
 
@@ -241,12 +228,15 @@ public OnGameModeInit()
 	InitConnect();
 	SendRandomMessage();
 
-	SetTimer("Refresh", 1000, true);
-	SetTimer("Jobtime", 2*60000, true);
-	SetTimer("Update", 100, true);
-	SetTimer("OneSecTimer", 1000, true);
-	SetTimer("SaveALL", 60000, true);
-	SetTimer("TachographUpdate", 1000, true);
+	SetTimer_("OneSecTimer", 100, 1000, -1);
+	SetTimer_("Refresh", 50, 1000, -1);
+	SetTimer_("TachographUpdate", 0, 1000, -1);
+
+	SetTimer_("Update", 0, 100, -1);
+	SetTimer_("Wypadek", 0, 250, -1);
+
+	SetTimer_("Jobtime", 0, 2*60000, -1);
+	SetTimer_("SaveALL", 0, 60000, -1);
 
 	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
 	{
@@ -369,14 +359,15 @@ public OnPlayerConnect(playerid)
 		ShowInfo(playerid, string);
 
 		CheatKick(playerid, "aktywny ban");
-		timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "d", playerid);
+		timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
 	}
 	else
 	{
 		TogglePlayerSpectating(playerid, true);
 		mysql_free_result();
 
-		CinematicCameraIntro(playerid);
+		SetPVarInt(playerid, "INTRO_Camera", 0);
+		CallLocalFunction("CinematicCameraIntro", "i", playerid);
 		SelectTextDraw(playerid, 0xA82A23FF);
 		ShowPlayerConnect(playerid, true);
 		ShowConnect(playerid, true);
@@ -536,8 +527,8 @@ public OnPlayerDisconnect(playerid, reason)
 	KillTimer(timer13[playerid]);
 	KillTimer(timer15[playerid]);
 	KillTimer(timer16[playerid]);
-	KillTimer(GetPVarInt(playerid, "loadTimer"));
-	KillTimer(GetPVarInt(playerid, "unloadTimer"));
+	KillTimer_(GetPVarInt(playerid, "loadTimer"));
+	KillTimer_(GetPVarInt(playerid, "unloadTimer"));
 
 	mysql_real_escape_string(PlayerName(playerid), string);
 	format(string, sizeof(string), "UPDATE `Accounts` SET `Online`='0' WHERE `Name` = '%s'", string);
@@ -607,9 +598,12 @@ public OnPlayerRequestSpawn(playerid)
 public OnPlayerSpawn(playerid)
 {
 	new string[128];
-
+	AntiDeAMX();
 	if(GetPVarInt(playerid, "RequestSpawn"))
 		return DeletePVar(playerid, "RequestSpawn");
+
+	SetPlayerInterior(playerid, 0);
+	SetPlayerVirtualWorld(playerid, 0);
 
 	if(GetPVarInt(playerid, "FlyMode"))
 	{
@@ -621,7 +615,7 @@ public OnPlayerSpawn(playerid)
 	if(!IsPlayerLogged(playerid))
 	{
 		CheatKick(playerid, "ominiêcie logowania/rejestacji");
-		timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "d", playerid);
+		timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
 		return 1;
 	}
 	
@@ -654,6 +648,7 @@ public OnPlayerSpawn(playerid)
 	SetPlayerColor(playerid, 0x009300FF);
 	//Selectskin(playerid);
 	GivePlayerWeapon(playerid, 43, 99999);
+	CancelSelectTextDraw(playerid);
 
 	if(GetPVarInt(playerid, "Working"))
 	{
@@ -744,15 +739,10 @@ public OnPlayerDeath(playerid, killerid, reason)
 		DeletePVar(playerid, "pojazd");
 	}
 
-	if(GetPVarInt(playerid, "naczepa"))
-	{
-		Msg(playerid, COLOR_INFO, "Stworzona naczepa zosta³a usuniêta.");
-		DestroyVehicle(GetPVarInt(playerid, "naczepa"));
-		DeletePVar(playerid, "naczepa");
-	}
-
 	SetPVarInt(playerid, "JOIN", 1);
 	SetPVarInt(playerid, "ReSpawn", 1);
+
+	GivePlayerMoney(playerid, 100);
 
 	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
 	{
@@ -1057,7 +1047,7 @@ public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY
 						case 36: SetVehicleHealth(hitid, health -1000.0);
 						case 37: SetVehicleHealth(hitid, health -200.0);
 						case 38: SetVehicleHealth(hitid, health -100.0);
-						default: SetVehicleHealth(hitid, health -random(15));
+						default: SetVehicleHealth(hitid, health -random(30));
 					}
 				}
 				if(health <= 250.0)
@@ -1290,7 +1280,7 @@ public OnRconLoginAttempt(ip[], password[], success)
 				if(GetPVarInt(i, "RCN") >= 1)
 				{
 					CheatKick(i, "próba zalogowania na rcon");
-					timer[i] = SetTimerEx("Kickplayer", 500, 0, "d", i);
+					timer[i] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", i);
 				}
 
 				ToLog(playerInfo[i][pID], LOG_TYPE_PLAYER, "OnRconLoginAttempt");
@@ -1720,13 +1710,13 @@ public Refresh()
 				{
 					RemovePlayerFromVehicle(playerid);
 					CheatKick(playerid, "speedhack");
-					timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "d", playerid);
+					timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
 				}
 					
 				if(GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_USEJETPACK)
 				{
 					CheatBan(playerid, "jetpack");
-					timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "d", playerid);
+					timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
 				}
 					
 				if(playerInfo[playerid][pFirm] == 0)
@@ -1736,12 +1726,12 @@ public Refresh()
 						case 1..42:
 						{
 							CheatBan(playerid, "weaponhack");
-							timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "d", playerid);
+							timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
 						}
 						case 44..45:
 						{
 							CheatBan(playerid, "weaponhack");
-							timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "d", playerid);
+							timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
 						}
 					}
 				}
@@ -1813,8 +1803,6 @@ public Refresh()
 			}
 		}
 	}
-
-	Wypadek();
 	return 1;
 }
 
@@ -1990,7 +1978,7 @@ public Update()
 					PlayerTextDrawSetString(playerid, hudInfo[tdInfoSpeedo][TD_CAR_SPEED][playerid], string);
 				}
 			}
-			if(IsWorked(playerid, TEAM_TYPE_POLICE) && GetPVarInt(playerid, "RadarOnline") && IsPlayerInAnyVehicle(playerid))
+			if(IsWorked(playerid, TEAM_TYPE_POLICE) && GetPVarInt(playerid, "RadarOnline"))
 			{
 				new id = GetVehicleInfrontID(GetPlayerVehicleID(playerid));
 				if(id < 0)
@@ -2047,19 +2035,18 @@ forward Unmute(playerid);
 public Unmute(playerid)
 {
 	new seconds = GetPVarInt(playerid, "Mutetime");
-	new h, m, s;
-	ConvertSeconds(seconds,h,m,s);
 
 	if(seconds <= 0)
 	{
 		DeletePVar(playerid,"Mute");
 		DeletePVar(playerid,"Mutetime");
+		Msg(playerid, COLOR_INFO, "Twoje wyciszenie zosta³o zakoñczone, mo¿esz ju¿ normalnie pisaæ.");
 	}
 	else
 	{
 		seconds--;
 		SetPVarInt(playerid, "Mutetime", seconds);
-		SetTimerEx("Unmute", 1000, false, "d", playerid);
+		SetTimerEx_("Unmute", 1000, 0, 1, "i", playerid);
 	}
 
 	return 1;
@@ -2139,8 +2126,7 @@ public OnTrailerUpdate(playerid, vehicleid)
 	return 1;
 }
 
-forward HungerUpdate();
-public HungerUpdate()
+stock HungerUpdate()
 {
 	foreach (new playerid : Player)
 	{
@@ -2367,7 +2353,7 @@ CMD:ban(playerid, params[])
 	format(string, sizeof string, "%s{a9c4e4}Je¿eli zosta³eœ zbanowany nies³usznie napisz podanie o unbana na forum {FFFFFF}www.serwertruck.eu", string);
 	ShowInfo(playerid, string);
 
-	timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "d", forplayerid);
+	timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", forplayerid);
 	return 1;
 }
 
@@ -2443,7 +2429,7 @@ CMD:kick(playerid, params[])
 	{
 		format(string, sizeof string, "Gracz {b}%s{/b} zosta³ wyrzucony przez {b}%s{/b} z powodu {b}%s{/b}.", PlayerName(forplayerid), PlayerName(playerid), Powod);
 		MsgToAll(COLOR_ERROR, string);
-		timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "d", forplayerid);
+		timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", forplayerid);
 	} 
 	else Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 	return 1;
@@ -2510,7 +2496,7 @@ CMD:warn(playerid, params[])
 	if(GetPVarInt(forplayerid, "Warn") == 3)
 	{
 		CheatKick(forplayerid, "trzy ostrze¿enia");
-		timer[forplayerid] = SetTimerEx("Kickplayer", 500, 0, "d", forplayerid);
+		timer[forplayerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", forplayerid);
 	}
 	return 1;
 }
@@ -2932,9 +2918,9 @@ CMD:cbkanal(playerid, params[])
 
 CMD:mute(playerid, params[])
 {
-	new forplayerid, czas, reason[20], string[256];
+	new forplayerid, czas, reason[64], string[256];
 
-	if(sscanf(params, "dds[20]", forplayerid, czas, reason))
+	if(sscanf(params, "dds[64]", forplayerid, czas, reason))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /mute [id gracza] [czas] [powód]");
 
 	if(!IsPlayerConnected(forplayerid))
@@ -2946,9 +2932,10 @@ CMD:mute(playerid, params[])
 	if(playerInfo[playerid][pAdmin])
 	{
 		SetPVarInt(forplayerid, "Mute", 1);
-		SetPVarInt(forplayerid, "Mutetime", czas*60);
-		SetTimerEx("Unmute", czas*(60), false, "d", forplayerid);
-		format(string, sizeof string, "Gracz {b}%s{/b} zosta³ wyciszony na %d minut przez {b}%s{/b} z powodu {b}%s{/b}.", PlayerName(forplayerid), czas, PlayerName(playerid), reason);
+		SetPVarInt(forplayerid, "Mutetime", (czas*60));
+		SetTimerEx_("Unmute", 100, 0, 1, "i", forplayerid);
+
+		format(string, sizeof string, "Gracz {b}%s{/b} zosta³ wyciszony na {b}%d{/b} minut przez {b}%s{/b} z powodu {b}%s{/b}.", PlayerName(forplayerid), czas, PlayerName(playerid), reason);
 		MsgToAll(COLOR_INFO2, string);
 	}
 	else 
@@ -3479,7 +3466,7 @@ CMD:say(playerid, params[])
 	if(sscanf(params, "s[100]", tekst))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /say [tekst]");
 
-	format(string, sizeof(string), "* Administrator: %s", tekst);
+	format(string, sizeof(string), "Administrator: %s", tekst);
 	MsgToAll(COLOR_INFO2, string, false);
 
 	ToLog(playerInfo[playerid][pID], LOG_TYPE_CHAT, "adminglobal", params);
@@ -3767,7 +3754,7 @@ public OnVehicleSirenStateChange(playerid, vehicleid, newstate)
 	{
 		if(newstate)
 		{
-			__FlashTime[vehicleid] = SetTimerEx("OnLightFlash", 150, true, "d", vehicleid);
+			__FlashTime[vehicleid] = SetTimerEx_("OnLightFlash", 0, 150, -1, "i", vehicleid);
 			Msg(playerid, COLOR_INFO, "Syreny za³¹czone.");
 			enabledFlashes ++;
 		}
@@ -3777,7 +3764,7 @@ public OnVehicleSirenStateChange(playerid, vehicleid, newstate)
 			Msg(playerid, COLOR_INFO, "Syreny wy³¹czone.");
 			new panels, doors, lights, tires;
 			enabledFlashes --;
-			KillTimer(__FlashTime[vehicleid]);
+			KillTimer_(__FlashTime[vehicleid]);
 			
 			RepairVehicle(vehicleid);
 			GetVehicleDamageStatus(vehicleid, panels, doors, lights, tires);
@@ -3810,6 +3797,38 @@ CMD:butla(playerid)
 
 	Msg(playerid, COLOR_INFO, "Butla gazowa zosta³a pomyœlnie zamontowana.");
 	return 1;
+}
+
+stock GetWeekDay(day=0, month=0, year=0)
+{
+  if (!day)
+    getdate(year, month, day);
+
+  new
+    j,
+    e
+  ;
+
+  if (month <= 2)
+  {
+    month += 12;
+    --year;
+  }
+
+  j = year % 100;
+  e = year / 100;
+
+  switch ((day + (month+1)*26/10 + j + j/4 + e/4 - 2*e) % 7)
+  {
+    case 0: return 6;
+    case 1: return 7;
+    case 2: return 1;
+    case 3: return 2;
+    case 4: return 3;
+    case 5: return 4;
+    case 6: return 5;
+  }
+  return -1;
 }
 
 #include "include/gui.inc"

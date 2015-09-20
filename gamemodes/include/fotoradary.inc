@@ -67,7 +67,7 @@ public PhotoradarUpdate()
 			continue;
 
 		pPhotoed[i] = true;
-		SetTimerEx("UnlockPhotoradar", 1500, false, "d", i);
+		SetTimerEx("UnlockPhotoradar", 3000, false, "d", i);
 		GetVehicleSpeed(vehicleid, speed); speed -= float(phInfo[photoradar][phMaxSpeed]);
 		if(speed < 10.0)
 			continue;

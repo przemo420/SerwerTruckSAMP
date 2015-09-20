@@ -179,279 +179,6 @@ Dialog:DIALOG_ID_REGISTER(playerid, response, listitem, inputtext[])
 	return 1;
 }
 
-Dialog:DIALOG_ID_FIRMA(playerid, response, listitem, inputtext[])
-{
-	if(!response)
-		return 1;
-
-	new string[200], firmaid = playerInfo[playerid][pFirm];
-	switch(listitem)
-	{
-		case 0: // Informacje
-		{
-			format(string, sizeof(string), "UID: \t%d\nNazwa: \t%s\nSzef (UID): \t%d\nVC Szef (UID): \t%d\nKsiegowy (UID): \t%d\nTyp: \t%d\nSaldo: \t%d\nSkin1: \t%d\nSkin2: \t%d\nSkin3: \t%d\nSkin4: \t%d\nSkin5: \t%d\nKolor: \t{%06x}-- KOLOREK --", firmInfo[firmaid][tID], firmInfo[firmaid][tName], 
-				firmInfo[firmaid][tChef], firmInfo[firmaid][tVcChef], firmInfo[firmaid][tAccountant], firmInfo[firmaid][tType], firmInfo[firmaid][tBank], firmInfo[firmaid][tSkin1], firmInfo[firmaid][tSkin2], firmInfo[firmaid][tSkin3], firmInfo[firmaid][tSkin4], firmInfo[firmaid][tSkin5], firmInfo[firmaid][tColor]>>>8);
-			Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST, "Firma > Informacje", string, "Ok", "");
-		}
-		case 1: // Pracownicy online
-		{
-			strcat(string, "ID\tUID\tNick\n");
-
-			for(new i = 0, j = GetPlayerPoolSize(); i <= j; i++)
-		    	if(playerInfo[i][pFirm] == firmaid)
-		    		format(string, sizeof(string), "%s%d\t%d\t%s\n", string, i, playerInfo[i][pID], PlayerName(i));
-		    Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST_HEADERS, "Firma > Pracownicy", string, "Ok", "");
-		}
-
-		case 2: // Wp³aæ pieni¹dze
-			Dialog_Show(playerid, DIALOG_ID_FIRMA_WPLAC, DIALOG_STYLE_INPUT, "Firma > Wp³aæ", "WprowadŸ iloœæ pieniêdzy, które chcesz wp³aciæ:", "Ok", "Cofnij");
-
-		case 4: // Rozdaj wyp³aty
-			ShowInfo(playerid, "Chwilowo niedostêpne.");
-
-		case 5: // Zaproœ gracza
-			Dialog_Show(playerid, DIALOG_ID_FIRMA_ZAPROS, DIALOG_STYLE_INPUT, "Firma > Zaproœ", "WprowadŸ ID gracza, którego chcesz zaprosiæ:", "Ok", "Cofnij");
-
-		case 6: // Wyrzuæ gracza
-			Dialog_Show(playerid, DIALOG_ID_FIRMA_WYRZUC, DIALOG_STYLE_INPUT, "Firma > Wyrzuæ", "WprowadŸ ID gracza, którego chcesz wyrzuciæ:", "Ok", "Cofnij");
-
-		case 7: // Zastêpca
-		{
-			if(firmInfo[firmaid][tChef] != playerInfo[playerid][pID])
-				return ShowInfo(playerid, "Tylko szef mo¿e zmieniæ VcSzefa.");
-
-			Dialog_Show(playerid, DIALOG_ID_FIRMA_ZASTEPCA, DIALOG_STYLE_INPUT, "Firma > Zastêpca", "WprowadŸ ID gracza, którego chcesz mianowaæ na zastêpcê (-1 by usun¹æ):", "Ok", "Cofnij");
-		}
-
-		case 8: // Ksiêgowy
-			Dialog_Show(playerid, DIALOG_ID_FIRMA_KSIEGOWY, DIALOG_STYLE_INPUT, "Firma > Ksiêgowy", "WprowadŸ ID gracza, którego chcesz mianowaæ na ksiêgowego (-1 by usun¹æ):", "Ok", "Cofnij");
-
-		case 9: // Ustaw spawn
-		{
-			new Float:Pos[3];
-
-			GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
-			firmInfo[firmaid][tSpawnX] = Pos[0];
-			firmInfo[firmaid][tSpawnY] = Pos[1];
-			firmInfo[firmaid][tSpawnZ] = Pos[2];
-
-			ShowInfo(playerid, "Spawn zosta³ zmieniony.");
-		}
-
-		case 10: // Wyp³aæ pieni¹dze
-			ShowInfo(playerid, "Chwilowo niedostêpne.");
-
-		case 11: // Zmieñ skina
-		{
-			format(string, sizeof(string), "Skin 1 (%d)\nSkin 2 (%d)\nSkin 3 (%d)\nSkin 4 (%d)\nSkin 5 (%d)", firmInfo[firmaid][tSkin1], firmInfo[firmaid][tSkin2], firmInfo[firmaid][tSkin3], firmInfo[firmaid][tSkin4], firmInfo[firmaid][tSkin5]);
-			Dialog_Show(playerid, DIALOG_ID_FIRMA_SKIN, DIALOG_STYLE_LIST, "Firma > Skiny", string, "Zmieñ", "Cofnij");
-		}
-	}
-	return 1;
-}
-
-Dialog:DIALOG_ID_FIRMA_WPLAC(playerid, response, listitem, inputtext[])
-{
-	if(!response)
-	return cmd_firma(playerid, "");
-	
-	new kasa = strval(inputtext);
-	
-	if(kasa > GetMoney(playerid))
-		return Dialog_Show(playerid, DIALOG_ID_FIRMA_WPLAC, DIALOG_STYLE_INPUT, "Firma > Wp³aæ", "{FF0000}Nie posiadasz tyle pieniêdzy.\n \n{000000}WprowadŸ iloœæ pieniêdzy, które chcesz wp³aciæ:", "Ok", "Cofnij");
-	
-	if(kasa < 0 || kasa > 1000000)
-		return Dialog_Show(playerid, DIALOG_ID_FIRMA_WPLAC, DIALOG_STYLE_INPUT, "Firma > Wp³aæ", "{FF0000}Poda³eœ z³¹ liczbê.\n \n{000000}WprowadŸ iloœæ pieniêdzy, które chcesz wp³aciæ:", "Ok", "Cofnij");
-
-	GiveMoney(playerid, -kasa);
-	firmInfo[playerInfo[playerid][pFirm]][tBank] += kasa;
-	
-	ShowInfo(playerid, "Wp³aci³eœ pieni¹dze na konto firmy.");
-	return 1;
-}
-
-Dialog:DIALOG_ID_FIRMA_ZAPROS(playerid, response, listitem, inputtext[])
-{
-	if(!response)
-	return cmd_firma(playerid, "");
-	
-	new forplayerid = strval(inputtext), string[80];
-	
-	if(!IsPlayerConnected(forplayerid))
-	return Dialog_Show(playerid, DIALOG_ID_FIRMA_ZAPROS, DIALOG_STYLE_INPUT, "Firma > Zaproœ", "{FF0000}Gracz nie jest na serwerze.\n \n{000000}WprowadŸ ID gracza, którego chcesz zaprosiæ:", "Ok", "Cofnij");
-	
-	if(playerInfo[forplayerid][pFirm] != 0)
-	return Dialog_Show(playerid, DIALOG_ID_FIRMA_ZAPROS, DIALOG_STYLE_INPUT, "Firma > Zaproœ", "{FF0000}Gracz jest ju¿ zatrudniony.\n \n{000000}WprowadŸ ID gracza, którego chcesz zaprosiæ:", "Ok", "Cofnij");
-	
-	SetPVarInt(forplayerid, "FIRMA_ZAPROS", playerid);
-	format(string, sizeof(string), "%s zaprosi³ Ciê do firmy %s.", PlayerName(playerid), firmInfo[playerInfo[playerid][pFirm]][tName]);
-	Dialog_Show(forplayerid, DIALOG_ID_FIRMA_ZAPROS_ACCEPT, DIALOG_STYLE_MSGBOX, "Firma > Zaproœ", string, "Akceptuj", "Odrzuæ");
-	return 1;
-}
-
-Dialog:DIALOG_ID_FIRMA_ZAPROS_ACCEPT(playerid, response, listitem, inputtext[])
-{
-	if(!response)
-	return ShowInfo(GetPVarInt(playerid, "FIRMA_ZAPROS"), "Gracz odrzuci³ zaproszenie do firmy.");
-	
-	playerInfo[playerid][pFirm] = playerInfo[GetPVarInt(playerid, "FIRMA_ZAPROS")][pFirm];
-	OnPlayerText(playerid, "#Przyj¹³em zaproszenie do firmy.");
-	return 1;
-}
-
-Dialog:DIALOG_ID_FIRMA_WYRZUC(playerid, response, listitem, inputtext[])
-{
-	if(!response)
-	return cmd_firma(playerid, "");
-	
-	new forplayerid = strval(inputtext), string[80], firmaid = playerInfo[playerid][pFirm];
-	
-	if(!IsPlayerConnected(forplayerid))
-	return Dialog_Show(playerid, DIALOG_ID_FIRMA_WYRZUC, DIALOG_STYLE_INPUT, "Firma > Wyrzuæ", "{FF0000}Gracz nie jest na serwerze.\n \n{000000}WprowadŸ ID gracza, którego chcesz zaprosiæ:", "Ok", "Cofnij");
-	
-	if(playerInfo[forplayerid][pFirm] != firmaid)
-	return Dialog_Show(playerid, DIALOG_ID_FIRMA_WYRZUC, DIALOG_STYLE_INPUT, "Firma > Wyrzuæ", "{FF0000}Gracz nie pracuje w Twojej firmie.\n \n{000000}WprowadŸ ID gracza, którego chcesz zaprosiæ:", "Ok", "Cofnij");
-	
-	if(firmInfo[firmaid][tVcChef] == playerInfo[playerid][pID] && firmInfo[firmaid][tChef] == playerInfo[forplayerid][pID])
-	return Dialog_Show(playerid, DIALOG_ID_FIRMA_WYRZUC, DIALOG_STYLE_INPUT, "Firma > Wyrzuæ", "{FF0000}Nie mo¿esz wyrzuciæ szefa.\n \n{000000}WprowadŸ ID gracza, którego chcesz zaprosiæ:", "Ok", "Cofnij");
-	
-	format(string, sizeof(string), "%s wyrzuci³ Ciê z firmy %s.", PlayerName(playerid), firmInfo[playerInfo[playerid][pFirm]][tName]);
-	ShowInfo(forplayerid, string);
-	
-	if(firmInfo[firmaid][tVcChef] == playerInfo[forplayerid][pID])
-	{
-		format(string, sizeof(string), "UPDATE `Firmy` SET `VcSzef` = '0' WHERE `id` = '%d'", firmaid);
-		mysql_query(string);
-		
-		firmInfo[firmaid][tVcChef] = 0;
-	}
-	
-	if(firmInfo[firmaid][tAccountant] == playerInfo[forplayerid][pID])
-	{
-		format(string, sizeof(string), "UPDATE `Firmy` SET `Ksiegowy` = '0' WHERE `id` = '%d'", firmaid);
-		mysql_query(string);
-		firmInfo[firmaid][tAccountant] = 0;
-	}
-	
-	OnPlayerText(forplayerid, "#Zosta³em wyrzucony z firmy.");
-	playerInfo[forplayerid][pFirm] = 0;
-	return 1;
-}
-
-Dialog:DIALOG_ID_FIRMA_ZASTEPCA(playerid, response, listitem, inputtext[])
-{
-	if(!response)
-	return cmd_firma(playerid, "");
-	
-	new forplayerid = strval(inputtext), string[80], firmaid = playerInfo[playerid][pFirm];
-	
-	if(forplayerid == -1)
-	{
-		firmInfo[firmaid][tVcChef] = 0;
-		
-		format(string, sizeof(string), "UPDATE `Firmy` SET `VcSzef` = '0' WHERE `id` = '%d'", firmaid);
-		mysql_query(string);
-		
-		ShowInfo(playerid, "Usun¹³eœ zastêpcê.");
-		return 1;
-	}
-	
-	if(!IsPlayerConnected(forplayerid))
-	return ShowInfo(playerid, "Gracz jest offline.");
-	
-	if(playerInfo[playerid][pFirm] != playerInfo[forplayerid][pFirm])
-	return ShowInfo(playerid, "Gracz nie jest w Twojej firmie.");
-	
-	format(string, sizeof(string), "Zosta³eœ mianowany przez %s na zastêpcê firmy %s.", PlayerName(playerid), firmInfo[firmaid][tName]);
-	ShowInfo(forplayerid, string);
-	
-	format(string, sizeof(string), "Mianowa³eœ %s na zastêpcê firmy %s.", PlayerName(forplayerid), firmInfo[firmaid][tName]);
-	ShowInfo(playerid, string);
-	
-	firmInfo[firmaid][tVcChef] = playerInfo[forplayerid][pID];
-	
-	format(string, sizeof(string), "UPDATE `Firmy` SET `VcSzef` = '%d' WHERE `id` = '%d'", playerInfo[forplayerid][pID], firmaid);
-	mysql_query(string);
-	return 1;
-}
-
-Dialog:DIALOG_ID_FIRMA_KSIEGOWY(playerid, response, listitem, inputtext[])
-{
-	if(!response)
-	return cmd_firma(playerid, "");
-	
-	new forplayerid = strval(inputtext), string[80], firmaid = playerInfo[playerid][pFirm];
-	
-	if(forplayerid == -1)
-	{
-		firmInfo[firmaid][tAccountant] = 0;
-		
-		format(string, sizeof(string), "UPDATE `Firmy` SET `Ksiegowy` = '0' WHERE `id` = '%d'", firmaid);
-		mysql_query(string);
-		
-		ShowInfo(playerid, "Usun¹³eœ ksiêgowego.");
-		return 1;
-	}
-	
-	if(!IsPlayerConnected(forplayerid))
-	return ShowInfo(playerid, "Gracz jest offline.");
-	
-	if(playerInfo[playerid][pFirm] != playerInfo[forplayerid][pFirm])
-	return ShowInfo(playerid, "Gracz nie jest w Twojej firmie.");
-	
-	format(string, sizeof(string), "Zosta³eœ mianowany przez %s na ksiêgowego firmy %s.", PlayerName(playerid), firmInfo[firmaid][tName]);
-	ShowInfo(forplayerid, string);
-	
-	format(string, sizeof(string), "Mianowa³eœ %s na ksiêgowego firmy %s.", PlayerName(forplayerid), firmInfo[firmaid][tName]);
-	ShowInfo(playerid, string);
-	
-	firmInfo[firmaid][tAccountant] = playerInfo[forplayerid][pID];
-	
-	format(string, sizeof(string), "UPDATE `Firmy` SET `Ksiegowy` = '%d' WHERE `id` = '%d'", playerInfo[forplayerid][pID], firmaid);
-	mysql_query(string);
-	return 1;
-}
-
-Dialog:DIALOG_ID_FIRMA_SKIN(playerid, response, listitem, inputtext[])
-{
-	if(!response)
-	return cmd_firma(playerid, "");
-	
-	SetPVarInt(playerid, "FIRMA_SKIN", listitem+1);
-	
-	new string[80];
-	format(string, sizeof(string), "Zmieniasz skin: Skin %d\n\nWprowadŸ numer skina:", listitem+1);
-	Dialog_Show(playerid, DIALOG_ID_FIRMA_SKIN_ZMIEN, DIALOG_STYLE_INPUT, "Firma > Skin > Zmieñ", string, "Ok", "Cofnij");
-	return 1;
-}
-
-Dialog:DIALOG_ID_FIRMA_SKIN_ZMIEN(playerid, response, listitem, inputtext[])
-{
-	if(!response)
-	return cmd_firma(playerid, "");
-	
-	new skinid = strval(inputtext), firmaid = playerInfo[playerid][pFirm], string[80];
-	if(skinid < 0 || skinid > 311)
-	return ShowInfo(playerid, "Nieprawid³owe ID skina.");
-	
-	format(string, sizeof(string), "Zmieni³eœ skin numer %d na %d.", GetPVarInt(playerid, "FIRMA_SKIN"), skinid);
-	ShowInfo(playerid, string);
-	
-	switch(GetPVarInt(playerid, "FIRMA_SKIN"))
-	{
-		case 1:firmInfo[firmaid][tSkin1] = skinid;
-		case 2: firmInfo[firmaid][tSkin2] = skinid;
-		case 3: firmInfo[firmaid][tSkin3] = skinid;
-		case 4: firmInfo[firmaid][tSkin4] = skinid;
-		case 5: firmInfo[firmaid][tSkin5] = skinid;
-	}
-	
-	format(string, sizeof(string), "UPDATE `Firmy` SET `Skin%d` = '%d' WHERE `id` = '%d'", GetPVarInt(playerid, "FIRMA_SKIN"), skinid, firmaid);
-	mysql_query(string);
-	printf(string);
-	return 1;
-}
-
 Dialog:DIALOG_ID_VEHICLE(playerid, response, listitem, inputtext[])
 {
 	if(!response)
@@ -948,323 +675,6 @@ Dialog:ANIM7_DIALOG(playerid, response, listitem, inputtext[])
 	return 1;
 }
 
-/*Dialog:DIALOG_PANEL)
-{
-if(response)
-{
-switch(listitem)
-{
-case 0:
-{
-new x[500];
-strcat(x, "{FFFFFF}Serwer-Truck SAMP - Panel firmowy\n");
-strcat(x, " \n");
-strcat(x, "{FFFFFF}- {008000}lista pracownik?\n");
-strcat(x, "{FFFFFF}- {008000}konto bankowe\n");
-strcat(x, "{FFFFFF}- {008000}dodaj pracownika\n");
-strcat(x, "{FFFFFF}- {008000}usun pracownika\n");
-strcat(x, "{FFFFFF}- {008000}dodaj ksiê owego\n");
-strcat(x, "{FFFFFF}- {008000}usu?ksiê owego\n");
-strcat(x, " \n");
-strcat(x,"{FFFFFF}www.serwertruck.eu");
-Dialog_Show(playerid, DIALOG_PANEL, DIALOG_STYLE_LIST, " ", x, "OK", "WyjdŸ");
-}
-case 1:
-{
-new x[500];
-strcat(x, "{FFFFFF}Serwer-Truck SAMP - Panel firmowy\n");
-strcat(x, " \n");
-strcat(x, "{FFFFFF}- {008000}lista pracownik?\n");
-strcat(x, "{FFFFFF}- {008000}konto bankowe\n");
-strcat(x, "{FFFFFF}- {008000}dodaj pracownika\n");
-strcat(x, "{FFFFFF}- {008000}usun pracownika\n");
-strcat(x, "{FFFFFF}- {008000}dodaj ksiê owego\n");
-strcat(x, "{FFFFFF}- {008000}usu?ksiê owego\n");
-strcat(x, " \n");
-strcat(x,"{FFFFFF}www.serwertruck.eu");
-Dialog_Show(playerid, DIALOG_PANEL, DIALOG_STYLE_LIST, " ", x, "OK", "WyjdŸ");
-}
-case 2:
-{
-if(gTeam[playerid] == CARGO || gTeam[playerid] == PETROL || gTeam[playerid] == SMLOG || gTeam[playerid] == BUILD)
-{
-new query[128];
-format(query, sizeof query, "SELECT Name, Kursy, Wyplata FROM `PRACOWNICY` WHERE `Team`= '%d'", gTeam[playerid]);
-new DBResult:result = db_query(PRACOWNICYDB, query);
-new numRows = db_num_rows(result);
-
-new x[500], string[150];
-strcat(x, "{FFFFFF}Serwer-Truck SAMP - Informacje o pracownikach.\n");
-strcat(x, " \n");
-strcat(x, "{008000}Nick, iloœæ kurs?, wyp?ta.\n");
-strcat(x, " \n");
-for(new i=0; i<numRows; i++)
-{
-new I[20], K[20], W[20];
-db_get_field(result, 0, I, sizeof I);
-db_get_field(result, 1, K, sizeof K);
-db_get_field(result, 2, W, sizeof W);
-
-new kursy, wypl;
-kursy = strval(K);
-wypl = strval(W);
-
-format(string, sizeof string, "{FFFFFF}%s, %d, %d\n", I, kursy, wypl);
-strcat(x, string);
-
-db_next_row(result);
-}
-db_free_result(result);
-Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", x, "OK", "");
-}
-else if(gTeam[playerid] == POLICE || gTeam[playerid] == MEDIC || gTeam[playerid] == POMOC)
-{
-new query[128];
-format(query, sizeof query, "SELECT Name, Kursy, Wyplata FROM `PRACOWNICY` WHERE `Team`= '%d'", gTeam[playerid]);
-new DBResult:result = db_query(PRACOWNICYDB, query);
-new numRows = db_num_rows(result);
-
-new x[500], string[150];
-strcat(x, "{FFFFFF}Serwer-Truck SAMP - Informacje o pracownikach.\n");
-strcat(x, " \n");
-strcat(x, "{008000}Nick, czas pracy, wyp?ta.\n");
-strcat(x, " \n");
-for(new i=0; i<numRows; i++)
-{
-new I[20], C[20], W[20];
-db_get_field(result, 0, I, sizeof I);
-db_get_field(result, 1, C, sizeof C);
-db_get_field(result, 2, W, sizeof W);
-
-new czaas, wypl;
-czaas = strval(C);
-wypl = strval(W);
-
-format(string, sizeof string, "{FFFFFF}%s, %d, %d\n", I, czaas, wypl);
-strcat(x, string);
-
-db_next_row(result);
-}
-db_free_result(result);
-Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", x, "OK", "");
-}
-}
-case 3:
-{
-new x[500], string[200];
-strcat(x, "{FFFFFF}Serwer-Truck SAMP - Stan konta firmowego.\n");
-strcat(x, " \n");
-format(string, sizeof string, "{008000}Kwota w banku: {FFFFFF}%d$\n", KontoFirmowe(playerid));
-strcat(x, string);
-strcat(x," \n");
-strcat(x, "{008000}Wp?æ na konto bankowe.\n");
-strcat(x, "{008000}Wyp?æ z konta bankowego.\n");
-strcat(x," \n");
-strcat(x,"{FFFFFF}www.serwertruck.eu");
-Dialog_Show(playerid, DIALOG_PANEL1, DIALOG_STYLE_LIST, " ", x, "OK", "Wstecz");
-}
-case 4:
-{
-Dialog_Show(playerid, DIALOG_PANEL4, DIALOG_STYLE_INPUT, " ", "WprowadŸ ID pracownika, kt?ego chcesz zatrudniæ.", "OK", "WyjdŸ");
-}
-case 5:
-{
-Dialog_Show(playerid, DIALOG_PANEL5, DIALOG_STYLE_INPUT, " ", "WprowadŸ nick pracownika, kt?ego chcesz zwolniæ.", "OK", "WyjdŸ");
-}
-case 6:
-{
-Dialog_Show(playerid, DIALOG_PANEL6, DIALOG_STYLE_INPUT, " ", "WprowadŸ ID pracownika, kt?ego awansowaæ.", "OK", "WyjdŸ");
-}
-}
-}
-}
-
-Dialog:DIALOG_PANEL1)
-{
-if(response == 0)
-{
-new x[500];
-strcat(x, "{FFFFFF}Serwer-Truck SAMP - Panel firmowy\n");
-strcat(x, " \n");
-strcat(x, "{FFFFFF}- {008000}lista pracownik?\n");
-strcat(x, "{FFFFFF}- {008000}konto bankowe\n");
-strcat(x, "{FFFFFF}- {008000}dodaj pracownika\n");
-strcat(x, "{FFFFFF}- {008000}usun pracownika\n");
-strcat(x, "{FFFFFF}- {008000}dodaj ksiê owego\n");
-strcat(x, "{FFFFFF}- {008000}usu?ksiê owego\n");
-strcat(x, " \n");
-strcat(x,"{FFFFFF}www.serwertruck.eu");
-Dialog_Show(playerid, DIALOG_PANEL, DIALOG_STYLE_LIST, " ", x, "OK", "WyjdŸ");
-}
-if(response)
-{
-switch(listitem)
-{
-case 0..3:
-{
-new x[500], string[200];
-strcat(x, "{FFFFFF}Serwer-Truck SAMP - Stan konta firmowego.\n");
-strcat(x, " \n");
-format(string, sizeof string, "{008000}Kwota w banku: {FFFFFF}%d$\n", KontoFirmowe(playerid));
-strcat(x, string);
-strcat(x," \n");
-strcat(x, "{008000}Wp?æ na konto bankowe.\n");
-strcat(x, "{008000}Wyp?æ z konta bankowego.\n");
-strcat(x," \n");
-strcat(x,"{FFFFFF}www.serwertruck.eu");
-Dialog_Show(playerid, DIALOG_PANEL1, DIALOG_STYLE_LIST, " ", x, "OK", "Wstecz");
-}
-case 4:
-{
-Dialog_Show(playerid, DIALOG_PANEL2, DIALOG_STYLE_INPUT, " ", "WprowadŸ kwot?jak¹ chcesz wp?ciæ na konto bankowe.", "OK", "WyjdŸ");
-}
-case 5:
-{
-Dialog_Show(playerid, DIALOG_PANEL3, DIALOG_STYLE_INPUT, " ", "WprowadŸ kwot?jak¹ chcesz wyp?ciæ z konta bankowego.", "OK", "WyjdŸ");
-}
-case 6..7:
-{
-new x[500], string[200];
-strcat(x, "{FFFFFF}Serwer-Truck SAMP - Stan konta firmowego.\n");
-strcat(x, " \n");
-format(string, sizeof string, "{008000}Kwota w banku: {FFFFFF}%d$\n", KontoFirmowe(playerid));
-strcat(x, string);
-strcat(x," \n");
-strcat(x, "{008000}Wp?æ na konto bankowe.\n");
-strcat(x, "{008000}Wyp?æ z konta bankowego.\n");
-strcat(x," \n");
-strcat(x,"{FFFFFF}www.serwertruck.eu");
-Dialog_Show(playerid, DIALOG_PANEL1, DIALOG_STYLE_LIST, " ", x, "OK", "Wstecz");
-}
-}
-}
-}
-
-Dialog:DIALOG_PANEL2)
-{
-if(inputtext[DIALOG_STYLE_INPUT])
-{
-new kasa = strval(inputtext);
-
-if(kasa <= 0)
-return SendClientMessage(playerid, LIGHTRED, "Podana kwota jest zbyt niska.");
-
-if(kasa > GetMoney(playerid))
-return SendClientMessage(playerid, LIGHTRED, "Podana kwota jest zbyt wysoka.");
-
-GiveMoney(playerid, -kasa);
-Wplacpieniadzefirma(playerid, kasa);
-}
-}
-
-Dialog:DIALOG_PANEL3)
-{
-if(inputtext[DIALOG_STYLE_INPUT])
-{
-new kasa = strval(inputtext);
-
-if(kasa <= 0)
-return SendClientMessage(playerid, LIGHTRED, "Podana kwota jest zbyt niska.");
-
-if(kasa > GetMoney(playerid))
-return SendClientMessage(playerid, LIGHTRED, "Podana kwota jest zbyt wysoka.");
-
-GiveMoney(playerid, -kasa);
-Wplacpieniadzefirma(playerid, kasa);
-
-}
-}
-
-Dialog:DIALOG_PANEL4)
-{
-if(response)
-{
-new forplayerid = strval(inputtext);
-
-if(!IsPlayerConnected(forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest obecny na serwerze.");
-
-new string[256];
-new Y, Mo, D;
-getdate(Y, Mo, D);
-
-if(IsValidZatrudniony(PlayerName(forplayerid)))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz jest ju¿ zatrudniony.");
-
-format(string, sizeof string, "{008040}Gracz {FFFFFF}%s {008040}zosta³dodany do twojego teamu.", PlayerName(forplayerid), gTeam[playerid]);
-SendClientMessage(playerid,0x0,string);
-format(string, sizeof string, "{008040}zosta³dodany do teamu o id: {FFFFFF}%d {008040}przez {FFFFFF}%s.", gTeam[playerid], PlayerName(playerid));
-SendClientMessage(forplayerid,0x0,string);
-
-format(string, sizeof string, "INSERT INTO `PRACOWNICY` VALUES('%s', '%d', '%d', '%d', '%02d', '%02d', '%02d', '%d', '%d')", PlayerName(forplayerid), gTeam[playerid], 0, 0, D, Mo, Y, 0, 0);
-db_query(PRACOWNICYDB, string);
-}
-}
-
-Dialog:DIALOG_PANEL5)
-{
-if(inputtext[DIALOG_STYLE_INPUT])
-{
-new nick[20];
-strmid(nick,inputtext,0,20);
-
-new string[120];
-
-if(!IsValidZatrudniony(nick))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest nigdzie zatrudniony.");
-
-format(string, sizeof string, "{008040}Gracz {FFFFFF}%s {008040}zosta³usuni?y z teamu.", nick);
-SendClientMessage(playerid,0x0,string);
-format(string, sizeof string, "DELETE FROM `PRACOWNICY` WHERE `Name`= '%s'", nick);
-db_query(PRACOWNICYDB, string);
-}
-}
-
-Dialog:DIALOG_PANEL6)
-{
-if(response)
-{
-new forplayerid = strval(inputtext);
-
-new string[120];
-
-if(!IsPlayerConnected(forplayerid))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest obecny na serwerze.");
-
-if(!IsValidZatrudniony(PlayerName(forplayerid)))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest zatrudniony.");
-
-format(string, sizeof string, "{008040}Gracz {FFFFFF}%s {008040}otrzyma?uprawnienia szefa.", PlayerName(forplayerid));
-SendClientMessage(playerid,0x0,string);
-format(string, sizeof string, "{008040}Otrzyma?uprawnienia szefa przez {FFFFFF}%s.", PlayerName(playerid));
-SendClientMessage(forplayerid,0x0,string);
-
-format(string, sizeof string, "UPDATE `PRACOWNICY` SET `Szef` = '%d' WHERE `Name` = '%s'", 1, PlayerName(forplayerid));
-db_free_result(db_query(PRACOWNICYDB,string));
-}
-}
-
-Dialog:DIALOG_PANEL7)
-{
-if(inputtext[DIALOG_STYLE_INPUT])
-{
-new name[20];
-strmid(name,inputtext,0,20);
-
-new string[120];
-
-if(!IsValidZatrudniony(name))
-return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest zatrudniony.");
-
-format(string, sizeof string, "{008040}Gracz {FFFFFF}%s {008040}straci?uprawnienia szefa.", name);
-SendClientMessage(playerid,0x0,string);
-
-format(string, sizeof string, "UPDATE `PRACOWNICY` SET `Szef` = '%d' WHERE `Name` = '%s'", 0, name);
-db_free_result(db_query(PRACOWNICYDB,string));
-}
-}*/
-
-
 Dialog:POLICE_DIALOG(playerid, response, listitem, inputtext[])
 {
 	new string[128];
@@ -1403,5 +813,277 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 	format(szBuffer, sizeof(szBuffer), "%s{a9c4e4}Wykorzysta³eœ ju¿ {FFFFFF}[%d/3] {a9c4e4}próby zalogowania.\n\n{FFFFFF}www.serwertruck.eu", szBuffer, GetPVarInt(playerid, "leci"));
 
 	Dialog_Show(playerid, DIALOG_ID_LOGIN, DIALOG_STYLE_PASSWORD, "Panel > Logowanie", szBuffer, "Zaloguj", "Zamknij");
+	return 1;
+}
+
+Dialog:DIALOG_ID_FIRMA_INFO(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	DIALOG_ID_FIRMA(playerid, true, 0, "");
+	return 1;
+}
+
+Dialog:DIALOG_ID_FIRMA_PRACOWNICY(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	DIALOG_ID_FIRMA(playerid, true, 1, "");
+	return 1;
+}
+
+
+Dialog:DIALOG_ID_FIRMA(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return 1;
+
+	new string[200], firmaid = playerInfo[playerid][pFirm];
+	switch(listitem)
+	{
+		case 0: // Informacje
+		{
+			format(string, sizeof(string), "FID: \t%d\nNazwa: \t%s\nSzef (UID): \t%d\nZastêpca szefa (UID): \t%d\nKsiegowy (UID): \t%d\nTyp: \t%d\nSaldo: \t%d\nSkin1: \t%d\nSkin2: \t%d\nSkin3: \t%d\nSkin4: \t%d\nSkin5: \t%d\nKolor: \t{%06x}-- KOLOREK --", firmInfo[firmaid][tID], firmInfo[firmaid][tName], 
+				firmInfo[firmaid][tChef], firmInfo[firmaid][tVcChef], firmInfo[firmaid][tAccountant], firmInfo[firmaid][tType], firmInfo[firmaid][tBank], firmInfo[firmaid][tSkin1], firmInfo[firmaid][tSkin2], firmInfo[firmaid][tSkin3], firmInfo[firmaid][tSkin4], firmInfo[firmaid][tSkin5], firmInfo[firmaid][tColor]>>>8);
+			Dialog_Show(playerid, DIALOG_ID_FIRMA_INFO, DIALOG_STYLE_TABLIST, "Firma > Informacje", string, "Ok", "");
+		}
+		case 1: // Pracownicy online
+		{
+			strcat(string, "ID\tUID\tNick\n");
+
+			for(new i = 0, j = GetPlayerPoolSize(); i <= j; i++)
+		    	if(playerInfo[i][pFirm] == firmaid)
+		    		format(string, sizeof(string), "%s%d\t%d\t%s\n", string, i, playerInfo[i][pID], PlayerName(i));
+		    Dialog_Show(playerid, DIALOG_ID_FIRMA_PRACOWNICY, DIALOG_STYLE_TABLIST_HEADERS, "Firma > Pracownicy", string, "Ok", "");
+		}
+
+		case 2: // Wp³aæ pieni¹dze
+			Dialog_Show(playerid, DIALOG_ID_FIRMA_WPLAC, DIALOG_STYLE_INPUT, "Firma > Wp³aæ", clText(COLOR_INFO, "WprowadŸ iloœæ pieniêdzy, które chcesz wp³aciæ:"), "Wp³aæ", "Cofnij");
+
+		case 3: // Zaproœ gracza
+			Dialog_Show(playerid, DIALOG_ID_FIRMA_ZAPROS, DIALOG_STYLE_INPUT, "Firma > Zaproœ", clText(COLOR_INFO, "WprowadŸ ID gracza, którego chcesz zaprosiæ:"), "Zaproœ", "Cofnij");
+
+		case 4: // Wyrzuæ gracza
+			Dialog_Show(playerid, DIALOG_ID_FIRMA_WYRZUC, DIALOG_STYLE_INPUT, "Firma > Wyrzuæ", clText(COLOR_INFO, "WprowadŸ nazwê gracza, którego chcesz wyrzuciæ:"), "Wyrzuæ", "Cofnij");
+
+		case 5: // Zastêpca
+		{
+			if(firmInfo[firmaid][tChef] != playerInfo[playerid][pID])
+			{
+				cmd_firma(playerid, "");
+				return Msg(playerid, COLOR_ERROR, "Tylko szef mo¿e zmieniæ swojego zastêpce.");
+			}
+
+			Dialog_Show(playerid, DIALOG_ID_FIRMA_ZASTEPCA, DIALOG_STYLE_INPUT, "Firma > Zastêpca", clText(COLOR_INFO, "WprowadŸ ID gracza, którego chcesz mianowaæ na zastêpcê (-1 by usun¹æ):"), "Wybierz", "Cofnij");
+		}
+
+		case 6: // Ustaw spawn
+		{
+			new Float:Pos[3];
+
+			GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
+			firmInfo[firmaid][tSpawnX] = Pos[0];
+			firmInfo[firmaid][tSpawnY] = Pos[1];
+			firmInfo[firmaid][tSpawnZ] = Pos[2];
+
+			Msg(playerid, COLOR_INFO, "Zmieni³eœ spawn firmy.");
+		}
+
+		case 7: // Wyp³aæ pieni¹dze
+		{
+			Msg(playerid, COLOR_ERROR, "Funkcja tymczasowo zablokowana.");
+			cmd_firma(playerid, "");
+			return 1;
+		}
+
+		case 8: // Zmieñ skina
+		{
+			format(string, sizeof(string), "Skin 1 (%d)\nSkin 2 (%d)\nSkin 3 (%d)\nSkin 4 (%d)\nSkin 5 (%d)", firmInfo[firmaid][tSkin1], firmInfo[firmaid][tSkin2], firmInfo[firmaid][tSkin3], firmInfo[firmaid][tSkin4], firmInfo[firmaid][tSkin5]);
+			Dialog_Show(playerid, DIALOG_ID_FIRMA_SKIN, DIALOG_STYLE_LIST, "Firma > Skiny", string, "Zmieñ", "Cofnij");
+		}
+		case 9: // Wyp³aty
+		{
+			new szString[512], szBuffer[256], nums, nick[32], other[3], money, score;
+			format(szString, sizeof szString, "SELECT ID, Name, Worktime, rate FROM Accounts WHERE Firma = '%d'", playerInfo[playerid][pFirm]);
+			mysql_query(szString);
+			mysql_store_result();
+			nums = mysql_num_rows();
+			for(new i = 0; i < nums; i++)
+			{
+				if(mysql_fetch_row(szBuffer, "|"))
+				{
+					sscanf(szBuffer, "p<|>ds[32]dd", other[0], nick, other[1], other[2]);
+					money = other[1] * other[2];
+					score = floatround(other[1] * other[2] / 1000);
+					format(szString, sizeof szString, "%s%d\t%s\t$ %d\t%02d:%02d:00\t$ %d i %d score\n", szString, other[0], nick, other[2], other[1]/60, other[2]%60, money, score);
+				}
+			}
+			strins(szString, "ID\tGracz\tStawka\tCzas gry\tZarobek", 0);
+			Dialog_Show(playerid, DIALOG_ID_PAYMENTS, DIALOG_STYLE_TABLIST_HEADERS, "Firma > Wyp³aty", szString, "Daj wyp³atê", "WyjdŸ");
+			mysql_free_result();
+		}
+	}
+	return 1;
+}
+
+Dialog:DIALOG_ID_FIRMA_WPLAC(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+	return cmd_firma(playerid, "");
+	
+	new kasa = strval(inputtext);
+	
+	if(kasa > GetMoney(playerid))
+		return Dialog_Show(playerid, DIALOG_ID_FIRMA_WPLAC, DIALOG_STYLE_INPUT, "Firma > Wp³aæ", clText(COLOR_ERROR, "{b}Nie posiadasz tyle pieniêdzy.{/b}\n \nWprowadŸ iloœæ pieniêdzy, które chcesz wp³aciæ:"), "Wp³aæ", "Cofnij");
+	
+	if(kasa < 0 || kasa > 1000000)
+		return Dialog_Show(playerid, DIALOG_ID_FIRMA_WPLAC, DIALOG_STYLE_INPUT, "Firma > Wp³aæ", clText(COLOR_ERROR, "{b}Poda³eœ z³¹ liczbê.{/b}\n \nWprowadŸ iloœæ pieniêdzy, które chcesz wp³aciæ:"), "Wp³aæ", "Cofnij");
+
+	GiveMoney(playerid, -kasa);
+	firmInfo[playerInfo[playerid][pFirm]][tBank] += kasa;
+	
+	Dialog_Show(playerid, DIALOG_ID_FIRMA_WPLAC, DIALOG_STYLE_INPUT, "Firma > Wp³aæ", clText(COLOR_INFO, "{b}Wp³acono pieni¹dze na konto{/b}\n \nWprowadŸ iloœæ pieniêdzy, które chcesz wp³aciæ:"), "Wp³aæ", "Cofnij");
+	return 1;
+}
+
+Dialog:DIALOG_ID_FIRMA_ZAPROS(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return cmd_firma(playerid, "");
+	
+	new forplayerid = strval(inputtext), string[80];
+	
+	if(!IsPlayerConnected(forplayerid))
+		return Dialog_Show(playerid, DIALOG_ID_FIRMA_ZAPROS, DIALOG_STYLE_INPUT, "Firma > Zaproœ", clText(COLOR_ERROR, "{b}Gracz nie jest na serwerze{/b}.\n \nWprowadŸ ID gracza, którego chcesz zaprosiæ:"), "Zaproœ", "Cofnij");
+	
+	if(playerInfo[forplayerid][pFirm] == playerInfo[playerid][pFirm])
+		return Dialog_Show(playerid, DIALOG_ID_FIRMA_ZAPROS, DIALOG_STYLE_INPUT, "Firma > Zaproœ", clText(COLOR_ERROR, "{b}Gracz jest ju¿ zatrudniony.{/b}\n \nWprowadŸ ID gracza, którego chcesz zaprosiæ:"), "Zaproœ", "Cofnij");
+	
+	SetPVarInt(forplayerid, "FIRMA_ZAPROS", playerid);
+	format(string, sizeof(string), "{b}%s{/b} zaprosi³ Ciê do firmy / frakcji {b}%s{/b}.", PlayerName(playerid), firmInfo[playerInfo[playerid][pFirm]][tName]);
+	Dialog_Show(forplayerid, DIALOG_ID_FIRMA_ZAPROS_ACCEPT, DIALOG_STYLE_MSGBOX, "Firma > Zaproœ", clText(COLOR_INFO, string), "Akceptuj", "Odrzuæ");
+	Dialog_Show(playerid, DIALOG_ID_FIRMA_ZAPROS, DIALOG_STYLE_INPUT, "Firma > Zaproœ", clText(COLOR_INFO, "{b}Pomyœlnie wys³ano zaproszenie.{/b}\n \nWprowadŸ ID gracza, którego chcesz zaprosiæ:"), "Zaproœ", "Cofnij");
+	return 1;
+}
+
+Dialog:DIALOG_ID_FIRMA_ZAPROS_ACCEPT(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return Msg(GetPVarInt(playerid, "FIRMA_ZAPROS"), COLOR_INFO, "Gracz odrzuci³ zaproszenie do Twojej firmy.");
+	
+	playerInfo[playerid][pFirm] = playerInfo[GetPVarInt(playerid, "FIRMA_ZAPROS")][pFirm];
+	OnPlayerText(playerid, "#Przyj¹³em zaproszenie do firmy.");
+	return 1;
+}
+
+Dialog:DIALOG_ID_FIRMA_WYRZUC(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+		return cmd_firma(playerid, "");
+
+	if(strlen(inputtext) < 5 || strlen(inputtext) > 32)
+		return Dialog_Show(playerid, DIALOG_ID_FIRMA_WYRZUC, DIALOG_STYLE_INPUT, "Firma > Wyrzuæ", clText(COLOR_ERROR, "{b}WprowadŸ prawid³ow¹ nazwê gracza{/b}\n \nWprowadŸ nazwê gracza, którego chcesz wyprosiæ:"), "Wyrzuæ", "Cofnij");
+	
+	if(!IsAccountExists(inputtext))
+		return Dialog_Show(playerid, DIALOG_ID_FIRMA_WYRZUC, DIALOG_STYLE_INPUT, "Firma > Wyrzuæ", clText(COLOR_ERROR, "{b}Nie odnaleziono takiego gracza{/b}\n \nWprowadŸ nazwê gracza, którego chcesz wyprosiæ:"), "Wyrzuæ", "Cofnij");
+	
+	new szString[128], firmid;
+	format(szString, sizeof szString, "SELECT Firma FROM Accounts WHERE Name = '%s';", inputtext);
+	mysql_query(szString);
+	mysql_store_result();
+	firmid = mysql_fetch_int();
+	mysql_free_result();
+
+	if(firmid != playerInfo[playerid][pFirm])
+		return Dialog_Show(playerid, DIALOG_ID_FIRMA_WYRZUC, DIALOG_STYLE_INPUT, "Firma > Wyrzuæ", clText(COLOR_ERROR, "{b}Gracz nie pracuje w Twojej firmie{/b}\n \nWprowadŸ nazwê gracza, którego chcesz wyprosiæ:"), "Wyrzuæ", "Cofnij");
+	
+	new online = GetIDByNick(inputtext);
+	if(online > -1)
+	{
+		Msg(online, COLOR_ERROR, "Zosta³eœ zwolniony z pracy!");
+		playerInfo[online][pFirm] = 0;
+	}
+
+	format(szString, sizeof szString, "UPDATE Accounts SET Firma = '0' WHERE Name = '%s'", inputtext);
+	Dialog_Show(playerid, DIALOG_ID_FIRMA_WYRZUC, DIALOG_STYLE_INPUT, "Firma > Wyrzuæ", clText(COLOR_INFO, "{b}Pomyœlnie zwioniono.{/b}\n \nWprowadŸ nazwê gracza, którego chcesz wyprosiæ:"), "Wyrzuæ", "Cofnij");
+	return 1;
+}
+
+Dialog:DIALOG_ID_FIRMA_ZASTEPCA(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+	return cmd_firma(playerid, "");
+	
+	new forplayerid = strval(inputtext), string[80], firmaid = playerInfo[playerid][pFirm];
+	
+	if(forplayerid == -1)
+	{
+		firmInfo[firmaid][tVcChef] = 0;
+		
+		format(string, sizeof(string), "UPDATE `Firmy` SET `VcSzef` = '0' WHERE `id` = '%d'", firmaid);
+		mysql_query(string);
+		
+		Dialog_Show(playerid, DIALOG_ID_FIRMA_ZASTEPCA, DIALOG_STYLE_INPUT, "Firma > Zastêpca", clText(COLOR_INFO, "{b}Pomyœlnie usuniêto zastêpcê.{/b}\n \nWprowadŸ ID gracza, którego chcesz mianowaæ na zastêpcê (-1 by usun¹æ):"), "Wybierz", "Cofnij");	
+		return 1;
+	}
+	
+	if(!IsPlayerConnected(forplayerid))
+		return Dialog_Show(playerid, DIALOG_ID_FIRMA_ZASTEPCA, DIALOG_STYLE_INPUT, "Firma > Zastêpca", clText(COLOR_ERROR, "{b}Gracz jest offline.{/b}\n \nWprowadŸ ID gracza, którego chcesz mianowaæ na zastêpcê (-1 by usun¹æ):"), "Wybierz", "Cofnij");	
+	
+	if(!IsPlayerConnected(forplayerid))
+		return Dialog_Show(playerid, DIALOG_ID_FIRMA_ZASTEPCA, DIALOG_STYLE_INPUT, "Firma > Zastêpca", clText(COLOR_ERROR, "{b}Gracz nie pracuje w Twojej firmie.{/b}\n \nWprowadŸ ID gracza, którego chcesz mianowaæ na zastêpcê (-1 by usun¹æ):"), "Wybierz", "Cofnij");	
+	
+	format(string, sizeof(string), "Zosta³eœ mianowany przez {b}%s{/b} na zastêpcê firmy {b}%s{/b}.", PlayerName(playerid), firmInfo[firmaid][tName]);
+	Msg(forplayerid, COLOR_INFO2, string);
+	
+	format(string, sizeof(string), "{b}Mianowa³eœ gracza %s na swojego zastêpcê.{/b}\n \nWprowadŸ ID gracza, którego chcesz mianowaæ na zastêpcê (-1 by usun¹æ):", PlayerName(forplayerid));
+	Dialog_Show(playerid, DIALOG_ID_FIRMA_ZASTEPCA, DIALOG_STYLE_INPUT, "Firma > Zastêpca", clText(COLOR_INFO, string), "Wybierz", "Cofnij");	
+	
+	firmInfo[firmaid][tVcChef] = playerInfo[forplayerid][pID];
+	
+	format(string, sizeof(string), "UPDATE `Firmy` SET `VcSzef` = '%d' WHERE `id` = '%d'", playerInfo[forplayerid][pID], firmaid);
+	mysql_query(string);
+	return 1;
+}
+
+Dialog:DIALOG_ID_FIRMA_SKIN(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+	return cmd_firma(playerid, "");
+	
+	SetPVarInt(playerid, "FIRMA_SKIN", listitem+1);
+	
+	new string[80];
+	format(string, sizeof(string), "Zmieniasz skin: Skin %d\n\nWprowadŸ numer skina:", listitem+1);
+	Dialog_Show(playerid, DIALOG_ID_FIRMA_SKIN_ZMIEN, DIALOG_STYLE_INPUT, "Firma > Skin > Zmieñ", string, "Ok", "Cofnij");
+	return 1;
+}
+
+Dialog:DIALOG_ID_FIRMA_SKIN_ZMIEN(playerid, response, listitem, inputtext[])
+{
+	if(!response)
+	return cmd_firma(playerid, "");
+	
+	new skinid = strval(inputtext), firmaid = playerInfo[playerid][pFirm], string[80];
+	if(skinid < 0 || skinid > 311)
+	return ShowInfo(playerid, "Nieprawid³owe ID skina.");
+	
+	format(string, sizeof(string), "Zmieni³eœ skin numer %d na %d.", GetPVarInt(playerid, "FIRMA_SKIN"), skinid);
+	ShowInfo(playerid, string);
+	
+	switch(GetPVarInt(playerid, "FIRMA_SKIN"))
+	{
+		case 1:firmInfo[firmaid][tSkin1] = skinid;
+		case 2: firmInfo[firmaid][tSkin2] = skinid;
+		case 3: firmInfo[firmaid][tSkin3] = skinid;
+		case 4: firmInfo[firmaid][tSkin4] = skinid;
+		case 5: firmInfo[firmaid][tSkin5] = skinid;
+	}
+	
+	format(string, sizeof(string), "UPDATE `Firmy` SET `Skin%d` = '%d' WHERE `id` = '%d'", GetPVarInt(playerid, "FIRMA_SKIN"), skinid, firmaid);
+	mysql_query(string);
+	printf(string);
 	return 1;
 }

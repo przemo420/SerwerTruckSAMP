@@ -3,7 +3,6 @@ new CRASHON = 1;
 new Float:StareHPPojazdu[MAX_VEHICLES];
 new Float:NoweHPPojazdu[MAX_VEHICLES];
 
-// Odpalanie wypadku
 forward Wypadek();
 public Wypadek()
 {
@@ -19,7 +18,9 @@ public Wypadek()
 				if(GetPVarInt(playerid, "Wypadek") > 0 && GetPVarInt(playerid, "Wypadekzmedykiem") > 0)
 				{
 					Msg(playerid, COLOR_INFO, "Pracownicy pogotowia zakoñczyli dy¿ur, ockniesz siê za {b}15 sekund{/b}.");
-					SetPVarInt(playerid, "healTimer", SetTimerEx("POwypadku", 15 * 1000, false, "d", playerid));
+					new t;
+					t = SetTimerEx_("POwypadku", 0, 15 * 1000, 1, "d", playerid);
+					SetPVarInt(playerid, "healTimer", t);
 					DeletePVar(playerid, "Wypadekzmedykiem");
 					FadeColorForPlayer(playerid, 181, 51, 36, 125, 204, 58, 41, 125, 20, 0);
 				}
@@ -44,7 +45,6 @@ public Wypadek()
 						cargoHealth[cargoVehicle] -= (StareHPPojazdu[i] - NoweHPPojazdu[i])/1.2;
 						if(cargoHealth[cargoVehicle] < 0.0)
 							cargoHealth[cargoVehicle] = 0.0;
-						printf("Stan towaru spada do %f HP.", cargoHealth[cargoVehicle]);
 					}
 				}
 				foreach (new g : Player)
@@ -86,7 +86,7 @@ public Wypadek()
 						{
 							FadeColorForPlayer(g, 181, 51, 36, 125, 204, 58, 41, 125, 20, 0);
 							Msg(g, COLOR_ERROR, "Spowodowa³eœ wypadek, odzyskasz przytomnoœæ za {b}30 sekund{/b}.");
-							t = SetTimerEx("POwypadku", 30000, false, "d", g);
+							t = SetTimerEx_("POwypadku", 0, 30000, 1, "d", g);
 							SetPVarInt(g, "healTimer", t);
 						}
 

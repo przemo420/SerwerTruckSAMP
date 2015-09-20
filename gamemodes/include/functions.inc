@@ -16,6 +16,25 @@ stock IsAccountExists(name[])
 	return false;
 }
 
+stock GetAccountID(name[])
+{
+	new string[84];
+	mysql_real_escape_string(name, string);
+	format(string, sizeof(string), "SELECT 1 FROM Accounts WHERE `Name` = '%s' LIMIT 1;", string);
+	mysql_query(string);
+	mysql_store_result();
+
+	if(mysql_num_rows() && mysql_fetch_int() >= 1)
+	{
+		new id = mysql_fetch_int();
+		mysql_free_result();
+		return id;
+	}
+
+	mysql_free_result();
+	return -1;
+}
+
 stock IsAccountPursued(userid)
 {
 	new string[68];
@@ -1301,7 +1320,9 @@ public CinematicCameraIntro(playerid)
 		case 0:
 		{
 			PlayAudioStreamForPlayer(playerid, "http://samp-si.cba.pl/intro.mp3");
-			SetPVarInt(playerid, "INTRO_Timer", SetTimerEx("CinematicCameraIntro", 10000, true, "d", playerid));
+			new t;
+			t = SetTimerEx_("CinematicCameraIntro", 0, 10000, 15, "i", playerid);
+			SetPVarInt(playerid, "INTRO_Timer", t);
 			SetPlayerCameraPos(playerid, 2056.729492, 1366.452270, 18.977575);
 			InterpolateCameraPos(playerid, 2056.729492, 1366.452270, 18.977575, 2035.068359, 1289.254394, 21.272771, 10000, 1);
 			InterpolateCameraLookAt(playerid, 2055.754150, 1362.625244, 18.342929, 2035.090576, 1285.259277, 21.468381, 10000, 1);
@@ -1621,4 +1642,14 @@ stock GetVehicleInfrontID(vehid)
 	}
 	if (temp < 12.0) return j;
 	return -1;
+}
+
+AntiDeAMX()
+{
+	new a[][] =
+	{
+		"Unarmed (Fist)",
+		"Brass K"
+	};
+	#pragma unused a
 }
