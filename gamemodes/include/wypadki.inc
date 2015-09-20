@@ -19,7 +19,7 @@ public Wypadek()
 				{
 					Msg(playerid, COLOR_INFO, "Pracownicy pogotowia zakoñczyli dy¿ur, ockniesz siê za {b}15 sekund{/b}.");
 					new t;
-					t = SetTimerEx_("POwypadku", 0, 15 * 1000, 1, "d", playerid);
+					t = SetTimerEx_("POwypadku", 15 * 1000, 0, 1, "i", playerid);
 					SetPVarInt(playerid, "healTimer", t);
 					DeletePVar(playerid, "Wypadekzmedykiem");
 					FadeColorForPlayer(playerid, 181, 51, 36, 125, 204, 58, 41, 125, 20, 0);
@@ -86,7 +86,7 @@ public Wypadek()
 						{
 							FadeColorForPlayer(g, 181, 51, 36, 125, 204, 58, 41, 125, 20, 0);
 							Msg(g, COLOR_ERROR, "Spowodowa³eœ wypadek, odzyskasz przytomnoœæ za {b}30 sekund{/b}.");
-							t = SetTimerEx_("POwypadku", 0, 30000, 1, "d", g);
+							t = SetTimerEx_("POwypadku", 30000, 0, 1, "i", g);
 							SetPVarInt(g, "healTimer", t);
 						}
 

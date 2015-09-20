@@ -10,15 +10,13 @@ enum E_CRASH
 new pCrash[MAX_CRASHS][E_CRASH];
 new Float:pTempPos[MAX_PLAYERS][3];
 
-forward Crash_OnGameModeInit();
-public Crash_OnGameModeInit()
+stock Crash_OnGameModeInit()
 {
 	SetTimer("TruncateCrashTable", 5 * 60 * 1000, true);
 	return 1;
 }
 
-forward Crash_OnPlayerConnect(playerid);
-public Crash_OnPlayerConnect(playerid)
+stock Crash_OnPlayerConnect(playerid)
 {
 	for(new i = 0; i < MAX_CRASHS; i++)
 	{
@@ -27,6 +25,7 @@ public Crash_OnPlayerConnect(playerid)
 
 		if(!strcmp(PlayerName(playerid), pCrash[i][crashNick]))
 		{
+			printf("Wczytano crash gracza %s.", PlayerName(playerid));
 			if((gettime() - pCrash[i][crashTime]) <= 300) // ca³e 5 minut na powrót
 			{
 				Msg(playerid, COLOR_INFO, "Twoje statystyki zosta³y przywrócone. Mo¿esz teleportowaæ siê do pozycji przed crashem/timeoutem u¿ywaj¹c komendy {b}/lastpos{/b}.");
@@ -46,11 +45,11 @@ public Crash_OnPlayerConnect(playerid)
 	return 1;
 }
 
-forward Crash_OnPlayerDisconnect(playerid, reason);
-public Crash_OnPlayerDisconnect(playerid, reason)
+stock Crash_OnPlayerDisconnect(playerid, reason)
 {
-	if(reason == 0)
+	if((reason == 0 || reason == 2) && IsPlayerLogged(playerid) && IsPlayerSpawned(playerid))
 	{
+		printf("Zapisano crash gracza %s.", PlayerName(playerid));
 		for(new i = 0; i < MAX_CRASHS; i++)
 		{
 			if(IsFreeCrash(i))
@@ -105,7 +104,7 @@ public TruncateCrashTable()
 CMD:lastpos(playerid)
 {
 	if(pTempPos[playerid][0] == 0 && pTempPos[playerid][1] == 0 && pTempPos[playerid][2] == 0)
-		return Msg(playerid, COLOR_INFO, "Brak pozycji do wczytania.");
+		return Msg(playerid, COLOR_ERROR, "Brak pozycji do wczytania.");
 	Teleport(playerid, pTempPos[playerid][0], pTempPos[playerid][1], pTempPos[playerid][2], true);
 	Msg(playerid, COLOR_INFO, "Pozycja {b}crashu / timeoutu{/b} zosta³a wczytana.");
 	pTempPos[playerid][0] = 0.0;

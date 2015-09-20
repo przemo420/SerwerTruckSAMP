@@ -1111,11 +1111,11 @@ public UnloadCargo(playerid, vehicleid)
 		late -= (cargoInfo[vloadInfo[vehicleid][vCargo]][cTime] * 60);
 		bonus = late;
 		late += (bonusSkillTime*60);
-		if(late > 0)
+		if(late >= 60)
 			penatly += floatmul(floatdiv(float(late), 60.0), 30.0);
 		printf("%d", late);
 
-		if(bonus < 0)
+		if(bonus <= -60)
 			bonus = -bonus, bonus = floatround(bonus/60), bonus *= 30;
 		else
 			bonus = 0;
@@ -1127,20 +1127,20 @@ public UnloadCargo(playerid, vehicleid)
 
 		format(szString, sizeof szString, "{b}%s{/b} ({b}%d{/b}t)\nZlecenie zosta³o wykonane na {b}%s{/b} poziomie.", waresInfo[cargoInfo[vloadInfo[vehicleid][vCargo]][cType]][wName], cargoInfo[vloadInfo[vehicleid][vCargo]][cWeight], GetCargoConditionName(floatround(penatly)));
 		strcat(szString, "\n \n");
-		format(szString, sizeof szString, "%sTwoje wynagrodzenie wynosi {b}$%d{/b} (+%d %%) oraz {b}%d{/b} expa.", szString, floatround(realReward), bonusSkillReward, score);
+		format(szString, sizeof szString, "%sTwoje wynagrodzenie wynosi {b}$%d{/b} (+%d %%) oraz {b}%d{/b} expa.", szString, floatround(realReward * 0.75), bonusSkillReward, score);
 		strcat(szString, "\n");
 		format(szString, sizeof szString, "%sDystans pomiêdzy za³adunkiem a roz³adunkiem to {b}%.02fj{/b}.", szString, cargoInfo[vloadInfo[vehicleid][vCargo]][cDistance]);
 		strcat(szString, "\n");
 		format(szString, sizeof szString, "%sBonus za czas: {b}$%d{/b}", szString, bonus);
 		strcat(szString, "\n \n");
-		if(late > 0)
+		if(late >= 60)
 		{
 			tempCalc = late/60;
-			format(szTemp, sizeof szTemp, "tak ({b}%d{/b} minut/y)", tempCalc);
+			format(szTemp, sizeof szTemp, "{b}tak{/b} ({b}%d{/b} minut/y)", tempCalc);
 		}
-		format(szString, sizeof szString, "%sSpóŸnienie: {b}%s{/b}", szString, (late > 0) ? (szTemp) : ("nie"));
+		format(szString, sizeof szString, "%sSpóŸnienie: %s", szString, (late >= 60) ? (szTemp) : ("{b}nie{/b}"));
 		strcat(szString, "\n");
-		if(late > 0)
+		if(late >= 60)
 		{
 			tempCalc = late/60; tempCalc *= 30;
 			format(szTemp, sizeof szTemp, "(spóŸnienie {b}$%d{/b})", tempCalc);
@@ -1149,11 +1149,16 @@ public UnloadCargo(playerid, vehicleid)
 		format(szTemp, sizeof szTemp, "(-%d %%)", bonusSkillPenatly);
 		format(szString, sizeof szString, "%s %s", szString, (penatly > 0.0) ? (szTemp) : (""));
 		format(szString, sizeof szString, "%s\nUszkodzenia: {b}%.02f{/b} %%", szString, condition);
-		format(szString, sizeof szString, "%s\n \nJe¿eli jesteœ pracownikiem firmy, po³owe twojego wynagrodzenia wp³ywa na jej konto.", szString);
-
+		if(GetPVarInt(playerid, "Worked") && playerInfo[playerid][pFirm] > 3)
+			format(szString, sizeof szString, "%s\n \nJe¿eli jesteœ pracownikiem firmy, po³owe twojego wynagrodzenia wp³ywa na jej konto.", szString);
+		else
+			format(szString, sizeof szString, "%s\n \nJe¿eli nie jesteœ pracownikiem firmy, 25 %% Twojego wynagrodzenia jest przeznaczana na podatek.", szString);
+		
 		GiveMoney(playerid, floatround(realReward/2));
 		if(GetPVarInt(playerid, "Worked") && playerInfo[playerid][pFirm] > 3)
 			firmInfo[playerInfo[playerid][pFirm]][tBank] += floatround(realReward/2);
+		else
+			realReward *= 0.75;
 
 		GiveScore(playerid, score);
 		Dialog_Show(playerid, DIALOG_OFFER_END, DIALOG_STYLE_MSGBOX, " ", clText(COLOR_INFO2, szString), "Okej", #);

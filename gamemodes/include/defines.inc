@@ -115,7 +115,6 @@ new const szCommands[][] = {
 
 new const szHookInclude[][] = {
 	"Banki", // banki.inc
-	"Crash", // crash.inc
 	"Konwoje", // konwoje.inc
 	"Ladowanie", // ladowanie.inc
 	"Pogoda", // pogoda.inc
@@ -637,3 +636,6 @@ new
 	__FlashTime[MAX_VEHICLES],
 	_Flash[MAX_VEHICLES],
 	enabledFlashes;
+
+new 
+	bool:vehicleExploded[MAX_VEHICLES];

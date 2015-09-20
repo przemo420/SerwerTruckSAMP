@@ -238,6 +238,8 @@ public OnGameModeInit()
 	SetTimer_("Jobtime", 0, 2*60000, -1);
 	SetTimer_("SaveALL", 0, 60000, -1);
 
+	Crash_OnGameModeInit();
+
 	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
 	{
 		format(szTemp, sizeof(szTemp), "%s_OnGameModeInit", szHookInclude[nrInc]);
@@ -269,7 +271,7 @@ public OnGameModeExit()
 			CallLocalFunction(szTemp, "");
 	}
 
-	for(new i = 0; i < GetVehiclePoolSize(); i++)
+	foreach (new i : Vehicle)
 	{
 		if(!IsValidVehicle(i) || !Spawned[i])
 			continue;
@@ -359,7 +361,7 @@ public OnPlayerConnect(playerid)
 		ShowInfo(playerid, string);
 
 		CheatKick(playerid, "aktywny ban");
-		timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
+		timer[playerid] = SetTimerEx("Kickplayer", 300, false, "i", playerid);
 	}
 	else
 	{
@@ -468,6 +470,8 @@ public OnPlayerDisconnect(playerid, reason)
 		DeletePVar(playerid, "Wypadek");
 		DeletePVar(playerid, "Wypadekzmedykiem");
 	}
+
+	Crash_OnPlayerDisconnect(playerid, reason);
 
 	switch(reason)
 	{
@@ -615,7 +619,7 @@ public OnPlayerSpawn(playerid)
 	if(!IsPlayerLogged(playerid))
 	{
 		CheatKick(playerid, "ominiêcie logowania/rejestacji");
-		timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
+		timer[playerid] = SetTimerEx("Kickplayer", 300, false, "i", playerid);
 		return 1;
 	}
 	
@@ -760,6 +764,7 @@ public OnVehicleSpawn(vehicleid)
 	vloadInfo[vehicleid][vLoaded] = false;
 	strdel(vloadInfo[vehicleid][vOwner], 0, strlen (vloadInfo[vehicleid][vOwner]));
 	vloadInfo[vehicleid][vCargo] = 0;
+	vehicleExploded[vehicleid] = false;
 	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
 	{
 		format(szTemp, sizeof(szTemp), "%s_OnVehicleSpawn", szHookInclude[nrInc]);
@@ -802,7 +807,7 @@ public OnVehicleDeath(vehicleid, killerid)
 
 public OnPlayerText(playerid, text[])
 {
-	new string[200];
+	new string[512];
 	text[0] = toupper(text[0]);
 
 	if(!IsPlayerLogged(playerid))
@@ -857,7 +862,8 @@ public OnPlayerText(playerid, text[])
 	SetPVarInt(playerid, "pLastMessageTime", gettime());
 
 	format(string, sizeof(string), "{%06x}%s{4D4D4D} [%d]{FFFFFF}: %s", GetPlayerColor(playerid) >>> 8, PlayerName(playerid), playerid, ColouredText(text));
-	SendClientMessageToAll(GetPlayerColor(playerid), string);
+	SendSplitMessageToAll(-1, string);
+
 	SetPlayerChatBubble(playerid, text, 0xFFFFFFFF, 50.0, 3000);
 
 	ToLog(playerInfo[playerid][pID], LOG_TYPE_CHAT, "global", text);
@@ -1050,8 +1056,9 @@ public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY
 						default: SetVehicleHealth(hitid, health -random(30));
 					}
 				}
-				if(health <= 250.0)
+				if(health <= 250.0 && !vehicleExploded[hitid])
 				{
+					vehicleExploded[hitid] = true;
 					new Float:X, Float:Y, Float:Z;
 					GetVehiclePos(hitid, X, Y, Z );
 					CreateExplosion(X, Y, Z, 1, 5);
@@ -1167,7 +1174,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 					GetVehicleHealth(vehicleid, health);
 					SetPVarFloat(playerid, "tHealth", health);
 					SetPVarInt(playerid, "Tempomat", 1);
-					timer7[playerid] = SetTimerEx("Tempomat", 250, false, "ddf", vehicleid, playerid, speed);
+					timer7[playerid] = SetTimerEx_("Tempomat", 250, 0, 1, "iif", vehicleid, playerid, speed);
 					Msg(playerid, COLOR_INFO, "Tempomat zosta³ {b}w³¹czony{/b}.");
 				}
 				else
@@ -1280,7 +1287,7 @@ public OnRconLoginAttempt(ip[], password[], success)
 				if(GetPVarInt(i, "RCN") >= 1)
 				{
 					CheatKick(i, "próba zalogowania na rcon");
-					timer[i] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", i);
+					timer[i] = SetTimerEx("Kickplayer", 300, false, "i", i);
 				}
 
 				ToLog(playerInfo[i][pID], LOG_TYPE_PLAYER, "OnRconLoginAttempt");
@@ -1376,8 +1383,13 @@ public OnPlayerCommandReceived(playerid, cmdtext[])
 	}
 
 	if(GetPVarInt(playerid, "Areszt") && !playerInfo[playerid][pAdmin])
+	{
 		if(strcmp(cmdtext, "/spawn") == 0)
-			return Msg(playerid, COLOR_ERROR, "W areszcie nie mo¿esz u¿yæ tej komendy.");
+		{
+			Msg(playerid, COLOR_ERROR, "W areszcie nie mo¿esz u¿yæ tej komendy.");
+			return 0;
+		}
+	}
 
 	return 1;
 }
@@ -1710,13 +1722,13 @@ public Refresh()
 				{
 					RemovePlayerFromVehicle(playerid);
 					CheatKick(playerid, "speedhack");
-					timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
+					timer[playerid] = SetTimerEx("Kickplayer", 300, false, "i", playerid);
 				}
 					
 				if(GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_USEJETPACK)
 				{
 					CheatBan(playerid, "jetpack");
-					timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
+					timer[playerid] = SetTimerEx("Kickplayer", 300, false, "i", playerid);
 				}
 					
 				if(playerInfo[playerid][pFirm] == 0)
@@ -1726,12 +1738,12 @@ public Refresh()
 						case 1..42:
 						{
 							CheatBan(playerid, "weaponhack");
-							timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
+							timer[playerid] = SetTimerEx("Kickplayer", 300, false, "i", playerid);
 						}
 						case 44..45:
 						{
 							CheatBan(playerid, "weaponhack");
-							timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
+							timer[playerid] = SetTimerEx("Kickplayer", 300, false, "i", playerid);
 						}
 					}
 				}
@@ -1739,7 +1751,7 @@ public Refresh()
 		}
 	}
 
-	for(new vehicleid; vehicleid < GetVehiclePoolSize(); vehicleid++)
+	foreach (new vehicleid : Vehicle)
 	{
 		new Float:fuel, fueltype, engine,lights,alarm,doors,bonnet,boot,objective,Float:speed;
 		
@@ -1819,7 +1831,9 @@ stock IsVehicleTrailer(vehicleid)
 
 forward Kickplayer(playerid);
 public Kickplayer(playerid)
+{
 	return Kick(playerid);
+}
 
 forward ReqSpawnPlayer(playerid);
 public ReqSpawnPlayer(playerid)
@@ -2203,12 +2217,12 @@ public Tempomat(vehicleid, playerid, Float:speed)
 		}
 		if(((health - GetPVarFloat(playerid, "tHealth")) >= 0) && (speed2+28) > speed)
 		{
-			timer7[playerid] = SetTimerEx("Tempomat", 250, false, "ddf", vehicleid, playerid, speed);
+			timer7[playerid] = SetTimerEx_("Tempomat", 250, 0, 1, "iif", vehicleid, playerid, speed);
 			SetVehicleSpeed(vehicleid, speed);
 		}
 		else
 		{
-			KillTimer(timer7[playerid]);
+			KillTimer_(timer7[playerid]);
 			DeletePVar(playerid, "Tempomat");
 			Msg(playerid, COLOR_INFO, "Tempomat zosta³ {b}wy³¹czony{/b}.");
 		}
@@ -2353,7 +2367,7 @@ CMD:ban(playerid, params[])
 	format(string, sizeof string, "%s{a9c4e4}Je¿eli zosta³eœ zbanowany nies³usznie napisz podanie o unbana na forum {FFFFFF}www.serwertruck.eu", string);
 	ShowInfo(playerid, string);
 
-	timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", forplayerid);
+	timer[playerid] = SetTimerEx("Kickplayer", 300, false, "i", forplayerid);
 	return 1;
 }
 
@@ -2429,7 +2443,7 @@ CMD:kick(playerid, params[])
 	{
 		format(string, sizeof string, "Gracz {b}%s{/b} zosta³ wyrzucony przez {b}%s{/b} z powodu {b}%s{/b}.", PlayerName(forplayerid), PlayerName(playerid), Powod);
 		MsgToAll(COLOR_ERROR, string);
-		timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", forplayerid);
+		timer[forplayerid] = SetTimerEx("Kickplayer", 300, false, "i", forplayerid);
 	} 
 	else Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 	return 1;
@@ -2477,9 +2491,9 @@ CMD:restorebuilding(playerid, params[])
 
 CMD:warn(playerid, params[])
 {
-	new forplayerid, Powod[20], string[200];
+	new forplayerid, reason[64], string[200];
 
-	if(sscanf(params, "ds[20]", forplayerid, Powod))
+	if(sscanf(params, "ds[64]", forplayerid, reason))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /warn [id gracza] [powód]");
 
 	if(!IsPlayerConnected(forplayerid))
@@ -2488,7 +2502,7 @@ CMD:warn(playerid, params[])
 	if(playerInfo[playerid][pAdmin])
 	{
 		SetPVarInt(forplayerid, "Warn", GetPVarInt(forplayerid, "Warn")+1);
-		format(string, sizeof string, "Gracz {b}%s{/b} zosta³ ostrze¿ony [{b}%d/3{/b}] przez {b}%s{/b} z powodu {b}%s{/b}.", PlayerName(forplayerid), GetPVarInt(forplayerid, "Warn"), PlayerName(playerid), Powod);
+		format(string, sizeof string, "Gracz {b}%s{/b} zosta³ ostrze¿ony [{b}%d/3{/b}] przez {b}%s{/b} z powodu {b}%s{/b}.", PlayerName(forplayerid), GetPVarInt(forplayerid, "Warn"), PlayerName(playerid), reason);
 		MsgToAll(COLOR_ERROR, string);
 	} 
 	else Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
@@ -2496,7 +2510,7 @@ CMD:warn(playerid, params[])
 	if(GetPVarInt(forplayerid, "Warn") == 3)
 	{
 		CheatKick(forplayerid, "trzy ostrze¿enia");
-		timer[forplayerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", forplayerid);
+		timer[forplayerid] = SetTimerEx("Kickplayer", 300, false, "i", forplayerid);
 	}
 	return 1;
 }
@@ -2632,7 +2646,7 @@ CMD:givescoreall(playerid, params[])
 	if(sscanf(params, "d", score))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /givescoreall [iloœæ]");
 
-	Loop(playeri, MAX_PLAYERS)
+	foreach (new playeri : Player)
 	{
 		if(IsPlayerLogged(playeri))
 		{
@@ -2651,7 +2665,7 @@ CMD:s(playerid, params[])
 
 	if(isnull(params)) return Msg(playerid, COLOR_ERROR, "Wpisz: /s [tekst]");
 
-	Loop(player, MAX_PLAYERS)
+	foreach (new player : Player)
 	{
 		if(GetDistancePlayerToPlayer(playerid, player) < 30)
 		{
@@ -2668,7 +2682,7 @@ CMD:me(playerid, params[])
 
 	if(isnull(params)) return Msg(playerid, COLOR_ERROR, "Wpisz: /me [czynnoœæ]");
 
-	Loop(player, MAX_PLAYERS)
+	foreach (new player : Player)
 	{
 		format(string, sizeof string, "%s %s", PlayerName(playerid), params);
 		Msg(player, COLOR_INFO2, string, false, true);
@@ -3698,7 +3712,7 @@ public SendRandomMessage()
 	format(szString, sizeof szString, "%s", szRandomMessages[random(sizeof(szRandomMessages))]);
 	MsgToAll(COLOR_INFO2, szString);
 	new nextRandom = random(200) + 300;
-	SetTimer("SendRandomMessage", nextRandom*1000, false);
+	SetTimer_("SendRandomMessage", nextRandom*1000, 0, 1);
 	return 1;
 }
 
@@ -3802,17 +3816,16 @@ CMD:butla(playerid)
 stock GetWeekDay(day=0, month=0, year=0)
 {
   if (!day)
-    getdate(year, month, day);
+	getdate(year, month, day);
 
   new
-    j,
-    e
-  ;
+	j,
+	e;
 
   if (month <= 2)
   {
-    month += 12;
-    --year;
+	month += 12;
+	--year;
   }
 
   j = year % 100;
@@ -3820,15 +3833,153 @@ stock GetWeekDay(day=0, month=0, year=0)
 
   switch ((day + (month+1)*26/10 + j + j/4 + e/4 - 2*e) % 7)
   {
-    case 0: return 6;
-    case 1: return 7;
-    case 2: return 1;
-    case 3: return 2;
-    case 4: return 3;
-    case 5: return 4;
-    case 6: return 5;
-  }
-  return -1;
+	case 0: return 6;
+	case 1: return 7;
+	case 2: return 1;
+	case 3: return 2;
+	case 4: return 3;
+	case 5: return 4;
+		case 6: return 5;
+	}
+	return -1;
+}
+
+CMD:respawnveh(playerid, params[])
+{
+	new targetid;
+	if(playerInfo[playerid][pAdmin] < 1)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
+	if(sscanf(params, "d", targetid))
+		return Msg(playerid, COLOR_ERROR, "Wpisz /respawnveh [id gracza]");
+
+	if(!IsPlayerConnected(targetid))
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest online.");
+
+	if(!IsPlayerInAnyVehicle(targetid))
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie siedzi w pojeŸdzie.");
+
+	if(GetPlayerState(targetid) != PLAYER_STATE_DRIVER)
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest kierowc¹.");
+
+	new vehicle = GetPlayerVehicleID(targetid);
+	SetVehicleToRespawn(vehicle);
+
+	new szString[128];
+	format(szString, sizeof szString, "Administrator {b}%s{/b} zrespawnowa³ Twój pojazd.", PlayerName(playerid));
+	Msg(targetid, COLOR_INFO, szString);
+
+	format(szString, sizeof szString, "Zrespawnowa³eœ pojazd graczowi {b}%s{/b}.", PlayerName(targetid));
+	Msg(playerid, COLOR_INFO, szString);
+	return 1;
+}
+
+CMD:weapons(playerid)
+{
+	if(playerInfo[playerid][pAdmin] < 1)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
+	SetPlayerHealth(playerid, 100.0);
+	SetPlayerArmour(playerid, 100.0);
+	GivePlayerWeapon(playerid, 1, 999999);
+	GivePlayerWeapon(playerid, 24, 999999);
+	GivePlayerWeapon(playerid, 27, 999999);
+	GivePlayerWeapon(playerid, 29, 999999);
+	GivePlayerWeapon(playerid, 31, 999999);
+	GivePlayerWeapon(playerid, 38, 999999);
+	GivePlayerWeapon(playerid, 46, 999999);
+
+	Msg(playerid, COLOR_INFO, "Pomyœlnie zabrano zestaw broni administratora.");
+	return 1;
+}
+
+CMD:infoplayer(playerid, params[])
+{
+	new targetid;
+	if(playerInfo[playerid][pAdmin] < 1)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
+
+	if(sscanf(params, "d", targetid))
+		return Msg(playerid, COLOR_ERROR, "Wpisz /infoplayer [id gracza]");
+
+	if(!IsPlayerConnected(targetid))
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest online.");
+
+	new string[500], czasBiezacy[3];
+
+	ConvertSeconds(GetDTime(targetid), czasBiezacy[0], czasBiezacy[1], czasBiezacy[2]);
+	format(string, sizeof(string), "UID:\t %d\n", playerInfo[targetid][pID]);
+	format(string, sizeof(string), "%sNick:\t %s\n", string, PlayerName(targetid));
+	format(string, sizeof(string), "%sPieni¹dze:\t %d\n", string, GetMoney(targetid));
+	format(string, sizeof(string), "%sBankomat:\t %d\n", string, playerInfo[targetid][pBankomat]);
+	format(string, sizeof(string), "%sPunkty:\t %d\n", string, GetScore(targetid));
+	format(string, sizeof(string), "%sPoziom:\t %s (%d)\n", string, GetPlayerLevelName(GetPVarInt(targetid, "LEVEL")), GetPVarInt(targetid, "LEVEL"));
+	format(string, sizeof(string), "%sFirma:\t %d\n", string, playerInfo[targetid][pFirm]);
+	format(string, sizeof(string), "%sTachograf:\t %dh %dm %ds\n", string, czasBiezacy[0], czasBiezacy[1], czasBiezacy[2]);
+	format(string, sizeof(string), "%sViaToll:\t %d\n", string, GetViaMoney(targetid));
+	format(string, sizeof(string), "%sADR:\t %d\n", string, playerInfo[targetid][pADR]);
+
+	Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST, " ", string, "WyjdŸ", #);
+	return 1;
+}
+
+#define EX_SPLITLENGTH 118
+
+stock SendSplitMessage(playerid, color, final[])
+{
+	new buffer[EX_SPLITLENGTH+5];
+	new len = strlen(final);
+	if(len>EX_SPLITLENGTH)
+	{
+	    new times = (len/EX_SPLITLENGTH);
+		for(new i = 0; i < times+1; i++)
+		{
+			strdel(buffer, 0, EX_SPLITLENGTH+5);
+			if(len-(i*EX_SPLITLENGTH)>EX_SPLITLENGTH)
+			{
+				strmid(buffer, final, EX_SPLITLENGTH*i, EX_SPLITLENGTH*(i+1));
+				format(buffer, sizeof(buffer), "%s ...", buffer);
+			}
+			else
+			{
+			    strmid(buffer, final, EX_SPLITLENGTH*i, len);
+			}
+			SendClientMessage(playerid, color, buffer);
+		}
+	}
+	else
+	{
+		SendClientMessage(playerid, color, final);
+	}
+}
+
+stock SendSplitMessageToAll(color, final[])
+{
+	new buffer[EX_SPLITLENGTH+5];
+	new len = strlen(final);
+	if(len>EX_SPLITLENGTH)
+	{
+	    new times = (len/EX_SPLITLENGTH);
+		for(new i = 0; i < times+1; i++)
+		{
+			strdel(buffer, 0, EX_SPLITLENGTH+5);
+			if(len-(i*EX_SPLITLENGTH)>EX_SPLITLENGTH)
+			{
+				strmid(buffer, final, EX_SPLITLENGTH*i, EX_SPLITLENGTH*(i+1));
+				format(buffer, sizeof(buffer), "%s ...", buffer);
+			}
+			else
+			{
+			    strmid(buffer, final, EX_SPLITLENGTH*i, len);
+			}
+			//strins(buffer, "{FFFFFF}", 0);
+			SendClientMessageToAll(color, buffer);
+		}
+	}
+	else
+	{
+		SendClientMessageToAll(color, final);
+	}
 }
 
 #include "include/gui.inc"

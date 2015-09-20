@@ -785,6 +785,7 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 		ShowPlayerHud(playerid, true);
 		TextDrawShowForPlayer(playerid, MainTextDraws[Time]);
 		SetPlayerProgressBarValue(playerid, hudInfo[tdHungerProgress][playerid], playerInfo[playerid][pHunger]);
+		Crash_OnPlayerConnect(playerid);
 
 		SprawdzPoziom(playerid);
 		
@@ -847,7 +848,7 @@ Dialog:DIALOG_ID_FIRMA(playerid, response, listitem, inputtext[])
 		{
 			format(string, sizeof(string), "FID: \t%d\nNazwa: \t%s\nSzef (UID): \t%d\nZastêpca szefa (UID): \t%d\nKsiegowy (UID): \t%d\nTyp: \t%d\nSaldo: \t%d\nSkin1: \t%d\nSkin2: \t%d\nSkin3: \t%d\nSkin4: \t%d\nSkin5: \t%d\nKolor: \t{%06x}-- KOLOREK --", firmInfo[firmaid][tID], firmInfo[firmaid][tName], 
 				firmInfo[firmaid][tChef], firmInfo[firmaid][tVcChef], firmInfo[firmaid][tAccountant], firmInfo[firmaid][tType], firmInfo[firmaid][tBank], firmInfo[firmaid][tSkin1], firmInfo[firmaid][tSkin2], firmInfo[firmaid][tSkin3], firmInfo[firmaid][tSkin4], firmInfo[firmaid][tSkin5], firmInfo[firmaid][tColor]>>>8);
-			Dialog_Show(playerid, DIALOG_ID_FIRMA_INFO, DIALOG_STYLE_TABLIST, "Firma > Informacje", string, "Ok", "");
+			Dialog_Show(playerid, DIALOG_ID_FIRMA_INFO, DIALOG_STYLE_TABLIST, "Firma > Informacje", string, "Ok", "Cofnij");
 		}
 		case 1: // Pracownicy online
 		{
@@ -856,7 +857,7 @@ Dialog:DIALOG_ID_FIRMA(playerid, response, listitem, inputtext[])
 			for(new i = 0, j = GetPlayerPoolSize(); i <= j; i++)
 		    	if(playerInfo[i][pFirm] == firmaid)
 		    		format(string, sizeof(string), "%s%d\t%d\t%s\n", string, i, playerInfo[i][pID], PlayerName(i));
-		    Dialog_Show(playerid, DIALOG_ID_FIRMA_PRACOWNICY, DIALOG_STYLE_TABLIST_HEADERS, "Firma > Pracownicy", string, "Ok", "");
+		    Dialog_Show(playerid, DIALOG_ID_FIRMA_PRACOWNICY, DIALOG_STYLE_TABLIST_HEADERS, "Firma > Pracownicy", string, "Ok", "Cofnij");
 		}
 
 		case 2: // Wp³aæ pieni¹dze
@@ -989,6 +990,9 @@ Dialog:DIALOG_ID_FIRMA_WYRZUC(playerid, response, listitem, inputtext[])
 	if(!IsAccountExists(inputtext))
 		return Dialog_Show(playerid, DIALOG_ID_FIRMA_WYRZUC, DIALOG_STYLE_INPUT, "Firma > Wyrzuæ", clText(COLOR_ERROR, "{b}Nie odnaleziono takiego gracza{/b}\n \nWprowadŸ nazwê gracza, którego chcesz wyprosiæ:"), "Wyrzuæ", "Cofnij");
 	
+	if(!strcmp(PlayerName(playerid), inputtext))
+		return Dialog_Show(playerid, DIALOG_ID_FIRMA_WYRZUC, DIALOG_STYLE_INPUT, "Firma > Wyrzuæ", clText(COLOR_ERROR, "{b}Nie mo¿esz zwolniæ samego siebie{/b}\n \nWprowadŸ nazwê gracza, którego chcesz wyprosiæ:"), "Wyrzuæ", "Cofnij");
+	
 	new szString[128], firmid;
 	format(szString, sizeof szString, "SELECT Firma FROM Accounts WHERE Name = '%s';", inputtext);
 	mysql_query(szString);
@@ -1032,8 +1036,11 @@ Dialog:DIALOG_ID_FIRMA_ZASTEPCA(playerid, response, listitem, inputtext[])
 	if(!IsPlayerConnected(forplayerid))
 		return Dialog_Show(playerid, DIALOG_ID_FIRMA_ZASTEPCA, DIALOG_STYLE_INPUT, "Firma > Zastêpca", clText(COLOR_ERROR, "{b}Gracz jest offline.{/b}\n \nWprowadŸ ID gracza, którego chcesz mianowaæ na zastêpcê (-1 by usun¹æ):"), "Wybierz", "Cofnij");	
 	
-	if(!IsPlayerConnected(forplayerid))
+	if(playerInfo[forplayerid][pFirm] != playerInfo[playerid][pFirm])
 		return Dialog_Show(playerid, DIALOG_ID_FIRMA_ZASTEPCA, DIALOG_STYLE_INPUT, "Firma > Zastêpca", clText(COLOR_ERROR, "{b}Gracz nie pracuje w Twojej firmie.{/b}\n \nWprowadŸ ID gracza, którego chcesz mianowaæ na zastêpcê (-1 by usun¹æ):"), "Wybierz", "Cofnij");	
+	
+	if(!strcmp(PlayerName(playerid), PlayerName(forplayerid)))
+		return Dialog_Show(playerid, DIALOG_ID_FIRMA_WYRZUC, DIALOG_STYLE_INPUT, "Firma > Wyrzuæ", clText(COLOR_ERROR, "{b}Nie mo¿esz tego zrobiæ.{/b}\n \nWprowadŸ nazwê gracza, którego chcesz wyprosiæ:"), "Wyrzuæ", "Cofnij");
 	
 	format(string, sizeof(string), "Zosta³eœ mianowany przez {b}%s{/b} na zastêpcê firmy {b}%s{/b}.", PlayerName(playerid), firmInfo[firmaid][tName]);
 	Msg(forplayerid, COLOR_INFO2, string);

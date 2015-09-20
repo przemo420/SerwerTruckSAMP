@@ -2039,6 +2039,79 @@ CMD:dodajzaladunek(playerid, params[])
 	return 1;
 }
 
+CMD:usunzaladunek(playerid, params[])
+{
+	new load, szString[128];
+	if(sscanf(params, "d", load))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /usunzaladunek [id]");
+
+	if(!IsValidLoad(load))
+		return Msg(playerid, COLOR_ERROR, "Nie odnaleziono takiego za³adunku.");
+
+	loadInfo[load][lX] = 0.0; loadInfo[load][lY] = 0.0; loadInfo[load][lZ] = 0.0;
+	loadInfo[load][LID] = 0; loadInfo[load][lType] = 0; loadInfo[load][lBaza] = 0;
+	format(szString, sizeof szString, "DELETE FROM loads WHERE LID = '%d'", loadInfo[load][LID]);
+	mysql_query(szString);
+
+	DestroyDynamic3DTextLabel(loadInfo[load][lText]);
+	DestroyDynamicMapIcon(loadInfo[load][lMapIcon]);
+	DestroyDynamicMapIcon(loadInfo[load][lMapIconForAll]);
+
+	Msg(playerid, COLOR_INFO, "Pomyœlnie usuniêto za³adunek.");
+	CallLocalFunction("CreateCargos", "");
+	return 1;
+}
+
+CMD:edytujzaladunek(playerid, params[])
+{
+	new type[15], load, typeid;
+	if(sscanf(params, "ds[15]", load, type))
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /edytujzaladunek [id] [budowlany/odzie¿owy/elektroniczny/spo¿ywczy/niebezpieczny/nielegalny]");
+
+	if(!IsValidLoad(load))
+		return Msg(playerid, COLOR_ERROR, "Nie odnaleziono takiego za³adunku.");
+
+	if(!strcmp(type, "budowlany"))
+	{
+		typeid = TYPE_BUILD;
+	}
+	else if(!strcmp(type, "odzie¿owy"))
+	{
+		typeid = TYPE_CLOTHES;
+	}
+	else if(!strcmp(type, "elektroniczny"))
+	{
+		typeid = TYPE_ELECTRONIC;
+	}
+	else if(!strcmp(type, "spo¿ywczy"))
+	{
+		typeid = TYPE_EAT;
+	}
+	else if(!strcmp(type, "niebezpieczny"))
+	{
+		typeid = TYPE_DANGEROUS;
+	}
+	else if(!strcmp(type, "nielegalny"))
+	{
+		typeid = TYPE_ILLEGAL;
+	}
+	else 
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /edytujzaladunek [id] [budowlany/odzie¿owy/elektroniczny/spo¿ywczy/niebezpieczny/nielegalny]");
+
+	loadInfo[load][lType] = typeid;
+	new szString[256];
+	format(szString, sizeof szString, "UPDATE loads SET lType = '%d' WHERE LID = '%d'", typeid, loadInfo[load][LID]);
+	mysql_query(szString);
+
+	format(szString, sizeof szString, "Za³adunek towarów {b}%s{/b} w {b}%s{/b} (ID: {b}%d{/b})\nAby za³adowaæ towar wpisz {b}/zaladuj{/b}\nAby roz³adowaæ towar wpisz {b}/rozladuj{/b}", GetLoadTypeName(loadInfo[load][lType]), GetPointZone(loadInfo[load][lX], loadInfo[load][lY]), loadInfo[load][LID]);
+	Update3DTextLabelText(loadInfo[load][lText], -1, szString);
+
+	Msg(playerid, COLOR_INFO, "Pomyœlnie zmieniono typ za³adunku.");
+	CallLocalFunction("RenewCargos", "");
+	return 1;
+}
+
+
 CMD:za(playerid, params[])
 	return cmd_alogin(playerid, params);
 
