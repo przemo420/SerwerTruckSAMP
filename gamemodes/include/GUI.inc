@@ -144,7 +144,7 @@ Dialog:DIALOG_ID_REGISTER(playerid, response, listitem, inputtext[])
 			WP_Hash(string, sizeof(string), inputtext);
 			playerInfo[playerid][pSpawn] = random(4)-1;
 			if(playerInfo[playerid][pSpawn] < 0) playerInfo[playerid][pSpawn] = 0;
-			format(string, sizeof string, "INSERT INTO `Accounts` VALUES(NULL, '0', '%d', 'NULL', '%s', '%s', '2000', '0', '100', '0', '-1', '0', '1', '0', '0', '0', '0', NOW(), '0', '%s', '0', '0', '1', '0', '0', '0.0.0.0.0', 'braknickubrak')", 
+			format(string, sizeof string, "INSERT INTO `Accounts` VALUES(NULL, '0', '%d', 'NULL', '%s', '%s', '2000', '0', '100', '0', '-1', '0', '1', '0', '0', '0', '0', NOW(), '0', '%s', '0', '0', '1', '0', '0', '0.0.0.0.0', 'braknickubrak', '1000')", 
 				playerInfo[playerid][pSpawn], Name, string, ip);
 			mysql_query(string);
 
@@ -921,7 +921,7 @@ Dialog:DIALOG_ID_FIRMA(playerid, response, listitem, inputtext[])
 					format(szString, sizeof szString, "%s%d\t%s\t$ %d\t%02d:%02d:00\t$ %d i %d score\n", szString, other[0], nick, other[2], other[1]/60, other[2]%60, money, score);
 				}
 			}
-			strins(szString, "ID\tGracz\tStawka\tCzas gry\tZarobek", 0);
+			strins(szString, "ID\tGracz\tStawka\tCzas gry\tZarobek\n", 0);
 			Dialog_Show(playerid, DIALOG_ID_PAYMENTS, DIALOG_STYLE_TABLIST_HEADERS, "Firma > Wyp³aty", szString, "Daj wyp³atê", "WyjdŸ");
 			mysql_free_result();
 		}

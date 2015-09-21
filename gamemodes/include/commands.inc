@@ -479,7 +479,7 @@ CMD:ulecz(playerid, params[])
 		DeletePVar(targetid, "Wypadekzmedykiem");
 	}
 
-	KillTimer_(GetPVarInt(playerid, "healTimer"));
+	KillTimer(GetPVarInt(playerid, "healTimer"));
 	DeletePVar(playerid, "healTimer");
 
 	TogglePlayerControllable(targetid, 1);

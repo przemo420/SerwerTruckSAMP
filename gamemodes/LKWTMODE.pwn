@@ -471,7 +471,7 @@ public OnPlayerDisconnect(playerid, reason)
 		DeletePVar(playerid, "Wypadekzmedykiem");
 	}
 
-	Crash_OnPlayerDisconnect(playerid, reason);
+	//Crash_OnPlayerDisconnect(playerid, reason);
 
 	switch(reason)
 	{
@@ -517,7 +517,6 @@ public OnPlayerDisconnect(playerid, reason)
 	if(IsValidVehicle(GetPVarInt(playerid, "pojazd")) && (GetPVarInt(playerid, "pojazd") != 0))
 		DestroyVehicle(GetPVarInt(playerid, "pojazd"));
 	
-
 	KillTimer(timer[playerid]);
 	KillTimer(timer3[playerid]);
 	KillTimer(timer4[playerid]);
@@ -531,8 +530,10 @@ public OnPlayerDisconnect(playerid, reason)
 	KillTimer(timer13[playerid]);
 	KillTimer(timer15[playerid]);
 	KillTimer(timer16[playerid]);
-	KillTimer_(GetPVarInt(playerid, "loadTimer"));
-	KillTimer_(GetPVarInt(playerid, "unloadTimer"));
+	if(GetPVarInt(playerid, "loading"))
+		KillTimer(GetPVarInt(playerid, "loadTimer"));
+	if(GetPVarInt(playerid, "unloading"))
+		KillTimer(GetPVarInt(playerid, "unloadTimer"));
 
 	mysql_real_escape_string(PlayerName(playerid), string);
 	format(string, sizeof(string), "UPDATE `Accounts` SET `Online`='0' WHERE `Name` = '%s'", string);
@@ -2222,7 +2223,7 @@ public Tempomat(vehicleid, playerid, Float:speed)
 		}
 		else
 		{
-			KillTimer_(timer7[playerid]);
+			KillTimer(timer7[playerid]);
 			DeletePVar(playerid, "Tempomat");
 			Msg(playerid, COLOR_INFO, "Tempomat zosta≥ {b}wy≥πczony{/b}.");
 		}
@@ -3778,7 +3779,7 @@ public OnVehicleSirenStateChange(playerid, vehicleid, newstate)
 			Msg(playerid, COLOR_INFO, "Syreny wy≥πczone.");
 			new panels, doors, lights, tires;
 			enabledFlashes --;
-			KillTimer_(__FlashTime[vehicleid]);
+			KillTimer(__FlashTime[vehicleid]);
 			
 			RepairVehicle(vehicleid);
 			GetVehicleDamageStatus(vehicleid, panels, doors, lights, tires);
@@ -3905,7 +3906,9 @@ CMD:infoplayer(playerid, params[])
 	if(!IsPlayerConnected(targetid))
 		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest online.");
 
-	new string[500], czasBiezacy[3];
+	new string[500], czasBiezacy[3], ip[20];
+
+	GetPVarString(targetid, "pAJPI", ip, sizeof ip);
 
 	ConvertSeconds(GetDTime(targetid), czasBiezacy[0], czasBiezacy[1], czasBiezacy[2]);
 	format(string, sizeof(string), "UID:\t %d\n", playerInfo[targetid][pID]);
@@ -3918,6 +3921,7 @@ CMD:infoplayer(playerid, params[])
 	format(string, sizeof(string), "%sTachograf:\t %dh %dm %ds\n", string, czasBiezacy[0], czasBiezacy[1], czasBiezacy[2]);
 	format(string, sizeof(string), "%sViaToll:\t %d\n", string, GetViaMoney(targetid));
 	format(string, sizeof(string), "%sADR:\t %d\n", string, playerInfo[targetid][pADR]);
+	format(string, sizeof(string), "%sIP:\t %s\n", string, ip);
 
 	Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST, " ", string, "Wyjdü", #);
 	return 1;
@@ -3972,7 +3976,6 @@ stock SendSplitMessageToAll(color, final[])
 			{
 			    strmid(buffer, final, EX_SPLITLENGTH*i, len);
 			}
-			//strins(buffer, "{FFFFFF}", 0);
 			SendClientMessageToAll(color, buffer);
 		}
 	}

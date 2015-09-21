@@ -49,7 +49,6 @@ stock Crash_OnPlayerDisconnect(playerid, reason)
 {
 	if((reason == 0 || reason == 2) && IsPlayerLogged(playerid) && IsPlayerSpawned(playerid))
 	{
-		printf("Zapisano crash gracza %s.", PlayerName(playerid));
 		for(new i = 0; i < MAX_CRASHS; i++)
 		{
 			if(IsFreeCrash(i))
