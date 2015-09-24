@@ -108,7 +108,7 @@ stock Teleport(playerid, Float:x, Float:y, Float:z, bool:gtaVCam = false, bool:p
 			SetPlayerPos(playerid, x, y, z);
 
 	if(preStream && !gtaVCam)
-		TogglePlayerControllable(playerid, false), SetTimerEx("Unfreeze", 100, false, "d", playerid);
+		TogglePlayerControllable(playerid, false), SetTimerEx("Unfreeze", 100, false, "i", playerid);
 	return 1;
 }
 
@@ -148,7 +148,7 @@ Dialog:DIALOG_ID_REGISTER(playerid, response, listitem, inputtext[])
 				playerInfo[playerid][pSpawn], Name, string, ip);
 			mysql_query(string);
 
-			SetTimerEx("ReqSpawnPlayer", 100, false, "d", playerid);
+			SetTimerEx("ReqSpawnPlayer", 100, false, "i", playerid);
 
 			PlayerLogged(playerid);
 			GiveMoney(playerid, 2000);
@@ -807,7 +807,7 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 	if(GetPVarInt(playerid, "leci") == 3)
 	{
 		CheatKick(playerid, "trzy b³êne logowania");
-		timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "d", playerid);
+		timer[playerid] = SetTimerEx("Kickplayer", 500, 0, "i", playerid);
 	}
 
 	format(szBuffer, sizeof(szBuffer), "{FFFFFF}Serwer-Truck SAMP - Logowanie konta.\n\n{a9c4e4}WprowadŸ has³o do konta aby zacz¹æ rozgrywkê.\n\n");
@@ -918,6 +918,7 @@ Dialog:DIALOG_ID_FIRMA(playerid, response, listitem, inputtext[])
 					sscanf(szBuffer, "p<|>ds[32]dd", other[0], nick, other[1], other[2]);
 					money = other[1] * other[2];
 					score = floatround(other[1] * other[2] / 1000);
+					szString[0] = EOS;
 					format(szString, sizeof szString, "%s%d\t%s\t$ %d\t%02d:%02d:00\t$ %d i %d score\n", szString, other[0], nick, other[2], other[1]/60, other[2]%60, money, score);
 				}
 			}

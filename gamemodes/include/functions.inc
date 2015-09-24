@@ -1321,7 +1321,7 @@ public CinematicCameraIntro(playerid)
 		{
 			PlayAudioStreamForPlayer(playerid, "http://samp-si.cba.pl/intro.mp3");
 			new t;
-			t = SetTimerEx_("CinematicCameraIntro", 0, 10000, 15, "i", playerid);
+			t = SetTimerEx_("CinematicCameraIntro", 10000, 0, -1, "i", playerid);
 			SetPVarInt(playerid, "INTRO_Timer", t);
 			SetPlayerCameraPos(playerid, 2056.729492, 1366.452270, 18.977575);
 			InterpolateCameraPos(playerid, 2056.729492, 1366.452270, 18.977575, 2035.068359, 1289.254394, 21.272771, 10000, 1);
@@ -1428,7 +1428,7 @@ public CinematicCameraIntro(playerid)
 stock StopCinematicCameraIntro(playerid)
 {
 	SetCameraBehindPlayer(playerid);
-	KillTimer(GetPVarInt(playerid, "INTRO_Timer"));
+	KillTimer_(GetPVarInt(playerid, "INTRO_Timer"));
 	DeletePVar(playerid, "INTRO_Camera");
 	DeletePVar(playerid, "INTRO_Timer");
 	StopAudioStreamForPlayer(playerid);

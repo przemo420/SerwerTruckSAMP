@@ -200,8 +200,8 @@ stock LoadingsInit()
 	mysql_free_result();
 
 	CreateCargos();
-	SetTimer("RefreshCargos", 60 * 1000, true);
-	SetTimer("RenewCargos", 20 * 60 * 1000, true);
+	SetTimer_("RefreshCargos", 60 * 1000, 0, -1);
+	SetTimer_("RenewCargos", 20 * 60 * 1000, 0, -1);
 	return 1;
 }
 
@@ -961,7 +961,7 @@ CMD:zaladuj(playerid)
 			SetPVarInt(playerid, "loadTimerCount", cargoInfo[cargo][cWeight] * 3);
 			SetPVarInt(playerid, "loadCountMax", cargoInfo[cargo][cWeight] * 3);
 			new t;
-			t = SetTimerEx_("LoadCargo", 0, 1000, (cargoInfo[cargo][cWeight] * 3), "ii", playerid, ((IsVehicleTruck(GetVehicleModel(vehicleid))) ? (GetVehicleTrailer(vehicleid)) : (vehicleid)));
+			t = SetTimerEx_("LoadCargo", 1000, 0, (cargoInfo[cargo][cWeight] * 3), "ii", playerid, ((IsVehicleTruck(GetVehicleModel(vehicleid))) ? (GetVehicleTrailer(vehicleid)) : (vehicleid)));
 			SetPVarInt(playerid, "loadTimer", t);
 			TogglePlayerControllable(playerid, false);
 
@@ -1005,7 +1005,7 @@ CMD:rozladuj(playerid)
 			SetPVarInt(playerid, "unloadCountMax", cargoInfo[cargo][cWeight] * 3);
 			SetPVarInt(playerid, "unloadTimerCount", cargoInfo[cargo][cWeight] * 3);
 			new t;
-			t = SetTimerEx_("UnloadCargo", 0, 1000, (cargoInfo[cargo][cWeight] * 3), "ii", playerid, ((IsVehicleTruck(GetVehicleModel(vehicleid))) ? (GetVehicleTrailer(vehicleid)) : (vehicleid)));
+			t = SetTimerEx_("UnloadCargo", 1000, 0, (cargoInfo[cargo][cWeight] * 3), "ii", playerid, ((IsVehicleTruck(GetVehicleModel(vehicleid))) ? (GetVehicleTrailer(vehicleid)) : (vehicleid)));
 			SetPVarInt(playerid, "unloadTimer", t);
 			TogglePlayerControllable(playerid, false);
 

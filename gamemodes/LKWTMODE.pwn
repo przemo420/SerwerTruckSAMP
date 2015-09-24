@@ -8,8 +8,7 @@
 #include "include/defines.inc"
 #include "include/lib/foreach.inc"
 #include "GetVehicleColor"
-#include "include/lib/fixes2.inc"
-//#include "include/lib/timers.inc"
+#include "include/lib/timerfix.inc"
 #include "include/lib/progressbar2.inc"
 
 #pragma tabsize 0
@@ -228,15 +227,15 @@ public OnGameModeInit()
 	InitConnect();
 	SendRandomMessage();
 
-	SetTimer_("OneSecTimer", 100, 1000, -1);
-	SetTimer_("Refresh", 50, 1000, -1);
-	SetTimer_("TachographUpdate", 0, 1000, -1);
+	SetTimer_("OneSecTimer", 1000, 100, -1);
+	SetTimer_("Refresh", 1000, 50, -1);
+	SetTimer_("TachographUpdate", 1000, 0, -1);
 
-	SetTimer_("Update", 0, 100, -1);
-	SetTimer_("Wypadek", 0, 250, -1);
+	SetTimer_("Update", 100, 0, -1);
+	SetTimer_("Wypadek", 250, 0, -1);
 
-	SetTimer_("Jobtime", 0, 2*60000, -1);
-	SetTimer_("SaveALL", 0, 60000, -1);
+	SetTimer_("Jobtime", 2*60000, 0, -1);
+	SetTimer_("SaveALL", 60000, 0, -1);
 
 	Crash_OnGameModeInit();
 
@@ -361,7 +360,7 @@ public OnPlayerConnect(playerid)
 		ShowInfo(playerid, string);
 
 		CheatKick(playerid, "aktywny ban");
-		timer[playerid] = SetTimerEx("Kickplayer", 300, false, "i", playerid);
+		timer7[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
 	}
 	else
 	{
@@ -521,7 +520,7 @@ public OnPlayerDisconnect(playerid, reason)
 	KillTimer(timer3[playerid]);
 	KillTimer(timer4[playerid]);
 	KillTimer(timer5[playerid]);
-	KillTimer(timer7[playerid]);
+	KillTimer_(timer7[playerid]);
 	KillTimer(timer8[playerid]);
 	KillTimer(timer9[playerid]);
 	KillTimer(timer10[playerid]);
@@ -531,9 +530,9 @@ public OnPlayerDisconnect(playerid, reason)
 	KillTimer(timer15[playerid]);
 	KillTimer(timer16[playerid]);
 	if(GetPVarInt(playerid, "loading"))
-		KillTimer(GetPVarInt(playerid, "loadTimer"));
+		KillTimer_(GetPVarInt(playerid, "loadTimer"));
 	if(GetPVarInt(playerid, "unloading"))
-		KillTimer(GetPVarInt(playerid, "unloadTimer"));
+		KillTimer_(GetPVarInt(playerid, "unloadTimer"));
 
 	mysql_real_escape_string(PlayerName(playerid), string);
 	format(string, sizeof(string), "UPDATE `Accounts` SET `Online`='0' WHERE `Name` = '%s'", string);
@@ -548,13 +547,13 @@ public OnPlayerDisconnect(playerid, reason)
 	if(IsPlayerInAnyVehicle(playerid) && GetPlayerState(playerid) == PLAYER_STATE_DRIVER)
 		VehicleDriver[GetPlayerVehicleID(playerid)] = INVALID_PLAYER_ID;
 
-	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
+	/*for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
 	{
 		format(szTemp, sizeof(szTemp), "%s_OnPlayerDisconnect", szHookInclude[nrInc]);
 
 		if(funcidx(szTemp) != -1)
 			CallLocalFunction(szTemp, "d", playerid);
-	}
+	}*/
 
 	return 1;
 }
@@ -620,7 +619,7 @@ public OnPlayerSpawn(playerid)
 	if(!IsPlayerLogged(playerid))
 	{
 		CheatKick(playerid, "ominiêcie logowania/rejestacji");
-		timer[playerid] = SetTimerEx("Kickplayer", 300, false, "i", playerid);
+		timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
 		return 1;
 	}
 	
@@ -778,7 +777,7 @@ public OnVehicleSpawn(vehicleid)
 
 public OnVehicleDeath(vehicleid, killerid)
 {
-	KillTimer(__FlashTime[vehicleid]);
+	KillTimer_(__FlashTime[vehicleid]);
 	ResetVariablesInEnum(vloadInfo[vehicleid], eLoadVehicle);
 	if(kpd[vehicleid])
 	{
@@ -865,7 +864,7 @@ public OnPlayerText(playerid, text[])
 	format(string, sizeof(string), "{%06x}%s{4D4D4D} [%d]{FFFFFF}: %s", GetPlayerColor(playerid) >>> 8, PlayerName(playerid), playerid, ColouredText(text));
 	SendSplitMessageToAll(-1, string);
 
-	SetPlayerChatBubble(playerid, text, 0xFFFFFFFF, 50.0, 3000);
+	SetPlayerChatBubble(playerid, text, 0xFFFFFFFF, 50, 3000);
 
 	ToLog(playerInfo[playerid][pID], LOG_TYPE_CHAT, "global", text);
 
@@ -917,7 +916,7 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 
 	if(GetPVarInt(playerid, "Tempomat"))
 	{
-		KillTimer(timer7[playerid]);
+		KillTimer_(timer7[playerid]);
 		DeletePVar(playerid, "Tempomat");
 	}
 
@@ -1153,7 +1152,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	
 	if((newkeys & 8 || newkeys & 32 || newkeys & 128 || ((newkeys & KEY_SUBMISSION) && (newkeys & KEY_FIRE))) && GetPVarInt(playerid, "Tempomat"))
 	{
-		KillTimer(timer7[playerid]);
+		KillTimer_(timer7[playerid]);
 		DeletePVar(playerid, "Tempomat");
 		Msg(playerid, COLOR_INFO, "Tempomat zosta³ {b}wy³¹czony{/b}.");
 	}
@@ -1288,7 +1287,7 @@ public OnRconLoginAttempt(ip[], password[], success)
 				if(GetPVarInt(i, "RCN") >= 1)
 				{
 					CheatKick(i, "próba zalogowania na rcon");
-					timer[i] = SetTimerEx("Kickplayer", 300, false, "i", i);
+					timer[i] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", i);
 				}
 
 				ToLog(playerInfo[i][pID], LOG_TYPE_PLAYER, "OnRconLoginAttempt");
@@ -1723,13 +1722,13 @@ public Refresh()
 				{
 					RemovePlayerFromVehicle(playerid);
 					CheatKick(playerid, "speedhack");
-					timer[playerid] = SetTimerEx("Kickplayer", 300, false, "i", playerid);
+					timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
 				}
 					
 				if(GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_USEJETPACK)
 				{
 					CheatBan(playerid, "jetpack");
-					timer[playerid] = SetTimerEx("Kickplayer", 300, false, "i", playerid);
+					timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
 				}
 					
 				if(playerInfo[playerid][pFirm] == 0)
@@ -1739,12 +1738,12 @@ public Refresh()
 						case 1..42:
 						{
 							CheatBan(playerid, "weaponhack");
-							timer[playerid] = SetTimerEx("Kickplayer", 300, false, "i", playerid);
+							timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
 						}
 						case 44..45:
 						{
 							CheatBan(playerid, "weaponhack");
-							timer[playerid] = SetTimerEx("Kickplayer", 300, false, "i", playerid);
+							timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
 						}
 					}
 				}
@@ -2212,7 +2211,7 @@ public Tempomat(vehicleid, playerid, Float:speed)
 		GetVehicleParamsEx(vehicleid,engine,lights,alarm,doors,bonnet,boot,objective);
 		if(!engine)
 		{
-			KillTimer(timer7[playerid]);
+			KillTimer_(timer7[playerid]);
 			DeletePVar(playerid, "Tempomat");
 			Msg(playerid, COLOR_INFO, "Tempomat zosta³ {b}wy³¹czony{/b}.");
 		}
@@ -2223,7 +2222,7 @@ public Tempomat(vehicleid, playerid, Float:speed)
 		}
 		else
 		{
-			KillTimer(timer7[playerid]);
+			KillTimer_(timer7[playerid]);
 			DeletePVar(playerid, "Tempomat");
 			Msg(playerid, COLOR_INFO, "Tempomat zosta³ {b}wy³¹czony{/b}.");
 		}
@@ -2368,7 +2367,7 @@ CMD:ban(playerid, params[])
 	format(string, sizeof string, "%s{a9c4e4}Je¿eli zosta³eœ zbanowany nies³usznie napisz podanie o unbana na forum {FFFFFF}www.serwertruck.eu", string);
 	ShowInfo(playerid, string);
 
-	timer[playerid] = SetTimerEx("Kickplayer", 300, false, "i", forplayerid);
+	timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", forplayerid);
 	return 1;
 }
 
@@ -2444,7 +2443,7 @@ CMD:kick(playerid, params[])
 	{
 		format(string, sizeof string, "Gracz {b}%s{/b} zosta³ wyrzucony przez {b}%s{/b} z powodu {b}%s{/b}.", PlayerName(forplayerid), PlayerName(playerid), Powod);
 		MsgToAll(COLOR_ERROR, string);
-		timer[forplayerid] = SetTimerEx("Kickplayer", 300, false, "i", forplayerid);
+		timer[forplayerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", forplayerid);
 	} 
 	else Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 	return 1;
@@ -2511,7 +2510,7 @@ CMD:warn(playerid, params[])
 	if(GetPVarInt(forplayerid, "Warn") == 3)
 	{
 		CheatKick(forplayerid, "trzy ostrze¿enia");
-		timer[forplayerid] = SetTimerEx("Kickplayer", 300, false, "i", forplayerid);
+		timer[forplayerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", forplayerid);
 	}
 	return 1;
 }
@@ -3713,7 +3712,7 @@ public SendRandomMessage()
 	format(szString, sizeof szString, "%s", szRandomMessages[random(sizeof(szRandomMessages))]);
 	MsgToAll(COLOR_INFO2, szString);
 	new nextRandom = random(200) + 300;
-	SetTimer_("SendRandomMessage", nextRandom*1000, 0, 1);
+	SetTimer_("SendRandomMessage", 0, nextRandom*1000, 1);
 	return 1;
 }
 
@@ -3779,7 +3778,7 @@ public OnVehicleSirenStateChange(playerid, vehicleid, newstate)
 			Msg(playerid, COLOR_INFO, "Syreny wy³¹czone.");
 			new panels, doors, lights, tires;
 			enabledFlashes --;
-			KillTimer(__FlashTime[vehicleid]);
+			KillTimer_(__FlashTime[vehicleid]);
 			
 			RepairVehicle(vehicleid);
 			GetVehicleDamageStatus(vehicleid, panels, doors, lights, tires);
