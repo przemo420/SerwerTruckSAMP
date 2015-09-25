@@ -233,7 +233,7 @@ Dialog:DIALOG_SALOON_COMPANY3(playerid, response, listitem, inputtext[])
 
 stock BuyCompanyVehicle(playerid)
 {
-	new firmaid = playerInfo[playerid][pFirm], szString[390], id = GetPVarInt(playerid, "SALOON_Vehicle"), cash = firmInfo[firmaid][tBank];
+	new firmaid = playerInfo[playerid][pFirm], szString[490], id = GetPVarInt(playerid, "SALOON_Vehicle"), cash = firmInfo[firmaid][tBank];
 	format(szString, sizeof szString, "%d\tLinneruner\t$300000\n", id);
 	if(cash < saloonVehicles[id][S_PRICE])
 	{
@@ -244,24 +244,29 @@ stock BuyCompanyVehicle(playerid)
 	cash -= saloonVehicles[id][S_PRICE]; firmInfo[firmaid][tBank] = cash;
 	DeletePVar(playerid, "SALOON_Type");
 	DeletePVar(playerid, "SALOON_Vehicle");
-	Msg(playerid, COLOR_INFO, "Pomyœlnie zakupiono pojazd firmowy.");
 
 	new vehicleid = CreateVehicle(saloonVehicles[id][S_MODEL], -1646.6908, 1215.5980, 9.9067, 225.8644, random(50), random(50), -1);
 
-	format(szString, sizeof(szString), "INSERT INTO `Pojazdy` (`model`, `owner_id`, `owner_type`, `PosX`, `PosY`, `PosZ`, `PosA`, `Health`, `Fuel`, `FuelType`, `Color1`, `Color2`, `Plate`, `Plate`, `Przeglad`, `gasBootle`, `gasAmount`) VALUES ('%d', '%d', '1', '-1646.6908', '1215.5980', '9.9067', '225.8644', '1000.0', '%d', '%d', '0', '0', 'SerwerTruck', '%d', '0', '0.0')", GetVehicleModel(vehicleid), firmaid, MaxFuel(GetVehicleModel(vehicleid)), 
-			(IsVehicleTruck(vehicleid) ? FUEL_TYPE_TDI : FUEL_TYPE_BENZ), gettime());
+	format(szString, sizeof(szString), "INSERT INTO `Pojazdy` (`id`, `model`, `owner_id`, `owner_type`, `PosX`, `PosY`, `PosZ`, `PosA`, `Health`, `Fuel`, `FuelType`, `Przebieg`, `Color1`, `Color2`, `Locked`, `Panels`, `Doors`, `Lights`, `Tires`, `owner_vce`, `Plate`, `Przeglad`, `gasBootle`, `gasAmount`)");
+	format(szString, sizeof szString, "%s VALUES ('null', '%d', '%d', '1', '-1646.6908', '1215.5980', '9.9067', '225.8644', '1000.0', '%.01f', '%d', '0.0', '0', '0', '0', '0', '0', '0', '0', '0', 'SerwerTruck', NOW(), '0', '0.0')", 
+		szString,
+		GetVehicleModel(vehicleid), 
+		firmaid, 
+		float(MaxFuel(GetVehicleModel(vehicleid))),
+		(IsVehicleTruck(vehicleid) ? FUEL_TYPE_TDI : FUEL_TYPE_BENZ));
 	mysql_query(szString);
 
 	DestroyVehicle(vehicleid);
 	Spawned[vehicleid] = false;
 
 	LadujPojazd(_, _, mysql_insert_id());
+	Msg(playerid, COLOR_INFO, "Pomyœlnie zakupiono pojazd firmowy.");
 	return 1;
 }
 
 stock BuyPrivateVehicle(playerid)
 {
-	new szString[390], id = GetPVarInt(playerid, "SALOON_Vehicle");
+	new szString[490], id = GetPVarInt(playerid, "SALOON_Vehicle");
 	format(szString, sizeof szString, "%d\tLinneruner\t$300000\n", id);
 	
 	if(GetPlayerMoney(playerid) < saloonVehicles[id][S_PRICE])
@@ -272,7 +277,12 @@ stock BuyPrivateVehicle(playerid)
 
 	GiveMoney(playerid, -saloonVehicles[id][S_PRICE]);
 	new vehicleid = CreateVehicle(saloonVehicles[id][S_MODEL], -1988.6996, 275.1513, 34.8315, 87.2160, random(50), random(50), -1);
-	format(szString, sizeof(szString), "INSERT INTO `Pojazdy` (`model`, `owner_id`, `owner_type`, `PosX`, `PosY`, `PosZ`, `PosA`, `Health`, `Fuel`, `FuelType`, `Color1`, `Color2`, `Plate`, `Plate`, `Przeglad`, `gasBootle`, `gasAmount`) VALUES ('%d', '%d', '0', '-1646.6908', '1215.5980', '9.9067', '225.8644', '1000.0', '%d', '%d', '0', '0', 'SerwerTruck', NOW(), '0', '0.0')", GetVehicleModel(vehicleid), playerInfo[playerid][pID], MaxFuel(GetVehicleModel(vehicleid)), 
+	format(szString, sizeof(szString), "INSERT INTO `Pojazdy` (`id`, `model`, `owner_id`, `owner_type`, `PosX`, `PosY`, `PosZ`, `PosA`, `Health`, `Fuel`, `FuelType`, `Przebieg`, `Color1`, `Color2`, `Locked`, `Panels`, `Doors`, `Lights`, `Tires`, `owner_vce`, `Plate`, `Przeglad`, `gasBootle`, `gasAmount`)");
+	format(szString, sizeof szString, "%s VALUES ('null', '%d', '%d', '0', '-1988.6996', '275.1513', '34.8315', '87.2160', '1000.0', '%.01f', '%d', '0.0', '0', '0', '0', '0', '0', '0', '0', '0', 'SerwerTruck', NOW(), '0', '0.0')", 
+		szString,
+		GetVehicleModel(vehicleid), 
+		playerInfo[playerid][pID], 
+		float(MaxFuel(GetVehicleModel(vehicleid))), 
 		FUEL_TYPE_BENZ);
 	mysql_query(szString);
 

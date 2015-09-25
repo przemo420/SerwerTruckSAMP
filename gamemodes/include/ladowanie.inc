@@ -69,7 +69,7 @@ LadujOrganizacje()
 	return 1;
 }
 
-LadujPojazd(ownerid=(-1), ownertype=(-1), vehid=(-1))
+LadujPojazd(ownerid=(-1), ownertype=(-1), vehid=(-1), info = (1))
 {
 	new query[80];
 
@@ -84,7 +84,11 @@ LadujPojazd(ownerid=(-1), ownertype=(-1), vehid=(-1))
 	mysql_store_result();
 
 	if(mysql_num_rows()==0)
+	{
+		if(!info)
+			return 1;
 		return printf("[POJAZDY] Brak pojazdow do zaladowania (OWNER_ID: %d, OWNER_TYPE: %d, VEHID: %d).", ownerid, ownertype, vehid);
+	}
 
 	new id[32], string[200], ids, VehID;
 	while(mysql_fetch_row(string, "|")) 
@@ -109,7 +113,12 @@ LadujPojazd(ownerid=(-1), ownertype=(-1), vehid=(-1))
 		ids++;
 	} 
 
-	printf("[POJAZDY] Zaladowano %d pojazdow (OWNER_ID: %d, OWNER_TYPE: %d, VEHID: %d).", ids, ownerid, ownertype, vehid);
+	if(info != 0)
+	{
+		printf("[POJAZDY] Zaladowano %d pojazdow (OWNER_ID: %d, OWNER_TYPE: %d, VEHID: %d).", ids, ownerid, ownertype, vehid);
+	}
+	else
+		gmInfo[gmLoadedVehicles]++;
 	mysql_free_result();
 	return 1;
 }

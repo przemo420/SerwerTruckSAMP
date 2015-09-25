@@ -98,7 +98,7 @@ public SpectactorUpdate(playerid)
 	if(IsPlayerInAnyVehicle(id))
 	{
 		GetVehicleHealth(GetPlayerVehicleID(id), vehhp);
-		format(vehhp2, sizeof(vehhp2), "%.0f", vehhp);
+		format(vehhp2, sizeof(vehhp2), "%.1f", vehhp);
 		GetVehicleSpeed(GetPlayerVehicleID(id), predkosc);
 	}
 	else
@@ -108,9 +108,8 @@ public SpectactorUpdate(playerid)
 	}
 
 	GetPlayerHealth(id, plhp);
-	format(string, sizeof(string), "%d~n~%s~n~%d~n~%d~n~%.0f~n~%s~n~%.0f", id, PlayerName(id), GetMoney(id), GetScore(id), plhp, vehhp2, predkosc);
+	format(string, sizeof(string), "%d~n~%s~n~%d~n~%d~n~%.1f~n~%s~n~%.1f", id, PlayerName(id), GetMoney(id), GetScore(id), plhp, vehhp2, predkosc);
 	PlayerTextDrawSetString(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], string);
-
 	return 1;
 }
 

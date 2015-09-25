@@ -58,7 +58,7 @@ CMD:bankomat(playerid, params[])
 
 			new szString[128];
 			UpdateAccountBalance(playerid);
-			format(szString, sizeof szString, "{FFFFFF}Stan konta {b}%d{/b}$\n \nWp³aæ pieni¹dze\nWyp³aæ pieni¹dze\nPrzelej pieni¹dze", playerInfo[playerid][pBankomat]);
+			format(szString, sizeof szString, "{FFFFFF}Stan konta {b}%d{/b}$\n \nWp³aæ pieni¹dze\nWyp³aæ pieni¹dze\nPrzelej pieni¹dze\nOdbierz wyp³atê", playerInfo[playerid][pBankomat]);
 			Dialog_Show(playerid, DIALOG_BANK, DIALOG_STYLE_LIST, "Bankomat", clText(COLOR_INFO, szString), "Wybierz", "WyjdŸ");
 			find = true;
 			break;
@@ -102,6 +102,40 @@ Dialog:DIALOG_BANK(playerid, response, listitem, inputtext[])
 
 		case 4:
 			Dialog_Show(playerid, DIALOG_BANK_PRZELEJ, DIALOG_STYLE_INPUT, "Bankomat > Przelej", clText(COLOR_INFO, "{FFFFFF}Wpisz kwotê, któr¹ chcesz przelaæ, oraz nick odbiorcy.\nPrzyk³adowo {b}3000|Kozak59{/b}."), "Dalej", "Wstecz");
+
+		case 5:
+		{
+			new nums, szString[128], szBuffer[64], money, score;
+			format(szString, sizeof szString, "SELECT money, score FROM payments WHERE Name = '%s'", PlayerName(playerid));
+			mysql_query(szString);
+			mysql_store_result();
+			nums = mysql_num_rows();
+			for(new i = 0; i < nums; i++)
+			{
+				if(mysql_fetch_row(szBuffer, "|"))
+				{
+					new tempMoney, tempScore;
+					sscanf(szBuffer, "p<|>dd", tempMoney, tempScore);
+					money += tempMoney;
+					score += tempScore;
+				}
+			}
+			mysql_free_result();
+			if((money + score) <= 0)
+			{
+				Msg(playerid, COLOR_ERROR, "Brak wyp³at do odebrania.");
+				cmd_bankomat(playerid, "");
+				return 1;
+			}
+			format(szString, sizeof szString, "DELETE FROM payments WHERE Name = '%s'", PlayerName(playerid));
+			mysql_query(szString);
+
+			format(szString, sizeof szString, "Odebra³eœ wyp³atê w wysokoœci {b}$%d{/b} oraz {b}%d score{/b}.", money, score);
+			Msg(playerid, COLOR_INFO2, szString);
+			GiveMoney(playerid, money);
+			GiveScore(playerid, score);
+			cmd_bankomat(playerid, "");
+		}
 
 		default: cmd_bankomat(playerid, "");
 	}

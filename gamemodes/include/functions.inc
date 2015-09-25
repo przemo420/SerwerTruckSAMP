@@ -798,45 +798,6 @@ stock GetRestaurantInterior(resid)
 	return resInfo[resid][resInt];
 }
 
-Float:GetHeadingAngle(Float:targetX, Float:targetY, Float:entityX, Float:entityY)
-{
-	new
-		Float:vectorX = targetX - entityX,
-		Float:vectorY = targetY - entityY,
-		Float:HeadingAngle;
-
-	HeadingAngle = atan(-(vectorX/vectorY));
-
-	if(vectorY < 0)
-		HeadingAngle = (HeadingAngle >= 180) ? HeadingAngle - 180.0 : HeadingAngle + 180.0;
-
-	return HeadingAngle;
-}
-
-SetVehicleSpeed(vehicleid, Float:speed)
-{
-	new
-		Float:x,
-		Float:y,
-		Float:z,
-		Float:angle;
-
-	GetVehicleVelocity(vehicleid, x, y, z);
-	if(x == 0.0 && y == 0.0 && z == 0.0)
-	{
-		GetVehicleZAngle(vehicleid, angle);
-	}
-	else
-	{
-		angle = Float:GetHeadingAngle(x, y, 0.0, 0.0);
-	}
-
-	speed = speed/169;
-	x = speed * floatsin(-angle, degrees);
-	y = speed * floatcos(-angle, degrees);
-	SetVehicleVelocity(vehicleid, x, y, z);
-}
-
 forward Float:GetDistanceBetweenPoints(Float:X, Float:Y, Float:Z, Float:PointX, Float:PointY, Float:PointZ);
 public Float:GetDistanceBetweenPoints(Float:X, Float:Y, Float:Z, Float:PointX, Float:PointY, Float:PointZ)
 	return floatabs(floatsub(X, PointX)) + floatabs(floatsub(Y, PointY)) + floatabs(floatsub(Z, PointZ));
@@ -1652,4 +1613,140 @@ AntiDeAMX()
 		"Brass K"
 	};
 	#pragma unused a
+}
+
+stock IsFirm(firmid)
+{
+	if(firmInfo[firmid][tType] >= 4)
+		return true;
+	return false;
+}
+
+stock IsFraction(firmid)
+{
+	if(firmInfo[firmid][tType] <= 3)
+		return true;
+	return false;
+}
+ 
+GetAngleToXY(Float:X, Float:Y, Float:CurrentX, Float:CurrentY, &Float:Angle)
+{
+    Angle = atan2(Y-CurrentY, X-CurrentX);
+    Angle = floatsub(Angle, 90.0);
+    if(Angle < 0.0) Angle = floatadd(Angle, 360.0);
+}
+ 
+GetVehicleHeadingAngle(vehicleid, &Float:a)
+{
+        new Float:x, Float:y, Float:z;
+        GetVehicleVelocity(vehicleid, x, y, z);
+        GetAngleToXY(x, y, 0, 0, a);
+}
+
+GetXYVelocity(vehicleid, &Float:x, &Float:y, Float:speed)
+{
+        new Float:a;
+        x = 0.0;
+        y = 0.0;
+        GetVehicleZAngle(vehicleid, a);
+        x += (speed * floatsin(-a, degrees));
+        y += (speed * floatcos(-a, degrees));
+}
+
+stock CleanChatForPlayer(playerid, count)
+{
+	for(new i = 0; i < count; i++)
+	{
+		SendClientMessage(playerid, -1, " ");
+	}
+	return 1;
+}
+
+#define EX_SPLITLENGTH 118
+
+stock SendSplitMessage(playerid, color, final[])
+{
+	new buffer[EX_SPLITLENGTH+5];
+	new len = strlen(final);
+	if(len>EX_SPLITLENGTH)
+	{
+		new times = (len/EX_SPLITLENGTH);
+		for(new i = 0; i < times+1; i++)
+		{
+			strdel(buffer, 0, EX_SPLITLENGTH+5);
+			if(len-(i*EX_SPLITLENGTH)>EX_SPLITLENGTH)
+			{
+				strmid(buffer, final, EX_SPLITLENGTH*i, EX_SPLITLENGTH*(i+1));
+				format(buffer, sizeof(buffer), "%s ...", buffer);
+			}
+			else
+			{
+				strmid(buffer, final, EX_SPLITLENGTH*i, len);
+			}
+			SendClientMessage(playerid, color, buffer);
+		}
+	}
+	else
+	{
+		SendClientMessage(playerid, color, final);
+	}
+}
+
+stock SendSplitMessageToAll(color, final[])
+{
+	new buffer[EX_SPLITLENGTH+5];
+	new len = strlen(final);
+	if(len>EX_SPLITLENGTH)
+	{
+		new times = (len/EX_SPLITLENGTH);
+		for(new i = 0; i < times+1; i++)
+		{
+			strdel(buffer, 0, EX_SPLITLENGTH+5);
+			if(len-(i*EX_SPLITLENGTH)>EX_SPLITLENGTH)
+			{
+				strmid(buffer, final, EX_SPLITLENGTH*i, EX_SPLITLENGTH*(i+1));
+				format(buffer, sizeof(buffer), "%s ...", buffer);
+			}
+			else
+			{
+				strmid(buffer, final, EX_SPLITLENGTH*i, len);
+			}
+			SendClientMessageToAll(color, buffer);
+		}
+	}
+	else
+	{
+		SendClientMessageToAll(color, final);
+	}
+}
+
+stock GetWeekDay(day=0, month=0, year=0)
+{
+  if (!day)
+	getdate(year, month, day);
+
+  new
+	j,
+	e;
+
+  if (month <= 2)
+  {
+	month += 12;
+	--year;
+  }
+
+  j = year % 100;
+  e = year / 100;
+
+  switch ((day + (month+1)*26/10 + j + j/4 + e/4 - 2*e) % 7)
+  {
+		case 0: return 6;
+		case 1: return 7;
+		case 2: return 1;
+		case 3: return 2;
+		case 4: return 3;
+		case 5: return 4;
+		case 6: return 5;
+	}
+	return -1;
 }

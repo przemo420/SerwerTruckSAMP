@@ -20,8 +20,8 @@
 #define MAX_SPAWN_POINTS 	25
 #define MAX_BASES			30
 #define MAX_WARES			150
-#define MAX_CARGOS			750
-#define MAX_LOADINGS		150
+#define MAX_CARGOS			1000
+#define MAX_LOADINGS		200
 
 #define WARE_TYPE_TRUCK		0
 #define WARE_TYPE_VAN		1
@@ -295,7 +295,7 @@ public RenewCargos()
 
 		cargoInfo[id][cWeight] = waresInfo[cargoInfo[id][cType]][wVehicle] == WARE_TYPE_VAN ? 2 + random(6) : 6 + random(16);
 		cargoInfo[id][cDistance] = 0.5 * GetDistance(loadInfo[cargoInfo[id][cZID]][lX], loadInfo[cargoInfo[id][cZID]][lY], loadInfo[cargoInfo[id][cZID]][lZ], loadInfo[cargoInfo[id][cRID]][lX], loadInfo[cargoInfo[id][cRID]][lY], loadInfo[cargoInfo[id][cRID]][lZ]);
-		cargoInfo[id][cTime] = GetTimeByDistance(floatround(cargoInfo[id][cDistance]));
+		cargoInfo[id][cTime] = GetTimeByDistance(floatround(cargoInfo[id][cDistance])) + 2;
 		cargoInfo[id][cReward] = waresInfo[cargoInfo[id][cType]][wRate] * cargoInfo[id][cDistance] + (cargoInfo[id][cWeight] * 15);
 		cargoInfo[id][cReserved] = false;
 		cargoInfo[id][cDeleted] = false;
@@ -594,7 +594,7 @@ Dialog:DIALOG_OFFER_LIST(playerid, response, listitem, inputtext[])
 		bonusSkillTime = GetReducedTime(GetPlayerSkill(playerid, SKILL_TIME));
 
 	TimestampToDate(cargoInfo[id][cTimeEnd], time[0], time[1], time[2], time[3], time[4], time[5]);
-	format(szString, sizeof szString, "{b}%s{/b} - {b}%dt{/b}\nZarobek: {b}$%.02f{/b} (+%d%) ($%.02f / km)", waresInfo[cargoInfo[id][cType]][wName], cargoInfo[id][cWeight], cargoInfo[id][cReward]*(1+(bonusSkillReward*0.01)), bonusSkillReward, waresInfo[cargoInfo[id][cType]][wRate]);
+	format(szString, sizeof szString, "{b}%s{/b} - {b}%dt{/b}\nZarobek: {b}$%.02f{/b} (+%d %%) ($%.02f / km)", waresInfo[cargoInfo[id][cType]][wName], cargoInfo[id][cWeight], cargoInfo[id][cReward]*(1+(bonusSkillReward*0.01)), bonusSkillReward, waresInfo[cargoInfo[id][cType]][wRate]);
 	strcat(szString, "\n \n");
 	format(szString, sizeof szString, "%sTyp:\t\t{b}%s{/b}", szString, GetWareVehicleName(cargoInfo[id][cType]));
 	strcat(szString, "\n");
@@ -995,6 +995,7 @@ CMD:rozladuj(playerid)
 			if (vloadInfo[IsVehicleTruck(GetVehicleModel(vehicleid)) ? GetVehicleTrailer(vehicleid) : vehicleid][vLoaded] == false) return Msg(playerid, COLOR_ERROR, "Twój pojazd nie jest za³adowany.");
 			if (i != cargoInfo[cargo][cRID]) return Msg(playerid, COLOR_ERROR, "Jesteœ w z³ym punkcie roz³adunku.");
 			if (!IsValidOffert(cargo)) return Msg(playerid, COLOR_ERROR, "Wygl¹da na to, ¿e twój towar nie jest ju¿ dostêpny. Je¿eli uwaa¿asz, ¿e to b³¹d - zg³oœ to.");
+			if ((gettime() - cargoInfo[cargo][cTimeStart]) < 120) return Msg(playerid, COLOR_ERROR, "Oops. Roz³adunek nie by³ przygotowany na tak szybk¹ dostawê! Musisz chwilê odczekaæ.");
 
 			pBar[playerid] = CreatePlayerProgressBar(playerid, 220.00, 435.00, 190.50, 5.50, 1653987839, 0.0);
 			ShowPlayerProgressBar(playerid, pBar[playerid]);

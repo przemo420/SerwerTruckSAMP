@@ -82,7 +82,7 @@ stock FadeLogoInit()
 	TextDrawSetProportional(sLogo[1], 1);
 	TextDrawSetShadow(sLogo[1], 0);
 
-	sLogo[2] = TextDrawCreate(43.000000, 437.000000, "v0.3a-06/08/2015");
+	sLogo[2] = TextDrawCreate(43.000000, 437.000000, "v1.0-25/09/2015");
 	TextDrawBackgroundColor(sLogo[2], 255);
 	TextDrawFont(sLogo[2], 2);
 	TextDrawLetterSize(sLogo[2], 0.210000, 0.699999);

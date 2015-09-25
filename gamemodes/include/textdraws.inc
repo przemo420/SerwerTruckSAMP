@@ -12,74 +12,40 @@ stock SpectactorTextDraw(playerid, create=false)
 {
 	if(create)
 	{
-		SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX] = CreatePlayerTextDraw(playerid, 22.942945, 210.216552, "_");
-		PlayerTextDrawLetterSize(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 0.385006, 6.692498);
-		PlayerTextDrawTextSize(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 117.291351, 10.000000);
-		PlayerTextDrawAlignment(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 1);
-		PlayerTextDrawColor(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], -1);
-		PlayerTextDrawUseBox(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 1);
-		PlayerTextDrawBoxColor(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 16711748);
-		PlayerTextDrawSetShadow(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 0);
-		PlayerTextDrawSetOutline(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 0);
-		PlayerTextDrawBackgroundColor(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], -16776961);
+		SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX] = CreatePlayerTextDraw(playerid, 320.000000, 8.000000, "__");
+		PlayerTextDrawAlignment(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 2);
+		PlayerTextDrawBackgroundColor(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 255);
 		PlayerTextDrawFont(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 1);
+		PlayerTextDrawLetterSize(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 0.500000, 5.000000);
+		PlayerTextDrawColor(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], -1);
+		PlayerTextDrawSetOutline(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 0);
 		PlayerTextDrawSetProportional(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 1);
-		PlayerTextDrawSetShadow(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 0);
+		PlayerTextDrawSetShadow(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 1);
+		PlayerTextDrawUseBox(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 1);
+		PlayerTextDrawBoxColor(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 125);
+		PlayerTextDrawTextSize(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX], 50.000000, -220.000000);
 
-		SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2] = CreatePlayerTextDraw(playerid, 9951, 211.583358, "_");
-		PlayerTextDrawLetterSize(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2], 0.435137, 6.371667);
-		PlayerTextDrawTextSize(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2], 116.024887, 0.000000);
-		PlayerTextDrawAlignment(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2], 1);
-		PlayerTextDrawColor(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2], -1);
-		PlayerTextDrawUseBox(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2], 1);
-		PlayerTextDrawBoxColor(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2], 170);
-		PlayerTextDrawSetShadow(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2], 0);
-		PlayerTextDrawSetOutline(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2], 0);
-		PlayerTextDrawBackgroundColor(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2], -16776961);
-		PlayerTextDrawFont(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2], 1);
-		PlayerTextDrawSetProportional(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2], 1);
-		PlayerTextDrawSetShadow(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2], 0);
-
-		SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO] = CreatePlayerTextDraw(playerid, 7001, 209.249969, "ID:~n~Nick:~n~Kasa:~n~Score:~n~HP:~n~HP Poj:~n~Predkosc:");
-		PlayerTextDrawLetterSize(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], 0.291770, 1.098333);
-		PlayerTextDrawAlignment(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], 1);
-		PlayerTextDrawColor(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], -1);
-		PlayerTextDrawSetShadow(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], 0);
-		PlayerTextDrawSetOutline(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], 0);
+		SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO] = CreatePlayerTextDraw(playerid, 215.000000, 8.000000, "ID:~n~Nick:~n~Kasa:~n~Score:~n~HP:~n~HP Poj:~n~Predkosc:");
 		PlayerTextDrawBackgroundColor(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], 255);
-		PlayerTextDrawFont(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], 1);
+		PlayerTextDrawFont(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], 2);
+		PlayerTextDrawLetterSize(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], 0.270000, 0.699999);
+		PlayerTextDrawColor(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], -1);
+		PlayerTextDrawSetOutline(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], 0);
 		PlayerTextDrawSetProportional(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], 1);
-		PlayerTextDrawSetShadow(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], 0);
-
-		SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO2] = CreatePlayerTextDraw(playerid, 5803, 209.249954, "_");
-		PlayerTextDrawLetterSize(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO2], 0.291770, 1.098333);
-		PlayerTextDrawAlignment(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO2], 1);
-		PlayerTextDrawColor(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO2], -1);
-		PlayerTextDrawSetShadow(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO2], 0);
-		PlayerTextDrawSetOutline(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO2], 0);
-		PlayerTextDrawBackgroundColor(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO2], 255);
-		PlayerTextDrawFont(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO2], 1);
-		PlayerTextDrawSetProportional(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO2], 1);
-		PlayerTextDrawSetShadow(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO2], 0);
+		PlayerTextDrawSetShadow(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], 1);
 
 		PlayerTextDrawShow(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX]);
-		PlayerTextDrawShow(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2]);
 		PlayerTextDrawShow(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO]);
-		PlayerTextDrawShow(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO2]);
 
 		SpectactorsTD[playerid][SPECTACTOR_TIMER] = SetTimerEx("SpectactorUpdate", 250, true, "d", playerid);
 	}
 	else
 	{
 		PlayerTextDrawHide(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX]);
-		PlayerTextDrawHide(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2]);
 		PlayerTextDrawHide(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO]);
-		PlayerTextDrawHide(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO2]);
 
 		PlayerTextDrawDestroy(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX]);
-		PlayerTextDrawDestroy(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_BOX2]);
 		PlayerTextDrawDestroy(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO]);
-		PlayerTextDrawDestroy(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO2]);
 
 		KillTimer(SpectactorsTD[playerid][SPECTACTOR_TIMER]);
 

@@ -162,7 +162,7 @@ stock CreateBTObject(playerid, model, Float:x, Float:y, Float:z)
 	Msg(playerid, COLOR_INFO2, szString);
 
 	format(szString, sizeof szString, "INSERT INTO objects (ID, modelID, posX, posY, posZ, rotX, rotY, rotZ) VALUES ('0', '%d', '%.03f', '%.03f', '%.03f', '0.0', '0.0', '0.0')",
-		model, x, y, z);
+		model, x, y, z - OBJECT_HEIGHT);
 	mysql_query(szString);
 	objectInfo[free][btID] = mysql_insert_id();
 	objectInfo[free][btPos][0] = x;

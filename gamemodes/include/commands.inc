@@ -223,13 +223,33 @@ CMD:firma(playerid, params[])
 	if(!playerInfo[playerid][pFirm])
 		return Msg(playerid, COLOR_ERROR, "Nie pracujesz w ¿adnej firmie.");
 
-	new string[300];
-	strcat(string, "Informacje\nPracownicy online\nWp³aæ pieni¹dze");
+	new string[456];
 
 	if(firmInfo[playerInfo[playerid][pFirm]][tChef] == playerInfo[playerid][pID] || firmInfo[playerInfo[playerid][pFirm]][tVcChef] == playerInfo[playerid][pID])
-		strcat(string, "\nZaproœ gracza\nWyrzuæ gracza\nZastêpca\nUstaw spawn\nWyp³aæ pieni¹dze\nZmieñ skina\nWyp³aæ wyp³aty");
-
-	Dialog_Show(playerid, DIALOG_ID_FIRMA, DIALOG_STYLE_LIST, "Firma", string, "Dalej", "Anuluj");
+	{
+		strcat(string, "{b}1) Informacje{/b}\n");
+		strcat(string, " × Ogólne\n");
+		strcat(string, " × Pracownicy online\n");
+		strcat(string, "{b}2) Finanse{/b}\n");
+		strcat(string, " × Wp³aæ pieni¹dze\n");
+		strcat(string, " × Wyp³aæ pieni¹dze\n");
+		strcat(string, " × Rozdaj wyp³aty\n");
+		strcat(string, "{b}3) Zarz¹dzanie pracownikami{/b}\n");
+		strcat(string, " × Zatrudnij gracza\n");
+		strcat(string, " × Zwolnij gracza\n");
+		strcat(string, " × Lista pracowników\n");
+		strcat(string, "{b}4) Zarz¹dzanie firm¹{/b}\n");
+		strcat(string, " × Ustaw spawn\n");
+		strcat(string, " × Zmieñ skina\n");
+		strcat(string, " × Lista pojazdów\n");
+		strcat(string, " × Zmieñ zastêpcê\n");
+		Dialog_Show(playerid, DIALOG_ID_FIRMA, DIALOG_STYLE_LIST, "Firma", clText(COLOR_INFO2, string), "Wybierz", "WyjdŸ");
+	}
+	else
+	{
+		strcat(string, "Informacje\nPracownicy online\nWp³aæ pieni¹dze");
+		Dialog_Show(playerid, DIALOG_ID_FIRMA_NORMAL, DIALOG_STYLE_LIST, "Firma", string, "Wybierz", "WyjdŸ");
+	}
 	return 1;
 }
 
@@ -1713,7 +1733,7 @@ CMD:respawniko(playerid, params[])
 		}
 	}
 
-	for(new nr = 1; nr < GetVehiclePoolSize(); nr++)
+	foreach (new nr : Vehicle)
 		if(Uzywany[nr] == false)
 			SetVehicleToRespawn(nr);
 

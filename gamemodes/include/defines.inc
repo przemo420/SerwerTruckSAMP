@@ -179,7 +179,8 @@ enum E_GAMEMODE
 	gmCountdownTimer,
 	gmUsersConnected,
 	adminPass[32],
-	adminsOnline
+	adminsOnline,
+	gmLoadedVehicles
 }
 
 enum E_PLAYER 
@@ -433,7 +434,8 @@ new kogutPD[MAX_VEHICLES],
 new kogutPOLI[MAX_VEHICLES],
     bool:kpoli[MAX_VEHICLES];
 
-new Text:AlertTD;
+new Text:AlertTD,
+	Text:TireTD;
 
 new const DoswiadczeniePoziomy[] = 
 {
@@ -635,7 +637,6 @@ new Float:viaPoints[][] =
 new 
 	__FlashTime[MAX_VEHICLES],
 	_Flash[MAX_VEHICLES],
-	enabledFlashes;
-
-new 
-	bool:vehicleExploded[MAX_VEHICLES];
+	enabledFlashes,
+	bool:vehicleExploded[MAX_VEHICLES],
+	Float:PlayerCruiseSpeed[MAX_PLAYERS];
