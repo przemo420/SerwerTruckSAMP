@@ -7,18 +7,18 @@
 	x Poprawa panelu firmowego (ZROBIONE)
 	x Poprawa salonu firmowego i prywatnego (ZROBIONE)
 	x Dodanie systemu gumy (ZROBIONE)
-	- Przepisanie po¿arów
-	- Dodanie systemu prywatnych domków
+	x Przepisanie po¿arów
+	x Dodanie systemu prywatnych domków
 	- Statystyki gracza
-	- Zapis wiêzienia (!)
+	x Zapis wiêzienia (!)
 	- Przepisanie GPS
 	- Drobna poprawa systemu konwoi
 	x Poprawa specowania (ZROBIONE)
 	- Dokoñczenie sytuacji losowych
 	- Dodanie "psucia siê" pojazdu w zale¿noœci od jego stanu
-	- Dodanie systemu dnia i nocy (serwerowy dzieñ)
-	- Dodanie ograniczenia wo¿enia towarów w ci¹gu jednego dnia
-	- Dodanie kanistra
+	x Dodanie systemu dnia i nocy (serwerowy dzieñ)
+	x Dodanie ograniczenia wo¿enia towarów w ci¹gu jednego dnia
+	x Dodanie kanistra
 	- Dodanie sortowania za³adunków
 	- Dokoñczenie deski pojazdu
 	- Dokoñczenie prawa jazdy
@@ -40,6 +40,7 @@
 #include "GetVehicleColor"
 #include "include/lib/timerfix.inc"
 #include "include/lib/progressbar2.inc"
+#include "include/lib/flood.inc"
 
 #pragma tabsize 0
 native WP_Hash(buffer[], len, const str[]);
@@ -77,7 +78,7 @@ native WP_Hash(buffer[], len, const str[]);
 main()
 {
 	print("\n----------------------------------");
-	print(" SerwerTruck.eu (c) 2015");
+	print(" ProjectTruck.pl (c) 2015");
 	print(" By: Maciek (base)");
 	print(" GeDox, Kozak59 - upgrading");
 	print(" GameMode Owners - GeDox & Kozak59");
@@ -116,6 +117,7 @@ main()
 #include "include/logo.inc"
 #include "include/salon.inc"
 #include "include/pozary.inc"
+#include "include/houses.inc"
 
 // -----
 
@@ -135,10 +137,11 @@ public OnGameModeInit()
 	djSetInt("config.json", "full_permission/Kozak59", 1);
 
 	format(gmInfo[adminPass], 32, "haslo_administratora");
+	format(gmInfo[lastIP], 17, "255.255.255.255");
 
 	AddPlayerClass(1, -1379.386352, 1488.210449, 21.156248,87.8978, 0, 0, 0, 0, 0, 0);//1
 
-	SetGameModeText("Truck Mode RC 1");
+	SetGameModeText("Truck Mode 1.1 BETA");
 	UsePlayerPedAnims();
 	DisableInteriorEnterExits();
 	ShowNameTags(0);
@@ -154,12 +157,12 @@ public OnGameModeInit()
 	}
 
 	MySQLConnection = mysql_init(LOG_ONLY_ERRORS, 1);
-	mysql_connect("mysql-ols1.ServerProject.pl", "db_12517", "yttMDAhyBOvs", "db_12517", MySQLConnection, 1);
+	mysql_connect("sql-waw1.ServerProject.pl", "db_11364", "vsob7Kr3xlrG", "db_11364", MySQLConnection, 1);
 
 	if(mysql_ping(MySQLConnection))
 	{
 		print("\n[MySQL] Po³¹czenie nieudane, serwer zostanie zablokowany.");
-		SendRconCommand("hostname ? [0.3.7] SerwerTruck.eu [PL] ? # B£¥D MYSQL");
+		SendRconCommand("hostname ? [0.3.7] ProjectTruck.pl [PL] ? # B£¥D MYSQL");
 		SendRconCommand("mapname # B£¥D MYSQL #");
 		SendRconCommand("password $mysql#blad!");
 
@@ -205,6 +208,8 @@ public OnGameModeInit()
 	brama[13] = CreateDynamicObject(980, 1075.2998046875, 1943.099609375, 12.800000190735, 0, 0, 0);	 // brama wjazdowa nr 1
 	brama[14] = CreateDynamicObject(980, 1147.400390625, 2044.0, 12.800000190735, 0, 0, 0);	 // brama wjazdowa nr 2
 
+	gmInfo[lift][0] = CreateDynamicObject(980,1166.8000000,1943.9000000,9.9000000,90.0000000,90.0000000,0.0000000); //object(airportgate)(1)
+
 	// Build Trans
 	brama[15] = CreateDynamicObject(980, -168.89999389648, 79.599998474121, 5.0, 0, 0, 340.25);	 // brama wjazdowa
 
@@ -228,13 +233,16 @@ public OnGameModeInit()
 	LadujOrganizacje();
 	LoadBTObjects();
 	LoadBTLabels();
+	LoadFireSystem();
+	LoadHouses();
 	//LoadBanWords();
+	gmInfo[gmDay] = 1;
 	print("- Ladowanie z bazy danych zakonczone.");
 	printf("- Zajelo: %d ms", floatround(GetTickCount()-CzasLadowania));
 	print("----------");
 
-	CreateDynamic3DTextLabel(clText(COLOR_INFO2, "Salon pojazdów osobowych\nw {b}San Fierro{/b}.\nWpisz {b}/salon{/b} aby zobaczyæ menu"), -1, -1969.291, 296.353, 35.171, 50.0, INVALID_PLAYER_ID, INVALID_VEHICLE_ID, 1);
-	CreateDynamic3DTextLabel(clText(COLOR_INFO2, "Salon pojazdów ciê¿arowych\nw {b}San Fierro{/b}.\nWpisz {b}/salon{/b} aby zobaczyæ menu"), -1, -1649.904, 1209.725, 7.250, 50.0, INVALID_PLAYER_ID, INVALID_VEHICLE_ID, 1);
+	CreateDynamic3DTextLabel(clText(COLOR_INFO2, "Salon pojazdów osobowych\nw {b}San Fierro{/b}.\nWpisz {b}/salon{/b} aby zobaczyæ menu\nOtwarte w godzinach {b}08:00 - 22:00{/b}"), -1, -1969.291, 296.353, 35.171, 50.0, INVALID_PLAYER_ID, INVALID_VEHICLE_ID, 1);
+	CreateDynamic3DTextLabel(clText(COLOR_INFO2, "Salon pojazdów ciê¿arowych\nw {b}San Fierro{/b}.\nWpisz {b}/salon{/b} aby zobaczyæ menu\nOtwarte w godzinach {b}08:00 - 22:00{/b}"), -1, -1649.904, 1209.725, 7.250, 50.0, INVALID_PLAYER_ID, INVALID_VEHICLE_ID, 1);
 	CreateDynamicMapIcon(-1649.904, 1209.725, 7.250, 36, 0, -1, -1, -1, 100.0, MAPICON_LOCAL);
 	
 	TextDrawCreate(0.000000, 0.000000, "_");
@@ -285,6 +293,9 @@ public OnGameModeInit()
 	SetTimer_("Jobtime", 2*60000, 0, -1);
 	SetTimer_("SaveALL", 60000, 0, -1);
 
+	SetTimer_("FireUpdate", 400, 0, -1);
+	SetTimer_("GlobalDayTimer", 1000, 0, -1);
+
 	Crash_OnGameModeInit();
 
 	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
@@ -297,6 +308,19 @@ public OnGameModeInit()
 	print("----------");
 	printf("- Ca³kowity czas ³adowania %d ms.", floatround(GetTickCount() - CzasLadowania));
 	print("----------");
+
+	//CheckLicense("F45G-03AF-HJKM-LKM0");
+	return 1;
+}
+
+forward FireUpdate();
+public FireUpdate()
+{
+	foreach (new i : Player)
+	{
+		if(IsPlayerSpawned(i))
+			OnFireUpdate(i);
+	}
 	return 1;
 }
 
@@ -305,6 +329,14 @@ public OnGameModeExit()
 	djson_GameModeExit();
 	CreateMainTextDraws(false);
 	SaveBTObjects();
+
+	foreach (new i : Vehicle)
+	{
+		if(!IsValidVehicle(i) || !Spawned[i])
+			continue;
+
+		SaveVehicle(i);
+	}
 
 	for(new x; x<MAX_PLAYERS; x++)
 		if(camInfo[x][cCameramode] == CAMERA_MODE_FLY) 
@@ -317,22 +349,71 @@ public OnGameModeExit()
 		if(funcidx(szTemp) != -1)
 			CallLocalFunction(szTemp, "");
 	}
+   	return 1;
+}
 
-	foreach (new i : Vehicle)
+stock GetOnlineByIP(ip[])
+{
+	new online = 0;
+	for (new i = 0; i < MAX_PLAYERS; i++)
 	{
-		if(!IsValidVehicle(i) || !Spawned[i])
+		if(!IsPlayerConnected(i))
 			continue;
 
-		SaveVehicle(i);
+		if(strfind(PlayerIP(i), ip) != -1)
+		{
+			online++;
+		}
 	}
-   	return 1;
+	return online;
+}
+
+public OnIncomingConnection(playerid, ip_address[], port)
+{
+	printf("Po³¹czone (%d) gracza %s (%s)", playerid, PlayerName(playerid), ip_address);
+
+	if(IsPlayerNPC(playerid))
+	{
+		Kick(playerid);
+		return BlockIpAddress(ip_address, 30*1000);
+	}
+
+	if((gettime() - gmInfo[lastConnection]) < 2)
+	{
+		Kick(playerid);
+		return 1;
+	}
+
+	new online = GetOnlineByIP(ip_address);
+	if(online >= 2)
+	{
+		Kick(playerid);
+		return BlockIpAddress(ip_address, 30*1000);
+	}
+
+	printf("%d dla IP %s", online, ip_address);
+	return 1;
 }
 
 public OnPlayerConnect(playerid)
 {
-	gmInfo[gmUsersConnected]++;
-	new string[500], ip[16];
+	new ip[16];
 	GetPlayerIp(playerid, ip, sizeof(ip));
+
+	if((strcmp(ip, gmInfo[lastIP]) == 0))
+	{
+		if((gettime() - gmInfo[lastConnection]) < 5)
+		{
+			printf("Próba flooda (?)");
+			Kick(playerid);
+			return BlockIpAddress(ip, 30*1000);
+		}
+	}
+	format(gmInfo[lastIP], 17, "%s", ip);
+	gmInfo[lastConnection] = gettime();
+
+	new string[500];
+	gmInfo[gmUsersConnected]++;
 
 	DeletePVar(playerid, "otherAFK");
 	DeletePVar(playerid, "TELEPORT");
@@ -379,7 +460,7 @@ public OnPlayerConnect(playerid)
 		format(string, sizeof string, "%s{a9c4e4}Zbanowany nick: {FFFFFF}%s\n", string, str);
 
 		mysql_fetch_field("Nameadmin", str);
-		format(string, sizeof string, "%s{a9c4e4}Nick admina banuj¹cego: {FFFFFF}%s\n", string, str);
+		format(string, sizeof string, "%s{a9c4e4}Nick administratora banuj¹cego: {FFFFFF}%s\n", string, str);
 
 		mysql_fetch_field("Hour", str2);
 		format(str, sizeof(str), "");
@@ -405,7 +486,7 @@ public OnPlayerConnect(playerid)
 		mysql_fetch_field("IP", str);
 		format(string, sizeof string, "%s{a9c4e4}Zbanowane IP: {FFFFFF}%s\n\n", string, str);
 
-		format(string, sizeof string, "%s{a9c4e4}Je¿eli zosta³eœ zbanowany nies³usznie napisz podanie o unbana na forum {FFFFFF}www.serwertruck.eu", string);
+		format(string, sizeof string, "%s{a9c4e4}Je¿eli zosta³eœ zbanowany nies³usznie napisz podanie o unbana na forum {FFFFFF}www.projecttruck.pl", string);
 		ShowInfo(playerid, string);
 
 		CheatKick(playerid, "aktywny ban");
@@ -538,6 +619,11 @@ public OnPlayerDisconnect(playerid, reason)
 	format(string, sizeof(string), "OnPlayerDisconnect (playerUID=%d | reason=%s | timeonline: %dh %dm %ds)", playerInfo[playerid][pID], powod, h, m, s);
 	ToLog(playerInfo[playerid][pID], LOG_TYPE_PLAYER, string);
 
+	if(GetPVarInt(playerid, "RadarOnline"))
+	{
+		ShowPlayerRadar(playerid, false);
+	}
+
 	if(IsPlayerConnected(GetPVarInt(playerid, "jestPrzegladany")))
 	{
 		TogglePlayerSpectating(GetPVarInt(playerid, "jestPrzegladany"), 0);
@@ -546,6 +632,8 @@ public OnPlayerDisconnect(playerid, reason)
 	}
 
 	TextDrawHideForPlayer(playerid, MainTextDraws[Time]);
+	TextDrawHideForPlayer(playerid, MainTextDraws[Day]);
+	EnablePlayerCameraTarget(playerid, false);
 
 	if(IsValidDynamicCP(GetPVarInt(playerid, "trailerCP")))
 	{
@@ -554,8 +642,9 @@ public OnPlayerDisconnect(playerid, reason)
 	}
 
 	ShowPlayerHud(playerid, false);
-	ShowPlayerConnect(playerid, false);
-	ShowConnect(playerid, false);
+	if(!IsPlayerLogged(playerid))
+		ShowConnect(playerid, false),
+		ShowPlayerConnect(playerid, false);
 
 	foreach (new a : Player)
 		if(IsPlayerConnected(a))
@@ -568,19 +657,10 @@ public OnPlayerDisconnect(playerid, reason)
 		DestroyVehicle(GetPVarInt(playerid, "pojazd"));
 	
 	KillTimer(timer[playerid]);
-	KillTimer(timer3[playerid]);
-	KillTimer(timer4[playerid]);
-	KillTimer(timer5[playerid]);
 	KillTimer_(timer7[playerid]);
-	KillTimer(timer8[playerid]);
 	KillTimer(timer9[playerid]);
-	KillTimer(timer10[playerid]);
-	KillTimer(timer11[playerid]);
-	KillTimer(timer12[playerid]);
-	KillTimer(timer13[playerid]);
-	KillTimer(timer15[playerid]);
-	KillTimer(timer16[playerid]);
-	//KillTimer_(GetPVarInt(playerid, "TireTimer"));
+
+	KillTimer_(GetPVarInt(playerid, "TireTimer"));
 	if(GetPVarInt(playerid, "loading"))
 		KillTimer_(GetPVarInt(playerid, "loadTimer"));
 	if(GetPVarInt(playerid, "unloading"))
@@ -597,7 +677,12 @@ public OnPlayerDisconnect(playerid, reason)
 	UpdateAdminsOnline();
 
 	if(IsPlayerInAnyVehicle(playerid) && GetPlayerState(playerid) == PLAYER_STATE_DRIVER)
+	{
+		ShowPlayerSpeedometer(playerid, false);
+		if(IsPlayerInTruck(playerid))
+			ShowPlayerTacho(playerid, false);
 		VehicleDriver[GetPlayerVehicleID(playerid)] = INVALID_PLAYER_ID;
+	}
 
 	for(new nrInc, szTemp[31]; nrInc < sizeof(szHookInclude); nrInc++)
 	{
@@ -633,7 +718,7 @@ public OnPlayerRequestClass(playerid, classid)
 public OnPlayerRequestSpawn(playerid)
 {
 	if(GetOnlineTime(playerid) < 7200 && !GetPVarInt(playerid, "Worked"))
-		Msg(playerid, COLOR_INFO2, "Witaj! Nie wiesz jak zacz¹æ pracê na SerwerTruck? Wpisz {b}/pojazd{/b} i wybierz coœ dla siebie.");
+		Msg(playerid, COLOR_INFO2, "Witaj! Nie wiesz jak zacz¹æ pracê na Project Truck? Wpisz {b}/pojazd{/b} i wybierz coœ dla siebie.");
 	if(GetPVarInt(playerid, "ReSpawn"))
 	{
 		if(playerInfo[playerid][pSpawn] >= 0)
@@ -758,7 +843,7 @@ public OnPlayerSpawn(playerid)
 		}
 
 		SetPlayerColor(playerid, firmInfo[firmaid][tColor]);
-		SetPlayerPos(playerid, firmInfo[playerInfo[playerid][pFirm]][tSpawnX], firmInfo[playerInfo[playerid][pFirm]][tSpawnY], firmInfo[playerInfo[playerid][pFirm]][tSpawnZ]);
+		SetPlayerPosCamera(playerid, firmInfo[firmaid][tSpawnX], firmInfo[firmaid][tSpawnY], firmInfo[firmaid][tSpawnZ]);
 
 		return 1;
 	}
@@ -881,7 +966,7 @@ public OnPlayerText(playerid, text[])
 		return 0;
 	}
 
-	if(!strcmp(text, "@", true, 1) && playerInfo[playerid][pAdmin])
+	if(!strcmp(text, "@", true, 1) && playerInfo[playerid][pAdmin] > 1)
 	{
 		text[1] = toupper(text[1]);
 		format(string, sizeof string, "{D90000}@AdminChat >> %s(id:%d): %s", PlayerName(playerid), playerid, text[1]);
@@ -1040,6 +1125,15 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
 			vehicleUID = DBVehID[GetPlayerVehicleID(playerid)], 
 			model = GetVehicleModel(vehicleid);
 
+		SetPVarInt(playerid, "lastCarEnter", gettime());
+
+		if(playerInfo[playerid][pJailTime] > 0)
+		{
+			RemovePlayerFromVehicle(playerid);
+			CheatKick(playerid, "cheaty");
+			timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
+		}
+
 		if((IsVehicleTruck(model) || IsVehicleVan(model)) == true && (GetOnlineTime(playerid) < 3200))
 			Msg(playerid, COLOR_INFO, "Chcesz u¿ywaæ CB-Radia ale nie wiesz jak? To bardzo proste! Ustaw sobiê ksywkê komend¹ {b}/cbksywka{/b}!");
 
@@ -1047,18 +1141,15 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
 
 		if(!Spawned[vehicleid])
 		{
-			if( (vehInfo[vehicleUID][vOwnerType] == OWNER_TYPE_PLAYER && vehInfo[vehicleUID][vOwnerID] != playerInfo[playerid][pID]) ||  
-				(vehInfo[vehicleUID][vOwnerType] == OWNER_TYPE_TEAM && IsWorked(playerid, vehInfo[vehicleUID][vOwnerID])) )
+			if( ((vehInfo[vehicleUID][vOwnerType] == OWNER_TYPE_PLAYER) && !((vehInfo[vehicleUID][vOwnerID] == playerInfo[playerid][pID]) || (vehInfo[vehicleUID][vOwnerVC] == playerInfo[playerid][pID]))) ||  
+				(vehInfo[vehicleUID][vOwnerType] == OWNER_TYPE_TEAM && !IsWorked(playerid, vehInfo[vehicleUID][vOwnerID])) )
 			{
-				if(vehInfo[vehicleUID][vOwnerType] == OWNER_TYPE_PLAYER && vehInfo[vehicleUID][vOwnerVC] != playerInfo[playerid][pID])
-				{
-					new Float:Pos[3];
-					GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
-					SetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]+2.0);
+				new Float:Pos[3];
+				GetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]);
+				SetPlayerPos(playerid, Pos[0], Pos[1], Pos[2]+2.0);
 
-					Msg(playerid, COLOR_ERROR, "Nie mo¿esz wejœæ do tego pojazdu.");
-					return 1;
-				}
+				Msg(playerid, COLOR_ERROR, "Nie mo¿esz wejœæ do tego pojazdu.");
+				return 1;
 			}
 		}
 
@@ -1074,6 +1165,12 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
 
 	if(oldstate == PLAYER_STATE_DRIVER)
 	{
+		if((gettime() - GetPVarInt(playerid, "lastCarEnter")) < 1)
+		{
+			RemovePlayerFromVehicle(playerid);
+			CheatKick(playerid, "szybka zmiana pojazdów");
+			timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", playerid);
+		}
 		ShowPlayerSpeedometer(playerid, false);
 		ShowPlayerTacho(playerid, false);
 		if(GetPVarType(playerid, "jestPrzegladany") != PLAYER_VARTYPE_NONE)
@@ -1162,9 +1259,14 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 					Msg(playerid, COLOR_INFO, "Hamulec rêczny zosta³ wy³¹czony.");
 					brInfo[GetPlayerVehicleID(playerid)][manualBrake] = false;
 				}
+				if(GetPVarInt(playerid, "Tempomat"))
+				{
+					DeletePVar(playerid, "Tempomat");
+					Msg(playerid, COLOR_INFO, "Tempomat zosta³ {b}wy³¹czony{/b}.");
+				}
 				if(Spawned[GetPlayerVehicleID(playerid)])
 				{
-						fuel = vehInfo_Temp[GetPlayerVehicleID(playerid)][vFuel];
+					fuel = vehInfo_Temp[GetPlayerVehicleID(playerid)][vFuel];
 				}
 				else
 				{
@@ -1212,7 +1314,64 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 			ClearAnimations(playerid);
 		}
 	}
-	
+	if(RELEASED(KEY_SECONDARY_ATTACK))
+	{
+		if(!IsPlayerInAnyVehicle(playerid) && IsPlayerLogged(playerid) && IsPlayerSpawned(playerid) && !playerInfo[playerid][pJailTime])
+		{
+			if(!GetPVarInt(playerid, "InHouse"))
+			{
+				for(new i = 0; i < MAX_HOUSES; i++)
+				{
+					if(!IsValidHouse(i))
+						continue;
+
+					if(IsPlayerInRangeOfPoint(playerid, 4.0, houseInfo[i][hsPos][0], houseInfo[i][hsPos][1], houseInfo[i][hsPos][2]))
+					{
+						new bool:result;
+						switch(houseInfo[i][hsDoor])
+						{
+							case DOOR_OPEN:
+							{
+								result = true;
+							}
+							case DOOR_CLOSE:
+							{
+								if((playerInfo[playerid][pID] == houseInfo[i][hsOwner]) || (playerInfo[playerid][pID] == houseInfo[i][hsVcOwner]))
+									result = true;
+								else
+									result = false;
+							}
+						}
+						if(!result)
+						{
+
+						}
+						else
+						{
+							new Float:pos[3], int;
+							GetInteriorPos(houseInfo[i][hsInterior], int, pos[0], pos[1], pos[2]);
+							SetPlayerInterior(playerid, int);
+							SetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+							SetPlayerVirtualWorld(playerid, i+1);
+							SetPVarInt(playerid, "InHouse", i+1);
+						}
+					}
+				}
+			}
+			else
+			{
+				new Float:pos[3], int, houseID = GetPVarInt(playerid, "InHouse")-1;
+				GetInteriorPos(houseInfo[houseID][hsInterior], int, pos[0], pos[1], pos[2]);
+				if(IsPlayerInRangeOfPoint(playerid, 4.0, pos[0], pos[1], pos[2]))
+				{
+					SetPlayerPos(playerid, houseInfo[houseID][hsPos][0], houseInfo[houseID][hsPos][1], houseInfo[houseID][hsPos][2]);
+					SetPlayerInterior(playerid, 0);
+					SetPlayerVirtualWorld(playerid, 0);
+					DeletePVar(playerid, "InHouse");
+				}
+			}
+		}
+	}
 	if((newkeys & 8 || newkeys & 32 || newkeys & 128 || ((newkeys & KEY_SUBMISSION) && (newkeys & KEY_FIRE))) && GetPVarInt(playerid, "Tempomat"))
 	{
 		PlayerCruiseSpeed[playerid] = 0.00;
@@ -1430,7 +1589,7 @@ public OnPlayerCommandReceived(playerid, cmdtext[])
 		return 0;
 	}
 
-	if(GetPVarInt(playerid, "Areszt"))
+	if(playerInfo[playerid][pJailTime] > 0)
 	{
 		if(strcmp(cmdtext, "/spawn") == 0)
 		{
@@ -1579,7 +1738,7 @@ forward SendClientMessageToAdmins(color, const message[]);
 public SendClientMessageToAdmins(color, const message[])
 {
 	foreach (new a : Player)
-		if(playerInfo[a][pAdmin])
+		if(playerInfo[a][pAdmin] > 1)
 			SendClientMessage(a, color, message);
 
 	return 1;
@@ -1659,14 +1818,10 @@ stock UpdateOnlineWorkers()
 forward OneSecTimer();
 public OneSecTimer()
 {
-	new hour, minute, second, string[176];
+	new string[176];
 	static time;
 
 	ReverseBeeper();
-	gettime(hour, minute, second);
- 	
-	format(string, sizeof string, "%02d:%02d", hour, minute);
-	TextDrawSetString(MainTextDraws[Time], string);
 
 	foreach (new i : Player)
 		if(IsPlayerConnected(i))
@@ -1759,6 +1914,18 @@ public Refresh()
 		new Float:speed,
 		vehicleid = GetPlayerVehicleID(playerid);
 		GetVehicleSpeed(vehicleid, speed);
+
+		if(playerInfo[playerid][pJailTime] > 0)
+		{
+			if(!IsPlayerInRangeOfPoint(playerid, 8.0, 219.3761, 109.7970, 999.0156))
+			{
+				SetPlayerInterior(playerid, 10);
+				SetCameraBehindPlayer(playerid);
+				SetPlayerPos(playerid, 219.3761, 109.7970, 999.0156);
+				SetPlayerHealth(playerid, 9999999);
+				TogglePlayerControllable(playerid, 0);
+			}
+		}
 
 		if(SECURITYON == 1)
 		{
@@ -1896,7 +2063,8 @@ stock SavePlayer(playerid, saveTime = false)
 		new string[512];
 
 		format(string, sizeof(string), "UPDATE Accounts SET Money = '%d', Score = '%d', Hunger = '%.f', Firma ='%d', Skin ='%d', Tacho='%d', Foto='%d', Toll='%d', Gtime='%d', \
-				Worktime='%d', Adr='%d', lastVisit = NOW(), Bankomat = '%d', allowedPoints = '%d', skills = '%s', pSpawn = '%d', pSpawnInfo = '%s', cbradioNick = '%s'", 
+				Worktime='%d', Adr='%d', lastVisit = NOW(), Bankomat = '%d', allowedPoints = '%d', skills = '%s', pSpawn = '%d', pSpawnInfo = '%s', cbradioNick = '%s', \
+				jailTime = '%d', canister = '%d', repairKit = '%d', drivingLicense = '%d'", 
 				playerInfo[playerid][pMoney], 
 				playerInfo[playerid][pScore], 
 				playerInfo[playerid][pHunger],
@@ -1913,7 +2081,11 @@ stock SavePlayer(playerid, saveTime = false)
 				pPoints[playerid][pSkills],
 				playerInfo[playerid][pSpawn],
 				playerInfo[playerid][pSpawnInfo],
-				playerInfo[playerid][pCBNick]);
+				playerInfo[playerid][pCBNick],
+				playerInfo[playerid][pJailTime],
+				playerInfo[playerid][pCanister],
+				playerInfo[playerid][pRepairKit],
+				playerInfo[playerid][pDrivingLicense]);
 		
 		if(saveTime)
 		{
@@ -1963,6 +2135,7 @@ forward Jobtime();
 public Jobtime()
 {
 	SaveBTObjects();
+	SaveHouses();
 	foreach (new playerid : Player)
 		if(IsPlayerConnected(playerid) && IsPlayerLogged(playerid))
 			if(firmInfo[playerInfo[playerid][pFirm]][tType] >= TEAM_TYPE_POLICE)
@@ -2118,11 +2291,7 @@ public SaveALL()
 	HungerUpdate();
 
 	new 
-		string[128],
-		t[3];
-
-	gettime(t[0], t[1], t[2]);
-	SetWorldTime(t[0]);
+		string[128];
 
 	foreach (new playerid : Player)
 	{
@@ -2142,11 +2311,11 @@ public SaveALL()
 		}
 	}
 
-	foreach (new firmaid : Player)
+	for (new firmaid; firmaid < MAX_FIRM; firmaid++)
 	{
-		if(firmInfo[firmaid][tType])
+		if(IsValidFirm(firmaid))
 		{
-			format(string, sizeof(string), "UPDATE `Firmy` SET `Bank`=%d WHERE `id`='%d'", firmInfo[firmaid][tBank], firmaid);
+			format(string, sizeof(string), "UPDATE `Firmy` SET `Bank`= %d WHERE `id`='%d'", firmInfo[firmaid][tBank], firmaid);
 			mysql_query(string);
 		}
 	}
@@ -2275,28 +2444,8 @@ public CruiseControl(playerid)
 
 DistanceFlat(Float:ax, Float:ay, Float:bx,Float:by, &Float:distance)
 {
-		distance = floatsqroot(floatpower(bx-ax,2)+floatpower(by-ay,2));
-		return floatround(distance);
-}
-
-forward cameragobackplayer(playerid);
-public cameragobackplayer(playerid)
-{
-	TogglePlayerControllable(playerid, 1);
-	SetCameraBehindPlayer(playerid);
-	KillTimer(timer8[playerid]);
-	SetPlayerPos(playerid, -1629.4374,1287.6179,7.0391);
-	return 1;
-}
-
-forward cameragobackplayer2(playerid);
-public cameragobackplayer2(playerid)
-{
-	TogglePlayerControllable(playerid, 1);
-	SetCameraBehindPlayer(playerid);
-	KillTimer(timer10[playerid]);
-	SetPlayerPos(playerid, -1934.4926,272.3068,41.0469);
-	return 1;
+	distance = floatsqroot(floatpower(bx-ax,2)+floatpower(by-ay,2));
+	return floatround(distance);
 }
 
 forward Otworzbrame(playerid);
@@ -2387,7 +2536,7 @@ CMD:ban(playerid, params[])
 {
 	new forplayerid, Powod[76], string[256];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 
 	if(sscanf(params, "ds[76]", forplayerid, Powod))
@@ -2413,7 +2562,7 @@ CMD:ban(playerid, params[])
 	format(string, sizeof string, "%s{a9c4e4}Data zbanowania konta: {FFFFFF}przed chwil¹\n", string);
 	format(string, sizeof string, "%s{a9c4e4}Powód bana: {FFFFFF}%s\n", string, Powod);
 	format(string, sizeof string, "%s{a9c4e4}Zbanowane IP: {FFFFFF}%s\n \n", string, ip);
-	format(string, sizeof string, "%s{a9c4e4}Je¿eli zosta³eœ zbanowany nies³usznie napisz podanie o unbana na forum {FFFFFF}www.serwertruck.eu", string);
+	format(string, sizeof string, "%s{a9c4e4}Je¿eli zosta³eœ zbanowany nies³usznie napisz podanie o unbana na forum {FFFFFF}www.projecttruck.pl", string);
 	ShowInfo(playerid, string);
 
 	timer[playerid] = SetTimerEx_("Kickplayer", 300, 0, 1, "i", forplayerid);
@@ -2424,7 +2573,7 @@ CMD:unbanip(playerid, params[])
 {
 	new IP[76], string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 
 	if(sscanf(params, "s[76]", IP))
@@ -2442,7 +2591,7 @@ CMD:unban(playerid, params[])
 {
 	new IP[76], string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 
 	if(sscanf(params, "s[76]", IP))
@@ -2458,9 +2607,9 @@ CMD:unban(playerid, params[])
 
 CMD:banip(playerid, params[])
 {
-	new IP[50], Powod[50], string[128];
+	new IP[50], Powod[50], string[256];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 
 	if(sscanf(params, "s[50]s[50]", IP, Powod))
@@ -2474,6 +2623,14 @@ CMD:banip(playerid, params[])
 	gettime(H, Mi, S);
 	format(string, sizeof string, "INSERT INTO `Bans` VALUES('-', '%s', '%02d', '%02d', '%02d', '%02d', '%02d', '%s', '%s')", PlayerName(playerid), H, Mi, D, Mo, Y, Powod, IP);
 	mysql_query(string);
+
+	foreach (new i : Player)
+	{
+		if (strcmp(PlayerIP(i), IP) == 0)
+		{
+			Kick(i);
+		}
+	}
 
 	return 1;
 }
@@ -2594,7 +2751,7 @@ CMD:givemoney(playerid, params[])
 {
 	new forplayerid, money, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", forplayerid, money))
@@ -2612,7 +2769,7 @@ CMD:givescore(playerid, params[])
 {
 	new forplayerid, money, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", forplayerid, money))
@@ -2630,7 +2787,7 @@ CMD:resetmoney(playerid, params[])
 {
 	new forplayerid, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", forplayerid))
@@ -2648,7 +2805,7 @@ CMD:resetscore(playerid, params[])
 {
 	new forplayerid, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", forplayerid))
@@ -2666,7 +2823,7 @@ CMD:givemoneyall(playerid, params[])
 {
 	new money, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", money))
@@ -2689,7 +2846,7 @@ CMD:givescoreall(playerid, params[])
 {
 	new score, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", score))
@@ -3035,7 +3192,7 @@ CMD:ochrona(playerid, params[])
 {
 	new string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(SECURITYON == 1)
@@ -3192,7 +3349,7 @@ CMD:admins(playerid, params[])
 
 CMD:hideme(playerid, params[])
 {
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(GetPVarInt(playerid, "HIDEME"))
@@ -3205,7 +3362,7 @@ CMD:hideme(playerid, params[])
 
 CMD:showme(playerid, params[])
 {
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(!GetPVarInt(playerid, "HIDEME"))
@@ -3241,7 +3398,7 @@ CMD:jetpack(playerid, params[])
 {
 	new forplayerid, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", forplayerid))
@@ -3260,7 +3417,7 @@ CMD:uping(playerid, params[])
 {
 	new forplayerid, high, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(!IsPlayerConnected(forplayerid))
@@ -3295,7 +3452,7 @@ CMD:downing(playerid, params[])
 {
 	new forplayerid, high, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(!IsPlayerConnected(forplayerid))
@@ -3410,7 +3567,7 @@ CMD:ladownosc(playerid, params[])
 
 CMD:open(playerid, params[])
 {
-	if(playerInfo[playerid][pFirm] == 0 || !GetPVarInt(playerid, "Worked"))
+	if(!IsFraction(firmInfo[playerInfo[playerid][pFirm]][tType]) || !GetPVarInt(playerid, "Worked"))
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	Otworzbrame(playerid);
@@ -3420,7 +3577,7 @@ CMD:open(playerid, params[])
 
 CMD:close(playerid, params[])
 {
-	if(playerInfo[playerid][pFirm] == 0 || !GetPVarInt(playerid, "Worked"))
+	if(!IsFraction(firmInfo[playerInfo[playerid][pFirm]][tType]) || !GetPVarInt(playerid, "Worked"))
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	Zamknijbrame(playerid);
@@ -3494,7 +3651,7 @@ CMD:explode(playerid, params[])
 	if(!IsPlayerConnected(forplayerid))
 		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest obecny na serwerze.");
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 
 	new Float:Pos[3];
@@ -3510,7 +3667,7 @@ CMD:ann(playerid, params[])
 	if(sscanf(params, "ds[20]", czas, tekst))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /ann [czas] [tekst]");
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ");
 
 	format(string,sizeof(string),"~w~%s",tekst);
@@ -3522,7 +3679,7 @@ CMD:say(playerid, params[])
 {
 	new tekst[100], string[200];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie posiadasz uprawnieñ.");
 
 	if(sscanf(params, "s[100]", tekst))
@@ -3829,7 +3986,7 @@ CMD:respawnveh(playerid, params[])
 
 CMD:weapons(playerid)
 {
-	if(playerInfo[playerid][pAdmin] < 1)
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	SetPlayerHealth(playerid, 100.0);
@@ -3875,7 +4032,7 @@ CMD:infoplayer(playerid, params[])
 	format(string, sizeof(string), "%sADR:\t %d\n", string, playerInfo[targetid][pADR]);
 	format(string, sizeof(string), "%sIP:\t %s\n", string, ip);
 
-	Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_TABLIST, " ", string, "WyjdŸ", #);
+	Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", string, "WyjdŸ", #);
 	return 1;
 }
 
@@ -3887,13 +4044,14 @@ public ExplodePlayerTires(playerid)
 		new tire[4], panels, doors, lights, tires;
 		GetVehicleDamageStatus(GetPlayerVehicleID(playerid), panels, doors, lights, tires);
 		decode_tires(tires, tire[0], tire[1], tire[2], tire[3]);
+		printf("Opony przed %d|%d|%d|%d (%d)", tire[0], tire[1], tire[2], tire[3], tires);
 		tire[random(3)] = 0;
-		tires = encode_tires(tire[0], tire[1], tire[2], tire[3]);
-		UpdateVehicleDamageStatus(GetPlayerVehicleID(playerid), panels, doors, lights, tires);
+		printf("Opony po %d|%d|%d|%d (%d)", tire[0], tire[1], tire[2], tire[3], encode_tires(tire[0], tire[1], tire[2], tire[3]));
+		UpdateVehicleDamageStatus(GetPlayerVehicleID(playerid), panels, doors, lights, encode_tires(tire[0], tire[1], tire[2], tire[3]));
 		TextDrawShowForPlayer(playerid, TireTD);
 		SetTimerEx_("HideTireTD", 0, 5*1000, 1, "i", playerid);
 	}
-	new time = 15 + random(15);
+	new time = (15 + random(15)) * 60;
 	SetPVarInt(playerid, "TireTimer", SetTimerEx_("ExplodePlayerTires", 0, time*1000, 1, "i", playerid));
 	return 1;
 }
@@ -3916,6 +4074,217 @@ decode_tires(tires, &tire1, &tire2, &tire3, &tire4)
 	tire2 = tires >> 1 & 1;
 	tire3 = tires >> 2 & 1;
 	tire4 = tires >> 3 & 1;
+}
+
+forward GlobalDayTimer();
+public GlobalDayTimer()
+{
+	if(gmInfo[gmMinute] == 59)
+	{
+		if(gmInfo[gmHour] == 23)
+		{
+			gmInfo[gmDay]++;
+			NewDay();
+		}
+		else
+		{
+			gmInfo[gmHour]++; 
+			gmInfo[gmMinute] = 00;
+		}
+	}
+	else
+	{
+		gmInfo[gmMinute]++; 
+	}
+
+	foreach (new i : Player)
+	{
+		if(IsPlayerConnected(i))
+		{
+			SetPlayerTime(i, gmInfo[gmHour], gmInfo[gmMinute]);
+		}
+	}
+
+	new szString[64];
+	format(szString, sizeof(szString), "worldtime %02d:%02d", gmInfo[gmHour], gmInfo[gmMinute]);
+	SendRconCommand(szString);
+
+	format(szString, sizeof(szString), "%02d:%02d", gmInfo[gmHour], gmInfo[gmMinute]);
+	TextDrawSetString(MainTextDraws[Time], szString);
+	return 1;
+}
+
+stock NewDay()
+{
+	gmInfo[gmHour] = 0; 
+	gmInfo[gmMinute] = 0; 
+	new szMessage[64];
+	format(szMessage, sizeof(szMessage), "%s siê %s.", (gmInfo[gmDay] == 1 || gmInfo[gmDay] == 2 || gmInfo[gmDay] == 4 || gmInfo[gmDay] == 5) ? ("Rozpocz¹³") : ("Rozpoczê³a"), GetServerDay());
+	MsgToAll(COLOR_INFO2, szMessage);
+
+	new szString[8];
+	format(szString, sizeof(szString), "%s", GetServerDayShort());
+	TextDrawSetString(MainTextDraws[Day], szString);
+}
+
+stock GetServerDay()
+{
+	new dDay[24];
+	switch(gmInfo[gmDay])
+	{
+		case 1:	dDay = "poniedzia³ek";
+		case 2:	dDay = "wtorek";
+		case 3:	dDay = "œroda";
+		case 4:	dDay = "czwartek";
+		case 5: dDay = "pi¹tek";
+		case 6: dDay = "sobota";
+		case 7:	dDay = "niedziela";
+		case 8:
+		{
+			dDay = "poniedzia³ek";
+			gmInfo[gmDay] = 1;
+			MsgToAll(COLOR_INFO2, "Rozpoczyna siê nowy tydzieñ.");
+		}
+	}
+	return dDay;
+}
+
+stock GetServerDayShort()
+{
+	new dDay[6];
+	switch(gmInfo[gmDay])
+	{
+		case 1:	dDay = "pn";
+		case 2:	dDay = "wt";
+		case 3:	dDay = "sr";
+		case 4:	dDay = "czw";
+		case 5: dDay = "pt";
+		case 6: dDay = "sob";
+		case 7: dDay = "niedz";
+	}
+	return dDay;
+}
+
+enum e_trailer
+{
+	bool:toSave,
+	loadID,
+	pointID
+}
+
+new trailers[MAX_VEHICLES][e_trailer];
+
+CMD:cn(playerid, params[])
+{
+	new loadid, point;
+	if(sscanf(params, "dd", loadid, point))
+		return Msg(playerid, COLOR_ERROR, "/cn [load id] [pointid]");
+
+	new Float:pos[3];
+	GetXYZInFrontOfPlayer(playerid, pos[0], pos[1], pos[2], 5.0);
+	new id = AddStaticVehicleEx(435, pos[0], pos[1], pos[2], 0.0, 5, 5, -1);
+	trailers[id][toSave] = true;
+	trailers[id][loadID] = loadid;
+	trailers[id][pointID] = point;
+
+	Spawned[id] = true;
+	return 1;
+}
+
+CMD:tpz(playerid, params[])
+{
+	new loadid;
+	if(sscanf(params, "d", loadid))
+		return Msg(playerid, COLOR_ERROR, "/tpz [load id]");
+
+	Teleport(playerid, loadInfo[loadid][lX], loadInfo[loadid][lY], loadInfo[loadid][lZ], false, true);
+	return 1;
+}
+
+CMD:saveall(playerid)
+{
+	SaveTrailers();
+	return 1;
+}
+
+SaveTrailers()
+{
+	new Float:pos[4], count;
+	for (new i; i < MAX_VEHICLES; i++)
+	{
+		if(!trailers[i][toSave])
+			continue; 
+
+		count++;
+		GetVehicleZAngle(i, pos[3]);
+		GetVehiclePos(i, pos[0], pos[1], pos[2]);
+		printf("INSERT INTO `bases`(`id`, `point`, `city`, `bX`, `bY`, `bZ`, `bA`) VALUES (0, %d, %d, %f, %f, %f, %f);", 
+			trailers[i][pointID], trailers[i][loadID], pos[0], pos[1], pos[2], pos[3]);
+	}
+	printf("Zapisano %d punktow.", count);
+	return 1;
+}
+
+GetXYZInFrontOfPlayer(playerid, &Float:x, &Float:y, &Float:z, Float:distance)
+{
+	new Float:a;
+	GetPlayerPos(playerid, x, y, z);
+	GetPlayerFacingAngle(playerid, a);
+	if (GetPlayerVehicleID(playerid))
+	{
+	  GetVehicleZAngle(GetPlayerVehicleID(playerid), a);
+	}
+	x += (distance * floatsin(-a, degrees));
+	y += (distance * floatcos(-a, degrees));
+}
+
+CMD:zalozfirme(playerid)
+{
+	if (GetPlayerLevel(GetScore(playerid)) < 10)
+		return Msg(playerid, COLOR_ERROR, "Potrzebujesz 10 poziom aby móc stworzyæ w³asn¹ firmê.");
+
+	if (GetMoney(playerid) < 200000)
+		return Msg(playerid, COLOR_ERROR, "Potrzebujesz $200.000 aby móc stworzyæ w³asn¹ firmê.");
+
+	Dialog_Show(playerid, DIALOG_FIRM_CREATE, DIALOG_STYLE_MSGBOX, "Kreator firmy", clText(COLOR_INFO2, "{FFFFFF}Czy jesteœ pewien, ¿e chcesz za³o¿yæ w³asn¹ firmê?\nKosztuje to {b}$200.000{/b}.\n \nPamiêtaj, ¿e w³asna dzia³alnoœæ to du¿a odpowiedzialnoœæ."), "Dalej", "WyjdŸ");
+	return 1;
+}
+
+Dialog:DIALOG_FIRM_CREATE(playerid, response, listitem, inputtext[])
+{
+	if (!response)
+		return 1;
+
+	Dialog_Show(playerid, DIALOG_FIRM_CREATE_NAME, DIALOG_STYLE_INPUT, "Kreator firmy", clText(COLOR_INFO2, "{FFFFFF}Decyzja podjêta, aczkolwiek to nie koniec!\nChyba musimy mieæ nazwê, no nie?\n{b}Wybierz jak¹s nazwê która nie jest jeszcze zajêta.{/b}"), "Dalej", "Wstecz");
+	return 1;
+}
+
+Dialog:DIALOG_FIRM_CREATE_NAME(playerid, response, listitem, inputtext[])
+{
+	if (!response)
+		return cmd_zalozfirme(playerid);
+
+	if (strlen(inputtext) < 5 || strlen(inputtext) > 32)
+		return Dialog_Show(playerid, DIALOG_FIRM_CREATE_NAME, DIALOG_STYLE_INPUT, "Kreator firmy", clText(COLOR_INFO2, "Podana przez Ciebie nazwa jest za krótka lub d³uga\n \n{FFFFFF}Decyzja podjêta, aczkolwiek to nie koniec!\nChyba musimy mieæ nazwê, no nie?\n{b}Wybierz jak¹s nazwê która nie jest jeszcze zajêta.{/b}"), "Dalej", "Wstecz");
+
+	if (IsValidFirmByName(inputtext))
+		return Dialog_Show(playerid, DIALOG_FIRM_CREATE_NAME, DIALOG_STYLE_INPUT, "Kreator firmy", clText(COLOR_INFO2, "Podana przez Ciebie nazwa jest ju¿ wykorzystywana\n \n{FFFFFF}Decyzja podjêta, aczkolwiek to nie koniec!\nChyba musimy mieæ nazwê, no nie?\n{b}Wybierz jak¹s nazwê która nie jest jeszcze zajêta.{/b}"), "Dalej", "Wstecz");
+
+	Dialog_Show(playerid, DIALOG_FIRM_CREATE_NAME, DIALOG_STYLE_INPUT, "Kreator firmy", clText(COLOR_INFO2, "{FFFFFF}Decyzja podjêta, aczkolwiek to nie koniec!\nChyba musimy mieæ nazwê, no nie?\n{b}Wybierz jak¹s nazwê która nie jest jeszcze zajêta.{/b}"), "Dalej", "Wstecz");
+	return 1;
+}
+
+stock IsValidFirmByName(name[])
+{
+	for (new i = 0; i < MAX_FIRM; i++)
+	{
+		if (!IsValidFirm(i))
+			continue;
+
+		if((strcmp(name, firmInfo[i][tName]) == 0))
+			return 1;
+	}
+	return 0;
 }
 
 #include "include/gui.inc"

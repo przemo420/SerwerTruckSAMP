@@ -59,6 +59,13 @@ PlayerName(playerid)
 	return name;
 }
 
+PlayerIP(playerid)
+{
+	new name[16];
+	GetPlayerIp(playerid, name, sizeof name);
+	return name;
+}
+
 GetDistanceFromMeToPoint(playerid, Float:X, Float:Y, Float:Z)
 {
 	new Float:pos[4];
@@ -1177,7 +1184,7 @@ stock TimestampToDate(Timestamp, &year, &month, &day, &hour, &minute, &second, H
 stock clText(colorid, text[])
 {
 	new
-		buffer[700],
+		buffer[1000],
 		curColor,
 		tmpColor[16],
 		tmpColorCode;
@@ -1749,4 +1756,15 @@ stock GetWeekDay(day=0, month=0, year=0)
 		case 6: return 5;
 	}
 	return -1;
+}
+
+stock IsValidFirm(firmid)
+{
+	if (firmid >= MAX_FIRM)
+		return 0;
+
+	if ((firmInfo[firmid][tVcChef] + firmInfo[firmid][tChef]) > 0)
+		return 1;
+
+	return 0;
 }

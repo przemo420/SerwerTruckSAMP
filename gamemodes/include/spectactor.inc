@@ -108,7 +108,7 @@ public SpectactorUpdate(playerid)
 	}
 
 	GetPlayerHealth(id, plhp);
-	format(string, sizeof(string), "%d~n~%s~n~%d~n~%d~n~%.1f~n~%s~n~%.1f", id, PlayerName(id), GetMoney(id), GetScore(id), plhp, vehhp2, predkosc);
+	format(string, sizeof(string), "ID: %d~n~Nick: %s~n~Kasa: %d~n~Score: %d~n~HP %.1f~n~HP Poj:%s~n~Predkosc: %.1f", id, PlayerName(id), GetMoney(id), GetScore(id), plhp, vehhp2, predkosc);
 	PlayerTextDrawSetString(playerid, SpectactorsTD[playerid][SPECTACTOR_TEXTDRAW_INFO], string);
 	return 1;
 }

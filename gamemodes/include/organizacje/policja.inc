@@ -93,15 +93,17 @@ CMD:aresztuj(playerid, params[])
 	if(GetPVarInt(forplayerid, "Areszt"))
 		return Msg(playerid, COLOR_ERROR, "Ten gracz {b}jest ju¿{/b} w areszcie.");
 
-	SetPVarInt(forplayerid, "Areszt", 1);
-	SetPVarInt(forplayerid, "Areszttime", czas*60);
-	SetTimerEx("Unareszt", czas*(60), false, "d", forplayerid);
+	playerInfo[playerid][pJailTime] = czas * 60;
+
+	SetTimerEx("Unareszt", 1000, false, "d", forplayerid);
+
 	format(string, sizeof string, "Aresztowa³eœ gracza {b}%s{/b} (ID: {b}%d{b}) na {b}%d{/b} minut.", PlayerName(forplayerid), forplayerid, czas);
 	Msg(playerid, COLOR_INFO, string);
 	format(string, sizeof string, "Zosta³eœ aresztowany przez policjanta {b}%s{/b} (ID: {b}%d{/b}) na {b}%d{/b} minut(y).", PlayerName(playerid), playerid, czas);
 	Msg(forplayerid, COLOR_INFO, string);
 
 	SetPlayerInterior(forplayerid, 10);
+	SetCameraBehindPlayer(forplayerid);
 	SetPlayerPos(forplayerid, 219.3761,109.7970,999.0156);
 	SetPlayerHealth(forplayerid, 9999999);
 	TogglePlayerControllable(forplayerid, 0);
@@ -123,29 +125,28 @@ CMD:unareszt(playerid, params[])
 	new forplayerid, string[200];
 
 	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POLICE)
-		return SendClientMessage(playerid, LIGHTRED, "Nie masz uprawnieñ.");
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "Wpisz: /unareszt [id gracza]");
+		return Msg(playerid, COLOR_ERROR, "Wpisz: /unareszt [id gracza]");
 
 	if(!IsPlayerConnected(forplayerid))
-		return SendClientMessage(playerid, LIGHTRED, "Gracz ten nie jest obecny na serwerze.");
+		return Msg(playerid, COLOR_ERROR, "Gracz ten nie jest obecny na serwerze.");
 
-	if(!GetPVarInt(forplayerid, "Areszt"))
-		return SendClientMessage(playerid, LIGHTRED, "Ten gracz nie jest w areszcie.");
+	if(!playerInfo[playerid][pJailTime])
+		return Msg(playerid, COLOR_ERROR, "Ten gracz nie jest w areszcie.");
 
-	DeletePVar(forplayerid,"Areszt");
-	DeletePVar(forplayerid,"Areszttime");
+	playerInfo[playerid][pJailTime] = 0;
 
 	SetPlayerInterior(forplayerid, 0);
 	SetPlayerPos(forplayerid, 2286.5684,2431.8369,10.8203);
 	SetPlayerHealth(forplayerid, 100);
 	TogglePlayerControllable(forplayerid, 1);
 
-	format(string, sizeof string, "{C0C0C0}Wypuœci³eœ gracza %s.", PlayerName(forplayerid));
-	SendClientMessage(playerid, 0x0, string);
-	format(string, sizeof string, "{C0C0C0}Zosta³eœ wypuszczony dziêki policjantowi %s.", PlayerName(playerid));
-	SendClientMessage(forplayerid, 0x0, string);
+	format(string, sizeof string, "Wypuœci³eœ gracza {b}%s{/b}.", PlayerName(forplayerid));
+	Msg(playerid, COLOR_INFO, string);
+	format(string, sizeof string, "Zosta³eœ wypuszczony dziêki policjantowi {b}%s{/b}.", PlayerName(playerid));
+	Msg(forplayerid, COLOR_INFO, string);
 
 	return 1;
 }
@@ -220,7 +221,7 @@ CMD:kontrola(playerid, params[])
 	if(!vloadInfo[vehicleid][vLoaded])
 		strcat(towarname, "Brak");
 	else
-		strcat(towarname, waresInfo[vloadInfo[vehicleid][vCargo]][wName]);
+		strcat(towarname, waresInfo[cargoInfo[vloadInfo[vehicleid][vCargo]][cType]][wName]);
 
 	if(Spawned[GetPlayerVehicleID(targetid)])
 		strcat(przeglad, "AKTUALNY");
@@ -570,14 +571,13 @@ public PolicjaAlert(playerid)
 forward Unareszt(playerid);
 public Unareszt(playerid)
 {
-	new seconds = GetPVarInt(playerid, "Areszttime");
+	new seconds = playerInfo[playerid][pJailTime];
 	new h, m, s;
 	ConvertSeconds(seconds,h,m,s);
 
 	if(seconds == 0)
 	{
-		DeletePVar(playerid,"Areszt");
-		DeletePVar(playerid,"Areszttime");
+		playerInfo[playerid][pJailTime] = 0;
 		SetPlayerInterior(playerid, 0);
 		SetPlayerPos(playerid, 2286.5684,2431.8369,10.8203);
 		SetPlayerHealth(playerid, 100);
@@ -585,8 +585,7 @@ public Unareszt(playerid)
 	}
 	else
 	{
-		seconds--;
-		SetPVarInt(playerid, "Areszttime", seconds);
+		playerInfo[playerid][pJailTime]--;
 		SetTimerEx("Unareszt", 1000, false, "d", playerid);
 	}
 

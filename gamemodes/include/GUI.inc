@@ -142,7 +142,7 @@ Dialog:DIALOG_ID_REGISTER(playerid, response, listitem, inputtext[])
 			WP_Hash(string, sizeof(string), inputtext);
 			playerInfo[playerid][pSpawn] = random(4)-1;
 			if(playerInfo[playerid][pSpawn] < 0) playerInfo[playerid][pSpawn] = 0;
-			format(string, sizeof string, "INSERT INTO `Accounts` VALUES(NULL, '0', '%d', 'NULL', '%s', '%s', '2000', '0', '100', '0', '-1', '0', '1', '0', '0', '0', '0', NOW(), '0', '%s', '0', '0', '1', '0', '0', '0.0.0.0.0', 'braknickubrak', '1000')", 
+			format(string, sizeof string, "INSERT INTO `Accounts` VALUES(NULL, '0', '%d', 'NULL', '%s', '%s', '2000', '0', '100', '0', '-1', '0', '1', '0', '0', '0', '0', NOW(), '0', '%s', '0', '0', '1', '0', '0', '0.0.0.0.0', 'braknickubrak', '1000', '0', '0', '0', '0')", 
 				playerInfo[playerid][pSpawn], Name, string, ip);
 			mysql_query(string);
 
@@ -157,6 +157,7 @@ Dialog:DIALOG_ID_REGISTER(playerid, response, listitem, inputtext[])
 			playerInfo[playerid][pSkin] = 0;
 			playerInfo[playerid][pHunger] = 100.0;
 			format(pPoints[playerid][pSkills], 15, "0.0.0.0.0");
+			pPoints[playerid][pAllowedPoints] = 0;
 			format(playerInfo[playerid][pCBNick], 32, "braknickubrak");
 
 			Msg(playerid, COLOR_INFO, "Zarejestrowano pomyœlie. Mi³ej gry ¿yczy administracja. ;)");
@@ -165,9 +166,11 @@ Dialog:DIALOG_ID_REGISTER(playerid, response, listitem, inputtext[])
 			ShowConnect(playerid, false);
 			ShowPlayerHud(playerid, true);
 			TextDrawShowForPlayer(playerid, MainTextDraws[Time]);
+			TextDrawShowForPlayer(playerid, MainTextDraws[Day]);
 
 			Msg(playerid, COLOR_INFO3, "Wpisz {b}/faq{/b}, by zobaczyæ pomoc.");
 			Msg(playerid, COLOR_INFO3, "Wpisz {b}/cmds{/b}, by zobaczyæ komendy.");
+			SetPVarInt(playerid, "TireTimer", SetTimerEx_("ExplodePlayerTires", 0, (15+random(15))*1000*60, 1, "i", playerid));
 
 			SetSpawnInfo(playerid, 0, playerInfo[playerid][pSkin], gSpawnvehicleplayer[playerInfo[playerid][pSpawn]][0], gSpawnvehicleplayer[playerInfo[playerid][pSpawn]][1], gSpawnvehicleplayer[playerInfo[playerid][pSpawn]][2], 0.0, 0, 0, 0, 0, 0, 0);
 			TogglePlayerSpectating(playerid, false);
@@ -738,7 +741,7 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 		ResetPlayerMoney(playerid);
 		ResetMoney(playerid);
 
-		sscanf(szBuffer, "p<|>dddfds[15]ds[32]ds[32]ddddddddddd",
+		sscanf(szBuffer, "p<|>dddfds[15]ds[32]ds[32]ddddddddddddddd",
 			playerInfo[playerid][pID],
 			playerInfo[playerid][pMoney],
 			playerInfo[playerid][pScore],
@@ -759,7 +762,11 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 			playerInfo[playerid][pGTime],
 			playerInfo[playerid][pWorkTime],
 			playerInfo[playerid][pBuildmaster],
-			playerInfo[playerid][pADR]);
+			playerInfo[playerid][pADR],
+			playerInfo[playerid][pJailTime],
+			playerInfo[playerid][pDrivingLicense],
+			playerInfo[playerid][pCanister],
+			playerInfo[playerid][pRepairKit]);
 
 		mysql_free_result();
 
@@ -777,12 +784,13 @@ Dialog:DIALOG_ID_LOGIN(playerid, response, listitem, inputtext[])
 		SetPlayerScore(playerid, playerInfo[playerid][pScore]);
 
 		Msg(playerid, COLOR_INFO, "Zalogowano pomyœlie. Mi³ej gry ¿yczy administracja. ;)");
-		//SetPVarInt(playerid, "TireTimer", SetTimerEx_("ExplodePlayerTires", 0, (15+random(15))*1000, 1, "i", playerid));
+		SetPVarInt(playerid, "TireTimer", SetTimerEx_("ExplodePlayerTires", 0, (15+random(15))*1000*60, 1, "i", playerid));
 		StopCinematicCameraIntro(playerid);
 		ShowPlayerConnect(playerid, false);
 		ShowConnect(playerid, false);
 		ShowPlayerHud(playerid, true);
 		TextDrawShowForPlayer(playerid, MainTextDraws[Time]);
+		TextDrawShowForPlayer(playerid, MainTextDraws[Day]);
 		SetPlayerProgressBarValue(playerid, hudInfo[tdHungerProgress][playerid], playerInfo[playerid][pHunger]);
 		Crash_OnPlayerConnect(playerid);
 
@@ -852,7 +860,7 @@ Dialog:DIALOG_ID_FIRMA(playerid, response, listitem, inputtext[])
 	if(!response)
 		return 1;
 
-	new szString[512], firmaid = playerInfo[playerid][pFirm];
+	new szString[1024], firmaid = playerInfo[playerid][pFirm];
 	switch(listitem)
 	{
 		case 1: // Informacje ogólne
@@ -902,8 +910,14 @@ Dialog:DIALOG_ID_FIRMA(playerid, response, listitem, inputtext[])
 				if(mysql_fetch_row(szBuffer, "|"))
 				{
 					sscanf(szBuffer, "p<|>ds[32]dd", other[0], nick, other[1], other[2]);
+					new online = GetIDByNick(nick);
+					if(online > -1)
+					{
+						other[1] = playerInfo[online][pWorkTime];
+					}
+
 					money = other[1] * other[2];
-					score = floatround(other[1] * (other[2] / 1000));
+					score = (other[1] * other[2]) / 1000;
 
 					if(IsFirm(playerInfo[playerid][pFirm]))
 					{
@@ -1055,18 +1069,18 @@ Dialog:DIALOG_ID_PAYMENTS(playerid, response, listitem, inputtext[])
 			mysql_free_result();
 			return Msg(playerid, COLOR_ERROR, "Gracz pracowa³ za krótko aby otrzymaæ wyp³atê.");
 		}
-		format(szString, sizeof szString, "UPDATE Accounts SET Worktime = '0' WHERE Name = '%s';", nick);
+		format(szString, sizeof szString, "UPDATE Accounts SET Worktime = '0' WHERE Name = '%s'", nick);
 		mysql_query(szString);
 
 		new online = GetIDByNick(nick);
 		if(online > -1)
 		{
-			time = playerInfo[playerid][pWorkTime];
+			time = playerInfo[online][pWorkTime];
 			playerInfo[online][pWorkTime] = 0;
 			Msg(online, COLOR_INFO, "Twoja wyp³ata jest ju¿ gotowa! {b}Udaj siê do banku aby j¹ odebraæ!{/b}");
 		}
 		money = time * rate;
-		score = floatround(time * (rate / 1000));
+		score = (time * rate) / 1000;
 	}
 	mysql_free_result();
 	if(IsFirm(playerInfo[playerid][pFirm]))
@@ -1180,6 +1194,7 @@ Dialog:DIALOG_ID_FIRMA_WYRZUC(playerid, response, listitem, inputtext[])
 	}
 
 	format(szString, sizeof szString, "UPDATE Accounts SET Firma = '0' WHERE Name = '%s'", inputtext);
+	mysql_query(szString);
 	Dialog_Show(playerid, DIALOG_ID_FIRMA_WYRZUC, DIALOG_STYLE_INPUT, "Firma > Zwolnij", clText(COLOR_INFO, "{b}Pomyœlnie zwioniono.{/b}\n \nWprowadŸ nazwê gracza, którego chcesz wyprosiæ:"), "Zwolnij", "Cofnij");
 	return 1;
 }

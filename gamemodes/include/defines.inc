@@ -2,12 +2,13 @@ native IsValidVehicle(vehicle);
 
 #undef MAX_PLAYERS
 
+#define MAX_ACTUAL_FIRES	20
 #define MAX_PLAYERS 		40
 #define MAX_STACJE 			200
 #define MAX_FOTORADAROW 	1000
 #define MAX_VIASHOP 		200
 #define MAX_VEHICLES_DB 	5000
-#define MAX_FIRM 			13
+#define MAX_FIRM 			50
 #define MAX_SPIKESTRIPS 	25
 #define MAX_BARY 			200
 #define MAX_BARYIN 			200
@@ -15,6 +16,7 @@ native IsValidVehicle(vehicle);
 #define MAX_RADIOS			100
 #define MAX_RESTAURANTS		100
 #define MAX_WORDS			100
+#define MAX_STATIONS		100
 
 // ---------------------------
 
@@ -129,17 +131,16 @@ new const szHookInclude[][] = {
 	"FadePlayer", // fade.inc
 	"Logo", // logo.inc
 	"Photo", // fotoradary.inc
-	"Fire", // pozary.inc
 	"GPS", // gps.inc
 	"BT" // organizacje/buildtrans.inc
 };
 
 new const szRandomMessages[][] = {
-	"Nie wiesz jak zacz¹æ? Wpisz {b}/faq{/b} i zapoznaj siê z zasadami panuj¹cymi na SerwerTruck.",
-	"Zapraszamy do czêstego odwiedzania naszego forum {b}www.serwertruck.eu{/b}!",
+	"Nie wiesz jak zacz¹æ? Wpisz {b}/faq{/b} i zapoznaj siê z zasadami panuj¹cymi na Project Truck.",
+	"Zapraszamy do czêstego odwiedzania naszego forum {b}www.projecttruck.pl{/b}!",
 	"Ktoœ utrudnia Ci grê? U¿yj komendy {b}/report{/b} by powiadomiæ o tym administracjê.",
 	"Zapraszamy do korzystania z serwerowego {b}Team Speak 3{/b}.",
-	"Zauwa¿y³eœ jakiœ {b}b³¹d{/b} na serwerze? Zg³oœ go nam na forum w trackerze na {b}www.serwertruck.eu/tracker{/b}"
+	"Zauwa¿y³eœ jakiœ {b}b³¹d{/b} na serwerze? Zg³oœ go nam na forum w dziale {b}b³êdy / propozycje{/b}."
 };
 
 /*
@@ -171,6 +172,14 @@ new const szRandomMessages[][] = {
 */
 // ---------------------------
 
+enum
+{
+	P_USER,
+	P_SUPPORT,
+	P_ADMIN,
+	P_RCON
+}
+
 enum E_GAMEMODE
 {
 	gmCountdown,
@@ -180,7 +189,16 @@ enum E_GAMEMODE
 	gmUsersConnected,
 	adminPass[32],
 	adminsOnline,
-	gmLoadedVehicles
+	gmLoadedVehicles,
+	gmHour,
+	gmMinute,
+	gmDay,
+	actFires[MAX_ACTUAL_FIRES],
+	totalFires,
+	lastFire,
+	lastConnection,
+	lastIP[17],
+	lift[2]
 }
 
 enum E_PLAYER 
@@ -211,7 +229,11 @@ enum E_PLAYER
 	pSpawnInfo[32],
 	pCBNick[32],
 	pMagnesTime,
-	bool:pMagnes
+	bool:pMagnes,
+	pCanister,
+	pRepairKit,
+	pDrivingLicense,
+	pJailTime
 }
 
 enum E_CAMERA
@@ -236,7 +258,11 @@ enum E_STATION
 	sPetrolAmount,
 	Float:sGasPrice,
 	Float:sPetroleumPrice,
-	Float:sPetrolPrice
+	Float:sPetrolPrice,
+	sPetrolFirm,
+	sOpenHour,
+	sCloseHour,
+	bool:sCreated
 }
 
 enum E_TEAM 
@@ -413,6 +439,9 @@ new SECURITYON = 1;
 #define PRESSED(%0) \
 	(((newkeys & (%0)) == (%0)) && ((oldkeys & (%0)) != (%0)))
 
+#define RELEASED(%0) \
+	(((newkeys & (%0)) != (%0)) && ((oldkeys & (%0)) == (%0)))
+
 //new Text:Radarpolice[MAX_PLAYERS][4];
 
 new brama[22];
@@ -495,18 +524,8 @@ new HighVehicleID=INVALID_VEHICLE_ID;
 new VehicleDriver[MAX_VEHICLES]=INVALID_PLAYER_ID;
 
 new timer[MAX_PLAYERS],
-	timer3[MAX_PLAYERS],
-	timer4[MAX_PLAYERS],
-	timer5[MAX_PLAYERS],
 	timer7[MAX_PLAYERS],
-	timer8[MAX_PLAYERS],
-	timer9[MAX_PLAYERS],
-	timer10[MAX_PLAYERS],
-	timer11[MAX_PLAYERS],
-	timer12[MAX_PLAYERS],
-	timer13[MAX_PLAYERS],
-	timer15[MAX_PLAYERS],
-	timer16[MAX_PLAYERS];
+	timer9[MAX_PLAYERS];
 
 new bool:Spawned[MAX_VEHICLES];
 

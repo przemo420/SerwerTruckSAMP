@@ -85,7 +85,7 @@ CMD:faq123321(playerid)
 
 CMD:poziomy(playerid)
 {
-	new s[940];
+	new s[1128];
 	strcat(s, ""GCOLOR_YELLOW"I. Jak dzia³aj¹ poziomy?");
 	strcat(s, "\n");
 	strcat(s, ""COLOR_GUI"Poziomy s¹ okreœlane na podstawie posiadanych przez Ciebie punktów.");
@@ -104,36 +104,46 @@ CMD:poziomy(playerid)
 	strcat(s, "\n");
 	strcat(s, ""COLOR_GUI"Poziom 1 - 4\t\tNowicjusz");
 	strcat(s, "\n");
-	strcat(s, ""COLOR_GUI"Poziom 5 - 9\t\tEntuzjasta");
+	strcat(s, "Poziom 5 - 9\t\tEntuzjasta");
 	strcat(s, "\n");
-	strcat(s, ""COLOR_GUI"Poziom 10 - 14\t\tUtalentowany pracownik");
+	strcat(s, "Poziom 10 - 14\t\tUtalentowany pracownik");
 	strcat(s, "\n");
-	strcat(s, ""COLOR_GUI"Poziom 15 - 19\t\tProfesjonalista");
+	strcat(s, "Poziom 15 - 19\t\tProfesjonalista");
 	strcat(s, "\n");
-	strcat(s, ""COLOR_GUI"Poziom 20 - 24\t\tMistrz");
+	strcat(s, "Poziom 20 - 24\t\tMistrz");
 	strcat(s, "\n");
-	strcat(s, ""COLOR_GUI"Poziom 25 - 29\t\tInstruktor");
+	strcat(s, "Poziom 25 - 29\t\tInstruktor");
 	strcat(s, "\n");
-	strcat(s, ""COLOR_GUI"Poziom 30 - 34\t\tElita");
+	strcat(s, "Poziom 30 - 34\t\tElita");
 	strcat(s, "\n");
-	strcat(s, ""COLOR_GUI"Poziom 35 - 39\t\tKról szos");
+	strcat(s, "Poziom 35 - 39\t\tKról szos");
 	strcat(s, "\n");
-	strcat(s, ""COLOR_GUI"Poziom 40\t\tLegenda");
-	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", s, (IsPlayerLogged(playerid)) ? ("WyjdŸ") : ("Wstecz"), #);
+	strcat(s, "Poziom 40\t\tLegenda");
+	strcat(s, "\n");
+	strcat(s, " \n");
+	strcat(s, "{b}Poziom 5{/b} - mo¿liwoœc za³o¿enia w³asnego pojazdu.\n");
+	strcat(s, "{b}Poziom 5{/b} - mo¿liwoœc kupna w³asnego domu.\n");
+	strcat(s, "{b}Poziom 10{/b} - mo¿liwoœc za³o¿enia w³asnej firmy.\n");
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", clText(COLOR_INFO2, s), (IsPlayerLogged(playerid)) ? ("WyjdŸ") : ("Wstecz"), #);
 }
 
 CMD:spisfirm(playerid)
 {
-	new s[150];
+	new s[512];
 	strcat(s, ""GCOLOR_YELLOW"Frakcje");
 	strcat(s, "\n");
-	strcat(s, ""COLOR_GUI"Policja\nPogotowie\nPomoc drogowa");
+	strcat(s, ""COLOR_GUI"Policja (ITD)\nPogotowie (JRG)\nPomoc drogowa");
 	strcat(s, "\n \n");
 	strcat(s, ""GCOLOR_YELLOW"Firmy");
 	strcat(s, "\n");
-	strcat(s, ""COLOR_GUI"SM Logistic\nCargo Tranzit\nBuild Trans\nPetrol Tank");
+	for (new i = 4; i < MAX_FIRM; i++)
+	{
+		if (!IsValidFirm(i))
+			continue;
+		format(s, sizeof (s), "%s{%06x}%s\n", s, firmInfo[i][tColor] >>> 8, firmInfo[i][tName]);
+	}
 
-	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", s, "Wstecz", #);
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", s, (IsPlayerLogged(playerid)) ? ("WyjdŸ") : ("Wstecz"), #);
 }
 
 CMD:animacje(playerid, cmdtext[])
@@ -152,7 +162,7 @@ CMD:autor(playerid, params[])
 	return cmd_autorzy(playerid, params);
 
 CMD:autorzy(playerid, params[])
-	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", "Programiœci:\n- Maciek.\n- GeDox\n- Kozak59\n\nBeta-Testerzy:\n- [ST]Kill_Repeat\n- [ST][DJ]Bass\n- [ST]Reiban.\n\nTworzenie obiektów:\n- [ST][DJ]Bass\n- TDi\n- Laud.\n- Muscu\n- Marcin[WGM]\n- PolskiJankes\n- Kierowca\n- Kozak59\n- Devil\n- Mati\n- TRAKER\n- Zeruœ\n- Prezes\n- KillerPL", "Wstecz", #);
+	return Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_MSGBOX, " ", "Programiœci:\n- Maciek.\n- GeDox\n- Kozak59\n\nSzczególna pomoc\n- Rudy.\n\nBeta-Testerzy:\n- [ST]Kill_Repeat\n- [ST][DJ]Bass\n- [ST]Reiban.\n\nTworzenie obiektów:\n- [ST][DJ]Bass\n- TDi\n- Laud.\n- Muscu\n- Marcin[WGM]\n- PolskiJankes\n- Kierowca\n- Kozak59\n- Devil\n- Mati\n- TRAKER\n- Zeruœ\n- Prezes\n- KillerPL", "Wstecz", #);
 
 CMD:tel(playerid, params[])
 	return cmd_telefon(playerid, params);
@@ -331,12 +341,75 @@ CMD:v(playerid, params[])
 	if(!IsPlayerInAnyVehicle(playerid))
 		return ShowInfo(playerid, "Nie jesteœ w ¿adnym pojeŸdzie.");
 
-	format(string, sizeof(string), "Informacje\nMaska ( %s )\nBaga¿nik ( %s )\nZamek ( %s )", bonnet ? ("OTWARTA") : ("ZAMKNIÊTA"), boot ? ("OTWARTY") : ("ZAMKNIÊTY"), doors ? ("OTWARTE") : ("ZAMKNIÊTE"));
-
 	if(!Spawned[vehicleid])
 		strcat(string, "\nZarz¹dzaj");
 
 	Dialog_Show(playerid, DIALOG_ID_VEHICLE, DIALOG_STYLE_LIST, "Pojazd", string, "Ok", "Anuluj");
+	return 1;
+}
+
+CMD:pojazd(playerid)
+{
+	if (!IsPlayerInAnyVehicle(playerid))
+		return Msg(playerid, COLOR_ERROR, "Nie jesteœ w ¿adnym pojeŸdzie.");
+	
+	new szString[256], vehicleid = GetPlayerVehicleID(playerid), engine, lights, alarm, doors ,bonnet, boot, objective;
+
+	GetVehicleParamsEx(vehicleid, engine, lights, alarm, doors, bonnet, boot, objective);
+
+	format(szString, sizeof szString, "{b}%s{/b}\n \nInformacje\nMaska ({b}%s{/b})\nBaga¿nik ({b}%s{/b})\nDrzwi ({b}%s{/b})", 
+		GetVehicleModelName(GetVehicleModel(vehicleid)),
+		(doors) ? ("otwarte") : ("zamkniête"),
+		(bonnet) ? ("otwarta") : ("zamkniêta"),
+		(boot) ? ("otwarty") : ("zamkniêty")
+		);
+
+	if (!Spawned[vehicleid])
+		strcat(szString, "\nZarz¹dzaj");
+
+	return 1;
+}
+
+CMD:majatek(playerid)
+{
+	new szString[256], cars, houses, szTemp[128], Float:pos[3];
+	for (new i = 0; i < MAX_VEHICLES; i++)
+	{
+		if (Spawned[i])
+			continue;
+
+		new tempId = DBVehID[i];
+		if ((vehInfo[tempId][vOwnerType] == OWNER_TYPE_PLAYER) && (vehInfo[tempId][vOwnerID] == playerInfo[playerid][pID]))
+		{
+			cars++;
+			GetVehiclePos(i, pos[0], pos[1], pos[2]);
+			format(szTemp, sizeof szTemp, "%s × {b}%s{/b} w lokalizacji {b}%s{/b}\n", szTemp, GetVehicleModelName(GetVehicleModel(i)), GetPointZone(pos[0], pos[1]));
+		}
+	}
+	if(cars < 1)
+		strcat(szTemp, " × Nie posiadasz ¿adnego pojazdu.");
+	format(szString, sizeof szString, "{b}Pojazdy:{/b}\n%s", szTemp);
+	for (new i = 0; i < MAX_HOUSES; i++)
+	{
+		if (!IsValidHouse(i))
+			continue;
+
+		if (houseInfo[i][hsOwner] == playerInfo[playerid][pID])
+		{
+			houses++;
+			format(szTemp, sizeof szTemp, "%s × Dom w lokalizacji {b}%s{/b}\n", szTemp, GetPointZone(houseInfo[i][hsPos][0], houseInfo[i][hsPos][1]));
+		}
+	}
+	if(houses < 1)
+		format(szTemp, sizeof szTemp, " × Nie posiadasz ¿adnej posiad³oœci.");
+	format(szString, sizeof szString, "{b}Posiad³oœci:{/b}\n%s", szTemp);
+	
+	Dialog_Show(playerid, NEVER_DIALOG, DIALOG_STYLE_LIST, "Lista posiad³osci", clText(COLOR_INFO2, szString), "WyjdŸ", #);
+	return 1;
+}
+
+Dialog:DIALOG_PROPERTIES_(playerid, response, listitem, inputtext[])
+{
 	return 1;
 }
 
@@ -411,7 +484,7 @@ CMD:tachograf(playerid)
 
 CMD:acmd(playerid)
 {
-	if(playerInfo[playerid][pAdmin] < 1)
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	new szString[2000];
@@ -858,7 +931,7 @@ CMD:god(playerid, params[])
 {
 	new targetid, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", targetid))
@@ -876,7 +949,7 @@ CMD:repair(playerid, params[])
 {
 	new targetid, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", targetid))
@@ -925,7 +998,7 @@ CMD:tp(playerid, params[])
 {
 	new targetid, wheplayerid, string[138];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", targetid, wheplayerid))
@@ -973,7 +1046,7 @@ CMD:tp(playerid, params[])
 
 CMD:eye(playerid, params[])
 {
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 1)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(podgladADMIN[playerid])
@@ -1011,7 +1084,7 @@ CMD:setloc(playerid, params[])
 {
 	new string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	savedpos++;
@@ -1036,7 +1109,7 @@ CMD:tploc(playerid, params[])
 	if(sscanf(params, "d", locid))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /tploc [id]");
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(!locid) 
@@ -1070,7 +1143,7 @@ CMD:setscore(playerid, params[])
 {
 	new targetid, score;
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", targetid, score))
@@ -1098,7 +1171,7 @@ CMD:setcash(playerid, params[])
 {
 	new targetid, kasa;
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", targetid, kasa))
@@ -1134,7 +1207,7 @@ CMD:refuelveh(playerid, params[])
 	new targetid, all, string[90];
 	new vehicleid;
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 1)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dD(0)", targetid, all))
@@ -1186,7 +1259,7 @@ CMD:givegun(playerid, params[])
 {
 	new targetid, weapon, all, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "ddD(0)", targetid, weapon, all))
@@ -1231,7 +1304,7 @@ CMD:disarm(playerid, params[])
 {
 	new targetid, all, string[90];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "ddD(0)", targetid, all))
@@ -1262,49 +1335,11 @@ CMD:disarm(playerid, params[])
 	return 1;
 }
 
-CMD:foodall(playerid, params[])
-{
-	new param[30];
-	format(param, sizeof(param), "%d 1", playerid);
-	return cmd_food(playerid, param);
-}
-
-CMD:food(playerid, params[])
-{
-	new targetid, all, string[120];
-
-	if(!playerInfo[playerid][pAdmin])
-		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
-
-	if(sscanf(params, "dD(0)", targetid, all))
-		return Msg(playerid, COLOR_ERROR, "Wpisz: /food [id gracza]");
-
-	if(!IsPlayerConnected(targetid))
-		return Msg(playerid, COLOR_ERROR, "Gracz nie jest pod³¹czony.");
-
-	if(all)
-	{
-
-		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) zmniejszy³ wszystkim g³ód.", PlayerName(playerid), playerid);
-		MsgToAll(COLOR_INFO, string);
-	}
-	else
-	{
-
-		format(string, sizeof(string), "Administrator {b}%s{/b} (ID: {b}%d{/b}) zmniejszy³ Ci g³ód.", PlayerName(playerid), playerid);
-		Msg(targetid, COLOR_INFO, string);
-
-		format(string, sizeof(string), "Zmniejszy³eœ g³ód graczowi {b}%s{/b} (ID: {b}%d{/b}).", PlayerName(targetid), targetid);
-		Msg(playerid, COLOR_INFO, string);
-	}
-	return 1;
-}
-
 CMD:remove(playerid, params[])
 {
 	new targetid, string[100];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", targetid)) 
@@ -1331,7 +1366,7 @@ CMD:createveh(playerid, params[])
 {
 	new vehicleID, vehicleModel, vehicleColor[2], Float:vehiclePos[4], string[60];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(SpawnedAdminVehicles == MAX_ADMIN_VEHICLES)
@@ -1386,7 +1421,7 @@ CMD:destroyveh(playerid, params[])
 {
 	new vehicleID, all, string[60];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dD(0)", vehicleID, all))
@@ -1425,7 +1460,7 @@ CMD:put(playerid, params[])
 {
 	new vehiclePlayerID, secondPlayerID, seat, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "ddd", secondPlayerID, vehiclePlayerID, seat))
@@ -1469,7 +1504,7 @@ CMD:cd(playerid, params[])
 {
 	new string[96], czas;
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
     if(sscanf(params, "dD(0)", czas, gmInfo[gmCountdownFreeze]))
@@ -1505,7 +1540,7 @@ CMD:freeze(playerid, params[])
 {
 	new targetid, all, string[96];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dD(0)", targetid, all))
@@ -1543,7 +1578,7 @@ CMD:unfreeze(playerid, params[])
 {
 	new targetid, all, string[96];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dD(0)", targetid, all))
@@ -1579,7 +1614,7 @@ CMD:killp(playerid, params[])
 {
 	new targetid, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", targetid))
@@ -1600,7 +1635,7 @@ CMD:colorplayer(playerid, params[])
 {
 	new targetid, kolor[16], string[120], colorId;
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 1)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "ds[16]", targetid, kolor))
@@ -1650,7 +1685,7 @@ CMD:dodajadmin(playerid, params[])
 {
 	new targetid, poziom, string[128];
 
-	if(!HasPlayerFullPermission(playerid) && playerInfo[playerid][pAdmin] != 2)
+	if(playerInfo[playerid][pAdmin] != 3)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", targetid, poziom))
@@ -1673,7 +1708,7 @@ CMD:usunadmin(playerid, params[])
 {
 	new targetid, string[128];
 
-	if(!HasPlayerFullPermission(playerid))
+	if(playerInfo[playerid][pAdmin] != 3)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", targetid))
@@ -1716,7 +1751,7 @@ CMD:setname(playerid, params[])
 
 CMD:respawniko(playerid, params[])
 {
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	new bool:Uzywany[MAX_VEHICLES] = false,v;
@@ -1748,7 +1783,7 @@ CMD:respawn(playerid, params[])
 
 CMD:dodajstacje(playerid, params[])
 {
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	new string[128];
@@ -1775,7 +1810,7 @@ CMD:dodajstacje(playerid, params[])
 
 CMD:usunstacje(playerid, params[])
 {
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	new string[132];
@@ -1799,7 +1834,7 @@ CMD:pogoda(playerid, params[])
 {
 	new string[90];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	new weatherid;
@@ -1820,7 +1855,7 @@ CMD:ustawlidera(playerid, params[])
 {
 	new targetid, firmaid, string[100];
 	
-	if(playerInfo[playerid][pAdmin] != 2)
+	if(playerInfo[playerid][pAdmin] < 1)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", targetid, firmaid))
@@ -1831,6 +1866,9 @@ CMD:ustawlidera(playerid, params[])
 
 	if(firmInfo[firmaid][tID] == 0)
 		return Msg(playerid, COLOR_ERROR, "B³êdne ID firmy.");
+
+	if(!IsValidFirm(firmaid))
+		return Msg(playerid, COLOR_ERROR, "Nie odnaleziono takiej firmy.");
 
 	firmInfo[firmaid][tChef] = playerInfo[targetid][pID];
 	playerInfo[targetid][pFirm] = firmaid;
@@ -1889,14 +1927,14 @@ CMD:dodajpracownika(playerid, params[])
 {
 	new targetid, firmaid, string[80];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", targetid, firmaid))
 		return Msg(playerid, COLOR_ERROR, "Wpisz: /dodajpracownika [graczid] [firmaid]");
 
-	if(firmaid > 7 || firmaid < 0)
-		return Msg(playerid, COLOR_ERROR, "ID firmy musi byæ w przedziale 0-7.");
+	if(!IsValidFirm(firmaid))
+		return Msg(playerid, COLOR_ERROR, "Nie odnaleziono firmy.");
 
 	playerInfo[targetid][pFirm] = firmaid;
 
@@ -1912,7 +1950,7 @@ CMD:usunpracownika(playerid, params[])
 {
 	new targetid, string[80];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 2)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", targetid))
@@ -1931,7 +1969,7 @@ CMD:heal(playerid, params[])
 {
 	new targetid, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 1)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", targetid))
@@ -1955,7 +1993,7 @@ CMD:armour(playerid, params[])
 {
 	new targetid, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 1)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "d", targetid))
@@ -1976,7 +2014,7 @@ CMD:setskin(playerid, params[])
 {
 	new targetid, skin, string[128];
 
-	if(!playerInfo[playerid][pAdmin])
+	if(playerInfo[playerid][pAdmin] < 1)
 		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ.");
 
 	if(sscanf(params, "dd", targetid, skin))
@@ -2045,10 +2083,10 @@ CMD:dodajzaladunek(playerid, params[])
 		return Msg(playerid, COLOR_ERROR, "Nie mo¿na dodaæ wiêcej za³adunków.");
 	GetPlayerPos(playerid, loadInfo[load][lX], loadInfo[load][lY], loadInfo[load][lZ]);
 	loadInfo[load][LID] = load; loadInfo[load][lType] = typeid; loadInfo[load][lBaza] = baseid;
-	format(szString, sizeof szString, "INSERT INTO loads (LID, lX, lY, lZ, lType, lBase) VALUES ('null', '%.04f', '%.04f', '%.04f', '%d', '%d')", loadInfo[load][lX], loadInfo[load][lY], loadInfo[load][lZ], typeid, baseid);
+	format(szString, sizeof szString, "INSERT INTO loads (LID, lX, lY, lZ, lType, lBase, lOpen, lClose) VALUES ('null', '%.04f', '%.04f', '%.04f', '%d', '%d', '4', '22')", loadInfo[load][lX], loadInfo[load][lY], loadInfo[load][lZ], typeid, baseid);
 	mysql_query(szString);
 	
-	format(szString, sizeof szString, "Za³adunek towarów {b}%s{/b} w {b}%s{/b} (ID: {b}%d{/b})\nAby za³adowaæ towar wpisz {b}/zaladuj{/b}\nAby roz³adowaæ towar wpisz {b}/rozladuj{/b}", GetLoadTypeName(loadInfo[load][lType]), GetPointZone(loadInfo[load][lX], loadInfo[load][lY]), loadInfo[load][LID]);
+	format(szString, sizeof szString, "Za³adunek towarów {b}%s{/b} w {b}%s{/b} (ID: {b}%d{/b})\nAby za³adowaæ towar wpisz {b}/zaladuj{/b}\nAby roz³adowaæ towar wpisz {b}/rozladuj{/b}\nDok czynny w godzinach {b}%02d:00 - %02d:00{/b}", GetLoadTypeName(loadInfo[load][lType]), GetPointZone(loadInfo[load][lX], loadInfo[load][lY]), loadInfo[load][LID], loadInfo[load][lOpenHour], loadInfo[load][lCloseHour]);
 	loadInfo[load][lText] = CreateDynamic3DTextLabel(clText(COLOR_INFO2, szString), -1, loadInfo[load][lX], loadInfo[load][lY], loadInfo[load][lZ]+1.0, 50.0, INVALID_PLAYER_ID, INVALID_VEHICLE_ID, 1);
 	loadInfo[load][lMapIcon] = CreateDynamicMapIcon(loadInfo[load][lX], loadInfo[load][lY], loadInfo[load][lZ], 51, 0);
 	loadInfo[load][lMapIconForAll] = CreateDynamicMapIcon(loadInfo[load][lX], loadInfo[load][lY], loadInfo[load][lZ], 51, 0, _, _, GetMaxPlayers()+1, 6000.0);
@@ -2135,11 +2173,14 @@ CMD:edytujzaladunek(playerid, params[])
 CMD:za(playerid, params[])
 	return cmd_alogin(playerid, params);
 
+CMD:zs(playerid, params[])
+	return cmd_alogin(playerid, params);
+
 CMD:alogin(playerid, params[])
 {
 	new inputpass[32];
-	if(sscanf(params, "s[32]", inputpass)) return Msg(playerid, COLOR_ERROR, "/(za) - (alogin) [has³o]");
-	if(playerInfo[playerid][pAdmin] > 0) return Msg(playerid, COLOR_INFO, "Jesteœ ju¿ zalogowany jako administrator.");
+	if(sscanf(params, "s[32]", inputpass)) return Msg(playerid, COLOR_ERROR, "/(za / zs) - (alogin) [has³o]");
+	if(playerInfo[playerid][pAdmin] > 0) return Msg(playerid, COLOR_INFO, "Jesteœ ju¿ zalogowany jako administrator / support.");
 
 	if(playerInfo[playerid][pAdminAllowed] < 1)
 	{
@@ -2157,7 +2198,7 @@ CMD:alogin(playerid, params[])
 	{
 		if(!strcmp(inputpass, gmInfo[adminPass], false))
 		{
-			Msg(playerid, COLOR_INFO, "Pomyœlnie zalogowa³eœ siê jako administrator.");
+			Msg(playerid, COLOR_INFO, "Pomyœlnie zalogowa³eœ siê jako administrator / support.");
 			playerInfo[playerid][pAdmin] = playerInfo[playerid][pAdminAllowed];
 			UpdateAdminsOnline();
 		}

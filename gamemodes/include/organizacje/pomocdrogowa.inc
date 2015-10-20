@@ -200,3 +200,29 @@ Dialog:DIALOG_SET_PLATE(playerid, response, listitem, inputtext[])
 
 	return 1;
 }
+
+CMD:liftu(playerid, params[])
+{
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POMOC)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
+
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
+	MoveDynamicObject(gmInfo[lift][0], 1166.7998000, 1943.9004000, 12.3000000, 5.0);
+	Msg(playerid, COLOR_INFO, "Podwy¿anie podnoœnika.");
+	return 1;
+}
+
+CMD:liftd(playerid, params[])
+{
+	if(firmInfo[playerInfo[playerid][pFirm]][tType] != TEAM_TYPE_POMOC)
+		return Msg(playerid, COLOR_ERROR, "Nie masz uprawnieñ");
+
+	if(!GetPVarInt(playerid, "Worked"))
+		return Msg(playerid, COLOR_ERROR, "Musisz byæ na s³u¿bie.");
+
+	MoveDynamicObject(gmInfo[lift][0], 1166.8000000, 1943.9000000, 9.9000000, 5.0);
+	Msg(playerid, COLOR_INFO, "Obni¿anie podnoœnika.");
+	return 1;
+}

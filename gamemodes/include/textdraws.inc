@@ -58,6 +58,7 @@ stock SpectactorTextDraw(playerid, create=false)
 enum Main_TD 
 {
 	Text:Time,
+	Text:Day,
 	Text:TruckerSkins[9]
 }
 
@@ -68,6 +69,14 @@ CreateMainTextDraws(create)
 {
 	if(create)
 	{
+		MainTextDraws[Day] = TextDrawCreate(547.000000, 13.000000, "pn");
+		TextDrawBackgroundColor(MainTextDraws[Day], 125);
+		TextDrawFont(MainTextDraws[Day], 3);
+		TextDrawLetterSize(MainTextDraws[Day], 0.500000, 1.000000);
+		TextDrawColor(MainTextDraws[Day], -1);
+		TextDrawSetOutline(MainTextDraws[Day], 1);
+		TextDrawSetProportional(MainTextDraws[Day], 1);
+
 		MainTextDraws[Time] = TextDrawCreate(572.000000, 22.000000, "23:59");
 		TextDrawAlignment(MainTextDraws[Time], 2);
 		TextDrawBackgroundColor(MainTextDraws[Time], 65);

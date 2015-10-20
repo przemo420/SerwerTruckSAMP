@@ -35,14 +35,14 @@ public Wypadek()
 
 			GetVehicleHealth(i, NoweHPPojazdu[i]);
 
-			if((StareHPPojazdu[i] - NoweHPPojazdu[i]) >= 40.0)
+			if((StareHPPojazdu[i] - NoweHPPojazdu[i]) >= 30.0)
 			{
 				new cargoVehicle = IsVehicleTruck(GetVehicleModel(i)) ? GetVehicleTrailer(i) : i;
 				if(vloadInfo[cargoVehicle][vLoaded] == true)
 				{
-					if((StareHPPojazdu[i] - NoweHPPojazdu[i]) >= 25.0)
+					if((StareHPPojazdu[i] - NoweHPPojazdu[i]) >= 30.0)
 					{
-						cargoHealth[cargoVehicle] -= (StareHPPojazdu[i] - NoweHPPojazdu[i])/1.2;
+						cargoHealth[cargoVehicle] -= ((StareHPPojazdu[i] - NoweHPPojazdu[i])/1.2);
 						if(cargoHealth[cargoVehicle] < 0.0)
 							cargoHealth[cargoVehicle] = 0.0;
 					}
