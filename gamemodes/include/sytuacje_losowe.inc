@@ -40,6 +40,7 @@ public Zaslabniecie(playerid)
 		return 0;
 
 	TogglePlayerControllable(playerid, true);
+	DeletPVar(playerid, "zaslabl");
 	Msg(playerid, COLOR_INFO, "Odzyska³eœ si³y, lepiej nie wsiadaj za kó³ko.");
 	return 1;
 }
