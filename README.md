@@ -1,13 +1,13 @@
 # OWNERS #
 
-main()
-{
+main(){
+
 	print("\n----------------------------------");
 	print(" ProjectTruck.pl (c) 2015");
 	print(" By: Maciek (base)");
 	print(" GeDox, Kozak59 - upgrading");
 	print(" GameMode Owners - GeDox & Kozak59");
-	print("----------------------------------\n");
+	print("----------------------------------\n");	
 }
 
 # INFO #
